@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { coursesData as initialCoursesData } from '../../../../src/data/coursesData';
 import { Domain, Course, CourseModule } from '../../../../src/types/courses';
-import { PlusCircle, Edit, Trash2, ChevronDown, ChevronRight, X, Link, KeyRound, Download } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, ChevronDown, ChevronRight, X, Link, KeyRound } from 'lucide-react';
 
 const FreeCoursesManager: React.FC = () => {
     const [domains, setDomains] = useState<Domain[]>(initialCoursesData.domains);

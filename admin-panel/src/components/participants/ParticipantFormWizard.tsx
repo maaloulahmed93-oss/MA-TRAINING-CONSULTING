@@ -20,7 +20,7 @@ import {
 import { Participant } from "../../types/participant";
 
 // Import step components
-import PersonalInfoStep from "./steps/PersonalInfoStep";
+// import PersonalInfoStep from "./steps/PersonalInfoStep";
 import AddressInfoStep from "./steps/AddressInfoStep";
 import EmergencyContactStep from "./steps/EmergencyContactStep";
 import EducationInfoStep from "./steps/EducationInfoStep";
@@ -191,11 +191,14 @@ const ParticipantFormWizard: React.FC<ParticipantFormWizardProps> = ({
       setAdministrativeInfo((prev) => ({
         ...prev,
         status: initialData.status,
+        enrollmentDate: prev.enrollmentDate,
         notes: initialData.notes || "",
         formations: initialData.formations.map((f) => f.title) || [],
         projects: initialData.projects.map((p) => p.title) || [],
         coachingResources:
           initialData.coachingResources.map((r) => r.title) || [],
+        specialNeeds: prev.specialNeeds,
+        medicalConditions: prev.medicalConditions,
       }));
     }
   }, [initialData]);
@@ -411,7 +414,7 @@ Conditions médicales: ${administrativeInfo.medicalConditions}`,
     switch (currentStep) {
       case 0:
         return (
-          <PersonalInfoStep
+          <PersonalInfoStepLocal
             personalInfo={personalInfo}
             setPersonalInfo={setPersonalInfo}
           />
@@ -589,7 +592,7 @@ Conditions médicales: ${administrativeInfo.medicalConditions}`,
 };
 
 // Step Components will be defined separately
-const PersonalInfoStep: React.FC<{
+const PersonalInfoStepLocal: React.FC<{
   personalInfo: PersonalInfo;
   setPersonalInfo: React.Dispatch<React.SetStateAction<PersonalInfo>>;
 }> = ({ personalInfo, setPersonalInfo }) => {

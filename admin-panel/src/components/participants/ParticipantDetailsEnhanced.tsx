@@ -17,7 +17,7 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
-  ArrowTopRightOnSquareIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { Participant } from '../../types/participant';
 
@@ -444,8 +444,8 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
                           {notification.salary && (
                             <div><span className="font-medium">Salaire:</span> {notification.salary}</div>
                           )}
-                          {notification.contract && (
-                            <div><span className="font-medium">Contrat:</span> {notification.contract}</div>
+                          {notification.contact && (
+                            <div><span className="font-medium">Contact:</span> {notification.contact}</div>
                           )}
                         </div>
                       </div>
