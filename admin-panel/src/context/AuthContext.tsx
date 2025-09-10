@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useEffect } from 'react';
-import { User, AuthState, LoginCredentials, AuthContextType } from '../../../src/types';
+import { User, AuthContextType, LoginCredentials } from '../types';
 
 /**
  * Authentication Context for managing user authentication state
@@ -15,6 +15,12 @@ type AuthAction =
   | { type: 'LOGIN_FAILURE' }
   | { type: 'LOGOUT' }
   | { type: 'RESTORE_SESSION'; payload: User };
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {

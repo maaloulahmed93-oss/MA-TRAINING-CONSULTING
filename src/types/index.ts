@@ -1,27 +1,41 @@
 // Core application types
 export interface User {
-  id: string;
-  name: string;
   email: string;
-  role?: string;
-  createdAt?: Date;
-  lastLogin?: Date;
+  role: string;
 }
 
-export interface AuthState {
-  isAuthenticated: boolean;
+export interface AuthContextType {
   user: User | null;
-  isLoading?: boolean;
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (email: string, password: string) => boolean;
   logout: () => void;
+}
+
+export interface ParticipantStats {
+  total: number;
+  completed: number;
+  inProgress: number;
+  dropped?: number;
+}
+
+export interface Notification {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'info';
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+}
+
+export interface Pack {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+}
+
+export interface Session {
+  id: string;
+  topic: string;
+  date: string;
+  duration: number;
 }
 
 // Re-export specific types to avoid conflicts
@@ -33,9 +47,7 @@ export type {
   Project, 
   ProjectFile, 
   CoachingResource, 
-  Notification, 
-  FAQ, 
-  ParticipantStats 
+  FAQ
 } from './participant';
 export * from './freelancer';
 export * from './trainer';
