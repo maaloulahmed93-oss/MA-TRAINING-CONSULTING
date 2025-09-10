@@ -1,0 +1,69 @@
+/* Styles personnalisés pour la section événements */
+
+.event-table-container {
+  @apply bg-white rounded-2xl shadow-xl overflow-hidden;
+}
+
+.event-table-header {
+  @apply bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-200;
+}
+
+.event-row {
+  @apply p-6 hover:bg-gray-50 transition-colors duration-200;
+}
+
+.event-date {
+  @apply bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium;
+}
+
+.event-duration {
+  @apply bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm font-medium;
+}
+
+.event-action-button {
+  @apply bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-full hover:shadow-lg transition-all duration-200;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+/* Animations personnalisées */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Styles pour les barres de progression */
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-fill {
+  @apply h-2 rounded-full transition-all duration-500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .event-table-container {
+    @apply mx-2;
+  }
+  
+  .event-table-header,
+  .event-row {
+    @apply px-4 py-4;
+  }
+  
+  .event-date,
+  .event-duration {
+    @apply px-2 py-1 text-xs;
+  }
+}

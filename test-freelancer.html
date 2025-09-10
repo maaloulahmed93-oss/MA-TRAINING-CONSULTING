@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Freelancer Page</title>
+</head>
+<body>
+    <h1>Testing Freelancer Page Access</h1>
+    <p>If you can see this, the server is working.</p>
+    <a href="http://localhost:5173/espace-freelancer" target="_blank">Test Freelancer Page</a>
+    
+    <script>
+        console.log('Test page loaded');
+        
+        // Test direct navigation
+        setTimeout(() => {
+            console.log('Attempting to navigate to freelancer page...');
+            window.location.href = 'http://localhost:5173/espace-freelancer';
+        }, 2000);
+    </script>
+</body>
+</html>

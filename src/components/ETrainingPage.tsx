@@ -1,0 +1,1525 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import {
+  ArrowLeft,
+  Users,
+  Shield,
+  Lightbulb,
+  CheckCircle,
+  Award,
+  MessageCircle,
+  Clock,
+  Target,
+  BookOpen,
+  Video,
+  UserCheck,
+  TrendingUp,
+  Briefcase,
+  Code,
+  Filter,
+  Search,
+  X,
+  ChevronRight,
+  Globe,
+  Mail,
+} from "lucide-react";
+import CertificateVerification from "./CertificateVerification";
+import FreeCourseModal from "./FreeCourseModal";
+import ProgramRegistrationModal from "./ProgramRegistrationModal";
+import ProgramCard from "./ProgramCard";
+import ThemePackSection from "./ThemePackSection";
+import CurrencySelector from "./CurrencySelector";
+import InteractiveQCMModal from "./InteractiveQCMModal";
+import { trainingPrograms, Program } from "../data/trainingPrograms";
+import { themePacks } from "../data/themePacks";
+
+interface ETrainingPageProps {
+  onBack: () => void;
+}
+
+const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
+  const navigate = useNavigate();
+  const [showUnifiedCatalogModal, setShowUnifiedCatalogModal] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showCertificateVerification, setShowCertificateVerification] =
+    useState(false);
+  const [showFreeCourseModal, setShowFreeCourseModal] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [durationFilter, setDurationFilter] = useState<string[]>([]);
+  const [ratingFilter, setRatingFilter] = useState(0);
+  const [showProgramModal, setShowProgramModal] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("€");
+
+  // Fonction pour gérer l'ouverture du modal d'inscription
+  const handleProgramRegistration = (program: Program) => {
+    setSelectedProgram(program);
+    setShowProgramModal(true);
+  };
+
+  // Interface pour les éléments du catalogue unifié
+  interface CatalogItem {
+    id: string;
+    name: string;
+    type: "pack" | "programme";
+    category: string;
+    price: number;
+    originalPrice?: number;
+    savings?: number;
+    description: string;
+    level?: string;
+    duration?: string;
+    instructor?: string;
+    themes?: number;
+    modules?: number;
+  }
+
+  // Fonction pour créer le catalogue unifié
+  const createUnifiedCatalog = (): CatalogItem[] => {
+    const catalogItems: CatalogItem[] = [];
+
+    // Ajouter les packs
+    themePacks.forEach((pack) => {
+      catalogItems.push({
+        id: `pack-${pack.packId}`,
+        name: pack.name,
+        type: "pack",
+        category: pack.name.includes("Marketing")
+          ? "Marketing"
+          : pack.name.includes("Développement")
+          ? "Technologies"
+          : pack.name.includes("Data Science")
+          ? "Data Science"
+          : pack.name.includes("Design")
+          ? "Design"
+          : "Business",
+        price: pack.details.price,
+        originalPrice: pack.details.originalPrice,
+        savings: pack.details.savings,
+        description: pack.description,
+        themes: pack.details.themes.length,
+      });
+    });
+
+    // Ajouter les programmes
+    trainingPrograms.forEach((program) => {
+      catalogItems.push({
+        id: `programme-${program.id}`,
+        name: program.title,
+        type: "programme",
+        category: program.category,
+        price: program.price || 0,
+        description: program.description,
+        level: program.level,
+        duration: program.duration,
+        instructor: program.instructor,
+        modules: program.modules.length,
+      });
+    });
+
+    // Trier par catégorie puis par prix
+    return catalogItems.sort((a, b) => {
+      if (a.category !== b.category) {
+        return a.category.localeCompare(b.category);
+      }
+      return a.price - b.price;
+    });
+  };
+
+  // Fonction pour gérer la sélection d'un élément du catalogue
+  const handleUnifiedCatalogItemSelection = (item: CatalogItem) => {
+    // Fermer le modal
+    setShowUnifiedCatalogModal(false);
+
+    // Attendre un peu pour que le modal se ferme
+    setTimeout(() => {
+      let targetElement: HTMLElement | null = null;
+
+      if (item.type === "pack") {
+        // Chercher l'élément pack correspondant
+        const packId = item.id.replace("pack-", "");
+        targetElement = document.querySelector(
+          `[data-pack-id="${packId}"]`
+        ) as HTMLElement;
+
+        // Si pas trouvé, chercher la section des packs
+        if (!targetElement) {
+          targetElement = document.getElementById("packs-section");
+        }
+      } else {
+        // Chercher l'élément programme correspondant
+        const programId = item.id.replace("programme-", "");
+        targetElement = document.querySelector(
+          `[data-program-id="${programId}"]`
+        ) as HTMLElement;
+
+        // Si pas trouvé, chercher la section des programmes
+        if (!targetElement) {
+          targetElement = document.getElementById("programs-section");
+        }
+      }
+
+      if (targetElement) {
+        // Faire défiler vers l'élément
+        targetElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        // Ajouter un effet de surbrillance temporaire
+        targetElement.style.transition = "all 0.3s ease";
+        targetElement.style.boxShadow = "0 0 20px rgba(59, 130, 246, 0.5)";
+        targetElement.style.transform = "scale(1.02)";
+
+        // Retirer l'effet après 3 secondes
+        setTimeout(() => {
+          targetElement!.style.boxShadow = "";
+          targetElement!.style.transform = "";
+        }, 3000);
+      }
+    }, 300);
+  };
+
+  // Hero Section Data
+  const heroCards = [
+    {
+      icon: Users,
+      title: "Espace Participant",
+      subtitle: "Accédez à vos formations",
+      buttonText: "Accéder maintenant",
+      color: "blue",
+    },
+    {
+      icon: Shield,
+      title: "Vérifier Attestation",
+      subtitle: "Validez vos certificats",
+      buttonText: "Vérifier maintenant",
+      color: "purple",
+    },
+    {
+      icon: Lightbulb,
+      title: "Cours Gratuit",
+      subtitle: "Initiation offerte",
+      buttonText: "Commencer gratuitement",
+      color: "yellow",
+    },
+  ];
+
+  // Stats Data
+  const stats = [
+    {
+      icon: Users,
+      number: "5,000+",
+      label: "Participants actifs",
+      color: "blue",
+    },
+    {
+      icon: TrendingUp,
+      number: "200+",
+      label: "Classes virtuelles/mois",
+      color: "purple",
+    },
+    {
+      icon: UserCheck,
+      number: "98%",
+      label: "Taux de satisfaction",
+      color: "green",
+    },
+    {
+      icon: Clock,
+      number: "24/7",
+      label: "Support disponible",
+      color: "orange",
+    },
+  ];
+
+  // Pillars Data
+  const pillars = [
+    {
+      icon: Video,
+      title: "Classes interactives en direct",
+      description:
+        "Sessions live avec interaction temps réel et engagement maximum",
+      color: "blue",
+    },
+    {
+      icon: Target,
+      title: "Coaching individuel personnalisé",
+      description:
+        "Accompagnement sur-mesure adapté à vos objectifs professionnels",
+      color: "purple",
+    },
+    {
+      icon: Briefcase,
+      title: "Ateliers pratiques et concrets",
+      description:
+        "Mise en pratique immédiate avec des projets réels du marché",
+      color: "green",
+    },
+    {
+      icon: TrendingUp,
+      title: "Consulting stratégique par des experts",
+      description:
+        "Conseils d'experts reconnus pour accélérer votre croissance",
+      color: "orange",
+    },
+  ];
+
+  // Journey Steps
+  const journeySteps = [
+    {
+      step: 1,
+      icon: BookOpen,
+      title: "Contenu de base",
+      description:
+        "Acquisition des fondamentaux théoriques et concepts clés de votre domaine",
+      color: "blue",
+    },
+    {
+      step: 2,
+      icon: Video,
+      title: "Ateliers en direct",
+      description:
+        "Sessions interactives live avec nos experts pour approfondir vos connaissances",
+      color: "purple",
+    },
+    {
+      step: 3,
+      icon: Code,
+      title: "Applications pratiques",
+      description:
+        "Mise en pratique immédiate avec des projets concrets et cas d'usage réels",
+      color: "green",
+    },
+    {
+      step: 4,
+      icon: CheckCircle,
+      title: "Évaluations continues",
+      description:
+        "Suivi personnalisé de vos progrès avec feedback constructif et adaptatif",
+      color: "orange",
+    },
+    {
+      step: 5,
+      icon: Users,
+      title: "Coaching personnalisé",
+      description:
+        "Accompagnement individuel pour optimiser votre parcours et atteindre vos objectifs",
+      color: "pink",
+    },
+  ];
+
+  // Benefits Data
+  const benefits = [
+    {
+      icon: Award,
+      title: "Attestation d'expertise",
+      description:
+        "Obtenez des attestations d'expertise reconnues par l'industrie pour valoriser votre profil professionnel",
+    },
+    {
+      icon: Mail,
+      title: "Lettre de recommandation",
+      description:
+        "Recevez une lettre personnalisée de nos experts pour appuyer vos candidatures",
+    },
+    {
+      icon: Globe,
+      title: "Accès au réseau d'experts",
+      description:
+        "Intégrez notre communauté exclusive de professionnels et développez votre réseau",
+    },
+    {
+      icon: TrendingUp,
+      title: "Priorité aux opportunités",
+      description:
+        "Bénéficiez d'un accès privilégié aux offres d'emploi et missions de nos partenaires",
+    },
+  ];
+
+  // Programs Data
+  const programs = [
+    {
+      id: 1,
+      title: "Développement Web Full-Stack",
+      subtitle:
+        "Maîtrisez React, Node.js et les bases de données pour créer des applications complètes",
+      category: "Technologies",
+      level: "Intermédiaire",
+      duration: "12 semaines",
+      price: "2400 DT",
+      originalPrice: "3000 DT",
+      discount: "-20%",
+      rating: 4.8,
+      students: 1247,
+      skills: [
+        "API REST avec Node.js",
+        "Base de données MongoDB",
+        "Déploiement sur AWS",
+      ],
+      color: "blue",
+      popular: true,
+    },
+    {
+      id: 2,
+      title: "Marketing Digital & Growth Hacking",
+      subtitle:
+        "Stratégies marketing modernes pour faire croître votre business en ligne",
+      category: "Marketing",
+      level: "Intermédiaire",
+      duration: "8 semaines",
+      price: "1800 DT",
+      originalPrice: "2200 DT",
+      discount: "-18%",
+      rating: 4.9,
+      students: 892,
+      skills: [
+        "SEO et référencement naturel",
+        "Publicité Facebook et Google Ads",
+        "Email marketing et automation",
+      ],
+      color: "pink",
+      popular: false,
+    },
+    {
+      id: 3,
+      title: "Data Science & Intelligence Artificielle",
+      subtitle:
+        "Analysez les données et créez des modèles prédictifs avec Python et Machine Learning",
+      category: "Data Science",
+      level: "Avancé",
+      duration: "16 semaines",
+      price: "2800 DT",
+      originalPrice: "3500 DT",
+      discount: "-20%",
+      rating: 4.7,
+      students: 634,
+      skills: [
+        "Python pour Data Science",
+        "Machine Learning avancé",
+        "Deep Learning et réseaux de neurones",
+      ],
+      color: "green",
+      popular: false,
+    },
+    {
+      id: 4,
+      title: "UX/UI Design & Prototypage",
+      subtitle:
+        "Créez des interfaces utilisateur exceptionnelles et des expériences UX optimales",
+      category: "Design",
+      level: "Débutant",
+      duration: "10 semaines",
+      price: "2000 DT",
+      originalPrice: "2500 DT",
+      discount: "-20%",
+      rating: 4.6,
+      students: 756,
+      skills: [
+        "Design d'interface avec Figma",
+        "Recherche utilisateur",
+        "Prototypage interactif",
+      ],
+      color: "purple",
+      popular: false,
+    },
+    {
+      id: 5,
+      title: "Coaching Business - Entrepreneuriat Digital",
+      subtitle:
+        "Développez votre business en ligne avec des stratégies éprouvées et un accompagnement personnalisé",
+      category: "Business",
+      level: "Tous niveaux",
+      duration: "12 semaines",
+      price: "2200 DT",
+      originalPrice: "2800 DT",
+      discount: "-21%",
+      rating: 4.8,
+      students: 423,
+      skills: [
+        "Stratégie d'entreprise numérique",
+        "Financement et levée de fonds",
+        "Analyse prédictive business",
+      ],
+      color: "orange",
+      popular: false,
+    },
+    {
+      id: 6,
+      title: "DevOps & Cloud Computing",
+      subtitle:
+        "Administration, déploiement et gestion d'infrastructure cloud moderne",
+      category: "Technologies",
+      level: "Avancé",
+      duration: "14 semaines",
+      price: "2600 DT",
+      originalPrice: "3200 DT",
+      discount: "-19%",
+      rating: 4.9,
+      students: 387,
+      skills: [
+        "Docker et conteneurisation",
+        "Kubernetes et orchestration",
+        "CI/CD avec Jenkins",
+      ],
+      color: "blue",
+      popular: false,
+    },
+  ];
+
+  const categories = [
+    "Tous",
+    "Technologies",
+    "Marketing",
+    "Data Science",
+    "Design",
+    "Business",
+  ];
+  const levels = ["Tous niveaux", "Débutant", "Intermédiaire", "Avancé"];
+  const durations = [
+    "Moins de 8 semaines",
+    "8-12 semaines",
+    "12-16 semaines",
+    "Plus de 16 semaines",
+  ];
+
+  const filteredPrograms = programs.filter((program) => {
+    const matchesSearch =
+      program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      program.subtitle.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilters =
+      selectedFilters.length === 0 ||
+      selectedFilters.includes(program.category) ||
+      selectedFilters.includes(program.level);
+
+    // Price filter
+    const programPrice = parseInt(program.price.replace(" DT", ""));
+    const matchesPrice =
+      programPrice >= priceRange[0] && programPrice <= priceRange[1];
+
+    // Duration filter
+    const matchesDuration =
+      durationFilter.length === 0 ||
+      durationFilter.some((duration) => {
+        const weeks = parseInt(program.duration.split(" ")[0]);
+        switch (duration) {
+          case "Moins de 8 semaines":
+            return weeks < 8;
+          case "8-12 semaines":
+            return weeks >= 8 && weeks <= 12;
+          case "12-16 semaines":
+            return weeks >= 12 && weeks <= 16;
+          case "Plus de 16 semaines":
+            return weeks > 16;
+          default:
+            return true;
+        }
+      });
+
+    // Rating filter
+    const matchesRating = ratingFilter === 0 || program.rating >= ratingFilter;
+
+    return (
+      matchesSearch &&
+      matchesFilters &&
+      matchesPrice &&
+      matchesDuration &&
+      matchesRating
+    );
+  });
+
+  const toggleFilter = (filter: string) => {
+    setSelectedFilters((prev) =>
+      prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter]
+    );
+  };
+
+  const toggleDurationFilter = (duration: string) => {
+    setDurationFilter((prev) =>
+      prev.includes(duration)
+        ? prev.filter((d) => d !== duration)
+        : [...prev, duration]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedFilters([]);
+    setSearchTerm("");
+    setPriceRange([0, 5000]);
+    setDurationFilter([]);
+    setRatingFilter(0);
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Back Button */}
+      <div className="container mx-auto px-6 pt-8">
+        <button
+          onClick={onBack}
+          className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Retour</span>
+        </button>
+      </div>
+
+      {/* Hero Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Content */}
+              <div>
+                <h1 className="font-display text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                  Boostez{" "}
+                  <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    votre carrière
+                  </span>{" "}
+                  avec un accompagnement sur-mesure
+                </h1>
+
+                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                  <span className="text-blue-600 font-semibold">
+                    Coaching personnalisé
+                  </span>{" "}
+                  •
+                  <span className="text-purple-600 font-semibold">
+                    {" "}
+                    Expertise à la demande
+                  </span>{" "}
+                  •
+                  <span className="text-orange-600 font-semibold">
+                    {" "}
+                    Suivi sur-mesure
+                  </span>
+                </p>
+
+                {/* Hero Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {heroCards.map((card, index) => (
+                    <div
+                      key={index}
+                      className="navigation-card group cursor-pointer"
+                      onClick={() => {
+                        if (card.title === "Espace Participant") {
+                          navigate("/espace-participant");
+                        } else if (card.title === "Vérifier Attestation") {
+                          setShowCertificateVerification(true);
+                        } else if (card.title === "Cours Gratuit") {
+                          setShowFreeCourseModal(true);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`navigation-card-icon bg-gradient-to-br ${
+                          card.color === "blue"
+                            ? "from-blue-500 to-blue-700"
+                            : card.color === "purple"
+                            ? "from-purple-500 to-purple-700"
+                            : "from-yellow-500 to-yellow-700"
+                        }`}
+                      >
+                        <card.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                          {card.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-3">
+                          {card.subtitle}
+                        </p>
+                        <button className="navigation-card-button text-sm">
+                          <span>{card.buttonText}</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right - Virtual Class Interface */}
+              <div className="relative">
+                <div className="bg-gray-900 rounded-2xl p-6 shadow-2xl">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-white font-bold text-lg">
+                      Formation Marketing Digital
+                    </h3>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-red-400 font-bold text-sm">
+                        REC
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Instructor */}
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-gray-900">
+                        M
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold">MAALOUL AHMED</h4>
+                        <p className="text-blue-200 text-sm">
+                          🎯 Expert Marketing • 15 ans d'expérience
+                        </p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-green-300 text-xs">
+                            Partage d'écran actif
+                          </span>
+                          <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold ml-2">
+                            LIVE
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Participants */}
+                  <div className="space-y-2 mb-6">
+                    <div className="bg-purple-600 rounded-lg p-3 flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        M
+                      </div>
+                      <span className="text-white font-medium">Marie D.</span>
+                    </div>
+                    <div className="bg-teal-600 rounded-lg p-3 flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-teal-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        P
+                      </div>
+                      <span className="text-white font-medium">Pierre L.</span>
+                    </div>
+                    <div className="bg-pink-600 rounded-lg p-3 flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        S
+                      </div>
+                      <span className="text-white font-medium">Sophie R.</span>
+                    </div>
+                  </div>
+
+                  {/* Chat */}
+                  <div className="bg-gray-800 rounded-lg p-4 mb-6">
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-2">
+                        <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-xs font-bold text-gray-900">
+                          M
+                        </div>
+                        <div>
+                          <p className="text-white text-sm">
+                            <span className="font-bold">MAALOUL AHMED:</span>{" "}
+                            Avez-vous des questions sur cette stratégie ?
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                          M
+                        </div>
+                        <div>
+                          <p className="text-white text-sm">
+                            <span className="font-bold">Marie:</span> Oui,
+                            comment mesurer le ROI ?
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                          P
+                        </div>
+                        <div>
+                          <p className="text-white text-sm">
+                            <span className="font-bold">Pierre:</span>{" "}
+                            Excellente question Marie ! 👍
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700">
+                      <div className="flex items-center space-x-4 text-gray-400 text-sm">
+                        <div className="flex items-center space-x-1">
+                          <Users className="w-4 h-4" />
+                          <span>24 participants</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MessageCircle className="w-4 h-4" />
+                          <span>12 questions</span>
+                        </div>
+                      </div>
+                      <button className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Session Interactive
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Progress Cards */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-purple-600 rounded-lg p-3 text-center">
+                      <BookOpen className="w-6 h-6 text-white mx-auto mb-2" />
+                      <div className="text-white font-bold text-lg">12/15</div>
+                      <div className="text-purple-200 text-xs">Cours</div>
+                    </div>
+                    <div className="bg-orange-600 rounded-lg p-3 text-center">
+                      <Target className="w-6 h-6 text-white mx-auto mb-2" />
+                      <div className="text-white font-bold text-lg">8/10</div>
+                      <div className="text-orange-200 text-xs">Objectifs</div>
+                    </div>
+                    <div className="bg-green-600 rounded-lg p-3 text-center">
+                      <Award className="w-6 h-6 text-white mx-auto mb-2" />
+                      <div className="text-white font-bold text-lg">3</div>
+                      <div className="text-green-200 text-xs">Attestations</div>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white text-sm font-medium">
+                        Progression:
+                      </span>
+                      <span className="text-white text-sm font-bold">
+                        80% complété
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-3">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full"
+                        style={{ width: "80%" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats & Approach Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Notre Approche{" "}
+                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  &
+                </span>{" "}
+                Nos Valeurs
+              </h2>
+              <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+                Apprentissage interactif et personnalisé pour une transformation
+                professionnelle réussie
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+              {stats.map((stat, index) => (
+                <div key={index} className="key-point-card text-center">
+                  <div
+                    className={`key-point-icon mx-auto bg-gradient-to-br ${
+                      stat.color === "blue"
+                        ? "from-blue-500 to-blue-700"
+                        : stat.color === "purple"
+                        ? "from-purple-500 to-purple-700"
+                        : stat.color === "green"
+                        ? "from-green-500 to-green-700"
+                        : "from-orange-500 to-orange-700"
+                    }`}
+                  >
+                    <stat.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    {stat.number}
+                  </div>
+                  <div className="text-gray-600">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pillars */}
+            <div className="mb-16">
+              <h3 className="font-display text-2xl font-bold text-gray-900 mb-8 text-center">
+                Nos Piliers
+              </h3>
+              <p className="text-gray-600 text-center mb-12">
+                Les fondements de notre excellence pédagogique
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {pillars.map((pillar, index) => (
+                  <div key={index} className="services-card text-center">
+                    <div
+                      className={`services-icon mx-auto bg-gradient-to-br ${
+                        pillar.color === "blue"
+                          ? "from-blue-500 to-blue-700"
+                          : pillar.color === "purple"
+                          ? "from-purple-500 to-purple-700"
+                          : pillar.color === "green"
+                          ? "from-green-500 to-green-700"
+                          : "from-orange-500 to-orange-700"
+                      }`}
+                    >
+                      <pillar.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 mb-3">
+                      {pillar.title}
+                    </h4>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {pillar.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Journey Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Parcours Structuré
+              </h2>
+              <p className="text-xl text-gray-600">
+                Un apprentissage progressif et méthodique pour garantir votre
+                réussite
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+              {journeySteps.map((step, index) => (
+                <div key={index} className="relative">
+                  <div
+                    className={`testimonial-card text-center ${
+                      step.step === 3 ? "ring-2 ring-blue-500" : ""
+                    }`}
+                  >
+                    <div
+                      className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br ${
+                        step.color === "blue"
+                          ? "from-blue-500 to-blue-700"
+                          : step.color === "purple"
+                          ? "from-purple-500 to-purple-700"
+                          : step.color === "green"
+                          ? "from-green-500 to-green-700"
+                          : step.color === "orange"
+                          ? "from-orange-500 to-orange-700"
+                          : "from-pink-500 to-pink-700"
+                      }`}
+                    >
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold text-gray-900 text-sm shadow-lg">
+                        {step.step}
+                      </div>
+                      <step.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-3">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                  {index < journeySteps.length - 1 && (
+                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
+                      <ChevronRight className="w-6 h-6 text-blue-400" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Vos{" "}
+                <span className="text-gradient bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                  Résultats
+                </span>{" "}
+                & Avantages ⭐
+              </h2>
+              <p className="text-xl text-gray-600">
+                Des bénéfices concrets et durables pour accélérer votre
+                évolution professionnelle
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="navigation-card text-center">
+                  <div className="navigation-card-icon bg-gradient-to-br from-yellow-500 to-orange-600 mx-auto">
+                    <benefit.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-gray-900 mb-3">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {benefit.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-16"
+            >
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Découvrez les{" "}
+                <span className="text-gradient bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
+                  réussites
+                </span>{" "}
+                de nos participants
+              </h2>
+              <p className="text-xl text-gray-600">
+                Des transformations professionnelles inspirantes qui témoignent
+                de l'efficacité de notre approche
+              </p>
+            </motion.div>
+
+            {/* Carousel des témoignages */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                spaceBetween={24}
+                slidesPerView={1}
+                navigation={{
+                  nextEl: ".swiper-button-next-custom",
+                  prevEl: ".swiper-button-prev-custom",
+                }}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                }}
+                autoplay={{
+                  delay: 4000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }}
+                loop={true}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                  },
+                  768: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 24,
+                  },
+                }}
+                className="testimonials-swiper"
+              >
+                {[
+                  {
+                    id: 1,
+                    name: "Sarah Benlahsen",
+                    position: "DevOps",
+                    domain: "React, Node.js",
+                    mainSkill: "Développement Full-Stack",
+                    level: "Expert 100%",
+                    testimonial:
+                      "Grâce à VirtualClass Pro, j'ai pu maîtriser les technologies modernes et décrocher un poste de Lead Developer...",
+                  },
+                  {
+                    id: 2,
+                    name: "Mohamed Alami",
+                    position: "Business",
+                    domain: "Leadership, Management",
+                    mainSkill: "Leadership stratégique",
+                    level: "Avancé 75%",
+                    testimonial:
+                      "L'approche personnalisée et l'expertise des formateurs m'ont permis de développer mes compétences en leadership...",
+                  },
+                  {
+                    id: 3,
+                    name: "Fatima Zahra",
+                    position: "Analytics",
+                    domain: "Data Science, Python",
+                    mainSkill: "Analyse prédictive",
+                    level: "Expert 100%",
+                    testimonial:
+                      "Remarquable réussite avec la Data Science ! Les cours étaient parfaitement structurés...",
+                  },
+                  {
+                    id: 4,
+                    name: "Youssef Amrani",
+                    position: "UI/UX Designer",
+                    domain: "Figma, Design Thinking",
+                    mainSkill: "Conception UI/UX",
+                    level: "Avancé 75%",
+                    testimonial:
+                      "J'ai appris à créer des interfaces modernes et ergonomiques qui améliorent l'expérience utilisateur...",
+                  },
+                  {
+                    id: 5,
+                    name: "Imane Khoury",
+                    position: "Cloud Engineer",
+                    domain: "AWS, Kubernetes",
+                    mainSkill: "Architecture Cloud",
+                    level: "Expert 100%",
+                    testimonial:
+                      "Grâce aux projets pratiques, j'ai pu obtenir ma certification AWS Solutions Architect...",
+                  },
+                  {
+                    id: 6,
+                    name: "Hichem Mansouri",
+                    position: "Marketing Digital",
+                    domain: "SEO, SEA",
+                    mainSkill: "Stratégie marketing",
+                    level: "Intermédiaire 50%",
+                    testimonial:
+                      "J'ai pu mettre en place des campagnes performantes qui ont doublé le trafic qualifié...",
+                  },
+                  {
+                    id: 7,
+                    name: "Nadia Bensalem",
+                    position: "Chef de projet IT",
+                    domain: "Agile, Scrum",
+                    mainSkill: "Gestion de projet Agile",
+                    level: "Avancé 75%",
+                    testimonial:
+                      "Les ateliers m'ont permis d'améliorer ma gestion d'équipe et de livrer des projets plus rapidement...",
+                  },
+                ].map((testimonial) => {
+                  // 🎯 Attribution automatique du badge TOP pour Expert et Avancé
+                  const isTopParticipant =
+                    testimonial.level.includes("Expert") ||
+                    testimonial.level.includes("Avancé");
+                  const getLevelIcon = (level: string) => {
+                    if (level.includes("Expert"))
+                      return <Award className="w-4 h-4" />;
+                    if (level.includes("Avancé"))
+                      return <TrendingUp className="w-4 h-4" />;
+                    return <Target className="w-4 h-4" />;
+                  };
+
+                  const getLevelColor = (level: string) => {
+                    if (level.includes("Expert"))
+                      return "text-purple-600 bg-purple-50";
+                    if (level.includes("Avancé"))
+                      return "text-blue-600 bg-blue-50";
+                    return "text-orange-600 bg-orange-50";
+                  };
+
+                  return (
+                    <SwiperSlide key={testimonial.id}>
+                      <div className="testimonial-card h-full relative">
+                        {/* Badge TOP participant - Attribution automatique pour Expert/Avancé */}
+                        {isTopParticipant && (
+                          <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold z-10">
+                            TOP des participants
+                          </div>
+                        )}
+
+                        <div className="p-6">
+                          {/* Nom et informations */}
+                          <div className="mb-4">
+                            <h4 className="font-bold text-gray-900 text-lg mb-1">
+                              {testimonial.name}
+                            </h4>
+                            <p className="text-gray-700 font-medium mb-1">
+                              {testimonial.position}
+                            </p>
+                            <p className="text-gray-500 text-sm mb-3">
+                              {testimonial.domain}
+                            </p>
+                          </div>
+
+                          {/* Compétence acquise */}
+                          <div className="mb-4">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <Lightbulb className="w-4 h-4 text-yellow-500" />
+                              <span className="text-gray-600 font-medium">
+                                {testimonial.mainSkill}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Niveau avec icône */}
+                          <div className="mb-4">
+                            <div
+                              className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(
+                                testimonial.level
+                              )}`}
+                            >
+                              {getLevelIcon(testimonial.level)}
+                              <span>{testimonial.level}</span>
+                            </div>
+                          </div>
+
+                          {/* Témoignage */}
+                          <blockquote className="text-gray-700 italic leading-relaxed">
+                            "{testimonial.testimonial}"
+                          </blockquote>
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+
+              {/* Navigation personnalisée */}
+              <div className="swiper-button-prev-custom absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <ChevronRight className="w-6 h-6 text-gray-600 rotate-180" />
+              </div>
+              <div className="swiper-button-next-custom absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <ChevronRight className="w-6 h-6 text-gray-600" />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Styles personnalisés pour Swiper */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            .testimonials-swiper .swiper-pagination {
+              bottom: -50px !important;
+            }
+            .testimonials-swiper .swiper-pagination-bullet {
+              width: 12px;
+              height: 12px;
+              background: linear-gradient(135deg, #f59e0b, #f97316);
+              opacity: 0.3;
+            }
+            .testimonials-swiper .swiper-pagination-bullet-active {
+              opacity: 1;
+              transform: scale(1.2);
+            }
+            .testimonials-swiper .swiper-slide {
+              height: auto;
+            }
+            .testimonials-swiper .testimonial-card {
+              height: 100%;
+              display: flex;
+              flex-direction: column;
+            }
+          `,
+          }}
+        />
+      </section>
+
+      {/* Programs Section */}
+      <section id="programs-section" className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Nos{" "}
+                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Programmes
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Découvrez nos formations expertes conçues pour transformer votre
+                carrière
+              </p>
+
+              {/* Currency Selector */}
+              <div className="flex justify-center mb-8">
+                <CurrencySelector
+                  selectedCurrency={selectedCurrency}
+                  onCurrencyChange={setSelectedCurrency}
+                />
+              </div>
+
+              <button
+                onClick={() => setShowUnifiedCatalogModal(true)}
+                className="cta-button mb-12"
+              >
+                🎯 Trouvez votre parcours idéal
+              </button>
+            </div>
+
+            {/* Search and Filters */}
+            <div className="bg-gray-50 rounded-2xl p-6 mb-12">
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher un programme..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <button
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl transition-colors ${
+                    showAdvancedFilters
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Filter className="w-5 h-5" />
+                  <span>Filtres avancés</span>
+                </button>
+              </div>
+
+              {/* Category Filters */}
+              <div className="flex flex-wrap gap-2">
+                {[...categories, ...levels].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => toggleFilter(filter)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      selectedFilters.includes(filter)
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+
+              {/* Advanced Filters Panel */}
+              {showAdvancedFilters && (
+                <div className="mt-6 p-6 bg-white rounded-xl border border-gray-200 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Filtres Avancés
+                    </h3>
+                    <button
+                      onClick={clearAllFilters}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      Effacer tout
+                    </button>
+                  </div>
+
+                  {/* Price Range */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Prix (DT): {priceRange[0]} - {priceRange[1]}
+                    </label>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="range"
+                        min="0"
+                        max="5000"
+                        step="100"
+                        value={priceRange[0]}
+                        onChange={(e) =>
+                          setPriceRange([
+                            parseInt(e.target.value),
+                            priceRange[1],
+                          ])
+                        }
+                        className="flex-1"
+                      />
+                      <input
+                        type="range"
+                        min="0"
+                        max="5000"
+                        step="100"
+                        value={priceRange[1]}
+                        onChange={(e) =>
+                          setPriceRange([
+                            priceRange[0],
+                            parseInt(e.target.value),
+                          ])
+                        }
+                        className="flex-1"
+                      />
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500 mt-2">
+                      <span>0 DT</span>
+                      <span>5000 DT</span>
+                    </div>
+                  </div>
+
+                  {/* Duration Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Durée
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {durations.map((duration) => (
+                        <button
+                          key={duration}
+                          onClick={() => toggleDurationFilter(duration)}
+                          className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                            durationFilter.includes(duration)
+                              ? "bg-purple-600 text-white"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
+                        >
+                          {duration}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Rating Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Note minimum:{" "}
+                      {ratingFilter > 0 ? `${ratingFilter}+ étoiles` : "Toutes"}
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      {[0, 3, 4, 4.5, 4.8].map((rating) => (
+                        <button
+                          key={rating}
+                          onClick={() => setRatingFilter(rating)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            ratingFilter === rating
+                              ? "bg-yellow-500 text-white"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
+                        >
+                          {rating === 0 ? "Toutes" : `${rating}+`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Active Filters Summary */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">
+                        {filteredPrograms.length} programme(s) trouvé(s)
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedFilters.map((filter) => (
+                          <span
+                            key={filter}
+                            className="inline-flex items-center space-x-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs"
+                          >
+                            <span>{filter}</span>
+                            <button
+                              onClick={() => toggleFilter(filter)}
+                              className="hover:bg-blue-200 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                        {durationFilter.map((duration) => (
+                          <span
+                            key={duration}
+                            className="inline-flex items-center space-x-1 bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs"
+                          >
+                            <span>{duration}</span>
+                            <button
+                              onClick={() => toggleDurationFilter(duration)}
+                              className="hover:bg-purple-200 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                        {ratingFilter > 0 && (
+                          <span className="inline-flex items-center space-x-1 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">
+                            <span>{ratingFilter}+ étoiles</span>
+                            <button
+                              onClick={() => setRatingFilter(0)}
+                              className="hover:bg-yellow-200 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Programs Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {trainingPrograms.map((program) => (
+                <div key={program.id} data-program-id={program.id}>
+                  <ProgramCard
+                    program={program}
+                    selectedCurrency={selectedCurrency}
+                    onRegisterClick={handleProgramRegistration}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Theme Packs Section */}
+      <div id="packs-section">
+        <ThemePackSection selectedCurrency={selectedCurrency} />
+      </div>
+
+      {/* Interactive QCM Modal */}
+      <InteractiveQCMModal
+        isOpen={showUnifiedCatalogModal}
+        onClose={() => setShowUnifiedCatalogModal(false)}
+        onItemSelect={handleUnifiedCatalogItemSelection}
+        catalogItems={createUnifiedCatalog()}
+      />
+
+      {/* Certificate Verification Modal */}
+      <CertificateVerification
+        isOpen={showCertificateVerification}
+        onClose={() => setShowCertificateVerification(false)}
+      />
+
+      {/* Free Course Modal */}
+      <FreeCourseModal
+        isOpen={showFreeCourseModal}
+        onClose={() => setShowFreeCourseModal(false)}
+      />
+
+      {/* Program Registration Modal */}
+      <ProgramRegistrationModal
+        isOpen={showProgramModal}
+        onClose={() => setShowProgramModal(false)}
+        program={selectedProgram}
+        selectedCurrency={selectedCurrency}
+      />
+    </div>
+  );
+};
+
+export default ETrainingPage;
