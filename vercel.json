@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/admin/(.*)",
-      "destination": "/admin-panel/dist/index.html"
+      "destination": "/admin/$1"
     },
     {
       "source": "/admin",
-      "destination": "/admin-panel/dist/index.html"
+      "destination": "/admin/index.html"
     },
     {
       "source": "/(.*)",
