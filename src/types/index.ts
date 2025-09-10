@@ -1,11 +1,17 @@
 export interface User {
   email: string;
-  role: string;
+  password?: string;
+  role?: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
+  login: (credentials: LoginCredentials) => boolean;
   logout: () => void;
 }
 
@@ -21,6 +27,7 @@ export interface Notification {
   message: string;
   type: 'success' | 'error' | 'info';
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  contact?: string;
 }
 
 export interface Pack {
