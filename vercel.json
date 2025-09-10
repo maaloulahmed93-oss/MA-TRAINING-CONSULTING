@@ -16,24 +16,18 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/admin/(.*)",
-      "dest": "/admin-panel/dist/index.html"
-    },
-    {
-      "src": "/admin",
-      "dest": "/admin-panel/dist/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
-    }
-  ],
   "rewrites": [
     {
       "source": "/admin/(.*)",
       "destination": "/admin-panel/dist/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin-panel/dist/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
