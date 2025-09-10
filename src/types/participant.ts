@@ -103,3 +103,10 @@ export interface FAQ {
   category: string;
   isPopular: boolean;
 }
+
+export interface ParticipantStats {
+  totalParticipants: number;
+  activeParticipants: number;
+  completedCourses: number;
+  inProgress?: number;
+}

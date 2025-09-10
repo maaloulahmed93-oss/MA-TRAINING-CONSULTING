@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   UserIcon,
-  MapPinIcon,
   PhoneIcon,
   AcademicCapIcon,
   BriefcaseIcon,
@@ -10,11 +9,14 @@ import {
   CheckCircleIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
-  GlobeAltIcon,
   IdentificationIcon,
   HomeIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
+import {
+  EnvelopeIcon,
+  CalendarIcon,
+} from "@heroicons/react/24/solid";
 import { Participant } from "../../types/participant";
 
 // Import step components
@@ -480,7 +482,7 @@ Conditions médicales: ${administrativeInfo.medicalConditions}`,
                     }`}
                   >
                     {isCompleted ? (
-                      <CheckIcon className="w-6 h-6" />
+                      <CheckCircleIcon className="w-6 h-6" />
                     ) : (
                       <Icon className="w-6 h-6" />
                     )}
@@ -539,7 +541,7 @@ Conditions médicales: ${administrativeInfo.medicalConditions}`,
           onClick={currentStep === 0 ? onCancel : prevStep}
           className="flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
         >
-          <ChevronLeftIcon className="w-4 h-4" />
+          <ArrowLeftIcon className="w-4 h-4" />
           <span>{currentStep === 0 ? "Annuler" : "Précédent"}</span>
         </button>
 
@@ -562,7 +564,7 @@ Conditions médicales: ${administrativeInfo.medicalConditions}`,
                 </>
               ) : (
                 <>
-                  <CheckIcon className="w-4 h-4" />
+                  <CheckCircleIcon className="w-4 h-4" />
                   <span>
                     {initialData ? "Mettre à jour" : "Créer le participant"}
                   </span>
@@ -577,7 +579,7 @@ Conditions médicales: ${administrativeInfo.medicalConditions}`,
               className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <span>Suivant</span>
-              <ChevronRightIcon className="w-4 h-4" />
+              <ArrowRightIcon className="w-4 h-4" />
             </button>
           )}
         </div>

@@ -1,12 +1,10 @@
 import React, { createContext, useReducer, useEffect } from 'react';
-import { User, AuthState, LoginCredentials } from '../types';
+import { User, AuthState, LoginCredentials, AuthContextType } from '../../../src/types';
 
 /**
  * Authentication Context for managing user authentication state
  * Ready for backend integration
  */
-
-import { AuthContextType } from '../types';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

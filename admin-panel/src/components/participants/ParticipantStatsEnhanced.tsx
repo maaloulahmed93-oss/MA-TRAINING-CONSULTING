@@ -3,11 +3,9 @@ import { motion } from 'framer-motion';
 import {
   UsersIcon,
   AcademicCapIcon,
-  ChartBarIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ClockIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon,
   UserPlusIcon
 } from '@heroicons/react/24/outline';
 import { ParticipantStats } from '../../types/participant';
@@ -66,7 +64,7 @@ const ParticipantStatsEnhanced: React.FC<ParticipantStatsEnhancedProps> = ({ sta
     {
       title: 'Progression Moyenne',
       value: `${Math.round(stats.averageProgress)}%`,
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: 'emerald',
       bgColor: 'bg-emerald-50',
       iconColor: 'text-emerald-600',
