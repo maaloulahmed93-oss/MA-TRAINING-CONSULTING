@@ -198,7 +198,7 @@ const AppRoutes: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/admin">
         <div className="min-h-screen bg-gray-50">
           <AppRoutes />
         </div>
