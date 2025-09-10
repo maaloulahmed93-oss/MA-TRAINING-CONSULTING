@@ -296,7 +296,7 @@ const ParticipantFormWizard: React.FC<ParticipantFormWizardProps> = ({
             .replace(/,\\s*,/g, ",")
             .replace(/^,\\s*|,\\s*$/g, ""),
         avatar: personalInfo.avatar,
-        status: administrativeInfo.status,
+        status: "active" as const,
         notes: `${administrativeInfo.notes}
 
 --- Informations détaillées ---

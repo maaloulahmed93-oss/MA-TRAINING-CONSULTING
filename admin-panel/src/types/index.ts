@@ -172,3 +172,20 @@ export interface DashboardStats {
   upcomingSessions: number;
   publishedTestimonials: number;
 }
+
+// Participant Stats
+export interface ParticipantStats {
+  total: number;
+  completed: number;
+  inProgress: number;
+  dropped?: number;
+}
+
+// Notification Types
+export interface Notification {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'info';
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  contact?: string;
+}

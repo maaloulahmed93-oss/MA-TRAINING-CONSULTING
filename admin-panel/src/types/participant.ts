@@ -187,13 +187,14 @@ export interface Notification {
   type: 'job' | 'info';
   date: string;
   isRead: boolean;
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  contact?: string;
   actionUrl?: string;
   // Additional data for job notifications
   company?: string;
   jobTitle?: string;
   salary?: string;
   contractType?: string;
-  contact?: string;
   environment?: string;
   benefits?: string;
   // Additional data for info notifications
