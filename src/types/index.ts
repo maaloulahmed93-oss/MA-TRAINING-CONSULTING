@@ -1,4 +1,3 @@
-// Core application types
 export interface User {
   email: string;
   role: string;
@@ -37,19 +36,3 @@ export interface Session {
   date: string;
   duration: number;
 }
-
-// Re-export specific types to avoid conflicts
-export type { 
-  Participant, 
-  Formation, 
-  Course, 
-  Module, 
-  Project, 
-  ProjectFile, 
-  CoachingResource, 
-  FAQ
-} from './participant';
-export * from './freelancer';
-export * from './trainer';
-export * from './partnership';
-export * from './courses';
