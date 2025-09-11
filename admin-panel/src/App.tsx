@@ -91,13 +91,23 @@ const AppRoutes: React.FC = () => {
 
       {/* Protected Routes */}
       <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/*"
         element={
           <ProtectedRoute>
             <Layout>
               <Routes>
                 {/* Dashboard */}
-                <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+                <Route path="/" element={<Dashboard />} />
 
                 {/* Content Management */}
                 <Route path={ROUTES.PROGRAMS} element={<ProgramsPage />} />
