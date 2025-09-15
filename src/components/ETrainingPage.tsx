@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -36,7 +36,7 @@ import ProgramCard from "./ProgramCard";
 import ThemePackSection from "./ThemePackSection";
 import CurrencySelector from "./CurrencySelector";
 import InteractiveQCMModal from "./InteractiveQCMModal";
-import { trainingPrograms, Program } from "../data/trainingPrograms";
+import { trainingPrograms, Program, getTrainingPrograms } from "../data/trainingPrograms";
 import { themePacks } from "../data/themePacks";
 
 interface ETrainingPageProps {
@@ -58,6 +58,28 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("€");
+  const [programs, setPrograms] = useState<Program[]>(trainingPrograms);
+  const [loading, setLoading] = useState(false);
+
+  // Load programs from API on component mount
+  useEffect(() => {
+    const loadPrograms = async () => {
+      setLoading(true);
+      try {
+        const apiPrograms = await getTrainingPrograms();
+        if (apiPrograms && apiPrograms.length > 0) {
+          setPrograms(apiPrograms);
+        }
+      } catch (error) {
+        console.error('Error loading programs:', error);
+        // Keep fallback programs if API fails
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadPrograms();
+  }, []);
 
   // Fonction pour gérer l'ouverture du modal d'inscription
   const handleProgramRegistration = (program: Program) => {
@@ -110,7 +132,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     });
 
     // Ajouter les programmes
-    trainingPrograms.forEach((program) => {
+    programs.forEach((program) => {
       catalogItems.push({
         id: `programme-${program.id}`,
         name: program.title,
@@ -345,135 +367,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     },
   ];
 
-  // Programs Data
-  const programs = [
-    {
-      id: 1,
-      title: "Développement Web Full-Stack",
-      subtitle:
-        "Maîtrisez React, Node.js et les bases de données pour créer des applications complètes",
-      category: "Technologies",
-      level: "Intermédiaire",
-      duration: "12 semaines",
-      price: "2400 DT",
-      originalPrice: "3000 DT",
-      discount: "-20%",
-      rating: 4.8,
-      students: 1247,
-      skills: [
-        "API REST avec Node.js",
-        "Base de données MongoDB",
-        "Déploiement sur AWS",
-      ],
-      color: "blue",
-      popular: true,
-    },
-    {
-      id: 2,
-      title: "Marketing Digital & Growth Hacking",
-      subtitle:
-        "Stratégies marketing modernes pour faire croître votre business en ligne",
-      category: "Marketing",
-      level: "Intermédiaire",
-      duration: "8 semaines",
-      price: "1800 DT",
-      originalPrice: "2200 DT",
-      discount: "-18%",
-      rating: 4.9,
-      students: 892,
-      skills: [
-        "SEO et référencement naturel",
-        "Publicité Facebook et Google Ads",
-        "Email marketing et automation",
-      ],
-      color: "pink",
-      popular: false,
-    },
-    {
-      id: 3,
-      title: "Data Science & Intelligence Artificielle",
-      subtitle:
-        "Analysez les données et créez des modèles prédictifs avec Python et Machine Learning",
-      category: "Data Science",
-      level: "Avancé",
-      duration: "16 semaines",
-      price: "2800 DT",
-      originalPrice: "3500 DT",
-      discount: "-20%",
-      rating: 4.7,
-      students: 634,
-      skills: [
-        "Python pour Data Science",
-        "Machine Learning avancé",
-        "Deep Learning et réseaux de neurones",
-      ],
-      color: "green",
-      popular: false,
-    },
-    {
-      id: 4,
-      title: "UX/UI Design & Prototypage",
-      subtitle:
-        "Créez des interfaces utilisateur exceptionnelles et des expériences UX optimales",
-      category: "Design",
-      level: "Débutant",
-      duration: "10 semaines",
-      price: "2000 DT",
-      originalPrice: "2500 DT",
-      discount: "-20%",
-      rating: 4.6,
-      students: 756,
-      skills: [
-        "Design d'interface avec Figma",
-        "Recherche utilisateur",
-        "Prototypage interactif",
-      ],
-      color: "purple",
-      popular: false,
-    },
-    {
-      id: 5,
-      title: "Coaching Business - Entrepreneuriat Digital",
-      subtitle:
-        "Développez votre business en ligne avec des stratégies éprouvées et un accompagnement personnalisé",
-      category: "Business",
-      level: "Tous niveaux",
-      duration: "12 semaines",
-      price: "2200 DT",
-      originalPrice: "2800 DT",
-      discount: "-21%",
-      rating: 4.8,
-      students: 423,
-      skills: [
-        "Stratégie d'entreprise numérique",
-        "Financement et levée de fonds",
-        "Analyse prédictive business",
-      ],
-      color: "orange",
-      popular: false,
-    },
-    {
-      id: 6,
-      title: "DevOps & Cloud Computing",
-      subtitle:
-        "Administration, déploiement et gestion d'infrastructure cloud moderne",
-      category: "Technologies",
-      level: "Avancé",
-      duration: "14 semaines",
-      price: "2600 DT",
-      originalPrice: "3200 DT",
-      discount: "-19%",
-      rating: 4.9,
-      students: 387,
-      skills: [
-        "Docker et conteneurisation",
-        "Kubernetes et orchestration",
-        "CI/CD avec Jenkins",
-      ],
-      color: "blue",
-      popular: false,
-    },
-  ];
+  // Removed hardcoded programs data - now using API data from MongoDB
 
   const categories = [
     "Tous",
@@ -494,14 +388,14 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const filteredPrograms = programs.filter((program) => {
     const matchesSearch =
       program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      program.subtitle.toLowerCase().includes(searchTerm.toLowerCase());
+      (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesFilters =
       selectedFilters.length === 0 ||
       selectedFilters.includes(program.category) ||
       selectedFilters.includes(program.level);
 
-    // Price filter
-    const programPrice = parseInt(program.price.replace(" DT", ""));
+    // Price filter - program.price is now a number from MongoDB
+    const programPrice = typeof program.price === 'number' ? program.price : parseInt(String(program.price).replace(" DT", ""));
     const matchesPrice =
       programPrice >= priceRange[0] && programPrice <= priceRange[1];
 
@@ -1472,7 +1366,12 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
             {/* Programs Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {trainingPrograms.map((program) => (
+              {loading ? (
+                <div className="col-span-full text-center py-8">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <p className="mt-2 text-gray-600">Chargement des programmes...</p>
+                </div>
+              ) : programs.map((program) => (
                 <div key={program.id} data-program-id={program.id}>
                   <ProgramCard
                     program={program}

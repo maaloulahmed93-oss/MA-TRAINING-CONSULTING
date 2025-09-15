@@ -45,7 +45,7 @@ const ParticipantStatsEnhanced: React.FC<ParticipantStatsEnhancedProps> = ({ sta
     },
     {
       title: 'En Progression',
-      value: stats.inProgress,
+      value: stats.active,
       icon: ClockIcon,
       color: 'yellow',
       bgColor: 'bg-yellow-50',

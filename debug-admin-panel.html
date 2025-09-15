@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشخيص مشاكل Admin Panel</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #2980b9, #1f4e79);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        .status-online { background: #27ae60; }
+        .status-offline { background: #e74c3c; }
+        .status-unknown { background: #f39c12; }
+    </style>
+</head>
+<body>
+    <h1>🔧 تشخيص شامل لمشاكل Admin Panel</h1>
+    
+    <div class="test-section">
+        <h2>1. فحص حالة الخوادم</h2>
+        <button onclick="testBackendHealth()">فحص Backend (Port 3001)</button>
+        <button onclick="testAdminPanel()">فحص Admin Panel (Port 8537)</button>
+        <div id="servers-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. اختبار CORS والاتصال</h2>
+        <button onclick="testCorsConnection()">اختبار CORS من Port 8537</button>
+        <button onclick="testCorsConnection8536()">اختبار CORS من Port 8536</button>
+        <div id="cors-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. اختبار API Endpoints</h2>
+        <button onclick="testGetPrograms()">GET /api/programs</button>
+        <button onclick="testCreateProgram()">POST /api/programs (إنشاء برنامج)</button>
+        <button onclick="testFullWorkflow()">اختبار سير العمل الكامل</button>
+        <div id="api-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. تشخيص مشكلة البيانات المؤقتة</h2>
+        <button onclick="simulateRefreshProblem()">محاكاة مشكلة Refresh</button>
+        <button onclick="checkDataPersistence()">فحص ثبات البيانات</button>
+        <div id="persistence-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const ADMIN_PANEL_8537 = 'http://localhost:8537';
+        const ADMIN_PANEL_8536 = 'http://localhost:8536';
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        function appendResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const newDiv = document.createElement('div');
+            newDiv.textContent = message;
+            newDiv.className = `result ${type}`;
+            newDiv.style.marginTop = '10px';
+            element.appendChild(newDiv);
+        }
+
+        async function testBackendHealth() {
+            try {
+                showResult('servers-result', '🔄 فحص حالة Backend...', 'info');
+                
+                const response = await fetch(`${API_BASE.replace('/api', '')}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('servers-result', 
+                        `✅ Backend يعمل بنجاح!\n` +
+                        `🌐 المنفذ: 3001\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `💬 الرسالة: ${data.message}\n` +
+                        `🌍 البيئة: ${data.environment}\n` +
+                        `⏰ الوقت: ${data.timestamp}`, 
+                        'success'
+                    );
+                } else {
+                    showResult('servers-result', 
+                        `❌ Backend لا يعمل بشكل صحيح!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `📄 الاستجابة: ${JSON.stringify(data, null, 2)}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('servers-result', 
+                    `💥 خطأ في الاتصال بـ Backend!\n` +
+                    `🚨 الخطأ: ${error.message}\n` +
+                    `💡 تأكد من تشغيل Backend على المنفذ 3001`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testAdminPanel() {
+            appendResult('servers-result', '🔄 فحص Admin Panel على المنفذ 8537...', 'info');
+            
+            try {
+                const response = await fetch(ADMIN_PANEL_8537);
+                if (response.ok) {
+                    appendResult('servers-result', '✅ Admin Panel متاح على المنفذ 8537', 'success');
+                } else {
+                    appendResult('servers-result', '❌ Admin Panel غير متاح على المنفذ 8537', 'error');
+                }
+            } catch (error) {
+                appendResult('servers-result', `❌ Admin Panel غير متاح: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCorsConnection() {
+            try {
+                showResult('cors-result', '🔄 اختبار CORS من المنفذ 8537...', 'info');
+                
+                const response = await fetch(`${API_BASE}/programs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': 'http://localhost:8537'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('cors-result', 
+                        `✅ CORS يعمل من المنفذ 8537!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `📋 عدد البرامج: ${data.count}\n` +
+                        `📄 البيانات: ${JSON.stringify(data, null, 2)}`, 
+                        'success'
+                    );
+                } else {
+                    showResult('cors-result', 
+                        `❌ مشكلة CORS من المنفذ 8537!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `📄 الاستجابة: ${JSON.stringify(data, null, 2)}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('cors-result', 
+                    `💥 خطأ CORS من المنفذ 8537!\n` +
+                    `🚨 الخطأ: ${error.message}\n` +
+                    `💡 قد تكون مشكلة في إعدادات CORS في Backend`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testCorsConnection8536() {
+            try {
+                appendResult('cors-result', '🔄 اختبار CORS من المنفذ 8536...', 'info');
+                
+                const response = await fetch(`${API_BASE}/programs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': 'http://localhost:8536'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    appendResult('cors-result', 
+                        `✅ CORS يعمل من المنفذ 8536!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `📋 عدد البرامج: ${data.count}`, 
+                        'success'
+                    );
+                } else {
+                    appendResult('cors-result', 
+                        `❌ مشكلة CORS من المنفذ 8536!\n` +
+                        `📊 الحالة: ${response.status}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                appendResult('cors-result', 
+                    `💥 خطأ CORS من المنفذ 8536: ${error.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testGetPrograms() {
+            try {
+                showResult('api-result', '🔄 اختبار GET /api/programs...', 'info');
+                
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('api-result', 
+                        `✅ GET Programs نجح!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `📋 عدد البرامج: ${data.count}\n` +
+                        `📄 البيانات: ${JSON.stringify(data.data, null, 2)}`, 
+                        'success'
+                    );
+                } else {
+                    showResult('api-result', 
+                        `❌ GET Programs فشل!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `📄 الاستجابة: ${JSON.stringify(data, null, 2)}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('api-result', 
+                    `💥 خطأ في GET Programs: ${error.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testCreateProgram() {
+            try {
+                appendResult('api-result', '🔄 اختبار POST /api/programs...', 'info');
+                
+                const testProgram = {
+                    title: `برنامج تجريبي ${new Date().getTime()}`,
+                    description: "هذا برنامج تجريبي لاختبار API",
+                    category: "Technologies",
+                    level: "Débutant",
+                    price: 299,
+                    duration: "4 أسابيع",
+                    maxParticipants: 20,
+                    sessionsPerYear: 4,
+                    modules: [
+                        { title: "الوحدة الأولى" },
+                        { title: "الوحدة الثانية" }
+                    ],
+                    sessions: [
+                        { title: "الجلسة الأولى", date: "2024-01-15" },
+                        { title: "الجلسة الثانية", date: "2024-01-22" }
+                    ]
+                };
+
+                console.log('🚀 إرسال البرنامج التجريبي:', testProgram);
+                
+                const response = await fetch(`${API_BASE}/programs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testProgram)
+                });
+
+                const data = await response.json();
+                console.log('📡 استجابة الخادم:', data);
+                
+                if (response.ok) {
+                    appendResult('api-result', 
+                        `✅ POST Programs نجح!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `🆔 معرف البرنامج: ${data.data._id}\n` +
+                        `📝 عنوان البرنامج: ${data.data.title}\n` +
+                        `💰 السعر: ${data.data.price}€`, 
+                        'success'
+                    );
+                } else {
+                    appendResult('api-result', 
+                        `❌ POST Programs فشل!\n` +
+                        `📊 الحالة: ${response.status}\n` +
+                        `💬 الرسالة: ${data.message || 'خطأ غير معروف'}\n` +
+                        `📄 الاستجابة: ${JSON.stringify(data, null, 2)}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                appendResult('api-result', 
+                    `💥 خطأ في POST Programs: ${error.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testFullWorkflow() {
+            appendResult('api-result', '🔄 اختبار سير العمل الكامل...', 'info');
+            
+            // 1. إنشاء برنامج
+            await testCreateProgram();
+            
+            // 2. انتظار قصير
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 3. استرجاع البرامج
+            await testGetPrograms();
+        }
+
+        async function simulateRefreshProblem() {
+            try {
+                showResult('persistence-result', '🔄 محاكاة مشكلة Refresh...', 'info');
+                
+                // 1. إنشاء برنامج
+                const testProgram = {
+                    title: `برنامج مؤقت ${new Date().getTime()}`,
+                    description: "اختبار مشكلة الـ Refresh",
+                    category: "Technologies",
+                    level: "Débutant",
+                    price: 199,
+                    duration: "2 أسابيع",
+                    maxParticipants: 15,
+                    sessionsPerYear: 2,
+                    modules: [{ title: "وحدة تجريبية" }],
+                    sessions: [{ title: "جلسة تجريبية", date: "2024-01-15" }]
+                };
+
+                const createResponse = await fetch(`${API_BASE}/programs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testProgram)
+                });
+
+                if (createResponse.ok) {
+                    const createData = await createResponse.json();
+                    appendResult('persistence-result', 
+                        `✅ تم إنشاء البرنامج: ${createData.data._id}`, 
+                        'success'
+                    );
+
+                    // 2. انتظار قصير ثم استرجاع
+                    setTimeout(async () => {
+                        const getResponse = await fetch(`${API_BASE}/programs`);
+                        const getData = await getResponse.json();
+                        
+                        const foundProgram = getData.data.find(p => p._id === createData.data._id);
+                        
+                        if (foundProgram) {
+                            appendResult('persistence-result', 
+                                `✅ البرنامج موجود بعد Refresh: ${foundProgram.title}`, 
+                                'success'
+                            );
+                        } else {
+                            appendResult('persistence-result', 
+                                `❌ البرنامج اختفى بعد Refresh! هذه هي المشكلة!`, 
+                                'error'
+                            );
+                        }
+                    }, 2000);
+                } else {
+                    appendResult('persistence-result', 
+                        `❌ فشل إنشاء البرنامج للاختبار`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                appendResult('persistence-result', 
+                    `💥 خطأ في محاكاة المشكلة: ${error.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function checkDataPersistence() {
+            try {
+                appendResult('persistence-result', '🔄 فحص ثبات البيانات...', 'info');
+                
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    appendResult('persistence-result', 
+                        `📊 إجمالي البرامج في قاعدة البيانات: ${data.count}\n` +
+                        `📋 قائمة البرامج:\n` +
+                        data.data.map((p, i) => `${i+1}. ${p.title} (${p.price}€)`).join('\n'), 
+                        'info'
+                    );
+                } else {
+                    appendResult('persistence-result', 
+                        `❌ خطأ في استرجاع البيانات: ${data.message}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                appendResult('persistence-result', 
+                    `💥 خطأ في فحص البيانات: ${error.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        // تشغيل الاختبارات تلقائياً عند تحميل الصفحة
+        window.onload = function() {
+            setTimeout(testBackendHealth, 500);
+        };
+    </script>
+</body>
+</html>

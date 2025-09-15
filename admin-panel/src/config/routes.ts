@@ -12,6 +12,7 @@ export const ROUTES = {
   
   // Content Management
   PROGRAMS: '/programs',
+  CATEGORIES: '/categories',
   PACKS: '/packs',
   TESTIMONIALS: '/testimonials',
   EVENTS: '/events',
@@ -75,7 +76,11 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     href: ROUTES.PROGRAMS,
     icon: 'AcademicCapIcon',
   },
-
+  {
+    name: 'Catégories',
+    href: ROUTES.CATEGORIES,
+    icon: 'CubeIcon',
+  },
   {
     name: 'Packs',
     href: ROUTES.PACKS,

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Création Programme - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #dc2626;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .test-section.success {
+            border-color: #16a34a;
+            background-color: #f0fdf4;
+        }
+        .test-section.error {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .success {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            color: #15803d;
+        }
+        .error {
+            background: #fef2f2;
+            border: 1px solid #dc2626;
+            color: #dc2626;
+        }
+        .info {
+            background: #dbeafe;
+            border: 1px solid #2563eb;
+            color: #1d4ed8;
+        }
+        .status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .status.ok { background: #dcfce7; color: #15803d; }
+        .status.fail { background: #fef2f2; color: #dc2626; }
+        .status.pending { background: #fef3c7; color: #d97706; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Test Urgent - Création de Programmes MATC</h1>
+        
+        <!-- Test 1: Backend Status -->
+        <div class="test-section" id="backend-section">
+            <h3>1. ✅ Test Backend Status</h3>
+            <button onclick="testBackend()">Vérifier Backend</button>
+            <div id="backend-status" class="status pending">En attente...</div>
+            <div id="backend-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 2: GET Programs -->
+        <div class="test-section" id="get-section">
+            <h3>2. 📋 Test GET Programs (Programmes actuels)</h3>
+            <button onclick="getPrograms()">Récupérer Programmes</button>
+            <div id="get-status" class="status pending">En attente...</div>
+            <div id="get-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 3: POST Program -->
+        <div class="test-section" id="post-section">
+            <h3>3. 🚀 Test POST Program (Créer nouveau programme)</h3>
+            <button onclick="createTestProgram()">Créer Programme Test</button>
+            <div id="post-status" class="status pending">En attente...</div>
+            <div id="post-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 4: Verify Creation -->
+        <div class="test-section" id="verify-section">
+            <h3>4. 🔍 Test Vérification (Après création)</h3>
+            <button onclick="verifyCreation()">Vérifier Création</button>
+            <div id="verify-status" class="status pending">En attente...</div>
+            <div id="verify-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 5: Full Test -->
+        <div class="test-section" id="full-section">
+            <h3>5. 🎯 Test Complet Automatique</h3>
+            <button onclick="runFullTest()">Lancer Test Complet</button>
+            <div id="full-status" class="status pending">En attente...</div>
+            <div id="full-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let testProgramId = null;
+
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = content;
+            element.style.display = 'block';
+        }
+
+        function updateStatus(statusId, status, text) {
+            const element = document.getElementById(statusId);
+            element.className = `status ${status}`;
+            element.textContent = text;
+        }
+
+        async function testBackend() {
+            try {
+                console.log('🏥 Test Backend...');
+                updateStatus('backend-status', 'pending', 'Test en cours...');
+                
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('backend-status', 'ok', '✅ Backend OK');
+                    showResult('backend-result', 
+                        `✅ Backend fonctionne correctement\n` +
+                        `Status: ${response.status}\n` +
+                        `Response: ${JSON.stringify(data, null, 2)}`, 
+                        'success'
+                    );
+                } else {
+                    throw new Error(`Status ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('backend-status', 'fail', '❌ Backend Erreur');
+                showResult('backend-result', `❌ Erreur Backend: ${error.message}`, 'error');
+            }
+        }
+
+        async function getPrograms() {
+            try {
+                console.log('📋 Getting Programs...');
+                updateStatus('get-status', 'pending', 'Récupération...');
+                
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const count = data.data ? data.data.length : 0;
+                    updateStatus('get-status', 'ok', `✅ ${count} programmes trouvés`);
+                    showResult('get-result', 
+                        `✅ Programmes récupérés avec succès\n` +
+                        `Nombre: ${count}\n` +
+                        `Données: ${JSON.stringify(data, null, 2)}`, 
+                        'success'
+                    );
+                } else {
+                    throw new Error(`Status ${response.status}: ${data.message}`);
+                }
+            } catch (error) {
+                updateStatus('get-status', 'fail', '❌ Erreur GET');
+                showResult('get-result', `❌ Erreur GET: ${error.message}`, 'error');
+            }
+        }
+
+        async function createTestProgram() {
+            try {
+                console.log('🚀 Creating Test Program...');
+                updateStatus('post-status', 'pending', 'Création...');
+                
+                const testProgram = {
+                    title: `Programme Test ${new Date().getTime()}`,
+                    description: "Programme de test automatique pour vérifier la création",
+                    category: "Technologies",
+                    level: "Débutant",
+                    price: 999,
+                    duration: "2 mois",
+                    maxParticipants: 15,
+                    sessionsPerYear: 3,
+                    modules: [
+                        { title: "Module 1 - Introduction" },
+                        { title: "Module 2 - Pratique" }
+                    ],
+                    sessions: [
+                        { title: "Session 1", date: "2024-01-15" },
+                        { title: "Session 2", date: "2024-02-15" }
+                    ]
+                };
+
+                console.log('📦 Données à envoyer:', testProgram);
+
+                const response = await fetch(`${API_BASE}/programs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testProgram)
+                });
+
+                const data = await response.json();
+                console.log('📡 Réponse POST:', data);
+
+                if (response.ok && data.success) {
+                    testProgramId = data.data._id;
+                    updateStatus('post-status', 'ok', '✅ Programme créé');
+                    showResult('post-result', 
+                        `✅ Programme créé avec succès!\n` +
+                        `ID: ${testProgramId}\n` +
+                        `Titre: ${data.data.title}\n` +
+                        `Prix: ${data.data.price}€\n` +
+                        `Réponse complète: ${JSON.stringify(data, null, 2)}`, 
+                        'success'
+                    );
+                } else {
+                    throw new Error(`Status ${response.status}: ${data.message || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                updateStatus('post-status', 'fail', '❌ Erreur POST');
+                showResult('post-result', `❌ Erreur POST: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyCreation() {
+            try {
+                console.log('🔍 Vérification après création...');
+                updateStatus('verify-status', 'pending', 'Vérification...');
+                
+                // Re-fetch all programs
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const count = data.data ? data.data.length : 0;
+                    const hasTestProgram = testProgramId && data.data.some(p => p._id === testProgramId);
+                    
+                    if (hasTestProgram) {
+                        updateStatus('verify-status', 'ok', `✅ Vérification OK (${count} programmes)`);
+                        showResult('verify-result', 
+                            `✅ Vérification réussie!\n` +
+                            `Total programmes: ${count}\n` +
+                            `Programme test trouvé: ✅\n` +
+                            `ID du test: ${testProgramId}\n` +
+                            `Tous les programmes: ${JSON.stringify(data.data.map(p => ({id: p._id, title: p.title, price: p.price})), null, 2)}`, 
+                            'success'
+                        );
+                    } else {
+                        updateStatus('verify-status', 'fail', `❌ Programme test non trouvé`);
+                        showResult('verify-result', 
+                            `❌ Programme test non trouvé dans la liste!\n` +
+                            `Total programmes: ${count}\n` +
+                            `ID recherché: ${testProgramId}\n` +
+                            `Programmes existants: ${JSON.stringify(data.data.map(p => ({id: p._id, title: p.title})), null, 2)}`, 
+                            'error'
+                        );
+                    }
+                } else {
+                    throw new Error(`Status ${response.status}: ${data.message}`);
+                }
+            } catch (error) {
+                updateStatus('verify-status', 'fail', '❌ Erreur vérification');
+                showResult('verify-result', `❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullTest() {
+            updateStatus('full-status', 'pending', 'Test complet en cours...');
+            showResult('full-result', 'Démarrage du test complet...\n', 'info');
+            
+            try {
+                // Test 1: Backend
+                await testBackend();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Test 2: GET initial
+                await getPrograms();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Test 3: POST new program
+                await createTestProgram();
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Test 4: Verify creation
+                await verifyCreation();
+                
+                updateStatus('full-status', 'ok', '✅ Test complet terminé');
+                showResult('full-result', 
+                    showResult('full-result', 
+                        document.getElementById('full-result').textContent + 
+                        '\n✅ Test complet terminé avec succès!\n' +
+                        'Vérifiez les résultats de chaque section ci-dessus.', 
+                        'success'
+                    )
+                );
+                
+            } catch (error) {
+                updateStatus('full-status', 'fail', '❌ Test complet échoué');
+                showResult('full-result', 
+                    document.getElementById('full-result').textContent + 
+                    `\n❌ Test complet échoué: ${error.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        // Auto-start basic tests
+        window.onload = function() {
+            console.log('🎯 Page chargée, démarrage des tests automatiques...');
+            setTimeout(testBackend, 500);
+            setTimeout(getPrograms, 1500);
+        };
+    </script>
+</body>
+</html>

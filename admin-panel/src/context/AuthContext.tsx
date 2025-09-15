@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useEffect } from 'react';
-import { User, AuthContextType, LoginCredentials } from '../types';
+import { User, AuthContextType, LoginCredentials } from '../types/index';
 
 /**
  * Authentication Context for managing user authentication state

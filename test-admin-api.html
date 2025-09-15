@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin API</title>
+</head>
+<body>
+    <h1>Test Admin Panel API Connection</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                console.log('Testing API connection from admin panel...');
+                resultsDiv.innerHTML += '<p>Testing API connection...</p>';
+                
+                // Test direct API call to backend
+                const backendResponse = await fetch('http://localhost:3001/api/programs');
+                const backendData = await backendResponse.json();
+                
+                console.log('Backend response:', backendData);
+                resultsDiv.innerHTML += `<h3>Backend Direct (port 3001):</h3><pre>${JSON.stringify(backendData, null, 2)}</pre>`;
+                
+                // Test proxy API call through admin panel
+                const proxyResponse = await fetch('http://localhost:8536/api/programs');
+                const proxyData = await proxyResponse.json();
+                
+                console.log('Proxy response:', proxyData);
+                resultsDiv.innerHTML += `<h3>Admin Panel Proxy (port 8536):</h3><pre>${JSON.stringify(proxyData, null, 2)}</pre>`;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Run test on page load
+        testAPI();
+    </script>
+</body>
+</html>

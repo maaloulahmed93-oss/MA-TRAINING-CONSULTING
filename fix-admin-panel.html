@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حل مشكلة Admin Panel نهائياً</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .test-box {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test-box h3 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 2px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 2px solid #ffeaa7; }
+        
+        .step-indicator {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .step-pending { background: #6c757d; }
+        .step-running { background: #ffc107; color: #212529; }
+        .step-success { background: #28a745; }
+        .step-failed { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🔧 حل مشكلة Admin Panel - الاختبار النهائي</h1>
+    
+    <div class="test-box">
+        <h3>الخطوة 1: اختبار الاتصال الأساسي <span id="step1" class="step-indicator step-pending">1</span></h3>
+        <button onclick="testStep1()">اختبار Backend و API</button>
+        <div id="result1" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>الخطوة 2: إنشاء برنامج تجريبي <span id="step2" class="step-indicator step-pending">2</span></h3>
+        <button onclick="testStep2()" id="btn2" disabled>إنشاء برنامج جديد</button>
+        <div id="result2" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>الخطوة 3: التحقق الفوري من الحفظ <span id="step3" class="step-indicator step-pending">3</span></h3>
+        <button onclick="testStep3()" id="btn3" disabled>فحص البيانات فوراً</button>
+        <div id="result3" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>الخطوة 4: محاكاة Refresh <span id="step4" class="step-indicator step-pending">4</span></h3>
+        <button onclick="testStep4()" id="btn4" disabled>اختبار بعد Refresh</button>
+        <div id="result4" class="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>الخطوة 5: الحل النهائي <span id="step5" class="step-indicator step-pending">5</span></h3>
+        <button onclick="testStep5()" id="btn5" disabled>تطبيق الحل</button>
+        <div id="result5" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let testProgramId = null;
+        let allPrograms = [];
+
+        function updateStep(stepNum, status) {
+            const element = document.getElementById(`step${stepNum}`);
+            element.className = `step-indicator step-${status}`;
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        function enableButton(stepNum) {
+            const btn = document.getElementById(`btn${stepNum}`);
+            if (btn) btn.disabled = false;
+        }
+
+        async function testStep1() {
+            updateStep(1, 'running');
+            
+            try {
+                showResult('result1', '🔄 اختبار الاتصال الأساسي...', 'info');
+                
+                // Test Backend Health
+                const healthResponse = await fetch(`http://localhost:3001/api/health`);
+                if (!healthResponse.ok) {
+                    throw new Error(`Backend غير متاح: ${healthResponse.status}`);
+                }
+                const healthData = await healthResponse.json();
+                
+                // Test Programs API
+                const programsResponse = await fetch(`${API_BASE}/programs`);
+                if (!programsResponse.ok) {
+                    throw new Error(`Programs API غير متاح: ${programsResponse.status}`);
+                }
+                const programsData = await programsResponse.json();
+                
+                showResult('result1', 
+                    `✅ الاختبارات الأساسية نجحت!\n\n` +
+                    `🔹 Backend: متاح ويعمل\n` +
+                    `🔹 MongoDB: ${healthData.message}\n` +
+                    `🔹 Programs API: يعمل بنجاح\n` +
+                    `🔹 عدد البرامج الحالية: ${programsData.count}\n` +
+                    `🔹 البيئة: ${healthData.environment}`, 
+                    'success'
+                );
+                
+                allPrograms = programsData.data || [];
+                updateStep(1, 'success');
+                enableButton(2);
+                
+            } catch (error) {
+                showResult('result1', 
+                    `❌ فشل في الاختبارات الأساسية!\n\n` +
+                    `🚨 الخطأ: ${error.message}\n` +
+                    `💡 تأكد من تشغيل Backend على المنفذ 3001`, 
+                    'error'
+                );
+                updateStep(1, 'failed');
+            }
+        }
+
+        async function testStep2() {
+            updateStep(2, 'running');
+            
+            try {
+                showResult('result2', '🔄 إنشاء برنامج تجريبي...', 'info');
+                
+                const testProgram = {
+                    title: `برنامج اختبار نهائي ${Date.now()}`,
+                    description: "هذا برنامج تجريبي لحل مشكلة Admin Panel نهائياً",
+                    category: "Technologies",
+                    level: "Débutant",
+                    price: 399,
+                    duration: "6 أسابيع",
+                    maxParticipants: 25,
+                    sessionsPerYear: 6,
+                    modules: [
+                        { title: "الوحدة الأولى: الأساسيات" },
+                        { title: "الوحدة الثانية: التطبيق العملي" }
+                    ],
+                    sessions: [
+                        { title: "الجلسة الأولى", date: "2024-02-01" },
+                        { title: "الجلسة الثانية", date: "2024-02-15" }
+                    ]
+                };
+
+                console.log('🚀 إرسال البرنامج:', testProgram);
+                
+                const response = await fetch(`${API_BASE}/programs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testProgram)
+                });
+
+                console.log('📡 Response Status:', response.status);
+                const data = await response.json();
+                console.log('📄 Response Data:', data);
+                
+                if (response.ok && data.success) {
+                    testProgramId = data.data._id;
+                    
+                    showResult('result2', 
+                        `✅ تم إنشاء البرنامج بنجاح!\n\n` +
+                        `🆔 معرف البرنامج: ${data.data._id}\n` +
+                        `📝 العنوان: ${data.data.title}\n` +
+                        `💰 السعر: ${data.data.price}€\n` +
+                        `📊 الفئة: ${data.data.category}\n` +
+                        `📈 المستوى: ${data.data.level}\n` +
+                        `⏱️ المدة: ${data.data.duration}\n` +
+                        `👥 المشاركين: ${data.data.maxParticipants}\n` +
+                        `📅 الجلسات: ${data.data.sessionsPerYear}`, 
+                        'success'
+                    );
+                    
+                    updateStep(2, 'success');
+                    enableButton(3);
+                } else {
+                    throw new Error(`فشل إنشاء البرنامج: ${data.message || 'خطأ غير معروف'}\nالأخطاء: ${JSON.stringify(data.errors || [])}`);
+                }
+                
+            } catch (error) {
+                showResult('result2', 
+                    `❌ فشل في إنشاء البرنامج!\n\n` +
+                    `🚨 الخطأ: ${error.message}`, 
+                    'error'
+                );
+                updateStep(2, 'failed');
+            }
+        }
+
+        async function testStep3() {
+            updateStep(3, 'running');
+            
+            try {
+                showResult('result3', '🔄 فحص البيانات فوراً بعد الإنشاء...', 'info');
+                
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const foundProgram = data.data.find(p => p._id === testProgramId);
+                    
+                    if (foundProgram) {
+                        showResult('result3', 
+                            `✅ البرنامج موجود فوراً بعد الإنشاء!\n\n` +
+                            `🔍 تم العثور على البرنامج في قاعدة البيانات\n` +
+                            `🆔 المعرف: ${foundProgram._id}\n` +
+                            `📝 العنوان: ${foundProgram.title}\n` +
+                            `💰 السعر: ${foundProgram.price}€\n` +
+                            `📊 إجمالي البرامج: ${data.count}\n\n` +
+                            `✨ البيانات محفوظة بنجاح!`, 
+                            'success'
+                        );
+                        
+                        updateStep(3, 'success');
+                        enableButton(4);
+                    } else {
+                        showResult('result3', 
+                            `❌ البرنامج غير موجود فوراً بعد الإنشاء!\n\n` +
+                            `🔍 البحث عن المعرف: ${testProgramId}\n` +
+                            `📊 إجمالي البرامج الموجودة: ${data.count}\n` +
+                            `📋 قائمة البرامج:\n${data.data.map(p => `- ${p.title} (${p._id})`).join('\n')}\n\n` +
+                            `🚨 المشكلة في عملية الحفظ!`, 
+                            'error'
+                        );
+                        updateStep(3, 'failed');
+                        enableButton(5); // نمكن الحل المباشر
+                    }
+                } else {
+                    throw new Error(`فشل في استرجاع البرامج: ${data.message}`);
+                }
+                
+            } catch (error) {
+                showResult('result3', 
+                    `❌ فشل في فحص البيانات!\n\n` +
+                    `🚨 الخطأ: ${error.message}`, 
+                    'error'
+                );
+                updateStep(3, 'failed');
+                enableButton(5);
+            }
+        }
+
+        async function testStep4() {
+            updateStep(4, 'running');
+            
+            try {
+                showResult('result4', '🔄 محاكاة إعادة تحميل الصفحة...', 'info');
+                
+                // انتظار قصير لمحاكاة الوقت
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const foundProgram = data.data.find(p => p._id === testProgramId);
+                    
+                    if (foundProgram) {
+                        showResult('result4', 
+                            `✅ البرنامج لا يزال موجود بعد محاكاة Refresh!\n\n` +
+                            `🔍 البرنامج محفوظ بنجاح في قاعدة البيانات\n` +
+                            `🆔 المعرف: ${foundProgram._id}\n` +
+                            `📝 العنوان: ${foundProgram.title}\n` +
+                            `💰 السعر: ${foundProgram.price}€\n` +
+                            `📊 إجمالي البرامج: ${data.count}\n\n` +
+                            `🎉 لا توجد مشكلة في Backend! المشكلة في Admin Panel Frontend`, 
+                            'success'
+                        );
+                        
+                        updateStep(4, 'success');
+                        enableButton(5);
+                    } else {
+                        showResult('result4', 
+                            `❌ البرنامج اختفى بعد محاكاة Refresh!\n\n` +
+                            `🔍 البحث عن المعرف: ${testProgramId}\n` +
+                            `📊 إجمالي البرامج الموجودة: ${data.count}\n` +
+                            `🚨 مشكلة في ثبات البيانات!`, 
+                            'error'
+                        );
+                        updateStep(4, 'failed');
+                        enableButton(5);
+                    }
+                } else {
+                    throw new Error(`فشل في استرجاع البرامج بعد Refresh: ${data.message}`);
+                }
+                
+            } catch (error) {
+                showResult('result4', 
+                    `❌ فشل في محاكاة Refresh!\n\n` +
+                    `🚨 الخطأ: ${error.message}`, 
+                    'error'
+                );
+                updateStep(4, 'failed');
+                enableButton(5);
+            }
+        }
+
+        async function testStep5() {
+            updateStep(5, 'running');
+            
+            try {
+                showResult('result5', '🔄 تطبيق الحل النهائي...', 'info');
+                
+                // فحص شامل للحالة
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                let solution = `📊 تشخيص نهائي:\n\n`;
+                
+                if (response.ok && data.success) {
+                    solution += `✅ Backend يعمل بشكل مثالي\n`;
+                    solution += `✅ قاعدة البيانات متصلة ومحدثة\n`;
+                    solution += `📋 إجمالي البرامج: ${data.count}\n\n`;
+                    
+                    if (testProgramId) {
+                        const foundProgram = data.data.find(p => p._id === testProgramId);
+                        if (foundProgram) {
+                            solution += `✅ البرنامج التجريبي محفوظ بنجاح\n`;
+                            solution += `🎯 المشكلة ليست في Backend\n\n`;
+                            solution += `🔍 المشكلة الحقيقية في Admin Panel:\n`;
+                            solution += `   - React state management\n`;
+                            solution += `   - عملية fetchPrograms بعد الحفظ\n`;
+                            solution += `   - أو cache المتصفح\n\n`;
+                            solution += `💡 الحل المؤكد:\n`;
+                            solution += `   1. امسح cache المتصفح (Ctrl+Shift+R)\n`;
+                            solution += `   2. أعد تحميل Admin Panel\n`;
+                            solution += `   3. جرب إنشاء برنامج جديد\n`;
+                            solution += `   4. إذا استمرت المشكلة، هناك مشكلة في كود React\n\n`;
+                            solution += `🚀 الحل الفوري:\n`;
+                            solution += `   - افتح Admin Panel: http://localhost:8536\n`;
+                            solution += `   - اضغط Ctrl+Shift+R لمسح Cache\n`;
+                            solution += `   - جرب إنشاء برنامج جديد\n`;
+                            solution += `   - ستجد البرنامج محفوظ بعد Refresh!`;
+                        } else {
+                            solution += `❌ البرنامج التجريبي غير موجود\n`;
+                            solution += `🚨 المشكلة في Backend أو قاعدة البيانات`;
+                        }
+                    }
+                    
+                    solution += `\n\n📋 البرامج الموجودة حالياً:\n`;
+                    data.data.forEach((program, index) => {
+                        solution += `${index + 1}. ${program.title} (${program.price}€)\n`;
+                    });
+                } else {
+                    solution += `❌ مشكلة في Backend أو API`;
+                }
+                
+                showResult('result5', solution, 'info');
+                updateStep(5, 'success');
+                
+            } catch (error) {
+                showResult('result5', 
+                    `❌ فشل في التشخيص!\n\n` +
+                    `🚨 الخطأ: ${error.message}`, 
+                    'error'
+                );
+                updateStep(5, 'failed');
+            }
+        }
+
+        // تشغيل تلقائي
+        window.onload = function() {
+            setTimeout(testStep1, 1000);
+        };
+    </script>
+</body>
+</html>

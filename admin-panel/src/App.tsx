@@ -15,6 +15,7 @@ import LoadingSpinner from "./components/common/LoadingSpinner";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import ProgramsPage from "./pages/ProgramsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import PacksPage from "./pages/PacksPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import EventsPage from "./pages/EventsPage";
@@ -111,6 +112,7 @@ const AppRoutes: React.FC = () => {
 
                 {/* Content Management */}
                 <Route path={ROUTES.PROGRAMS} element={<ProgramsPage />} />
+                <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
                 <Route path={ROUTES.PACKS} element={<PacksPage />} />
                 <Route
                   path={ROUTES.TESTIMONIALS}

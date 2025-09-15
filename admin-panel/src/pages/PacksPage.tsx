@@ -1,92 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, Tag, List, BookOpen } from "lucide-react";
 import { Pack } from "../types";
 import PackFormModal from "../components/packs/PackFormModal";
+import axios from "axios";
 
-// --- Mock Data ---
-const initialPacks: Pack[] = [
-  {
-    packId: "pack-1",
-    name: "Pack Marketing Digital",
-    description:
-      "Devenez un expert en marketing digital avec notre pack complet. Inclut SEO, SEM, et marketing sur les réseaux sociaux.",
-    image:
-      "https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=2071&auto=format&fit=crop",
-    details: {
-      price: 2200,
-      originalPrice: 3000,
-      savings: 800,
-      advantages: [
-        "Accès à vie",
-        "Certificat reconnu",
-        "Support 24/7",
-        "Projets pratiques",
-      ],
-      themes: [
-        {
-          themeId: "theme-1",
-          name: "SEO & Référencement",
-          startDate: "2024-09-01",
-          endDate: "2024-09-30",
-          modules: [
-            { moduleId: "mod-1", title: "Introduction au SEO" },
-            { moduleId: "mod-2", title: "SEO On-Page" },
-          ],
-        },
-        {
-          themeId: "theme-2",
-          name: "Publicité en Ligne",
-          startDate: "2024-10-01",
-          endDate: "2024-10-31",
-          modules: [{ moduleId: "mod-3", title: "Google Ads" }],
-        },
-      ],
-    },
-  },
-  {
-    packId: "pack-2",
-    name: "Pack Développement Web",
-    description:
-      "Maîtrisez les technologies front-end et back-end les plus demandées sur le marché.",
-    image:
-      "https://images.unsplash.com/photo-1504639725590-34d0984388bd?q=80&w=1974&auto=format&fit=crop",
-    details: {
-      price: 3500,
-      originalPrice: 5000,
-      savings: 1500,
-      advantages: [
-        "Projets réels",
-        "Mentorat individuel",
-        "Accès aux outils pro",
-      ],
-      themes: [
-        {
-          themeId: "theme-3",
-          name: "Front-End",
-          startDate: "2024-09-01",
-          endDate: "2024-09-30",
-          modules: [
-            { moduleId: "mod-4", title: "React" },
-            { moduleId: "mod-5", title: "TypeScript" },
-          ],
-        },
-        {
-          themeId: "theme-4",
-          name: "Back-End",
-          startDate: "2024-10-01",
-          endDate: "2024-10-31",
-          modules: [{ moduleId: "mod-6", title: "Node.js & Express" }],
-        },
-      ],
-    },
-  },
-];
+const API_BASE_URL = '/api';
 
 const PacksPage: React.FC = () => {
-  const [packs, setPacks] = useState<Pack[]>(initialPacks);
+  const [packs, setPacks] = useState<Pack[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPack, setSelectedPack] = useState<Pack | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Fetch packs from backend
+  const fetchPacks = async () => {
+    console.log('📦 Récupération des packs depuis le backend...');
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await axios.get(`${API_BASE_URL}/packs`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      console.log('✅ Réponse reçue:', response.data);
+      
+      if (response.data.success) {
+        setPacks(response.data.data);
+        console.log(`✅ ${response.data.data.length} packs chargés`);
+      } else {
+        setError('Erreur lors du chargement des packs');
+      }
+    } catch (err: any) {
+      console.error('❌ Erreur lors du chargement des packs:', err);
+      setError('Impossible de charger les packs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPacks();
+  }, []);
+
+  // Auto-refresh every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refresh des packs...');
+      fetchPacks();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleOpenModalForCreate = () => {
     setSelectedPack(null);
@@ -98,24 +68,81 @@ const PacksPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSavePack = (packToSave: Pack) => {
-    const existing = packs.find((p) => p.packId === packToSave.packId);
-    if (existing) {
-      setPacks(
-        packs.map((p) => (p.packId === packToSave.packId ? packToSave : p))
-      );
-    } else {
-      // For new packs, generate a unique ID
-      const newPackWithId = { ...packToSave, packId: `pack-${Date.now()}` };
-      setPacks([...packs, newPackWithId]);
+  const handleSavePack = async (packToSave: Pack) => {
+    console.log('💾 Sauvegarde du pack:', packToSave);
+    setLoading(true);
+    setError('');
+
+    try {
+      let response: any;
+      if (selectedPack) {
+        // Update existing pack
+        response = await axios.put(`${API_BASE_URL}/packs/${selectedPack.packId}`, packToSave);
+      } else {
+        // Create new pack
+        response = await axios.post(`${API_BASE_URL}/packs`, packToSave);
+      }
+
+      console.log('📡 Réponse de sauvegarde:', response.data);
+
+      if (response.data.success) {
+        // Immediate refresh
+        await fetchPacks();
+        console.log('✅ Packs rechargés après sauvegarde (immediate)');
+        
+        // Delayed refresh to ensure DB propagation
+        setTimeout(async () => {
+          await fetchPacks();
+          console.log('✅ Packs rechargés après sauvegarde (delayed)');
+        }, 1000);
+        
+        // Final refresh
+        setTimeout(async () => {
+          await fetchPacks();
+          console.log('✅ Packs rechargés après sauvegarde (final)');
+        }, 2000);
+        
+        // Add pack directly to state for immediate display
+        if (response.data.data) {
+          setPacks(prevPacks => [response.data.data, ...prevPacks]);
+          console.log('✅ Pack ajouté directement au state');
+        }
+        
+        alert('✅ Pack sauvegardé avec succès!');
+        setIsModalOpen(false);
+      } else {
+        console.log('❌ Erreur de sauvegarde:', response.data.message);
+        setError(response.data.message || 'Erreur lors de la sauvegarde');
+      }
+    } catch (err: any) {
+      console.log('💥 Erreur axios:', err);
+      console.log('💥 Erreur response:', err.response?.data);
+      setError('Erreur lors de la sauvegarde du pack');
+    } finally {
+      setLoading(false);
     }
-    setIsModalOpen(false);
   };
 
-  const handleDeletePack = (packId: string) => {
-    // In a real app, you'd show a confirmation dialog first
+  const handleDeletePack = async (packId: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce pack ?")) {
-      setPacks(packs.filter((p) => p.packId !== packId));
+      console.log('🗑️ Suppression du pack:', packId);
+      setLoading(true);
+      
+      try {
+        const response = await axios.delete(`${API_BASE_URL}/packs/${packId}`);
+        
+        if (response.data.success) {
+          await fetchPacks();
+          alert('✅ Pack supprimé avec succès!');
+        } else {
+          setError('Erreur lors de la suppression');
+        }
+      } catch (err: any) {
+        console.error('❌ Erreur lors de la suppression:', err);
+        setError('Impossible de supprimer le pack');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -146,6 +173,12 @@ const PacksPage: React.FC = () => {
       </div>
 
       <div className="bg-white shadow-sm rounded-lg border p-4 md:p-6">
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        
         <div className="relative max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
@@ -156,6 +189,7 @@ const PacksPage: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            disabled={loading}
           />
         </div>
       </div>

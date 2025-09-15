@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار مباشر - حل مشكلة Admin Panel</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            background: #fff5f5;
+        }
+        button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            min-width: 200px;
+        }
+        button:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+        .status {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 اختبار إضافة برنامج تجريبي</h1>
+        
+        <div class="status" id="status">جاهز للاختبار</div>
+        
+        <div class="test-section">
+            <h2>🎯 الهدف: إضافة برنامج تجريبي لاختبار النظام</h2>
+            <p><strong>المشكلة:</strong> قاعدة البيانات فارغة (0 برامج) - لهذا Admin Panel يعرض قائمة فارغة</p>
+            <p><strong>الحل:</strong> إضافة برنامج تجريبي مباشرة عبر API</p>
+            
+            <button onclick="addTestProgram()">➕ إضافة برنامج تجريبي</button>
+            <button onclick="checkPrograms()">📋 فحص البرامج الموجودة</button>
+            <button onclick="clearDatabase()">🗑️ مسح جميع البرامج</button>
+            
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function showResult(message, type = 'info') {
+            const element = document.getElementById('result');
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const element = document.getElementById('status');
+            element.textContent = message;
+            element.style.color = type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#2c3e50';
+        }
+
+        async function addTestProgram() {
+            try {
+                updateStatus('⏳ جاري إضافة البرنامج التجريبي...', 'info');
+                showResult('🚀 بدء إضافة برنامج تجريبي...', 'info');
+                
+                const testProgram = {
+                    title: "برنامج تجريبي - تطوير المواقع الحديثة",
+                    description: "برنامج تجريبي شامل لتعلم تطوير المواقع باستخدام أحدث التقنيات. يشمل React, Node.js, MongoDB وأكثر. تم إنشاء هذا البرنامج لاختبار وظائف النظام.",
+                    category: "Technologies",
+                    level: "Débutant",
+                    price: 299,
+                    duration: "8 أسابيع",
+                    maxParticipants: 25,
+                    sessionsPerYear: 4,
+                    modules: [
+                        { title: "مقدمة في HTML5 و CSS3" },
+                        { title: "JavaScript ES6+ المتقدم" },
+                        { title: "React و Redux" },
+                        { title: "Node.js و Express" },
+                        { title: "MongoDB و Mongoose" },
+                        { title: "نشر التطبيقات والأمان" }
+                    ],
+                    sessions: [
+                        { title: "الجلسة الأولى: الأساسيات والإعداد", date: "2024-02-15" },
+                        { title: "الجلسة الثانية: تطوير Frontend", date: "2024-02-22" },
+                        { title: "الجلسة الثالثة: تطوير Backend", date: "2024-03-01" },
+                        { title: "الجلسة الرابعة: المشروع النهائي", date: "2024-03-08" }
+                    ],
+                    isActive: true
+                };
+
+                console.log('📤 إرسال البرنامج:', testProgram);
+                
+                const response = await fetch(`${API_BASE}/programs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testProgram)
+                });
+
+                const data = await response.json();
+                console.log('📥 استجابة الخادم:', data);
+                
+                if (response.ok && data.success) {
+                    updateStatus('✅ تم إضافة البرنامج بنجاح!', 'success');
+                    showResult(
+                        `✅ تم إنشاء البرنامج بنجاح!\n\n` +
+                        `🆔 معرف البرنامج: ${data.data._id}\n` +
+                        `📚 العنوان: ${data.data.title}\n` +
+                        `💰 السعر: ${data.data.price}€\n` +
+                        `👥 الحد الأقصى للمشاركين: ${data.data.maxParticipants}\n` +
+                        `📅 عدد الجلسات سنوياً: ${data.data.sessionsPerYear}\n\n` +
+                        `🎉 الآن يمكنك الذهاب إلى Admin Panel وستجد البرنامج!`,
+                        'success'
+                    );
+                    
+                    // تحديث تلقائي لقائمة البرامج
+                    setTimeout(checkPrograms, 1000);
+                    
+                } else {
+                    updateStatus('❌ فشل في إضافة البرنامج', 'error');
+                    showResult(
+                        `❌ فشل في إضافة البرنامج!\n\n` +
+                        `Status: ${response.status}\n` +
+                        `Message: ${data.message || 'خطأ غير معروف'}\n` +
+                        `Errors: ${data.errors ? JSON.stringify(data.errors, null, 2) : 'لا توجد'}\n\n` +
+                        `الاستجابة الكاملة:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                updateStatus('💥 خطأ في الاتصال', 'error');
+                showResult(
+                    `💥 خطأ في الاتصال!\n\n` +
+                    `الخطأ: ${error.message}\n\n` +
+                    `تأكد من أن الخادم الخلفي يعمل على المنفذ 3001`,
+                    'error'
+                );
+                console.error('خطأ:', error);
+            }
+        }
+
+        async function checkPrograms() {
+            try {
+                updateStatus('🔍 جاري فحص البرامج...', 'info');
+                showResult('🔍 جاري البحث عن البرامج الموجودة...', 'info');
+                
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const count = data.count || 0;
+                    updateStatus(`📊 تم العثور على ${count} برنامج`, count > 0 ? 'success' : 'info');
+                    
+                    if (count === 0) {
+                        showResult(
+                            `📊 عدد البرامج الموجودة: ${count}\n\n` +
+                            `❗ قاعدة البيانات فارغة!\n` +
+                            `هذا يفسر لماذا Admin Panel يعرض قائمة فارغة.\n\n` +
+                            `💡 اضغط "إضافة برنامج تجريبي" لحل المشكلة.`,
+                            'info'
+                        );
+                    } else {
+                        let programsList = `📊 عدد البرامج الموجودة: ${count}\n\n`;
+                        programsList += `📋 قائمة البرامج:\n`;
+                        programsList += `${'='.repeat(50)}\n`;
+                        
+                        data.data.forEach((program, index) => {
+                            programsList += `${index + 1}. ${program.title}\n`;
+                            programsList += `   💰 السعر: ${program.price}€\n`;
+                            programsList += `   📂 الفئة: ${program.category}\n`;
+                            programsList += `   📊 المستوى: ${program.level}\n`;
+                            programsList += `   👥 المشاركين: ${program.maxParticipants}\n`;
+                            programsList += `   🆔 المعرف: ${program._id}\n`;
+                            programsList += `   ${'-'.repeat(30)}\n`;
+                        });
+                        
+                        programsList += `\n✅ الآن يجب أن تظهر هذه البرامج في Admin Panel!`;
+                        showResult(programsList, 'success');
+                    }
+                } else {
+                    updateStatus('❌ خطأ في استرجاع البرامج', 'error');
+                    showResult(
+                        `❌ فشل في استرجاع البرامج!\n\n` +
+                        `Status: ${response.status}\n` +
+                        `الاستجابة: ${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                updateStatus('💥 خطأ في الاتصال', 'error');
+                showResult(
+                    `💥 خطأ في الاتصال!\n\n` +
+                    `الخطأ: ${error.message}`,
+                    'error'
+                );
+            }
+        }
+
+        async function clearDatabase() {
+            if (!confirm('⚠️ هل أنت متأكد من حذف جميع البرامج؟\nهذا الإجراء لا يمكن التراجع عنه!')) {
+                return;
+            }
+            
+            try {
+                updateStatus('🗑️ جاري حذف البرامج...', 'info');
+                showResult('🗑️ جاري حذف جميع البرامج...', 'info');
+                
+                // أولاً نحصل على قائمة البرامج
+                const getResponse = await fetch(`${API_BASE}/programs`);
+                const getData = await getResponse.json();
+                
+                if (getData.success && getData.data.length > 0) {
+                    let deletedCount = 0;
+                    
+                    for (const program of getData.data) {
+                        try {
+                            const deleteResponse = await fetch(`${API_BASE}/programs/${program._id}`, {
+                                method: 'DELETE'
+                            });
+                            
+                            if (deleteResponse.ok) {
+                                deletedCount++;
+                            }
+                        } catch (err) {
+                            console.error(`خطأ في حذف البرنامج ${program._id}:`, err);
+                        }
+                    }
+                    
+                    updateStatus(`✅ تم حذف ${deletedCount} برنامج`, 'success');
+                    showResult(
+                        `✅ تم حذف ${deletedCount} من أصل ${getData.data.length} برنامج\n\n` +
+                        `🔄 جاري التحقق من النتيجة...`,
+                        'success'
+                    );
+                    
+                    // التحقق من النتيجة
+                    setTimeout(checkPrograms, 1000);
+                } else {
+                    updateStatus('ℹ️ لا توجد برامج للحذف', 'info');
+                    showResult('ℹ️ قاعدة البيانات فارغة بالفعل - لا توجد برامج للحذف', 'info');
+                }
+            } catch (error) {
+                updateStatus('💥 خطأ في الحذف', 'error');
+                showResult(
+                    `💥 خطأ في عملية الحذف!\n\n` +
+                    `الخطأ: ${error.message}`,
+                    'error'
+                );
+            }
+        }
+
+        // فحص تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            setTimeout(checkPrograms, 500);
+        };
+    </script>
+</body>
+</html>

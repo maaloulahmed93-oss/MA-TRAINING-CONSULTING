@@ -1,4 +1,4 @@
-import { User } from "../types";
+import { User } from "../types/index";
 
 // Mock user for development
 export const MOCK_USER: User = {
