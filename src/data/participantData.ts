@@ -8,9 +8,12 @@ export const mockParticipants: Record<string, Participant> = {
     email: 'ahmed.benali@email.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     enrolledDate: '2024-01-15',
-    totalProgress: 75,
-    completedCourses: 8,
-    totalCourses: 12
+    totalProgress: 85,
+    completedCourses: 12,
+    totalCourses: 15,
+    studyTime: 60,
+    achievedGoals: 15,
+    totalGoals: 18
   },
   'PART-2024-002': {
     id: 'PART-2024-002',
@@ -18,9 +21,12 @@ export const mockParticipants: Record<string, Participant> = {
     email: 'fatima.elmansouri@email.com',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face',
     enrolledDate: '2024-02-10',
-    totalProgress: 60,
-    completedCourses: 5,
-    totalCourses: 10
+    totalProgress: 92,
+    completedCourses: 18,
+    totalCourses: 20,
+    studyTime: 90,
+    achievedGoals: 22,
+    totalGoals: 24
   },
   'PART-2024-003': {
     id: 'PART-2024-003',
@@ -28,10 +34,26 @@ export const mockParticipants: Record<string, Participant> = {
     email: 'youssef.trabelsi@example.com',
     avatar: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=150&h=150&fit=crop&crop=face',
     enrolledDate: '2024-03-12',
-    totalProgress: 42,
-    completedCourses: 2,
-    totalCourses: 5
-  }
+    totalProgress: 67,
+    completedCourses: 8,
+    totalCourses: 12,
+    studyTime: 40,
+    achievedGoals: 10,
+    totalGoals: 15
+  },
+  // 'PART-814809': {
+  //   id: 'PART-814809',
+  //   name: 'aziz ben ameur',
+  //   email: 'ameur@gmail.com',
+  //   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+  //   enrolledDate: '2024-01-15',
+  //   totalProgress: 0,
+  //   completedCourses: 0,
+  //   totalCourses: 6,
+  //   studyTime: 0,
+  //   achievedGoals: 0,
+  //   totalGoals: 6
+  // } // تم تعطيل البيانات التجريبية
 };
 
 // IDs d'accès valides pour le mock
@@ -209,6 +231,7 @@ export const mockProjects: Project[] = [
     dueDate: '2024-07-01',
     feedback: 'Excellent travail ! Interface utilisateur très bien conçue.',
     grade: 18,
+    projectUrl: 'https://github.com/ahmed-benali/ecommerce-react-project',
     files: [
       {
         id: 'FILE-001',
@@ -227,6 +250,7 @@ export const mockProjects: Project[] = [
     formationTitle: 'Marketing Digital Avancé',
     status: 'En attente',
     dueDate: '2024-08-15',
+    projectUrl: 'https://docs.google.com/presentation/d/1234567890/edit',
     files: []
   },
   {
@@ -237,6 +261,7 @@ export const mockProjects: Project[] = [
     formationTitle: 'Data Science & ML',
     status: 'En attente',
     dueDate: '2024-09-10',
+    projectUrl: 'https://colab.research.google.com/drive/1abcdef123456',
     files: []
   }
 ];

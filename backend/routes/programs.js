@@ -36,7 +36,16 @@ router.get('/', async (req, res) => {
     }
 
     console.log('🔍 Query MongoDB:', query);
-    const programs = await Program.find(query).populate('category', 'name').sort({ createdAt: -1 });
+    
+    // Try to populate category, but handle errors gracefully
+    let programs;
+    try {
+      programs = await Program.find(query).populate('category', 'name').sort({ createdAt: -1 });
+    } catch (populateError) {
+      console.warn('⚠️ Populate error, fetching without populate:', populateError.message);
+      programs = await Program.find(query).sort({ createdAt: -1 });
+    }
+    
     console.log('📊 Programmes trouvés:', programs.length);
     
     // Debug populate results
@@ -49,11 +58,22 @@ router.get('/', async (req, res) => {
       console.log(`📋 Programme ${index + 1}: ${program.title} (${program.price}€)`);
     });
     
-    res.json({
+    // Ensure we always return a valid response
+    const response = {
       success: true,
-      data: programs,
-      count: programs.length
+      data: programs || [],
+      count: programs ? programs.length : 0
+    };
+    
+    console.log('📤 Sending response:', {
+      success: response.success,
+      count: response.count,
+      hasData: Array.isArray(response.data)
     });
+    
+    // Ensure proper JSON response
+    res.setHeader('Content-Type', 'application/json');
+    res.json(response);
   } catch (error) {
     console.error('❌ Erreur lors de la récupération des programmes:', error);
     res.status(500).json({

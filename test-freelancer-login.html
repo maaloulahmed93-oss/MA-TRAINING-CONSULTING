@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Freelancer Login - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        input, button {
+            padding: 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Freelancer Login System</h1>
+        
+        <!-- Section 1: Création de Freelancer -->
+        <div class="test-section">
+            <h3>1️⃣ Créer un Freelancer de Test</h3>
+            <input type="text" id="freelancerName" placeholder="Nom complet" value="Jean Dupont">
+            <input type="email" id="freelancerEmail" placeholder="Email" value="">
+            <input type="text" id="freelancerPhone" placeholder="Téléphone" value="+33123456789">
+            <br>
+            <button onclick="createFreelancer()">Créer Freelancer</button>
+            <div id="createResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Section 2: Test de Login -->
+        <div class="test-section">
+            <h3>2️⃣ Tester la Connexion</h3>
+            <input type="text" id="loginId" placeholder="ID Freelancer (ex: FRE-123456)" value="">
+            <button onclick="testLogin()">Tester Connexion</button>
+            <button onclick="testLoginWrongType()">Tester Mauvais Type</button>
+            <div id="loginResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Section 3: Test ID Invalide -->
+        <div class="test-section">
+            <h3>3️⃣ Tester ID Invalide</h3>
+            <button onclick="testInvalidId()">Tester FRE-999999</button>
+            <button onclick="testMalformedId()">Tester ID Malformé</button>
+            <div id="invalidResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Section 4: Statistiques -->
+        <div class="test-section">
+            <h3>4️⃣ Statistiques Partenaires</h3>
+            <button onclick="loadStats()">Charger Statistiques</button>
+            <div id="statsContainer" style="display:none;">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPartners">-</div>
+                        <div class="stat-label">Total Partenaires</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalFreelancers">-</div>
+                        <div class="stat-label">Freelancers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEnterprises">-</div>
+                        <div class="stat-label">Entreprises</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalFormateurs">-</div>
+                        <div class="stat-label">Formateurs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Test Frontend -->
+        <div class="test-section">
+            <h3>5️⃣ Test Frontend Integration</h3>
+            <p>Une fois un Freelancer créé, testez la connexion sur:</p>
+            <a href="http://localhost:5173/espace-freelancer" target="_blank" 
+               style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+                🚀 Ouvrir Espace Freelancer
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let lastCreatedId = '';
+
+        // Générer email unique
+        document.getElementById('freelancerEmail').value = `freelancer.test.${Date.now()}@example.com`;
+
+        async function createFreelancer() {
+            const name = document.getElementById('freelancerName').value;
+            const email = document.getElementById('freelancerEmail').value;
+            const phone = document.getElementById('freelancerPhone').value;
+            const resultDiv = document.getElementById('createResult');
+
+            if (!name || !email) {
+                showResult(resultDiv, 'Nom et email requis', 'error');
+                return;
+            }
+
+            try {
+                showResult(resultDiv, 'Création en cours...', 'info');
+
+                const response = await fetch(`${API_BASE}/partners`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: name,
+                        email: email,
+                        phone: phone,
+                        type: 'freelancer',
+                        description: 'Freelancer de test créé automatiquement'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    lastCreatedId = result.data.partnerId;
+                    document.getElementById('loginId').value = lastCreatedId;
+                    
+                    showResult(resultDiv, 
+                        `✅ Freelancer créé avec succès!\n` +
+                        `📋 ID: ${result.data.partnerId}\n` +
+                        `📧 Email: ${result.data.email}\n` +
+                        `🏷️ Type: ${result.data.type}\n` +
+                        `📅 Créé: ${new Date(result.data.createdAt).toLocaleString()}`, 
+                        'success'
+                    );
+                } else {
+                    showResult(resultDiv, `❌ Erreur: ${result.message}`, 'error');
+                }
+
+            } catch (error) {
+                showResult(resultDiv, `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const partnerId = document.getElementById('loginId').value;
+            const resultDiv = document.getElementById('loginResult');
+
+            if (!partnerId) {
+                showResult(resultDiv, 'ID Freelancer requis', 'error');
+                return;
+            }
+
+            try {
+                showResult(resultDiv, 'Test de connexion...', 'info');
+
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        partnerId: partnerId,
+                        partnerType: 'freelancer'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult(resultDiv, 
+                        `✅ Connexion réussie!\n` +
+                        `👤 Nom: ${result.data.fullName}\n` +
+                        `📧 Email: ${result.data.email}\n` +
+                        `🏷️ Type: ${result.data.type}\n` +
+                        `✅ Actif: ${result.data.isActive}\n` +
+                        `📅 Dernière connexion: ${new Date(result.data.lastLogin).toLocaleString()}`, 
+                        'success'
+                    );
+                } else {
+                    showResult(resultDiv, `❌ Échec: ${result.message}`, 'error');
+                }
+
+            } catch (error) {
+                showResult(resultDiv, `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLoginWrongType() {
+            const partnerId = document.getElementById('loginId').value;
+            const resultDiv = document.getElementById('loginResult');
+
+            if (!partnerId) {
+                showResult(resultDiv, 'ID Freelancer requis', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        partnerId: partnerId,
+                        partnerType: 'entreprise'  // Mauvais type intentionnel
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success && result.message.includes('invalide')) {
+                    showResult(resultDiv, 
+                        `✅ Validation type correcte!\n` +
+                        `📝 Message: ${result.message}\n` +
+                        `🔒 Accès refusé comme attendu`, 
+                        'success'
+                    );
+                } else {
+                    showResult(resultDiv, `❌ Validation type échouée: ${result.message}`, 'error');
+                }
+
+            } catch (error) {
+                showResult(resultDiv, `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function testInvalidId() {
+            const resultDiv = document.getElementById('invalidResult');
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        partnerId: 'FRE-999999',
+                        partnerType: 'freelancer'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    showResult(resultDiv, 
+                        `✅ ID invalide correctement rejeté\n` +
+                        `📝 Message: ${result.message}`, 
+                        'success'
+                    );
+                } else {
+                    showResult(resultDiv, `❌ ID invalide accepté (problème!)`, 'error');
+                }
+
+            } catch (error) {
+                showResult(resultDiv, `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function testMalformedId() {
+            const resultDiv = document.getElementById('invalidResult');
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        partnerId: 'INVALID-ID',
+                        partnerType: 'freelancer'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    showResult(resultDiv, 
+                        `✅ ID malformé correctement rejeté\n` +
+                        `📝 Message: ${result.message}`, 
+                        'success'
+                    );
+                } else {
+                    showResult(resultDiv, `❌ ID malformé accepté (problème!)`, 'error');
+                }
+
+            } catch (error) {
+                showResult(resultDiv, `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadStats() {
+            const container = document.getElementById('statsContainer');
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/stats/overview`);
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('totalPartners').textContent = result.data.total;
+                    document.getElementById('totalFreelancers').textContent = result.data.freelancers;
+                    document.getElementById('totalEnterprises').textContent = result.data.entreprises;
+                    document.getElementById('totalFormateurs').textContent = result.data.formateurs;
+                    
+                    container.style.display = 'block';
+                } else {
+                    alert('Erreur lors du chargement des statistiques');
+                }
+
+            } catch (error) {
+                alert(`Erreur réseau: ${error.message}`);
+            }
+        }
+
+        function showResult(element, message, type) {
+            element.textContent = message;
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+        }
+
+        // Charger les stats au démarrage
+        window.addEventListener('load', loadStats);
+    </script>
+</body>
+</html>

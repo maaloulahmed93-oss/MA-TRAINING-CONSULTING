@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pack Save Simple - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Sauvegarde Pack Simple</h1>
+        <p>Test avec le même pack qui causait l'erreur</p>
+        
+        <button onclick="testPackSave()">🚀 Tester Sauvegarde</button>
+        <button onclick="fetchPacks()">📋 Voir Packs</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Test avec le pack exact qui causait l'erreur
+        async function testPackSave() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = '🔄 Test en cours...\n';
+            resultEl.className = 'result';
+            
+            const testPack = {
+                "packId": "new-pack-1758372262343",
+                "name": "mangment",
+                "description": "ededededed",
+                "image": "",
+                "details": {
+                    "themes": [],
+                    "advantages": [],
+                    "price": 700,
+                    "originalPrice": 800,
+                    "savings": 100
+                }
+            };
+            
+            try {
+                console.log('📤 Envoi du pack:', testPack);
+                
+                const response = await fetch(`${API_BASE}/packs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testPack)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultEl.textContent = `✅ SUCCÈS!\n\nStatus: ${response.status}\nPack créé: ${data.data?.name}\nPack ID: ${data.data?.packId}\n\nRéponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    resultEl.className = 'result success';
+                } else {
+                    resultEl.textContent = `❌ ERREUR\n\nStatus: ${response.status}\nMessage: ${data.message}\n\nErreurs:\n${JSON.stringify(data.errors || data, null, 2)}`;
+                    resultEl.className = 'result error';
+                }
+            } catch (error) {
+                resultEl.textContent = `💥 ERREUR RÉSEAU\n\n${error.message}`;
+                resultEl.className = 'result error';
+            }
+        }
+
+        // Récupérer tous les packs
+        async function fetchPacks() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = '🔄 Récupération des packs...\n';
+            resultEl.className = 'result';
+            
+            try {
+                const response = await fetch(`${API_BASE}/packs`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultEl.textContent = `📋 PACKS EXISTANTS (${data.data?.length || 0})\n\n${JSON.stringify(data, null, 2)}`;
+                    resultEl.className = 'result success';
+                } else {
+                    resultEl.textContent = `❌ Erreur récupération: ${data.message}`;
+                    resultEl.className = 'result error';
+                }
+            } catch (error) {
+                resultEl.textContent = `💥 Erreur réseau: ${error.message}`;
+                resultEl.className = 'result error';
+            }
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', () => {
+            console.log('🚀 Page de test chargée');
+            fetchPacks();
+        });
+    </script>
+</body>
+</html>

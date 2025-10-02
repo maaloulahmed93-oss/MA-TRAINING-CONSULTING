@@ -5,11 +5,10 @@ import {
   User, 
   AlertCircle, 
   CheckCircle, 
-  Eye, 
-  EyeOff,
-  Building2
+  Building2,
+  Mail
 } from 'lucide-react';
-import { authenticatePartner } from '../../services/partnershipAuth';
+import { savePartnershipSession } from '../../services/partnershipAuth';
 
 interface PartnershipLoginModalProps {
   isOpen: boolean;
@@ -21,12 +20,10 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
   onAuthenticated
 }) => {
   const [partnerId, setPartnerId] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showDemoIds, setShowDemoIds] = useState(false);
-
-  const demoIds = ['PARTNER123', 'ENTREPRISE456'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +33,20 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
       return;
     }
 
+    if (!email.trim()) {
+      setError('Veuillez saisir votre email');
+      return;
+    }
+
     if (partnerId.length < 4) {
       setError('L\'ID doit contenir au moins 4 caractères');
+      return;
+    }
+
+    // Validation email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Format d\'email invalide');
       return;
     }
 
@@ -46,15 +55,32 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
     setSuccess('');
 
     try {
-      const isValid = await authenticatePartner(partnerId);
+      // Appel API avec email et ID
+      const response = await fetch('http://localhost:3001/api/partners/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          partnerId: partnerId.toUpperCase(),
+          email: email.trim(),
+          partnerType: 'entreprise'
+        }),
+      });
+
+      const data = await response.json();
       
-      if (isValid) {
+      if (response.ok && data.success) {
         setSuccess('Authentification réussie !');
+        
+        // Sauvegarder la session localement
+        savePartnershipSession(partnerId);
+        
         setTimeout(() => {
           onAuthenticated(partnerId);
         }, 1000);
       } else {
-        setError('ID de partenaire invalide');
+        setError(data.message || 'ID de partenaire ou email invalide');
       }
     } catch (_err) {
       setError('Erreur lors de l\'authentification');
@@ -63,11 +89,6 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
     }
   };
 
-  const handleDemoIdClick = (demoId: string) => {
-    setPartnerId(demoId);
-    setError('');
-    setSuccess('');
-  };
 
   if (!isOpen) return null;
 
@@ -95,7 +116,7 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
             Accès Sécurisé Partenariat
           </h2>
           <p className="text-gray-600">
-            Connectez-vous avec votre ID de partenaire
+            Connectez-vous avec votre ID de partenaire et email
           </p>
         </div>
 
@@ -117,10 +138,32 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
                 className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                 placeholder="Saisissez votre ID"
                 disabled={isLoading}
+                required
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <User className="h-5 w-5 text-gray-400" />
               </div>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              Email du compte *
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Mail className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                placeholder="votre.email@exemple.com"
+                disabled={isLoading}
+                required
+              />
             </div>
           </div>
 
@@ -164,41 +207,6 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
             )}
           </button>
         </form>
-
-        {/* Demo IDs Section */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <button
-            onClick={() => setShowDemoIds(!showDemoIds)}
-            className="flex items-center justify-center space-x-2 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200 w-full"
-          >
-            {showDemoIds ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            <span>{showDemoIds ? 'Masquer' : 'Voir'} les IDs de démonstration</span>
-          </button>
-          
-          {showDemoIds && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 space-y-2"
-            >
-              <p className="text-xs text-gray-500 text-center mb-3">
-                IDs de test disponibles :
-              </p>
-              <div className="grid grid-cols-1 gap-2">
-                {demoIds.map((demoId) => (
-                  <button
-                    key={demoId}
-                    onClick={() => handleDemoIdClick(demoId)}
-                    className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg transition-colors duration-200 font-mono"
-                  >
-                    {demoId}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </div>
 
         {/* Security Note */}
         <div className="mt-6 text-center">

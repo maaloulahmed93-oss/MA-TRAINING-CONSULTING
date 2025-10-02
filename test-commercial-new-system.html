@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système Commercial Nouveau - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #1f2937;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .status-icon {
+            margin-left: 10px;
+            font-size: 20px;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .result {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .niveau-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .niveau-1 { background: #fef3c7; color: #92400e; }
+        .niveau-2 { background: #dbeafe; color: #1e40af; }
+        .niveau-3 { background: #e9d5ff; color: #7c3aed; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Test Système Commercial Nouveau - MATC</h1>
+            <p>Test complet du nouveau système commercial avec 3 niveaux</p>
+        </div>
+
+        <!-- Test 1: Connexion Backend -->
+        <div class="test-section">
+            <h3>1. Test Connexion Backend <span id="backend-status" class="status-icon">⏳</span></h3>
+            <button onclick="testBackendConnection()">Tester Connexion</button>
+            <div id="backend-result" class="result"></div>
+        </div>
+
+        <!-- Test 2: Création Service Admin -->
+        <div class="test-section">
+            <h3>2. Création Service (Admin avec Secret Code) <span id="service-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Titre du Service:</label>
+                <input type="text" id="service-titre" value="Formation React Avancée" />
+            </div>
+            <div class="form-group">
+                <label>Catégorie:</label>
+                <input type="text" id="service-categorie" value="Développement Web" />
+            </div>
+            <div class="form-group">
+                <label>Prix Public (€):</label>
+                <input type="number" id="service-prix-public" value="1200" />
+            </div>
+            <div class="form-group">
+                <label>Prix Commercial (€):</label>
+                <input type="number" id="service-prix-commercial" value="1000" />
+            </div>
+            <div class="form-group">
+                <label>Commission (€):</label>
+                <input type="number" id="service-commission" value="120" />
+            </div>
+            <div class="form-group">
+                <label>Durée:</label>
+                <input type="text" id="service-duree" value="3 mois" />
+            </div>
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea id="service-description">Formation complète en React avec hooks, context et tests</textarea>
+            </div>
+            <button onclick="createService()">Créer Service (avec Secret Code)</button>
+            <div id="service-result" class="result"></div>
+        </div>
+
+        <!-- Test 3: Création Commercial -->
+        <div class="test-section">
+            <h3>3. Création Commercial Test <span id="commercial-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Partner ID:</label>
+                <input type="text" id="commercial-id" value="COMM-123456" />
+            </div>
+            <div class="form-group">
+                <label>Nom Complet:</label>
+                <input type="text" id="commercial-nom" value="Ahmed Ben Salah" />
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="commercial-email" value="ahmed.commercial@matc.tn" />
+            </div>
+            <div class="form-group">
+                <label>Téléphone:</label>
+                <input type="text" id="commercial-phone" value="+216 98 765 432" />
+            </div>
+            <button onclick="createCommercial()">Créer Commercial</button>
+            <div id="commercial-result" class="result"></div>
+        </div>
+
+        <!-- Test 4: Attribution Service -->
+        <div class="test-section">
+            <h3>4. Attribution Service à Commercial <span id="assign-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Service ID:</label>
+                <input type="text" id="assign-service-id" placeholder="ID du service créé" />
+            </div>
+            <div class="form-group">
+                <label>Commercial ID:</label>
+                <input type="text" id="assign-commercial-id" value="COMM-123456" />
+            </div>
+            <button onclick="assignService()">Attribuer Service (avec Secret Code)</button>
+            <div id="assign-result" class="result"></div>
+        </div>
+
+        <!-- Test 5: Login Commercial -->
+        <div class="test-section">
+            <h3>5. Login Commercial <span id="login-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Partner ID:</label>
+                <input type="text" id="login-id" value="COMM-123456" />
+            </div>
+            <button onclick="loginCommercial()">Se Connecter</button>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Test 6: Récupération Services -->
+        <div class="test-section">
+            <h3>6. Services Attribués <span id="services-status" class="status-icon">⏳</span></h3>
+            <button onclick="getServices()">Récupérer Services</button>
+            <div id="services-result" class="result"></div>
+        </div>
+
+        <!-- Test 7: Simulation Ventes -->
+        <div class="test-section">
+            <h3>7. Simulation Ventes (Progression Niveaux) <span id="ventes-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Service ID:</label>
+                <input type="text" id="vente-service-id" placeholder="ID du service" />
+            </div>
+            <div class="form-group">
+                <label>Nom Client:</label>
+                <input type="text" id="vente-client" value="TechCorp SARL" />
+            </div>
+            <div class="form-group">
+                <label>Email Client:</label>
+                <input type="email" id="vente-email" value="contact@techcorp.tn" />
+            </div>
+            <div class="form-group">
+                <label>Montant (€):</label>
+                <input type="number" id="vente-montant" value="1000" />
+            </div>
+            <div class="form-group">
+                <label>Commission (€):</label>
+                <input type="number" id="vente-commission" value="120" />
+            </div>
+            <div class="form-group">
+                <label>Méthode Paiement:</label>
+                <input type="text" id="vente-paiement" value="Virement bancaire" />
+            </div>
+            <button onclick="ajouterVente()">Ajouter Vente</button>
+            <button onclick="simulerVentesMultiples()">Simuler 200 Ventes (Niveau 1→2)</button>
+            <div id="ventes-result" class="result"></div>
+        </div>
+
+        <!-- Test 8: Gestion Clients (Niveau 2) -->
+        <div class="test-section">
+            <h3>8. Gestion Clients (Niveau 2+) <span id="clients-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Nom:</label>
+                <input type="text" id="client-nom" value="Mansour" />
+            </div>
+            <div class="form-group">
+                <label>Prénom:</label>
+                <input type="text" id="client-prenom" value="Ali" />
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="client-email" value="ali.mansour@example.com" />
+            </div>
+            <div class="form-group">
+                <label>Téléphone:</label>
+                <input type="text" id="client-tel" value="+216 99 888 777" />
+            </div>
+            <div class="form-group">
+                <label>Programme:</label>
+                <input type="text" id="client-programme" value="Formation React Avancée" />
+            </div>
+            <div class="form-group">
+                <label>Montant (€):</label>
+                <input type="number" id="client-montant" value="1000" />
+            </div>
+            <button onclick="ajouterClient()">Ajouter Client</button>
+            <div id="clients-result" class="result"></div>
+        </div>
+
+        <!-- Test 9: Transfert (Niveau 2→3) -->
+        <div class="test-section">
+            <h3>9. Transfert vers Entreprise (Niveau 2→3) <span id="transfert-status" class="status-icon">⏳</span></h3>
+            <div class="form-group">
+                <label>Montant à Transférer (€):</label>
+                <input type="number" id="transfert-montant" value="500" />
+            </div>
+            <button onclick="effectuerTransfert()">Effectuer Transfert</button>
+            <div id="transfert-result" class="result"></div>
+        </div>
+
+        <!-- Test 10: Statistiques -->
+        <div class="test-section">
+            <h3>10. Statistiques Commercial <span id="stats-status" class="status-icon">⏳</span></h3>
+            <button onclick="getStats()">Récupérer Statistiques</button>
+            <div id="stats-display" class="stats-grid"></div>
+            <div id="stats-result" class="result"></div>
+        </div>
+
+        <!-- Test 11: Cadeaux Mensuels (Niveau 3) -->
+        <div class="test-section">
+            <h3>11. Cadeaux Mensuels Automatiques <span id="cadeaux-status" class="status-icon">⏳</span></h3>
+            <button onclick="ajouterCadeauxMensuels()">Ajouter Cadeaux Mensuels (Admin)</button>
+            <div id="cadeaux-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const SECRET_CODE = '20388542';
+        let currentCommercialId = 'COMM-123456';
+        let currentServiceId = '';
+
+        // Test 1: Connexion Backend
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const result = await response.json();
+                
+                document.getElementById('backend-status').innerHTML = '✅';
+                document.getElementById('backend-result').textContent = 
+                    `✅ Backend connecté!\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('backend-status').innerHTML = '❌';
+                document.getElementById('backend-result').textContent = 
+                    `❌ Erreur connexion: ${error.message}`;
+            }
+        }
+
+        // Test 2: Création Service
+        async function createService() {
+            try {
+                const serviceData = {
+                    titre: document.getElementById('service-titre').value,
+                    categorie: document.getElementById('service-categorie').value,
+                    description: document.getElementById('service-description').value,
+                    prixPublic: parseFloat(document.getElementById('service-prix-public').value),
+                    prixCommercial: parseFloat(document.getElementById('service-prix-commercial').value),
+                    commission: parseFloat(document.getElementById('service-commission').value),
+                    duree: document.getElementById('service-duree').value,
+                    secretCode: SECRET_CODE,
+                    adminId: 'admin-test'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(serviceData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentServiceId = result.data._id;
+                    document.getElementById('assign-service-id').value = currentServiceId;
+                    document.getElementById('vente-service-id').value = currentServiceId;
+                    document.getElementById('service-status').innerHTML = '✅';
+                } else {
+                    document.getElementById('service-status').innerHTML = '❌';
+                }
+                
+                document.getElementById('service-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('service-status').innerHTML = '❌';
+                document.getElementById('service-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 3: Création Commercial (via API Partners)
+        async function createCommercial() {
+            try {
+                const commercialData = {
+                    type: 'commercial',
+                    fullName: document.getElementById('commercial-nom').value,
+                    email: document.getElementById('commercial-email').value,
+                    phone: document.getElementById('commercial-phone').value,
+                    secteur: 'Commercial'
+                };
+
+                const response = await fetch('http://localhost:3001/api/partners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentCommercialId = result.data.partnerId;
+                    document.getElementById('assign-commercial-id').value = currentCommercialId;
+                    document.getElementById('login-id').value = currentCommercialId;
+                    document.getElementById('commercial-status').innerHTML = '✅';
+                } else {
+                    document.getElementById('commercial-status').innerHTML = '❌';
+                }
+                
+                document.getElementById('commercial-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('commercial-status').innerHTML = '❌';
+                document.getElementById('commercial-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 4: Attribution Service
+        async function assignService() {
+            try {
+                const assignData = {
+                    serviceId: document.getElementById('assign-service-id').value,
+                    partnerId: document.getElementById('assign-commercial-id').value,
+                    secretCode: SECRET_CODE,
+                    adminId: 'admin-test'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/assign-service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(assignData)
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('assign-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('assign-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('assign-status').innerHTML = '❌';
+                document.getElementById('assign-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 5: Login Commercial
+        async function loginCommercial() {
+            try {
+                const partnerId = document.getElementById('login-id').value;
+                
+                const response = await fetch(`${API_BASE}/${partnerId}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('login-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('login-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('login-status').innerHTML = '❌';
+                document.getElementById('login-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 6: Récupération Services
+        async function getServices() {
+            try {
+                const response = await fetch(`${API_BASE}/${currentCommercialId}/services`);
+                const result = await response.json();
+                
+                document.getElementById('services-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('services-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('services-status').innerHTML = '❌';
+                document.getElementById('services-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 7: Ajouter Vente
+        async function ajouterVente() {
+            try {
+                const venteData = {
+                    serviceId: document.getElementById('vente-service-id').value,
+                    client: document.getElementById('vente-client').value,
+                    clientEmail: document.getElementById('vente-email').value,
+                    montant: parseFloat(document.getElementById('vente-montant').value),
+                    commission: parseFloat(document.getElementById('vente-commission').value),
+                    methodePaiement: document.getElementById('vente-paiement').value
+                };
+
+                const response = await fetch(`${API_BASE}/${currentCommercialId}/vente`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venteData)
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('ventes-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('ventes-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('ventes-status').innerHTML = '❌';
+                document.getElementById('ventes-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Simuler ventes multiples
+        async function simulerVentesMultiples() {
+            try {
+                let resultats = [];
+                
+                for (let i = 1; i <= 200; i++) {
+                    const venteData = {
+                        serviceId: document.getElementById('vente-service-id').value,
+                        client: `Client Test ${i}`,
+                        clientEmail: `client${i}@test.com`,
+                        montant: 1000,
+                        commission: 120,
+                        methodePaiement: 'Test'
+                    };
+
+                    const response = await fetch(`${API_BASE}/${currentCommercialId}/vente`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(venteData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (i % 50 === 0) {
+                        resultats.push(`Vente ${i}: ${result.success ? 'OK' : 'ERREUR'} - Niveau: ${result.data?.nouveauNiveau || 'N/A'}`);
+                    }
+                }
+                
+                document.getElementById('ventes-status').innerHTML = '✅';
+                document.getElementById('ventes-result').textContent = 
+                    `✅ 200 ventes simulées!\n${resultats.join('\n')}`;
+            } catch (error) {
+                document.getElementById('ventes-status').innerHTML = '❌';
+                document.getElementById('ventes-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 8: Ajouter Client
+        async function ajouterClient() {
+            try {
+                const clientData = {
+                    nom: document.getElementById('client-nom').value,
+                    prenom: document.getElementById('client-prenom').value,
+                    email: document.getElementById('client-email').value,
+                    tel: document.getElementById('client-tel').value,
+                    programme: document.getElementById('client-programme').value,
+                    montant: parseFloat(document.getElementById('client-montant').value)
+                };
+
+                const response = await fetch(`${API_BASE}/${currentCommercialId}/client`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(clientData)
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('clients-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('clients-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('clients-status').innerHTML = '❌';
+                document.getElementById('clients-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 9: Effectuer Transfert
+        async function effectuerTransfert() {
+            try {
+                const montant = parseFloat(document.getElementById('transfert-montant').value);
+
+                const response = await fetch(`${API_BASE}/${currentCommercialId}/transfert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ montant })
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('transfert-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('transfert-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('transfert-status').innerHTML = '❌';
+                document.getElementById('transfert-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 10: Statistiques
+        async function getStats() {
+            try {
+                const response = await fetch(`${API_BASE}/${currentCommercialId}/stats`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    const niveauClass = `niveau-${stats.niveau}`;
+                    
+                    document.getElementById('stats-display').innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-value niveau-badge ${niveauClass}">Niveau ${stats.niveau}</div>
+                            <div class="stat-label">Niveau Actuel</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.points}</div>
+                            <div class="stat-label">Points</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.chiffreAffaires}€</div>
+                            <div class="stat-label">Chiffre d'Affaires</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.commissionTotale}€</div>
+                            <div class="stat-label">Commission Totale</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.totalVentes}</div>
+                            <div class="stat-label">Total Ventes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.totalClients}</div>
+                            <div class="stat-label">Total Clients</div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('stats-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('stats-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('stats-status').innerHTML = '❌';
+                document.getElementById('stats-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 11: Cadeaux Mensuels
+        async function ajouterCadeauxMensuels() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/cadeaux-mensuels`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secretCode: SECRET_CODE })
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('cadeaux-status').innerHTML = result.success ? '✅' : '❌';
+                document.getElementById('cadeaux-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('cadeaux-status').innerHTML = '❌';
+                document.getElementById('cadeaux-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            testBackendConnection();
+        };
+    </script>
+</body>
+</html>

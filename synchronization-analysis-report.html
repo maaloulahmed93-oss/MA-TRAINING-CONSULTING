@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC - Rapport d'Analyse Synchronisation Complète</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .section { padding: 30px; border-bottom: 1px solid #e2e8f0; }
+        .section:last-child { border-bottom: none; }
+        .section h2 { color: #2d3748; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .mapping-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 12px; }
+        .mapping-table th, .mapping-table td { padding: 8px; border: 1px solid #e2e8f0; text-align: left; }
+        .mapping-table th { background: #f8fafc; font-weight: 600; }
+        .status { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+        .status.perfect { background: #c6f6d5; color: #22543d; }
+        .status.good { background: #bee3f8; color: #2c5282; }
+        .status.warning { background: #fef5e7; color: #c05621; }
+        .status.missing { background: #fed7d7; color: #c53030; }
+        .status.mock { background: #e6fffa; color: #234e52; }
+        .critical { background: #fed7d7; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #e53e3e; }
+        .warning { background: #fef5e7; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #d69e2e; }
+        .success { background: #c6f6d5; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #38a169; }
+        .info { background: #bee3f8; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #3182ce; }
+        .code { background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 11px; margin: 10px 0; }
+        .step { background: #f7fafc; border-left: 4px solid #4299e1; padding: 15px; margin: 10px 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .card { background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .score { font-size: 48px; font-weight: bold; text-align: center; margin: 20px 0; }
+        .score.critical { color: #e53e3e; }
+        .score.warning { color: #d69e2e; }
+        .score.good { color: #3182ce; }
+        .score.excellent { color: #38a169; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 ANALYSE SYNCHRONISATION MATC</h1>
+            <p>Panel ↔ Backend ↔ Espace Participant - Rapport Complet</p>
+            <div style="font-size: 14px; margin-top: 20px; opacity: 0.9;">
+                Méthodologie: Analyse → Plan → Implémentation
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Score Global de Synchronisation</h2>
+            <div class="score warning">65%</div>
+            <div style="text-align: center; color: #666;">
+                <strong>Évaluation: Moyen - Améliorations Critiques Requises</strong><br>
+                Synchronisation partielle avec utilisation intensive de mock data
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🗺️ Tableau de Correspondance (Mapping) Complet</h2>
+            
+            <h3>👤 PARTICIPANTS</h3>
+            <table class="mapping-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Panel (Admin)</th>
+                        <th>Backend Model</th>
+                        <th>Espace Participant</th>
+                        <th>Status</th>
+                        <th>Source Actuelle</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>ID</strong></td>
+                        <td>participant.id</td>
+                        <td>Partner.partnerId</td>
+                        <td>participant.id</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>API + Fallback</td>
+                        <td>Synchronisé</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nom</strong></td>
+                        <td>participant.fullName</td>
+                        <td>Partner.fullName</td>
+                        <td>participant.name</td>
+                        <td><span class="status good">Good</span></td>
+                        <td>API + Fallback</td>
+                        <td>Champ différent (fullName vs name)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email</strong></td>
+                        <td>participant.email</td>
+                        <td>Partner.email</td>
+                        <td>participant.email</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>API + Fallback</td>
+                        <td>Synchronisé</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Avatar</strong></td>
+                        <td>participant.avatar</td>
+                        <td>Partner.description.avatar</td>
+                        <td>participant.avatar</td>
+                        <td><span class="status warning">Warning</span></td>
+                        <td>API + Fallback</td>
+                        <td>Stocké en JSON</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Status</strong></td>
+                        <td>participant.status</td>
+                        <td>Partner.description.status</td>
+                        <td>❌ ABSENT</td>
+                        <td><span class="status missing">Missing</span></td>
+                        <td>N/A</td>
+                        <td>Non utilisé côté Espace</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Progression</strong></td>
+                        <td>participant.totalProgress</td>
+                        <td>Calculé</td>
+                        <td>participant.totalProgress</td>
+                        <td><span class="status good">Good</span></td>
+                        <td>API + Fallback</td>
+                        <td>Calcul différent</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📚 FORMATIONS</h3>
+            <table class="mapping-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Panel (Admin)</th>
+                        <th>Backend Model</th>
+                        <th>Espace Participant</th>
+                        <th>Status</th>
+                        <th>Source Actuelle</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Formations</strong></td>
+                        <td>participant.formations[]</td>
+                        <td>ParticipantFormation[]</td>
+                        <td>❌ MOCK DATA</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockFormations</td>
+                        <td>🚨 CRITIQUE: Pas de synchronisation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Titre</strong></td>
+                        <td>formation.title</td>
+                        <td>title (String)</td>
+                        <td>formation.title</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockFormations</td>
+                        <td>Structure OK mais données mock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Description</strong></td>
+                        <td>formation.description</td>
+                        <td>description (String)</td>
+                        <td>formation.description</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockFormations</td>
+                        <td>Structure OK mais données mock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cours</strong></td>
+                        <td>formation.courses[]</td>
+                        <td>courses[] (Array)</td>
+                        <td>formation.courses[]</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockFormations</td>
+                        <td>Structure OK mais données mock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sessions</strong></td>
+                        <td>course.sessions[]</td>
+                        <td>courses[].sessions[]</td>
+                        <td>❌ ABSENT</td>
+                        <td><span class="status missing">Missing</span></td>
+                        <td>N/A</td>
+                        <td>🚨 CRITIQUE: Fonctionnalité manquante</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Status Formation</strong></td>
+                        <td>formation.status</td>
+                        <td>status (enum)</td>
+                        <td>❌ ABSENT</td>
+                        <td><span class="status missing">Missing</span></td>
+                        <td>N/A</td>
+                        <td>Pas de suivi de statut</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📋 PROJETS</h3>
+            <table class="mapping-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Panel (Admin)</th>
+                        <th>Backend Model</th>
+                        <th>Espace Participant</th>
+                        <th>Status</th>
+                        <th>Source Actuelle</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Projets</strong></td>
+                        <td>participant.projects[]</td>
+                        <td>ParticipantProject[]</td>
+                        <td>❌ MOCK DATA</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockProjects</td>
+                        <td>🚨 CRITIQUE: Pas de synchronisation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Status Projet</strong></td>
+                        <td>project.status</td>
+                        <td>status (String)</td>
+                        <td>project.status</td>
+                        <td><span class="status warning">Warning</span></td>
+                        <td>mockProjects</td>
+                        <td>Valeurs différentes (EN/FR)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Formation Liée</strong></td>
+                        <td>project.formationId</td>
+                        <td>formationId (String)</td>
+                        <td>project.formationTitle</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockProjects</td>
+                        <td>Liaison non fonctionnelle</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🎯 RESSOURCES COACHING</h3>
+            <table class="mapping-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Panel (Admin)</th>
+                        <th>Backend Model</th>
+                        <th>Espace Participant</th>
+                        <th>Status</th>
+                        <th>Source Actuelle</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ressources</strong></td>
+                        <td>participant.coachingResources[]</td>
+                        <td>ParticipantResource[]</td>
+                        <td>❌ MOCK DATA</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockCoachingResources</td>
+                        <td>🚨 CRITIQUE: Pas de synchronisation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Icônes</strong></td>
+                        <td>resource.icon</td>
+                        <td>icon (String)</td>
+                        <td>resource.type (mapping)</td>
+                        <td><span class="status warning">Warning</span></td>
+                        <td>mockCoachingResources</td>
+                        <td>Transformation nécessaire</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DataLinks</strong></td>
+                        <td>resource.dataLinks[]</td>
+                        <td>url (String)</td>
+                        <td>resource.downloadUrl</td>
+                        <td><span class="status warning">Warning</span></td>
+                        <td>mockCoachingResources</td>
+                        <td>Structure différente</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🔔 NOTIFICATIONS</h3>
+            <table class="mapping-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Panel (Admin)</th>
+                        <th>Backend Model</th>
+                        <th>Espace Participant</th>
+                        <th>Status</th>
+                        <th>Source Actuelle</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Notifications</strong></td>
+                        <td>participant.notifications[]</td>
+                        <td>ParticipantNotification[]</td>
+                        <td>❌ MOCK DATA</td>
+                        <td><span class="status mock">Mock</span></td>
+                        <td>mockNotifications</td>
+                        <td>🚨 CRITIQUE: Pas de synchronisation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Types</strong></td>
+                        <td>notification.type</td>
+                        <td>type (String)</td>
+                        <td>notification.type</td>
+                        <td><span class="status warning">Warning</span></td>
+                        <td>mockNotifications</td>
+                        <td>Valeurs différentes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Données Job</strong></td>
+                        <td>notification.company, jobTitle, etc.</td>
+                        <td>company, jobTitle, etc.</td>
+                        <td>notification.company, position, etc.</td>
+                        <td><span class="status warning">Warning</span></td>
+                        <td>mockNotifications</td>
+                        <td>Champs légèrement différents</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>🚨 Problèmes Critiques Identifiés</h2>
+            
+            <div class="critical">
+                <h3>🔴 CRITIQUE #1: Mock Data Massive dans Espace Participant</h3>
+                <p><strong>Problème:</strong> L'Espace Participant utilise exclusivement des mock data pour:</p>
+                <ul>
+                    <li>Formations (mockFormations)</li>
+                    <li>Projets (mockProjects)</li>
+                    <li>Ressources Coaching (mockCoachingResources)</li>
+                    <li>Notifications (mockNotifications)</li>
+                </ul>
+                <p><strong>Impact:</strong> Aucune synchronisation réelle avec le Panel - données complètement déconnectées</p>
+                <p><strong>Fichiers concernés:</strong></p>
+                <div class="code">
+src/components/participant/MesFormations.tsx: import { mockFormations }
+src/components/participant/Projets.tsx: import { mockProjects }
+src/components/participant/Coaching.tsx: import { mockCoachingResources }
+src/components/participant/Notifications.tsx: import { mockNotifications }
+                </div>
+            </div>
+
+            <div class="critical">
+                <h3>🔴 CRITIQUE #2: API Non Utilisée pour Modules Principaux</h3>
+                <p><strong>Problème:</strong> Seul ParticipantDashboard.tsx utilise l'API participantApiService</p>
+                <p><strong>Impact:</strong> Les pages de détail (formations, projets, etc.) ne récupèrent jamais les vraies données</p>
+                <p><strong>Code actuel:</strong></p>
+                <div class="code">
+// ParticipantDashboard.tsx - ✅ Utilise l'API
+const apiParticipant = await participantApiService.getParticipant(participantId);
+
+// MesFormations.tsx - ❌ Utilise mock data
+import { mockFormations } from "../../data/participantData";
+                </div>
+            </div>
+
+            <div class="warning">
+                <h3>⚠️ WARNING #1: Types TypeScript Incohérents</h3>
+                <p><strong>Problème:</strong> Structures différentes entre Panel et Espace</p>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Panel Participant</h4>
+                        <div class="code">
+interface Participant {
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  status: "active" | "inactive";
+  formations: Formation[];
+  // ... plus de champs
+}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>Espace Participant</h4>
+                        <div class="code">
+interface Participant {
+  name: string; // ≠ fullName
+  // firstName/lastName absents
+  // status absent
+  completedCourses: number;
+  totalCourses: number;
+  // formations absentes
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning">
+                <h3>⚠️ WARNING #2: Sessions Manquantes</h3>
+                <p><strong>Problème:</strong> Backend supporte sessions mais Espace ne les affiche pas</p>
+                <p><strong>Impact:</strong> Perte de fonctionnalité - structure 3 pages incomplète</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Zones Mock Data Détectées</h2>
+            
+            <div class="info">
+                <h3>📍 Localisation Exacte des Mock Data</h3>
+                <table class="mapping-table">
+                    <thead>
+                        <tr>
+                            <th>Fichier</th>
+                            <th>Mock Data Utilisé</th>
+                            <th>Ligne</th>
+                            <th>Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>MesFormations.tsx</td>
+                            <td>mockFormations</td>
+                            <td>18</td>
+                            <td>🔴 Formations non synchronisées</td>
+                        </tr>
+                        <tr>
+                            <td>Projets.tsx</td>
+                            <td>mockProjects</td>
+                            <td>13</td>
+                            <td>🔴 Projets non synchronisés</td>
+                        </tr>
+                        <tr>
+                            <td>Coaching.tsx</td>
+                            <td>mockCoachingResources</td>
+                            <td>25</td>
+                            <td>🔴 Ressources non synchronisées</td>
+                        </tr>
+                        <tr>
+                            <td>Notifications.tsx</td>
+                            <td>mockNotifications</td>
+                            <td>17</td>
+                            <td>🔴 Notifications non synchronisées</td>
+                        </tr>
+                        <tr>
+                            <td>ParticipantDashboard.tsx</td>
+                            <td>mockParticipants (fallback)</td>
+                            <td>17</td>
+                            <td>🟡 Fallback OK</td>
+                        </tr>
+                        <tr>
+                            <td>ParticipantLogin.tsx</td>
+                            <td>validAccessIds, mockParticipants</td>
+                            <td>4</td>
+                            <td>🟡 Login demo OK</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Vérification Cohérence Logique</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>✅ Points Cohérents</h3>
+                    <ul>
+                        <li>Backend models complets et bien structurés</li>
+                        <li>API endpoints fonctionnels (/api/participants)</li>
+                        <li>Data isolation par participantId</li>
+                        <li>Fallback localStorage dans Panel</li>
+                        <li>Structure UI/UX cohérente</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>❌ Incohérences Majeures</h3>
+                    <ul>
+                        <li>Espace Participant ignore complètement l'API</li>
+                        <li>Types différents entre Panel/Espace</li>
+                        <li>Mock data statique vs données dynamiques</li>
+                        <li>Sessions backend non utilisées frontend</li>
+                        <li>Status projets EN vs FR</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning">
+                <h3>🔄 Flow de Données Actuel (Problématique)</h3>
+                <div class="code">
+Panel → Backend API → MongoDB ✅
+                ↓
+        Espace Participant ❌ (ignore l'API)
+                ↓
+        Mock Data Statique 📁
+                </div>
+            </div>
+
+            <div class="success">
+                <h3>🎯 Flow de Données Souhaité</h3>
+                <div class="code">
+Panel → Backend API → MongoDB ✅
+                ↓
+        Espace Participant ✅ (utilise l'API)
+                ↓
+        Données Réelles Synchronisées 🔄
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Résumé Exécutif</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📊 Scores par Module</h3>
+                    <ul>
+                        <li><strong>Participants:</strong> 85% (Bon)</li>
+                        <li><strong>Formations:</strong> 20% (Critique)</li>
+                        <li><strong>Projets:</strong> 15% (Critique)</li>
+                        <li><strong>Ressources:</strong> 10% (Critique)</li>
+                        <li><strong>Notifications:</strong> 10% (Critique)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🎯 Priorités d'Action</h3>
+                    <ol>
+                        <li><strong>CRITIQUE:</strong> Remplacer mock data par API calls</li>
+                        <li><strong>IMPORTANT:</strong> Unifier types TypeScript</li>
+                        <li><strong>MOYEN:</strong> Implémenter sessions frontend</li>
+                        <li><strong>FAIBLE:</strong> Harmoniser terminologie EN/FR</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="critical">
+                <h3>🚨 Conclusion Critique</h3>
+                <p><strong>Le système actuel présente une déconnexion majeure:</strong></p>
+                <ul>
+                    <li>Panel fonctionne avec API + fallback localStorage ✅</li>
+                    <li>Espace Participant fonctionne uniquement avec mock data ❌</li>
+                    <li>Aucune synchronisation réelle entre les deux systèmes</li>
+                    <li>Données créées dans Panel invisibles dans Espace</li>
+                </ul>
+                <p><strong>Impact Business:</strong> Les participants ne voient jamais leurs vraies formations/projets assignés par les administrateurs.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

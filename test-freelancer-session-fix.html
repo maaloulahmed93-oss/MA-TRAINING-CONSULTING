@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Fix Session Freelancer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test - Fix Session Freelancer</h1>
+        <p>Test des corrections apportées au système de session des freelancers</p>
+
+        <!-- Test de session -->
+        <div class="test-section">
+            <h3>1. Test de Session</h3>
+            <button class="btn-primary" onclick="checkSession()">Vérifier Session Actuelle</button>
+            <button class="btn-success" onclick="createTestSession()">Créer Session Test</button>
+            <button class="btn-danger" onclick="clearSession()">Effacer Session</button>
+            <div id="session-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test de connexion API -->
+        <div class="test-section">
+            <h3>2. Test Connexion API</h3>
+            <p>Test avec les données correctes:</p>
+            <button class="btn-success" onclick="testApiLogin()">Tester FRE-340255 + ismail@gmail.com</button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test localStorage -->
+        <div class="test-section">
+            <h3>3. Test localStorage</h3>
+            <button class="btn-primary" onclick="checkLocalStorage()">Vérifier localStorage</button>
+            <button class="btn-danger" onclick="clearAllStorage()">Nettoyer localStorage</button>
+            <div id="storage-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h3>4. Instructions de Test</h3>
+            <ol>
+                <li>Effacez la session actuelle</li>
+                <li>Allez sur <a href="http://localhost:5173/espace-freelancer" target="_blank">localhost:5173/espace-freelancer</a></li>
+                <li>Connectez-vous avec:
+                    <ul>
+                        <li><strong>ID:</strong> FRE-340255</li>
+                        <li><strong>Email:</strong> ismail@gmail.com</li>
+                    </ul>
+                </li>
+                <li>Vérifiez que vous restez connecté (pas de boucle)</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Vérifier la session actuelle
+        function checkSession() {
+            const resultDiv = document.getElementById('session-result');
+            
+            try {
+                const session = localStorage.getItem('freelancer_session');
+                
+                if (session) {
+                    const sessionData = JSON.parse(session);
+                    const now = Date.now();
+                    const age = now - sessionData.timestamp;
+                    const ageHours = (age / (1000 * 60 * 60)).toFixed(2);
+                    
+                    let result = `✅ Session trouvée:\n\n`;
+                    result += `ID: ${sessionData.freelancerId}\n`;
+                    result += `Valide: ${sessionData.isValid}\n`;
+                    result += `Créée: ${new Date(sessionData.timestamp).toLocaleString()}\n`;
+                    result += `Âge: ${ageHours} heures\n`;
+                    result += `Expire dans: ${(24 - parseFloat(ageHours)).toFixed(2)} heures`;
+                    
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    showResult(resultDiv, 'info', '❌ Aucune session trouvée');
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Créer une session de test
+        function createTestSession() {
+            const resultDiv = document.getElementById('session-result');
+            
+            try {
+                const session = {
+                    freelancerId: 'FRE-340255',
+                    timestamp: Date.now(),
+                    isValid: true
+                };
+                
+                localStorage.setItem('freelancer_session', JSON.stringify(session));
+                showResult(resultDiv, 'success', '✅ Session de test créée pour FRE-340255');
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Effacer la session
+        function clearSession() {
+            const resultDiv = document.getElementById('session-result');
+            
+            try {
+                localStorage.removeItem('freelancer_session');
+                showResult(resultDiv, 'info', '🗑️ Session effacée');
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Test de connexion API
+        async function testApiLogin() {
+            const resultDiv = document.getElementById('api-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Test de connexion en cours...');
+
+                const response = await fetch('http://localhost:3001/api/partners/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        partnerId: 'FRE-340255',
+                        email: 'ismail@gmail.com',
+                        partnerType: 'freelancer'
+                    })
+                });
+
+                const data = await response.json();
+                
+                let result = `🧪 Test API Login:\n\n`;
+                result += `Status: ${response.status}\n`;
+                result += `Success: ${data.success}\n\n`;
+                
+                if (response.ok && data.success) {
+                    result += `✅ CONNEXION RÉUSSIE!\n\n`;
+                    result += `Données reçues:\n${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    result += `❌ CONNEXION ÉCHOUÉE!\n\n`;
+                    result += `Erreur: ${data.message}\n\n`;
+                    result += `Réponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, 'error', result);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion:\n${error.message}`);
+            }
+        }
+
+        // Vérifier localStorage
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('storage-result');
+            
+            try {
+                let result = `📦 Contenu localStorage:\n\n`;
+                
+                // Vérifier toutes les clés liées aux freelancers
+                const keys = ['freelancer_session', 'freelancer_data', 'freelancer_auth'];
+                let found = false;
+                
+                keys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    if (value) {
+                        found = true;
+                        result += `${key}:\n${value}\n\n`;
+                    }
+                });
+                
+                if (!found) {
+                    result += 'Aucune donnée freelancer trouvée';
+                }
+                
+                showResult(resultDiv, 'info', result);
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Nettoyer localStorage
+        function clearAllStorage() {
+            const resultDiv = document.getElementById('storage-result');
+            
+            try {
+                const keys = ['freelancer_session', 'freelancer_data', 'freelancer_auth'];
+                let cleared = 0;
+                
+                keys.forEach(key => {
+                    if (localStorage.getItem(key)) {
+                        localStorage.removeItem(key);
+                        cleared++;
+                    }
+                });
+                
+                showResult(resultDiv, 'success', `🗑️ ${cleared} éléments supprimés du localStorage`);
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Fonction utilitaire pour afficher les résultats
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-check session on load
+        window.onload = function() {
+            checkSession();
+        };
+    </script>
+</body>
+</html>

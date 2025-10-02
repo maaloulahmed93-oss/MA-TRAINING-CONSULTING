@@ -33,6 +33,8 @@ import {
   removeResource,
   EvenementPartenariat,
 } from "../../services/partnershipEvenementsService";
+import { getEnterpriseEvents } from "../../services/enterpriseApiService";
+import { getCurrentPartnerId } from "../../services/partnershipAuth";
 
 const PartenaireEvenementsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -50,6 +52,8 @@ const PartenaireEvenementsPage: React.FC = () => {
     type: "Séminaire" as "Séminaire" | "Webinaire" | "Atelier",
     location: "",
     description: "",
+    duration: 2, // Durée en heures
+    maxParticipants: 50
   });
   const [addError, setAddError] = useState<string>("");
   const [showAddResource, setShowAddResource] = useState(false);
@@ -71,14 +75,33 @@ const PartenaireEvenementsPage: React.FC = () => {
 
   useEffect(() => {
     // Charger les événements au montage du composant
-    const loadEvenements = () => {
+    const loadEvenements = async () => {
+      const currentPartnerId = getCurrentPartnerId();
+      if (!currentPartnerId) {
+        navigate('/espace-partenariat');
+        return;
+      }
+
       try {
-        console.log("🚀 Chargement des événements...");
-        const evenementsData = getEvenements();
-        console.log("📅 Événements chargés:", evenementsData);
-        setEvenements(evenementsData);
+        console.log("🚀 Chargement des événements depuis Enterprise API...");
+        
+        // Charger depuis Enterprise API d'abord
+        const enterpriseEvents = await getEnterpriseEvents(currentPartnerId);
+        console.log(`📅 ${enterpriseEvents.length} événements chargés depuis Enterprise API`);
+        setEvenements(enterpriseEvents);
+        
       } catch (error) {
-        console.error("❌ Erreur lors du chargement des événements:", error);
+        console.error("❌ Erreur Enterprise API, fallback vers localStorage:", error);
+        
+        // Fallback vers localStorage si Enterprise API échoue
+        try {
+          const evenementsData = getEvenements();
+          console.log("📅 Événements chargés depuis localStorage:", evenementsData);
+          setEvenements(evenementsData);
+        } catch (fallbackError) {
+          console.error("❌ Erreur localStorage aussi:", fallbackError);
+          setEvenements([]);
+        }
       } finally {
         setLoading(false);
         console.log("✅ Chargement terminé");
@@ -86,7 +109,7 @@ const PartenaireEvenementsPage: React.FC = () => {
     };
 
     loadEvenements();
-  }, []);
+  }, [navigate]);
 
   const handleEvenementClick = (evenementId: string) => {
     const evenement = getEvenementById(evenementId);
@@ -194,7 +217,7 @@ const PartenaireEvenementsPage: React.FC = () => {
     }
   };
 
-  const handleAddEvenement = () => {
+  const handleAddEvenement = async () => {
     if (
       !newEvent.title.trim() ||
       !newEvent.dateLocal.trim() ||
@@ -203,30 +226,108 @@ const PartenaireEvenementsPage: React.FC = () => {
       setAddError("Titre, date et lieu sont requis");
       return;
     }
+    
+    const currentPartnerId = getCurrentPartnerId();
+    if (!currentPartnerId) {
+      setAddError("Partenaire non identifié");
+      return;
+    }
+
     try {
+      console.log("🔄 Création d'événement via Enterprise API...");
       const isoDate = new Date(newEvent.dateLocal).toISOString();
-      const created = addEvenement({
+      
+      // Mapper les types français vers les types anglais du model
+      const typeMapping = {
+        'Séminaire': 'seminar',
+        'Webinaire': 'workshop', 
+        'Atelier': 'workshop'
+      };
+
+      // Extraire l'heure de la date
+      const eventDate = new Date(newEvent.dateLocal);
+      const timeString = eventDate.toTimeString().substring(0, 5); // HH:MM format
+
+      const eventData = {
+        eventId: `EVT-${Date.now()}`, // ID unique
         title: newEvent.title.trim(),
+        description: newEvent.description.trim() || 'Événement organisé en partenariat',
         date: isoDate,
-        type: newEvent.type,
+        time: timeString,
+        duration: newEvent.duration || 2, // Durée depuis le formulaire
+        type: typeMapping[newEvent.type] || 'seminar',
         location: newEvent.location.trim(),
-        description: newEvent.description.trim(),
-        participants: [],
-        resources: [],
+        maxParticipants: newEvent.maxParticipants || 50,
+        organizers: [currentPartnerId],
+        agenda: [],
+        documents: []
+      };
+
+      // Créer via Enterprise API
+      const response = await fetch(`http://localhost:3001/api/enterprise/${currentPartnerId}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData)
       });
-      setEvenements((prev) => [created, ...prev]);
-      setShowAddForm(false);
-      setNewEvent({
-        title: "",
-        dateLocal: "",
-        type: "Séminaire",
-        location: "",
-        description: "",
-      });
-      setAddError("");
-    } catch (e) {
-      console.error(e);
-      setAddError("Erreur lors de l'ajout de l'événement");
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("✅ Événement créé avec succès:", result.data);
+        
+        // Recharger tous les événements depuis Enterprise API
+        const updatedEvents = await getEnterpriseEvents(currentPartnerId);
+        setEvenements(updatedEvents);
+        
+        setShowAddForm(false);
+        setNewEvent({
+          title: "",
+          dateLocal: "",
+          type: "Séminaire",
+          location: "",
+          description: "",
+          duration: 2,
+          maxParticipants: 50
+        });
+        setAddError("");
+        
+        alert("Événement créé avec succès!");
+      } else {
+        const error = await response.json();
+        console.error("❌ Erreur création:", error.message);
+        setAddError("Erreur lors de la création: " + error.message);
+      }
+    } catch (error) {
+      console.error("❌ Erreur:", error);
+      
+      // Fallback vers localStorage si Enterprise API échoue
+      try {
+        const isoDate = new Date(newEvent.dateLocal).toISOString();
+        const created = addEvenement({
+          title: newEvent.title.trim(),
+          date: isoDate,
+          type: newEvent.type,
+          location: newEvent.location.trim(),
+          description: newEvent.description.trim(),
+          participants: [],
+          resources: [],
+        });
+        setEvenements((prev) => [created, ...prev]);
+        setShowAddForm(false);
+        setNewEvent({
+          title: "",
+          dateLocal: "",
+          type: "Séminaire",
+          location: "",
+          description: "",
+          duration: 2,
+          maxParticipants: 50
+        });
+        setAddError("");
+        console.log("✅ Événement créé via localStorage (fallback)");
+      } catch (fallbackError) {
+        console.error("❌ Erreur fallback:", fallbackError);
+        setAddError("Erreur lors de l'ajout de l'événement");
+      }
     }
   };
 
@@ -317,7 +418,7 @@ const PartenaireEvenementsPage: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <Users className="w-5 h-5" />
                       <span>
-                        {selectedEvenement.participants.length} participants
+                        {selectedEvenement.participants?.length || selectedEvenement.registeredParticipants?.length || 0} participants
                       </span>
                     </div>
                   </div>
@@ -425,7 +526,7 @@ const PartenaireEvenementsPage: React.FC = () => {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 flex items-center">
                   <Users className="w-6 h-6 mr-2 text-blue-600" />
-                  Participants ({selectedEvenement.participants.length})
+                  Participants ({selectedEvenement.participants?.length || selectedEvenement.registeredParticipants?.length || 0})
                 </h2>
                 <button
                   onClick={() => setShowAddParticipantModal(true)}
@@ -436,9 +537,9 @@ const PartenaireEvenementsPage: React.FC = () => {
                 </button>
               </div>
 
-              {selectedEvenement.participants.length > 0 ? (
+              {(selectedEvenement.participants?.length || selectedEvenement.registeredParticipants?.length || 0) > 0 ? (
                 <div className="space-y-3">
-                  {selectedEvenement.participants.map((participant) => (
+                  {(selectedEvenement.participants || selectedEvenement.registeredParticipants || []).map((participant) => (
                     <div
                       key={participant.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -554,7 +655,7 @@ const PartenaireEvenementsPage: React.FC = () => {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 flex items-center">
                   <FileText className="w-6 h-6 mr-2 text-green-600" />
-                  Ressources ({selectedEvenement.resources.length})
+                  Ressources ({selectedEvenement.resources?.length || (selectedEvenement as any).documents?.length || 0})
                 </h2>
                 <button
                   onClick={() => setShowAddResource((v) => !v)}
@@ -654,9 +755,9 @@ const PartenaireEvenementsPage: React.FC = () => {
                 </div>
               )}
 
-              {selectedEvenement.resources.length > 0 ? (
+              {(selectedEvenement.resources?.length || (selectedEvenement as any).documents?.length || 0) > 0 ? (
                 <div className="space-y-3">
-                  {selectedEvenement.resources.map((resource) => (
+                  {(selectedEvenement.resources || (selectedEvenement as any).documents || []).map((resource) => (
                     <div
                       key={resource.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -1197,7 +1298,7 @@ const PartenaireEvenementsPage: React.FC = () => {
                       <div className="flex items-center text-gray-600 text-sm">
                         <Users className="w-4 h-4 mr-2" />
                         <span>
-                          {evenement.participants.length} participants
+                          {evenement.participants?.length || evenement.registeredParticipants?.length || 0} participants
                         </span>
                       </div>
                     </div>
@@ -1210,7 +1311,7 @@ const PartenaireEvenementsPage: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <FileText className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-600">
-                          {evenement.resources.length} ressources
+                          {evenement.resources?.length || (evenement as any).documents?.length || 0} ressources
                         </span>
                       </div>
 

@@ -36,8 +36,8 @@ import ProgramCard from "./ProgramCard";
 import ThemePackSection from "./ThemePackSection";
 import CurrencySelector from "./CurrencySelector";
 import InteractiveQCMModal from "./InteractiveQCMModal";
-import { trainingPrograms, Program, getTrainingPrograms } from "../data/trainingPrograms";
-import { themePacks } from "../data/themePacks";
+import { Program, getTrainingPrograms } from "../data/trainingPrograms";
+import { getPacksWithFallback } from "../services/packsApi";
 
 interface ETrainingPageProps {
   onBack: () => void;
@@ -58,27 +58,31 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("€");
-  const [programs, setPrograms] = useState<Program[]>(trainingPrograms);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [packs, setPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Load programs from API on component mount
+  // Load programs and packs from API on component mount
   useEffect(() => {
-    const loadPrograms = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
+        // Load programs
         const apiPrograms = await getTrainingPrograms();
-        if (apiPrograms && apiPrograms.length > 0) {
-          setPrograms(apiPrograms);
-        }
+        setPrograms(apiPrograms);
+        
+        // Load packs
+        const apiPacks = await getPacksWithFallback();
+        setPacks(apiPacks);
       } catch (error) {
-        console.error('Error loading programs:', error);
-        // Keep fallback programs if API fails
+        console.error('Error loading data:', error);
+        // Keep fallback data if API fails
       } finally {
         setLoading(false);
       }
     };
     
-    loadPrograms();
+    loadData();
   }, []);
 
   // Fonction pour gérer l'ouverture du modal d'inscription
@@ -109,7 +113,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     const catalogItems: CatalogItem[] = [];
 
     // Ajouter les packs
-    themePacks.forEach((pack) => {
+    packs.forEach((pack) => {
       catalogItems.push({
         id: `pack-${pack.packId}`,
         name: pack.name,
@@ -137,7 +141,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         id: `programme-${program.id}`,
         name: program.title,
         type: "programme",
-        category: program.category,
+        category: typeof program.category === 'object' && program.category?.name 
+          ? program.category.name 
+          : typeof program.category === 'string' 
+            ? program.category 
+            : 'Autre',
         price: program.price || 0,
         description: program.description,
         level: program.level,
@@ -150,7 +158,10 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     // Trier par catégorie puis par prix
     return catalogItems.sort((a, b) => {
       if (a.category !== b.category) {
-        return a.category.localeCompare(b.category);
+        // Gérer le cas où category peut être un objet ou une string
+        const categoryA = typeof a.category === 'string' ? a.category : '';
+        const categoryB = typeof b.category === 'string' ? b.category : '';
+        return categoryA.localeCompare(categoryB);
       }
       return a.price - b.price;
     });
@@ -389,9 +400,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     const matchesSearch =
       program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    const programCategory = typeof program.category === 'object' && program.category?.name 
+      ? program.category.name 
+      : typeof program.category === 'string' 
+        ? program.category 
+        : '';
+    
     const matchesFilters =
       selectedFilters.length === 0 ||
-      selectedFilters.includes(program.category) ||
+      selectedFilters.includes(programCategory) ||
       selectedFilters.includes(program.level);
 
     // Price filter - program.price is now a number from MongoDB
@@ -419,7 +436,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       });
 
     // Rating filter
-    const matchesRating = ratingFilter === 0 || program.rating >= ratingFilter;
+    const matchesRating = ratingFilter === 0 || (program.rating && program.rating >= ratingFilter);
 
     return (
       matchesSearch &&
@@ -1228,7 +1245,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   {/* Price Range */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Prix (DT): {priceRange[0]} - {priceRange[1]}
+                      Prix ({selectedCurrency}): {priceRange[0]} - {priceRange[1]}
                     </label>
                     <div className="flex items-center space-x-4">
                       <input
@@ -1261,8 +1278,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       />
                     </div>
                     <div className="flex justify-between text-sm text-gray-500 mt-2">
-                      <span>0 DT</span>
-                      <span>5000 DT</span>
+                      <span>0 {selectedCurrency}</span>
+                      <span>5000 {selectedCurrency}</span>
                     </div>
                   </div>
 

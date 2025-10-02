@@ -1,0 +1,510 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+6    <title>ðŸ”§ Fix Missing Notification Fields - MATC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+        }
+        
+        .notification-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+        }
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f4f6;
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ðŸ”§ Fix Missing Notification Fields - MATC</h1>
+        
+        <div class="error">
+            <h3>âŒ Ø§Ù„Ù…Ø´ÙƒÙ„Ø© Ø§Ù„Ù…ÙƒØªØ´ÙØ©</h3>
+            <p>Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ØªØ¸Ù‡Ø± Ù„ÙƒÙ† <strong>Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØªÙØµÙŠÙ„ÙŠØ© Ù…ÙÙ‚ÙˆØ¯Ø©:</strong></p>
+            <ul>
+                <li><strong>Information:</strong> Ù„Ø§ ÙŠØ¸Ù‡Ø± Ø§Ù„Ø±Ø§Ø¨Ø· Ø£Ùˆ Ø§Ù„ÙˆØµÙ Ø§Ù„ØªÙØµÙŠÙ„ÙŠ</li>
+                <li><strong>Offre d'emploi:</strong> Ù„Ø§ ØªØ¸Ù‡Ø± Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø±ÙƒØ©ØŒ Ø§Ù„Ù…Ù†ØµØ¨ØŒ Ø§Ù„Ø±Ø§ØªØ¨ØŒ Ø§Ù„Ø§ØªØµØ§Ù„</li>
+            </ul>
+            <p><strong>Ø§Ù„Ø³Ø¨Ø¨:</strong> Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ø§ ØªØ­ØªÙˆÙŠ Ø¹Ù„Ù‰ Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©</p>
+        </div>
+
+        <div class="info">
+            <h3>ðŸŽ¯ Ø§Ù„Ø­Ù„ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨</h3>
+            <p>Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…ÙÙ‚ÙˆØ¯Ø© Ù„Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù…ÙˆØ¬ÙˆØ¯Ø©:</p>
+            <ul>
+                <li><strong>Information:</strong> description, link, uploadLink</li>
+                <li><strong>Offre d'emploi:</strong> company, jobTitle, salary, contractType, contact, phone, email</li>
+            </ul>
+        </div>
+
+        <button onclick="checkCurrentNotifications()" class="urgent">ðŸ” Check Current Data</button>
+        <button onclick="fixExistingNotifications()">ðŸ”§ Fix Existing Notifications</button>
+        <button onclick="addCompleteNotifications()" class="success">âž• Add Complete Notifications</button>
+        <button onclick="testResult()">ðŸ–¥ï¸ Test Result</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+340        // Enhanced logging function with better UI
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            
+            // Create notification card
+            div.className = 'notification-card bg-white rounded-lg p-4 border-l-4 shadow-sm';
+            
+            // Set border color based on type
+            const borderColors = {
+                success: 'border-green-400 bg-green-50',
+                error: 'border-red-400 bg-red-50',
+                warning: 'border-yellow-400 bg-yellow-50',
+                info: 'border-blue-400 bg-blue-50'
+            };
+            div.className += ' ' + (borderColors[type] || borderColors.info);
+            
+            // Create content with icon
+            const iconClasses = {
+                success: 'fas fa-check-circle text-green-500',
+                error: 'fas fa-exclamation-circle text-red-500',
+                warning: 'fas fa-exclamation-triangle text-yellow-500',
+                info: 'fas fa-info-circle text-blue-500'
+            };
+            
+            const timestamp = new Date().toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            div.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <i class="${iconClasses[type] || iconClasses.info} mt-1"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-medium text-gray-500">${timestamp}</span>
+                            <span class="text-xs font-semibold px-2 py-1 rounded-full ${type === 'success' ? 'bg-green-200 text-green-800' : type === 'error' ? 'bg-red-200 text-red-800' : 'bg-blue-200 text-blue-800'}">
+                                ${type.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-800">${message}</div>
+                    </div>
+                </div>
+            `;
+            
+            results.appendChild(div);
+            
+            // Auto scroll to bottom
+            results.scrollTop = results.scrollHeight;
+            
+            // Add to console for debugging
+            console.log(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+        }
+
+        // Progress indicator functions
+        function showProgress() {
+            document.getElementById('progress-container').classList.remove('hidden');
+        }
+
+        function hideProgress() {
+            document.getElementById('progress-container').classList.add('hidden');
+        }
+
+        // Clear results function
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            log('Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª ØªÙ… Ù…Ø³Ø­Ù‡Ø§', 'info');
+        }
+
+        // Enhanced checkCurrentNotifications with progress
+        async function checkCurrentNotifications() {
+            log('ðŸ” ÙØ­Øµ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ©...', 'info');
+            showProgress();
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                hideProgress();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.length > 0) {
+                        log(`âœ… ØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ ${data.data.length} Ø¥Ø´Ø¹Ø§Ø±Ø§Øª`, 'success');
+                        
+                        // Create summary card
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-200';
+                        summaryDiv.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-chart-bar text-blue-500"></i>
+                                    <span class="font-semibold text-blue-800">Ù…Ù„Ø®Øµ Ø§Ù„ØªØ­Ù„ÙŠÙ„</span>
+                                </div>
+                                <div class="text-sm text-blue-600">
+                                    ${data.data.length} Ø¥Ø´Ø¹Ø§Ø±Ø§Øª â€¢ ${new Date().toLocaleString('ar')}
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('results').appendChild(summaryDiv);
+                        
+                        data.data.forEach((notif, index) => {
+                            const notifCard = document.createElement('div');
+                            notifCard.className = 'bg-white rounded-lg border border-gray-200 p-4 mb-3';
+                            
+                            let content = `
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-bell text-gray-400"></i>
+                                        <span class="font-semibold text-gray-800">${notif.title}</span>
+                                        <span class="px-2 py-1 text-xs rounded-full ${notif.type === 'information' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                                            ${notif.type === 'information' ? 'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª' : 'Ø¹Ø±Ø¶ ÙˆØ¸ÙŠÙÙŠ'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-4">
+                            `;
+                            
+                            if (notif.type === 'information') {
+                                content += `
+                                    <div class="space-y-2">
+                                        <h4 class="font-medium text-gray-700">Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª:</h4>
+                                        <div class="space-y-1 text-sm">
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„ÙˆØµÙ:</span>
+                                                <span class="${notif.description ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.description ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„Ø±Ø§Ø¨Ø·:</span>
+                                                <span class="${notif.link ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.link ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø±Ø§Ø¨Ø· Ø§Ù„ØªØ­Ù…ÙŠÙ„:</span>
+                                                <span class="${notif.uploadLink ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.uploadLink ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            
+                            if (notif.type === 'offre_emploi') {
+                                content += `
+                                    <div class="space-y-2">
+                                        <h4 class="font-medium text-gray-700">Ø­Ù‚ÙˆÙ„ Ø§Ù„ÙˆØ¸ÙŠÙØ©:</h4>
+                                        <div class="space-y-1 text-sm">
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„Ø´Ø±ÙƒØ©:</span>
+                                                <span class="${notif.company ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.company ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„Ù…Ø³Ù…Ù‰ Ø§Ù„ÙˆØ¸ÙŠÙÙŠ:</span>
+                                                <span class="${notif.jobTitle ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.jobTitle ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„Ø±Ø§ØªØ¨:</span>
+                                                <span class="${notif.salary ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.salary ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ù†ÙˆØ¹ Ø§Ù„Ø¹Ù‚Ø¯:</span>
+                                                <span class="${notif.contractType ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.contractType ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø§ØªØµØ§Ù„:</span>
+                                                <span class="${notif.contact ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.contact ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„Ù‡Ø§ØªÙ:</span>
+                                                <span class="${notif.phone ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.phone ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ:</span>
+                                                <span class="${notif.email ? 'text-green-600' : 'text-red-600'}">
+                                                    ${notif.email ? 'âœ… Ù…ÙˆØ¬ÙˆØ¯' : 'âŒ Ù…ÙÙ‚ÙˆØ¯'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            
+                            content += `
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <details class="text-sm">
+                                        <summary class="cursor-pointer text-gray-600 hover:text-gray-800">Ø¹Ø±Ø¶ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø£ÙˆÙ„ÙŠØ©</summary>
+                                        <pre class="mt-2 bg-gray-100 p-2 rounded text-xs overflow-x-auto">${JSON.stringify(notif, null, 2)}</pre>
+                                    </details>
+                                </div>
+                            `;
+                            
+                            notifCard.innerHTML = content;
+                            document.getElementById('results').appendChild(notifCard);
+                        });
+                        
+                    } else {
+                        log('âŒ Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø£ÙŠ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª', 'error');
+                    }
+                } else {
+                    log(`âŒ Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§Ø³ØªØ¬Ø§Ø¨Ø©: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                hideProgress();
+                log(`âŒ Ø®Ø·Ø£: ${error.message}`, 'error');
+            }
+        }
+
+        // Enhanced fixExistingNotifications with progress tracking
+        async function fixExistingNotifications() {
+            log('ðŸ”§ Ø¨Ø¯Ø¡ Ø¥ØµÙ„Ø§Ø­ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù…ÙˆØ¬ÙˆØ¯Ø©...', 'warning');
+            showProgress();
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                hideProgress();
+                
+                if (!response.ok) {
+                    log('âŒ ØªØ¹Ø°Ø± Ø§Ø³ØªØ±Ø¯Ø§Ø¯ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª', 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                if (!data.success || !data.data.length) {
+                    log('âŒ Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ù„Ù„Ø¥ØµÙ„Ø§Ø­', 'error');
+                    return;
+                }
+                
+                log(`ðŸ“¤ Ø¥ØµÙ„Ø§Ø­ ${data.data.length} Ø¥Ø´Ø¹Ø§Ø±Ø§Øª...`, 'info');
+                showProgress();
+                
+                // Clear existing notifications first
+                const getParticipant = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (getParticipant.ok) {
+                    const participantData = await getParticipant.json();
+                    if (participantData.success) {
+                        await fetch('http://localhost:3001/api/participants/PART-550776', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...participantData.data,
+                                notifications: []
+                            })
+                        });
+                        log('ðŸ—‘ï¸ ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©', 'success');
+                    }
+                }
+                
+                let successCount = 0;
+                const totalCount = data.data.length;
+                
+                for (let i = 0; i < totalCount; i++) {
+                    const notification = data.data[i];
+                    log(`ðŸ“¤ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¥Ø´Ø¹Ø§Ø± Ø§Ù„Ù…ÙØµØ­Ø­ ${i + 1}/${totalCount}: "${notification.title}"`, 'info');
+                    
+                    try {
+                        const addResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(notification)
+                        });
+                        
+                        if (addResponse.ok) {
+                            const addData = await addResponse.json();
+                            if (addData.success) {
+                                successCount++;
+                                log(`âœ… Ù†Ø¬Ø­: "${notification.title}" Ù…Ø¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„ÙƒØ§Ù…Ù„Ø©`, 'success');
+                            }
+                        } else {
+                            log(`âŒ ÙØ´Ù„: ${addResponse.status}`, 'error');
+                        }
+                    } catch (error) {
+                        log(`âŒ Ø®Ø·Ø£: ${error.message}`, 'error');
+                    }
+                    
+                    // Small delay to prevent overwhelming the server
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                hideProgress();
+                log(`ðŸ“Š Ø§Ù„Ù†ØªÙŠØ¬Ø©: ${successCount}/${totalCount} Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ØªÙ… Ø¥ØµÙ„Ø§Ø­Ù‡Ø§`, 
+                    successCount === totalCount ? 'success' : 'warning');
+                
+                if (successCount > 0) {
+                    log('ðŸŽ‰ ØªÙ… Ø¥ØµÙ„Ø§Ø­ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª! Ø£Ø¹Ø¯ ØªØ­Ù…ÙŠÙ„ ØµÙØ­Ø© Ø§Ù„Ù…Ø´Ø§Ø±Ùƒ', 'success');
+                }
+                
+            } catch (error) {
+                hideProgress();
+                log(`âŒ Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¥ØµÙ„Ø§Ø­: ${error.message}`, 'error');
+            }
+        }
+
+        // Enhanced addCompleteNotifications with better UI
+        async function addCompleteNotifications() {
+            log('âž• Ø¥Ø¶Ø§ÙØ© Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© ÙƒØ§Ù…Ù„Ø©...', 'info');
+            showProgress();
+            
+            const completeNotifications = [
+                {
+                    title: 'Formation React AvancÃ©e',
+                    message: 'Nouvelle formation React disponible avec certification',
+                    type: 'information',
+                    description: 'Formation complÃ¨te sur React.js avec hooks, context, et patterns avancÃ©s. Inclut des projets pratiques et une certification reconnue.',
+                    link: 'https://matc.com/formations/react-avance',
+                    uploadLink: 'https://matc.com/download/syllabus-react.pdf',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    priority: 'high'
+                },
+                {
+                    message: 'OpportunitÃ© exceptionnelle chez une startup innovante',
+                    type: 'offre_emploi',
+                    description: 'Nous recherchons un dÃ©veloppeur Full Stack expÃ©rimentÃ© pour rejoindre notre Ã©quipe technique. Projet passionnant dans le domaine de la fintech.',
+                    company: 'TechStart Solutions',
+                    jobTitle: 'DÃ©veloppeur Full Stack Senior',
+                    salary: '50000-65000 EUR/an',
+                    contractType: 'CDI',
+                    contact: 'Sarah Martin - Responsable Technique',
+                    phone: '+33987654321',
+                    email: 'careers@techstart.com',
+                    environment: 'Bureaux modernes Ã  Paris, tÃ©lÃ©travail 3j/semaine',
+                    benefits: 'Mutuelle premium, tickets restaurant, formation continue, stock-options',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    priority: 'high'
+                }
+            ];
+            
+            let successCount = 0;
+            const totalCount = completeNotifications.length;
+            
+            for (let i = 0; i < totalCount; i++) {
+                const notification = completeNotifications[i];
+                log(`ðŸ“¤ Ø¥Ø¶Ø§ÙØ© ${i + 1}/${totalCount}: "${notification.title}"`, 'info');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            successCount++;
+                            log(`âœ… Ù†Ø¬Ø­: "${notification.title}" Ù…Ø¹ Ø¬Ù…ÙŠØ¹ Ø§Ù„ØªÙØ§ØµÙŠÙ„`, 'success');
+                        }
+                    } else {
+                        log(`âŒ ÙØ´Ù„: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    log(`âŒ Ø®Ø·Ø£: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            hideProgress();
+            log(`ðŸ“Š Ø§Ù„Ù†ØªÙŠØ¬Ø©: ${successCount}/${totalCount} Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© ØªÙ… Ø¥Ø¶Ø§ÙØªÙ‡Ø§`, 
+                successCount === totalCount ? 'success' : 'warning');
+        }
+
+        // Enhanced testResult with better instructions
+        async function testResult() {
+            log('ðŸ–¥ï¸ Ø¨Ø¯Ø¡ Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ù†ØªÙŠØ¬Ø©...', 'info');
+            
+            const instructions = [
+                { icon: 'fas fa-window-maximize', text: 'Ø§Ù†ØªÙ‚Ù„ Ø¥Ù„Ù‰: http://localhost:5173/espace-participant', color: 'blue' },
+                { icon: 'fas fa-sync-alt', text: 'Ø£Ø¹Ø¯ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙØ­Ø© (Ctrl+F5) Ù„Ù…Ø³Ø­ Ø§Ù„Ø°Ø§ÙƒØ±Ø© Ø§Ù„Ù…Ø¤Ù‚ØªØ©', color: 'blue' },
+                { icon: 'fas fa-bell', text: 'Ø§Ù†Ù‚Ø± Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª (ðŸ””)', color: 'blue' },
+                { icon: 'fas fa-search', text: 'ÙŠØ¬Ø¨ Ø£Ù† ØªØ±Ù‰ Ø§Ù„Ø¢Ù†:', color: 'green' }
+            ];
+            
+            instructions.forEach(instruction => {
+                const div = document.createElement('div');
+                div.className = `flex items-center space-x-3 p-3 rounded-lg ${instruction.color === 'blue' ? 'bg-blue-50' : 'bg-green-50'}`;
+                div.innerHTML = `
+                    <i class="${instruction.icon} ${instruction.color === 'blue' ? 'text-blue-500' : 'text-green-500'}"></i>
+                    <span class="text-sm text-gray-800">${instruction.text}</span>
+                `;
+                document.getElementById('results').appendChild(div);
+            });
+            
+            // Test sections
+            const testSections = [
+                {
+                    title: 'Ù„Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ù…Ù† Ù†ÙˆØ¹ Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª:',
+                    icon: 'fas fa-file-alt text-blue-500',
+                    items: [
+                        'Ù‚Ø³Ù… Ø£Ø²Ø±Ù‚ "DÃ©tails Information"',
+                        'ÙˆØµÙ ÙƒØ§Ù…Ù„ ÙŠØ¸Ù‡Ø±',
+                        'Ø²Ø± "AccÃ©der au lien" Ù‚Ø§Ø¨Ù„ Ù„Ù„Ù†Ù‚Ø±',
+                        'Ø²Ø± "TÃ©lÃ©charger le fichier" Ù‚Ø§Ø¨Ù„ Ù„Ù„Ù†Ù‚Ø±'
+                    ]
+                },
+                {
+                    title: 'Ù„Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ù…Ù† Ù†ÙˆØ¹ Ø¹Ø±Ø¶ Ø§Ù„ÙˆØ¸ÙŠÙØ©:',
+                    icon: 'fas fa-briefcase text-green-500',
+                    items: [
+                        'Ù‚Ø³Ù… Ø£Ø®Ø¶Ø± "DÃ©tails de l\'offre d\'emploi"',
+                        'Ø§Ù„Ø´Ø±ÙƒØ©: Ø§Ù„Ø§Ø³Ù… ÙŠØ¸Ù‡Ø±',
+                        'Ø§Ù„Ù…Ù†ØµØ¨: Ø§Ù„Ù…Ø³Ù…Ù‰ Ø§Ù„ÙˆØ¸ÙŠÙÙŠ',
+                        'Ø§Ù„Ø±Ø§ØªØ¨: Ø§Ù„Ù†Ø·Ø§Ù‚ Ø§Ù„Ù…Ø§Ù„ÙŠ',
+                        'Ù†ÙˆØ¹ Ø§Ù„Ø¹Ù‚Ø¯: CDI/CDD/Ø¥Ù„Ø®',
+                        'Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø§ØªØµØ§Ù„: Ø§Ø³Ù… Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„',
+                        'Ø§Ù„Ù‡Ø§ØªÙ: Ø±Ù‚Ù… Ù‚Ø§Ø¨Ù„ Ù„Ù„Ù†Ù‚Ø±',
+                        'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ: Ø¹Ù†ÙˆØ§Ù† Ù‚Ø§Ø¨Ù„ Ù„Ù„Ù†Ù‚Ø±',
+                        'Ø§Ù„Ø¨ÙŠØ¦Ø©: ÙˆØµÙ Ù…ÙƒØ§Ù† Ø§Ù„Ø¹Ù…Ù„',
+                        'Ø§Ù„Ù…Ø²Ø§ÙŠØ§: Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø²Ø§ÙŠØ§'
+                    ]
+                }
+

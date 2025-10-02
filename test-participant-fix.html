@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Participant Fix - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .log { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Participant Fix - MATC</h1>
+        
+        <div class="section info">
+            <h3>📋 Problème identifié:</h3>
+            <p>Le participant <strong>PART-739438</strong> n'existe pas dans la base de données, causant des erreurs 404.</p>
+        </div>
+
+        <div class="section">
+            <h3>🔍 Tests de diagnostic</h3>
+            <button onclick="testBackendConnection()">1. Tester connexion Backend</button>
+            <button onclick="checkParticipantExists()">2. Vérifier participant PART-739438</button>
+            <button onclick="createParticipant()">3. Créer participant PART-739438</button>
+            <button onclick="testParticipantLogin()">4. Tester connexion participant</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        const PARTICIPANT_ID = 'PART-739438';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testBackendConnection() {
+            log('🔄 Test de connexion au backend...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/partners`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend connecté! Trouvé ${data.data?.length || 0} partenaires`, 'success');
+                } else {
+                    log(`❌ Backend répond avec erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion backend: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkParticipantExists() {
+            log(`🔍 Vérification existence participant ${PARTICIPANT_ID}...`, 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Participant trouvé: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else if (response.status === 404) {
+                    log(`❌ Participant ${PARTICIPANT_ID} n'existe pas (404)`, 'error');
+                } else {
+                    log(`❌ Erreur lors de la vérification: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function createParticipant() {
+            log(`🔄 Création du participant ${PARTICIPANT_ID}...`, 'info');
+            
+            const participantData = {
+                partnerId: PARTICIPANT_ID,
+                type: 'participant',
+                fullName: 'Participant Test',
+                email: 'participant.test@matc.com',
+                phone: '+216 12 345 678',
+                isActive: true,
+                description: JSON.stringify({
+                    status: 'active',
+                    joinDate: new Date().toISOString(),
+                    program: 'Formation Test'
+                })
+            };
+
+            try {
+                // Créer le participant dans la table partners
+                const response = await fetch(`${API_BASE}/api/partners`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(participantData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Participant créé avec succès: ${JSON.stringify(data, null, 2)}`, 'success');
+                    
+                    // Créer quelques données de test
+                    await createTestData();
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Erreur lors de la création: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de création: ${error.message}`, 'error');
+            }
+        }
+
+        async function createTestData() {
+            log('🔄 Création de données de test...', 'info');
+            
+            // Créer une formation de test
+            const formationData = {
+                participantId: PARTICIPANT_ID,
+                title: 'Formation Web Development',
+                description: 'Formation complète en développement web',
+                startDate: '2024-01-15',
+                endDate: '2024-06-15',
+                status: 'en_cours',
+                progress: 65,
+                instructor: 'Ahmed Ben Ali',
+                modules: ['HTML/CSS', 'JavaScript', 'React', 'Node.js']
+            };
+
+            try {
+                const formationResponse = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/formations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formationData)
+                });
+
+                if (formationResponse.ok) {
+                    log('✅ Formation de test créée', 'success');
+                } else {
+                    log(`⚠️ Erreur création formation: ${formationResponse.status}`, 'error');
+                }
+            } catch (error) {
+                log(`⚠️ Erreur formation: ${error.message}`, 'error');
+            }
+
+            // Créer un projet de test
+            const projectData = {
+                participantId: PARTICIPANT_ID,
+                title: 'Site Web E-commerce',
+                description: 'Développement d\'un site e-commerce complet',
+                status: 'en_cours',
+                progress: 45,
+                startDate: '2024-02-01',
+                endDate: '2024-05-01',
+                technologies: ['React', 'Node.js', 'MongoDB'],
+                projectUrl: 'https://github.com/participant/ecommerce-project'
+            };
+
+            try {
+                const projectResponse = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/projects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(projectData)
+                });
+
+                if (projectResponse.ok) {
+                    log('✅ Projet de test créé', 'success');
+                } else {
+                    log(`⚠️ Erreur création projet: ${projectResponse.status}`, 'error');
+                }
+            } catch (error) {
+                log(`⚠️ Erreur projet: ${error.message}`, 'error');
+            }
+        }
+
+        async function testParticipantLogin() {
+            log(`🔄 Test de connexion participant ${PARTICIPANT_ID}...`, 'info');
+            
+            try {
+                // Test de récupération des données participant
+                const participantResponse = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}`);
+                const formationsResponse = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/formations`);
+                const projectsResponse = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/projects`);
+
+                if (participantResponse.ok) {
+                    const participant = await participantResponse.json();
+                    log(`✅ Participant chargé: ${participant.data?.fullName}`, 'success');
+                } else {
+                    log(`❌ Erreur chargement participant: ${participantResponse.status}`, 'error');
+                }
+
+                if (formationsResponse.ok) {
+                    const formations = await formationsResponse.json();
+                    log(`✅ Formations chargées: ${formations.data?.length || 0} formations`, 'success');
+                } else {
+                    log(`❌ Erreur chargement formations: ${formationsResponse.status}`, 'error');
+                }
+
+                if (projectsResponse.ok) {
+                    const projects = await projectsResponse.json();
+                    log(`✅ Projets chargés: ${projects.data?.length || 0} projets`, 'success');
+                } else {
+                    log(`❌ Erreur chargement projets: ${projectsResponse.status}`, 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erreur test connexion: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            log('🚀 Démarrage des tests automatiques...', 'info');
+            setTimeout(testBackendConnection, 500);
+        };
+    </script>
+</body>
+</html>

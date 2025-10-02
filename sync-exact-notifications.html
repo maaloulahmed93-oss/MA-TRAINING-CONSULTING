@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Exact Notifications - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.urgent { background: #ff6b6b; color: white; font-weight: bold; }
+        button.success { background: #28a745; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 300px; }
+        .notification-preview { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Sync Exact Notifications - MATC</h1>
+        
+        <div class="info">
+            <h3>📋 Notifications à synchroniser</h3>
+            <div class="notification-preview">
+                <strong>📄 Information</strong><br>
+                Titre: ىيت<br>
+                Description: يثيث<br>
+                Date: 28/09/2025 17:22
+            </div>
+            <div class="notification-preview">
+                <strong>💼 Offre d'emploi</strong><br>
+                Titre: تيثي<br>
+                Entreprise: يثايلاث<br>
+                Description: ثيثي<br>
+                Téléphone: +332522522<br>
+                Email: يثي<br>
+                Date: 28/09/2025 17:23
+            </div>
+        </div>
+
+        <div class="warning">
+            <h4>🎯 Objectif:</h4>
+            <p>Transférer ces notifications exactes depuis Admin Panel vers Backend/MongoDB pour qu'elles apparaissent dans espace participant</p>
+        </div>
+
+        <button onclick="syncExactNotifications()" class="urgent">⚡ SYNC CES NOTIFICATIONS</button>
+        <button onclick="verifyNotifications()">🔍 Vérifier</button>
+        <button onclick="testEspaceParticipant()" class="success">🖥️ Test Espace Participant</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function syncExactNotifications() {
+            log('⚡ SYNCHRONISATION DES NOTIFICATIONS EXACTES...', 'error');
+            
+            // Exact notifications from Admin Panel
+            const exactNotifications = [
+                {
+                    title: 'ىيت',
+                    message: 'يثيث',
+                    type: 'information',
+                    description: 'يثيث',
+                    date: '2025-09-28T15:22:00.000Z',
+                    isRead: false,
+                    priority: 'medium'
+                },
+                {
+                    title: 'تيثي',
+                    message: 'ثيثي',
+                    type: 'offre_emploi',
+                    description: 'ثيثي',
+                    company: 'يثايلاث',
+                    phone: '+332522522',
+                    email: 'يثي',
+                    date: '2025-09-28T15:23:00.000Z',
+                    isRead: false,
+                    priority: 'high'
+                }
+            ];
+            
+            log(`📤 Synchronisation de ${exactNotifications.length} notifications exactes...`, 'info');
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < exactNotifications.length; i++) {
+                const notification = exactNotifications[i];
+                log(`📤 Sync notification ${i + 1}: "${notification.title}" (${notification.type})`, 'info');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            log(`✅ SYNC SUCCESS ${i + 1}: "${notification.title}" → ${data.data._id}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`❌ Sync failed ${i + 1}: ${data.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ HTTP Error ${i + 1}: ${response.status}`, 'error');
+                        const errorText = await response.text();
+                        log(`Details: ${errorText}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Network Error ${i + 1}: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            log(`📊 SYNC RESULT: ${successCount}/${exactNotifications.length} notifications synchronized`, 
+                successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                log('🎉 SYNCHRONISATION RÉUSSIE! Vérification dans 3 secondes...', 'success');
+                setTimeout(() => verifyNotifications(), 3000);
+            } else {
+                log('❌ ÉCHEC SYNCHRONISATION - Vérifiez que le backend est démarré!', 'error');
+                log('💡 Assurez-vous que le serveur backend fonctionne sur http://localhost:3001', 'warning');
+            }
+        }
+
+        async function verifyNotifications() {
+            log('🔍 Vérification des notifications synchronisées...', 'info');
+            
+            try {
+                // Test 1: Notifications API
+                log('📋 Test 1: API Notifications dédiée...', 'info');
+                const apiResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                
+                if (apiResponse.ok) {
+                    const apiData = await apiResponse.json();
+                    if (apiData.success) {
+                        log(`✅ API Notifications: ${apiData.data.length} trouvées`, 
+                            apiData.data.length > 0 ? 'success' : 'error');
+                        
+                        if (apiData.data.length > 0) {
+                            log('📋 Notifications trouvées:', 'success');
+                            apiData.data.forEach((notif, index) => {
+                                const icon = notif.type === 'information' ? '📄' : '💼';
+                                log(`${icon} ${index + 1}. "${notif.title}" (${notif.type})`, 'info');
+                            });
+                            
+                            // Check for our specific notifications
+                            const hasInfo = apiData.data.some(n => n.title === 'ىيت' && n.type === 'information');
+                            const hasJob = apiData.data.some(n => n.title === 'تيثي' && n.type === 'offre_emploi');
+                            
+                            if (hasInfo && hasJob) {
+                                log('🎉 PARFAIT! Les deux notifications exactes sont présentes!', 'success');
+                            } else {
+                                log(`⚠️ Notifications partielles: Info=${hasInfo}, Job=${hasJob}`, 'warning');
+                            }
+                        }
+                    }
+                } else {
+                    log(`❌ API Notifications error: ${apiResponse.status}`, 'error');
+                }
+                
+                // Test 2: Participant API
+                log('📋 Test 2: API Participant...', 'info');
+                const participantResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                
+                if (participantResponse.ok) {
+                    const participantData = await participantResponse.json();
+                    if (participantData.success && participantData.data) {
+                        const notifications = participantData.data.notifications;
+                        log(`✅ API Participant: ${notifications?.length || 0} notifications`, 
+                            notifications?.length > 0 ? 'success' : 'error');
+                        
+                        if (notifications && notifications.length > 0) {
+                            log('🎉 EXCELLENT! Participant API retourne aussi les notifications!', 'success');
+                            log('💡 Cela signifie que espace participant devrait les afficher maintenant', 'success');
+                        } else {
+                            log('❌ PROBLÈME: Participant API ne retourne pas les notifications', 'error');
+                            log('💡 Il y a un problème dans le backend GET endpoint', 'warning');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEspaceParticipant() {
+            log('🖥️ Test Espace Participant...', 'info');
+            
+            log('📋 Instructions de test:', 'warning');
+            log('1. Allez sur: http://localhost:5173/espace-participant', 'info');
+            log('2. Connectez-vous avec:', 'info');
+            log('   - ID: PART-550776', 'info');
+            log('   - Email: gharbi@gmail.com', 'info');
+            log('3. Cliquez sur le bouton Notifications (🔔) dans le header', 'info');
+            log('4. Vérifiez si vous voyez:', 'info');
+            log('   📄 "ىيت" (Information)', 'info');
+            log('   💼 "تيثي" (Offre d\'emploi)', 'info');
+            
+            log('🔍 Si les notifications n\'apparaissent pas:', 'warning');
+            log('1. Ouvrez Console (F12) et cherchez des erreurs', 'info');
+            log('2. Vérifiez les logs: "✅ Loaded X notifications from API"', 'info');
+            log('3. Rechargez la page (Ctrl+F5) pour vider le cache', 'info');
+            
+            // Auto-verify
+            setTimeout(async () => {
+                log('🔄 Vérification automatique...', 'info');
+                await verifyNotifications();
+                
+                log('📊 Résumé:', 'warning');
+                log('Si les vérifications ci-dessus montrent des notifications > 0:', 'info');
+                log('→ Les notifications sont synchronisées avec succès!', 'success');
+                log('→ Elles devraient maintenant apparaître dans espace participant', 'success');
+                log('Si les vérifications montrent 0 notifications:', 'info');
+                log('→ Problème dans le backend - vérifiez qu\'il est démarré', 'error');
+            }, 2000);
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🎯 NOTIFICATIONS EXACTES À SYNCHRONISER:', 'warning');
+                log('📄 "ىيت" (Information)', 'info');
+                log('💼 "تيثي" (Offre d\'emploi)', 'info');
+                log('⚡ Cliquez sur "SYNC CES NOTIFICATIONS" pour les transférer', 'warning');
+                log('💡 Assurez-vous que le backend est démarré avant de commencer', 'info');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

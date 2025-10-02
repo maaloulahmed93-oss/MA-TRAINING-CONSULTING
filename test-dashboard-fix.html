@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Fix - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #059669;
+            border-bottom: 3px solid #d1fae5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #d1fae5;
+            border-radius: 12px;
+            background: #f0fdf4;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .urgent-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .fix-info {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #10b981;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Dashboard Fix</h1>
+            <p>Correction du problème "Cannot read properties of undefined"</p>
+        </div>
+
+        <!-- Fix Info -->
+        <div class="fix-info">
+            <h3>🛠️ Problème Identifié et Corrigé:</h3>
+            <ul>
+                <li><strong>Erreur:</strong> <code>Cannot read properties of undefined (reading 'length')</code></li>
+                <li><strong>Ligne:</strong> CommercialNewDashboard-advanced.tsx:196</li>
+                <li><strong>Cause:</strong> <code>commercialData.ventes</code> et <code>commercialData.clients</code> undefined</li>
+                <li><strong>Solution:</strong> Safe navigation <code>?.length || 0</code></li>
+            </ul>
+        </div>
+
+        <!-- Test Data Structure -->
+        <div class="test-section">
+            <h3>🔍 Test Structure des Données</h3>
+            <button class="urgent-button" onclick="testDataStructure()">
+                🧪 TESTER STRUCTURE DONNÉES COM-451764
+            </button>
+            <div id="data-result" class="result"></div>
+        </div>
+
+        <!-- Test Login et Données -->
+        <div class="test-section">
+            <h3>🚀 Test Login Complet</h3>
+            <button onclick="testLoginComplete()">🔐 Test Login</button>
+            <button onclick="testGetData()">📊 Test Get Data</button>
+            <button onclick="testCreateMissing()">➕ Créer Données Manquantes</button>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Test Dashboard Fix -->
+        <div class="test-section">
+            <h3>🎯 Vérification Fix Dashboard</h3>
+            <p>Après le fix, le dashboard devrait fonctionner même avec des données manquantes:</p>
+            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Fix appliqué:</strong><br>
+                <code>commercialData.ventes?.length || 0</code><br>
+                <code>commercialData.clients?.length || 0</code><br>
+                <code>ventes={commercialData.ventes || []}</code><br>
+                <code>clients={commercialData.clients || []}</code>
+            </div>
+            <button onclick="openDashboard()">🌐 Ouvrir Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const PARTNER_ID = 'COM-451764';
+
+        async function testDataStructure() {
+            const resultDiv = document.getElementById('data-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Test structure données ${PARTNER_ID}...\n\n`;
+
+            try {
+                // Test 1: Login
+                const loginResponse = await fetch(`${API_BASE}/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const loginResult = await loginResponse.json();
+                
+                resultDiv.textContent += `🔐 LOGIN:\n`;
+                resultDiv.textContent += `Status: ${loginResult.success ? '✅' : '❌'}\n`;
+                
+                if (loginResult.success) {
+                    const data = loginResult.data;
+                    resultDiv.textContent += `\n📊 STRUCTURE DONNÉES:\n`;
+                    resultDiv.textContent += `partnerId: ${data.partnerId}\n`;
+                    resultDiv.textContent += `fullName: ${data.fullName}\n`;
+                    resultDiv.textContent += `email: ${data.email}\n`;
+                    resultDiv.textContent += `niveau: ${data.niveau}\n`;
+                    resultDiv.textContent += `points: ${data.points}\n`;
+                    resultDiv.textContent += `chiffreAffaires: ${data.chiffreAffaires}\n`;
+                    resultDiv.textContent += `commissionTotale: ${data.commissionTotale}\n`;
+                    
+                    // Vérifier les arrays problématiques
+                    resultDiv.textContent += `\n🔍 ARRAYS PROBLÉMATIQUES:\n`;
+                    resultDiv.textContent += `ventes: ${data.ventes ? `Array(${data.ventes.length})` : '❌ undefined'}\n`;
+                    resultDiv.textContent += `clients: ${data.clients ? `Array(${data.clients.length})` : '❌ undefined'}\n`;
+                    resultDiv.textContent += `servicesAttribues: ${data.servicesAttribues ? `Array(${data.servicesAttribues.length})` : '❌ undefined'}\n`;
+                    resultDiv.textContent += `cadeauxMensuels: ${data.cadeauxMensuels ? `Array(${data.cadeauxMensuels.length})` : '❌ undefined'}\n`;
+                    
+                    if (!data.ventes || !data.clients) {
+                        resultDiv.className = 'result error';
+                        resultDiv.textContent += `\n❌ PROBLÈME CONFIRMÉ!\n`;
+                        resultDiv.textContent += `Les arrays ventes/clients sont undefined.\n`;
+                        resultDiv.textContent += `C'est pourquoi le dashboard crash.\n\n`;
+                        resultDiv.textContent += `✅ FIX APPLIQUÉ: Safe navigation (?.length || 0)`;
+                    } else {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += `\n✅ DONNÉES COMPLÈTES!\n`;
+                        resultDiv.textContent += `Tous les arrays sont présents.`;
+                    }
+                }
+
+                // Test 2: Get Data direct
+                resultDiv.textContent += `\n\n🔍 GET DATA DIRECT:\n`;
+                const getResponse = await fetch(`${API_BASE}/${PARTNER_ID}`);
+                const getResult = await getResponse.json();
+                
+                if (getResult.success) {
+                    const data = getResult.data;
+                    resultDiv.textContent += `ventes: ${data.ventes ? `Array(${data.ventes.length})` : '❌ undefined'}\n`;
+                    resultDiv.textContent += `clients: ${data.clients ? `Array(${data.clients.length})` : '❌ undefined'}\n`;
+                } else {
+                    resultDiv.textContent += `❌ Pas trouvé dans CommercialNew\n`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testLoginComplete() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔐 Test login complet...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `✅ LOGIN RÉUSSI!\n\n`;
+                    resultDiv.textContent += JSON.stringify(result.data, null, 2);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Login échoué: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testGetData() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `📊 Test get data...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/${PARTNER_ID}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `✅ DATA TROUVÉE!\n\n`;
+                    resultDiv.textContent += JSON.stringify(result.data, null, 2);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Data non trouvée: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCreateMissing() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `➕ Création données manquantes...\n\n`;
+
+            try {
+                // Créer avec données complètes
+                const testData = {
+                    partnerId: PARTNER_ID,
+                    fullName: 'Mohamed Test',
+                    email: 'mohamed@example.com',
+                    phone: '0123456789',
+                    niveau: 1,
+                    points: 0,
+                    pointsHistoriques: 0,
+                    chiffreAffaires: 0,
+                    commissionTotale: 0,
+                    transfertEffectue: false,
+                    montantTransfert: 0,
+                    clients: [],
+                    ventes: [],
+                    servicesAttribues: [],
+                    cadeauxMensuels: [],
+                    historiqueNiveaux: [],
+                    isActive: true
+                };
+
+                const response = await fetch(`${API_BASE}/create-direct`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `✅ DONNÉES CRÉÉES!\n\n`;
+                    resultDiv.textContent += `Maintenant le dashboard devrait fonctionner.`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Création échouée: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        function openDashboard() {
+            window.open('http://localhost:5173/espace-commercial', '_blank');
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            console.log('🔧 Dashboard Fix Test chargé!');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final Admin Panel Resources - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+        .step { background: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin: 10px 0; }
+        .resource-preview { background: #f0f8ff; padding: 15px; border-radius: 5px; border: 1px solid #b3d9ff; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Final Admin Panel Resources - MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Améliorations apportées</h3>
+            <ul>
+                <li><strong>Backend:</strong> Sauvegarde complète de tous les champs (type, category, thumbnail, etc.)</li>
+                <li><strong>Frontend:</strong> Ajout des champs Type et Catégorie dans le formulaire</li>
+                <li><strong>Validation:</strong> Meilleure validation des URLs et données</li>
+                <li><strong>Interface:</strong> Formulaire plus complet et intuitif</li>
+            </ul>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>👤 Participant cible</h3>
+                <div class="info">
+                    <h4>Ismael Gharbi</h4>
+                    <p><strong>ID:</strong> PART-550776</p>
+                    <p><strong>Email:</strong> gharbi@gmail.com</p>
+                </div>
+                <button onclick="loadParticipantData()">Charger données</button>
+                <button onclick="clearAllResources()" class="danger">Reset ressources</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🧪 Tests système</h3>
+                <button onclick="testBackendConnection()">Test Backend</button>
+                <button onclick="testCompleteFlow()">Test flux complet</button>
+                <button onclick="verifyInEspaceParticipant()">Vérifier Espace Participant</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Instructions de test manuel</h3>
+            
+            <div class="step">
+                <h4>Étape 1: Ouvrir Admin Panel</h4>
+                <p>1. Allez sur: <a href="http://localhost:8536/participants" target="_blank">http://localhost:8536/participants</a></p>
+                <p>2. Trouvez "Ismael Gharbi (PART-550776)"</p>
+                <p>3. Cliquez sur "Modifier" (icône crayon)</p>
+            </div>
+            
+            <div class="step">
+                <h4>Étape 2: Ajouter une ressource</h4>
+                <p>1. Faites défiler jusqu'à "Ressources de coaching"</p>
+                <p>2. Remplissez les champs:</p>
+                <ul>
+                    <li><strong>Nom:</strong> Guide Entretien Test</li>
+                    <li><strong>Icône:</strong> 📖 Guide Entretien d'Embauche</li>
+                    <li><strong>URL:</strong> https://example.com/guide-test</li>
+                    <li><strong>Type:</strong> Guide</li>
+                    <li><strong>Catégorie:</strong> Carrière</li>
+                </ul>
+                <p>3. Cliquez "Ajouter"</p>
+                <p>4. Cliquez "Mettre à jour" en bas du formulaire</p>
+            </div>
+            
+            <div class="step">
+                <h4>Étape 3: Vérifier dans Espace Participant</h4>
+                <p>1. Allez sur: <a href="http://localhost:5173/espace-participant" target="_blank">http://localhost:5173/espace-participant</a></p>
+                <p>2. Connectez-vous: PART-550776 / gharbi@gmail.com</p>
+                <p>3. Cliquez "Coaching & Orientation"</p>
+                <p>4. Vérifiez que la ressource apparaît avec le bon type et catégorie</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 Test automatique complet</h3>
+            <button onclick="runCompleteTest()" class="success">Lancer test automatique</button>
+            <div class="resource-preview" id="testPreview" style="display: none;">
+                <h4>Ressource de test qui sera ajoutée:</h4>
+                <p><strong>Titre:</strong> <span id="previewTitle">Test Resource Automatique</span></p>
+                <p><strong>Type:</strong> <span id="previewType">Guide</span></p>
+                <p><strong>Catégorie:</strong> <span id="previewCategory">Carrière</span></p>
+                <p><strong>URL:</strong> <span id="previewUrl">https://example.com/test-auto</span></p>
+                <p><strong>Icône:</strong> <span id="previewIcon">📖</span></p>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let currentParticipant = null;
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testBackendConnection() {
+            log('🔄 Test de connexion au backend...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants');
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend connecté - ${data.data?.length || 0} participants trouvés`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Backend erreur: ${response.status} ${response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion backend: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function loadParticipantData() {
+            log('🔄 Chargement des données participant PART-550776...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        currentParticipant = data.data;
+                        const resourcesCount = currentParticipant.coachingResources?.length || 0;
+                        
+                        log(`✅ Participant chargé: ${currentParticipant.fullName}`, 'success');
+                        log(`📚 Ressources actuelles: ${resourcesCount}`, resourcesCount > 0 ? 'success' : 'warning');
+                        
+                        if (resourcesCount > 0) {
+                            currentParticipant.coachingResources.forEach((resource, index) => {
+                                log(`${index + 1}. ${resource.title} (${resource.type} - ${resource.category})`, 'info');
+                            });
+                        }
+                        
+                        return currentParticipant;
+                    } else {
+                        log('❌ Participant non trouvé', 'error');
+                        return null;
+                    }
+                } else {
+                    log(`❌ Erreur API: ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function clearAllResources() {
+            log('🗑️ Suppression de toutes les ressources...', 'warning');
+            
+            if (!currentParticipant) {
+                await loadParticipantData();
+            }
+            
+            if (!currentParticipant) {
+                log('❌ Impossible de charger le participant', 'error');
+                return;
+            }
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: [],
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    log('✅ Toutes les ressources supprimées', 'success');
+                    setTimeout(() => loadParticipantData(), 1000);
+                } else {
+                    log(`❌ Erreur HTTP: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCompleteFlow() {
+            log('🚀 Test du flux complet...', 'info');
+            
+            // 1. Load participant
+            log('📋 1. Chargement participant...', 'info');
+            await loadParticipantData();
+            
+            if (!currentParticipant) {
+                log('❌ Impossible de continuer sans participant', 'error');
+                return;
+            }
+            
+            // 2. Add test resource
+            log('📋 2. Ajout ressource de test...', 'info');
+            const testResource = {
+                id: `RES-${Date.now()}`,
+                title: 'Test Resource Complet',
+                description: 'Ressource de test avec tous les champs',
+                type: 'Guide',
+                category: 'Carrière',
+                thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
+                downloadUrl: '',
+                duration: '30 min',
+                dataLinks: [{
+                    id: `link-${Date.now()}`,
+                    title: 'Lien principal',
+                    url: 'https://example.com/test-complet',
+                    type: 'external'
+                }],
+                assignedDate: new Date().toISOString(),
+                accessedDate: null,
+                isCompleted: false
+            };
+            
+            const updatedResources = [...(currentParticipant.coachingResources || []), testResource];
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: updatedResources,
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    log('✅ Ressource ajoutée avec succès', 'success');
+                    
+                    // 3. Verify
+                    log('📋 3. Vérification...', 'info');
+                    setTimeout(async () => {
+                        await loadParticipantData();
+                        log('🎉 Test complet terminé!', 'success');
+                    }, 1000);
+                } else {
+                    log(`❌ Erreur ajout: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyInEspaceParticipant() {
+            log('🔍 Vérification dans Espace Participant...', 'info');
+            
+            log('📋 Instructions pour vérification manuelle:', 'warning');
+            log('1. Ouvrez: http://localhost:5173/espace-participant', 'info');
+            log('2. Connectez-vous: PART-550776 / gharbi@gmail.com', 'info');
+            log('3. Cliquez "Coaching & Orientation"', 'info');
+            log('4. Vérifiez que les ressources apparaissent avec les bons types et catégories', 'info');
+            
+            // Try to check via API what the participant would see
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.coachingResources) {
+                        const resources = data.data.coachingResources;
+                        log(`📊 L'espace participant devrait afficher ${resources.length} ressources:`, 'success');
+                        
+                        resources.forEach((resource, index) => {
+                            log(`${index + 1}. ${resource.title} (${resource.type} - ${resource.category})`, 'info');
+                        });
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function runCompleteTest() {
+            log('🚀 Lancement du test automatique complet...', 'info');
+            
+            // Show preview
+            document.getElementById('testPreview').style.display = 'block';
+            
+            // Step 1: Clear existing resources
+            log('📋 Étape 1: Nettoyage des ressources existantes...', 'info');
+            await clearAllResources();
+            
+            // Step 2: Add multiple test resources
+            log('📋 Étape 2: Ajout de ressources de test variées...', 'info');
+            
+            const testResources = [
+                {
+                    id: `RES-${Date.now()}-1`,
+                    title: 'Guide Entretien Automatique',
+                    description: 'Guide complet pour réussir ses entretiens',
+                    type: 'Guide',
+                    category: 'Carrière',
+                    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
+                    dataLinks: [{ id: 'link-1', title: 'Lien principal', url: 'https://example.com/guide-entretien', type: 'external' }],
+                    assignedDate: new Date().toISOString(),
+                    isCompleted: false
+                },
+                {
+                    id: `RES-${Date.now()}-2`,
+                    title: 'CV Template Moderne',
+                    description: 'Modèle de CV professionnel',
+                    type: 'CV Template',
+                    category: 'Templates',
+                    thumbnail: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=300&h=200&fit=crop',
+                    dataLinks: [{ id: 'link-2', title: 'Télécharger', url: 'https://example.com/cv-template', type: 'external' }],
+                    assignedDate: new Date().toISOString(),
+                    isCompleted: false
+                },
+                {
+                    id: `RES-${Date.now()}-3`,
+                    title: 'Communication Efficace',
+                    description: 'Vidéo sur les compétences de communication',
+                    type: 'Vidéo Soft Skills',
+                    category: 'Soft Skills',
+                    duration: '45 min',
+                    thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=200&fit=crop',
+                    dataLinks: [{ id: 'link-3', title: 'Regarder', url: 'https://example.com/video-communication', type: 'external' }],
+                    assignedDate: new Date().toISOString(),
+                    isCompleted: false
+                }
+            ];
+            
+            if (!currentParticipant) {
+                await loadParticipantData();
+            }
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: testResources,
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    log(`✅ ${testResources.length} ressources de test ajoutées`, 'success');
+                    
+                    // Step 3: Verify
+                    log('📋 Étape 3: Vérification finale...', 'info');
+                    setTimeout(async () => {
+                        await loadParticipantData();
+                        await verifyInEspaceParticipant();
+                        
+                        log('🎉 Test automatique complet terminé!', 'success');
+                        log('📝 Maintenant testez manuellement dans Admin Panel:', 'warning');
+                        log('1. Ouvrez Admin Panel', 'info');
+                        log('2. Modifiez le participant Ismael Gharbi', 'info');
+                        log('3. Ajoutez une nouvelle ressource', 'info');
+                        log('4. Vérifiez dans Espace Participant', 'info');
+                    }, 2000);
+                } else {
+                    log(`❌ Erreur ajout ressources: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur test automatique: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run initial tests
+        window.onload = function() {
+            setTimeout(async () => {
+                log('🔄 Tests automatiques au chargement...', 'info');
+                await testBackendConnection();
+                await loadParticipantData();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

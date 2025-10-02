@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Participant Creation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { background: #d4edda; padding: 10px; border-radius: 4px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 10px; border-radius: 4px; color: #0c5460; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Participant Creation</h1>
+        <p>Test the participant creation API with proper error handling.</p>
+
+        <div class="info">
+            <strong>Test Cases:</strong>
+            <ul>
+                <li>Create new participant with unique email</li>
+                <li>Try to create participant with duplicate email (should fail gracefully)</li>
+                <li>Create participant with custom ID</li>
+                <li>Verify all participants are accessible</li>
+            </ul>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <h3>Create New Participant</h3>
+            <input type="text" id="fullName" placeholder="Full Name" value="Test User">
+            <input type="email" id="email" placeholder="Email" value="">
+            <input type="text" id="phone" placeholder="Phone" value="+216 12 345 678">
+            <br>
+            <button class="btn-primary" onclick="createParticipant()">Create Participant</button>
+            <button class="btn-success" onclick="listParticipants()">List All Participants</button>
+            <button class="btn-danger" onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let participantCounter = 1;
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function createParticipant() {
+            const fullName = document.getElementById('fullName').value || `Test User ${participantCounter}`;
+            const email = document.getElementById('email').value || `test${participantCounter}@matc.com`;
+            const phone = document.getElementById('phone').value || `+216 12 345 ${String(participantCounter).padStart(3, '0')}`;
+
+            const participantData = {
+                fullName: fullName,
+                email: email,
+                phone: phone,
+                address: 'Test Address',
+                status: 'active'
+            };
+
+            log(`🔄 Creating participant: ${fullName} (${email})`, 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(participantData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Participant created successfully: ${result.data.partnerId} - ${result.data.fullName}`, 'success');
+                    log(`📧 Email: ${result.data.email}`, 'info');
+                    participantCounter++;
+                    
+                    // Update form for next participant
+                    document.getElementById('fullName').value = `Test User ${participantCounter}`;
+                    document.getElementById('email').value = `test${participantCounter}@matc.com`;
+                } else {
+                    log(`❌ Error creating participant: ${result.message}`, 'error');
+                    if (result.message.includes('existe déjà')) {
+                        log(`💡 This is expected behavior for duplicate emails`, 'info');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function listParticipants() {
+            log('📋 Fetching all participants...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const participants = result.data || [];
+                    log(`📊 Found ${participants.length} participants:`, 'success');
+                    
+                    participants.forEach((p, index) => {
+                        log(`${index + 1}. ${p.partnerId}: ${p.fullName} (${p.email})`, 'info');
+                    });
+
+                    // Test accessing specific participants
+                    if (participants.length > 0) {
+                        log('🔍 Testing individual participant access...', 'info');
+                        for (let i = 0; i < Math.min(3, participants.length); i++) {
+                            const participant = participants[i];
+                            try {
+                                const testResponse = await fetch(`${API_BASE}/participants/${participant.partnerId}`);
+                                if (testResponse.ok) {
+                                    log(`✅ ${participant.partnerId} is accessible`, 'success');
+                                } else {
+                                    log(`❌ ${participant.partnerId} returned ${testResponse.status}`, 'error');
+                                }
+                            } catch (error) {
+                                log(`❌ Error accessing ${participant.partnerId}: ${error.message}`, 'error');
+                            }
+                        }
+                    }
+                } else {
+                    log(`❌ Error fetching participants: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDuplicateEmail() {
+            log('🧪 Testing duplicate email handling...', 'info');
+            
+            // Try to create a participant with an existing email
+            const duplicateData = {
+                fullName: 'Duplicate Test User',
+                email: 'test1@matc.com', // This should already exist
+                phone: '+216 99 999 999',
+                address: 'Duplicate Test Address',
+                status: 'active'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(duplicateData)
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok && result.message.includes('existe déjà')) {
+                    log(`✅ Duplicate email properly rejected: ${result.message}`, 'success');
+                } else if (response.ok) {
+                    log(`⚠️ Duplicate email was accepted (unexpected)`, 'error');
+                } else {
+                    log(`❌ Unexpected error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run initial tests
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('🚀 Starting participant creation tests...', 'info');
+                listParticipants();
+            }, 1000);
+        });
+
+        // Add test duplicate email button
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.container');
+            const testButton = document.createElement('button');
+            testButton.className = 'btn-primary';
+            testButton.textContent = 'Test Duplicate Email';
+            testButton.onclick = testDuplicateEmail;
+            
+            const buttonContainer = container.querySelector('div[style*="margin: 20px 0"]');
+            buttonContainer.appendChild(document.createElement('br'));
+            buttonContainer.appendChild(testButton);
+        });
+    </script>
+</body>
+</html>

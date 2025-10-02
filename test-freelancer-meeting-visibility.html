@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار ظهور الاجتماعات للفريلانسر</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+        .json-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .meeting-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .meeting-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .participants {
+            background: #e3f2fd;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 اختبار ظهور الاجتماعات للفريلانسر</h1>
+        <p>هذا الاختبار يفحص لماذا لا تظهر الاجتماعات المنشأة في Admin Panel في Espace Freelancer</p>
+
+        <div class="test-section">
+            <h3>1️⃣ فحص جميع الاجتماعات في قاعدة البيانات</h3>
+            <button onclick="getAllMeetings()">جلب جميع الاجتماعات</button>
+            <div id="allMeetingsResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2️⃣ فحص اجتماعات فريلانسر محدد</h3>
+            <input type="text" id="freelancerIdInput" value="FRE-340255" placeholder="معرف الفريلانسر">
+            <button onclick="getFreelancerMeetings()">جلب اجتماعات الفريلانسر</button>
+            <div id="freelancerMeetingsResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3️⃣ إنشاء اجتماع تجريبي</h3>
+            <button onclick="createTestMeeting()">إنشاء اجتماع تجريبي لـ FRE-340255</button>
+            <div id="createMeetingResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4️⃣ اختبار API endpoint مباشرة</h3>
+            <button onclick="testAPIEndpoint()">اختبار /api/freelancer-meetings/freelancer/FRE-340255</button>
+            <div id="apiTestResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5️⃣ فحص Backend logs</h3>
+            <button onclick="checkBackendLogs()">فحص Backend logs</button>
+            <div id="backendLogsResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // دالة لعرض النتائج
+        function displayResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${type}">${content}</div>`;
+        }
+
+        // دالة لعرض JSON بشكل منسق
+        function displayJSON(elementId, data, title = '') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                ${title ? `<div class="info">${title}</div>` : ''}
+                <div class="json-display">${JSON.stringify(data, null, 2)}</div>
+            `;
+        }
+
+        // 1. جلب جميع الاجتماعات
+        async function getAllMeetings() {
+            try {
+                displayResult('allMeetingsResult', '🔄 جاري جلب جميع الاجتماعات...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-meetings`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJSON('allMeetingsResult', data.data, `✅ تم جلب ${data.data.length} اجتماع من قاعدة البيانات:`);
+                    
+                    // عرض الاجتماعات بشكل مفصل
+                    let meetingsHtml = '<h4>تفاصيل الاجتماعات:</h4>';
+                    data.data.forEach((meeting, index) => {
+                        meetingsHtml += `
+                            <div class="meeting-card">
+                                <h4>اجتماع ${index + 1}: ${meeting.subject}</h4>
+                                <p><strong>التاريخ:</strong> ${meeting.date}</p>
+                                <p><strong>الوقت:</strong> ${meeting.startTime} - ${meeting.endTime || 'غير محدد'}</p>
+                                <p><strong>النوع:</strong> ${meeting.type}</p>
+                                <p><strong>الحالة:</strong> ${meeting.status}</p>
+                                <div class="participants">
+                                    <strong>المشاركون:</strong> ${JSON.stringify(meeting.participantFreelancerIds)}
+                                </div>
+                                <p><strong>ID:</strong> ${meeting._id}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('allMeetingsResult').innerHTML += meetingsHtml;
+                } else {
+                    displayResult('allMeetingsResult', `❌ خطأ: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('allMeetingsResult', `❌ خطأ في الاتصال: ${error.message}`, 'error');
+            }
+        }
+
+        // 2. جلب اجتماعات فريلانسر محدد
+        async function getFreelancerMeetings() {
+            try {
+                const freelancerId = document.getElementById('freelancerIdInput').value;
+                displayResult('freelancerMeetingsResult', `🔄 جاري جلب اجتماعات ${freelancerId}...`);
+                
+                const response = await fetch(`${API_BASE}/freelancer-meetings/freelancer/${freelancerId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJSON('freelancerMeetingsResult', data.data, `✅ تم جلب ${data.data.length} اجتماع للفريلانسر ${freelancerId}:`);
+                } else {
+                    displayResult('freelancerMeetingsResult', `❌ خطأ: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('freelancerMeetingsResult', `❌ خطأ في الاتصال: ${error.message}`, 'error');
+            }
+        }
+
+        // 3. إنشاء اجتماع تجريبي
+        async function createTestMeeting() {
+            try {
+                displayResult('createMeetingResult', '🔄 جاري إنشاء اجتماع تجريبي...');
+                
+                const testMeeting = {
+                    subject: 'اجتماع تجريبي - اختبار النظام',
+                    type: 'visio',
+                    date: '2025-09-28',
+                    startTime: '10:00',
+                    endTime: '11:00',
+                    timezone: 'Africa/Tunis',
+                    meetingLink: 'https://meet.google.com/test-meeting',
+                    withWhom: 'فريق الاختبار',
+                    participantFreelancerIds: ['FRE-340255'],
+                    agenda: ['مراجعة النظام', 'اختبار الوظائف'],
+                    notes: 'اجتماع تجريبي لاختبار النظام',
+                    status: 'scheduled',
+                    outcome: 'pending'
+                };
+                
+                const response = await fetch(`${API_BASE}/freelancer-meetings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testMeeting)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJSON('createMeetingResult', data.data, '✅ تم إنشاء الاجتماع التجريبي بنجاح:');
+                } else {
+                    displayResult('createMeetingResult', `❌ خطأ في إنشاء الاجتماع: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('createMeetingResult', `❌ خطأ في الاتصال: ${error.message}`, 'error');
+            }
+        }
+
+        // 4. اختبار API endpoint مباشرة
+        async function testAPIEndpoint() {
+            try {
+                displayResult('apiTestResult', '🔄 جاري اختبار API endpoint...');
+                
+                const testUrl = `${API_BASE}/freelancer-meetings/freelancer/FRE-340255`;
+                console.log('🔗 اختبار URL:', testUrl);
+                
+                const response = await fetch(testUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('📦 Response data:', data);
+                
+                if (response.ok && data.success) {
+                    displayJSON('apiTestResult', {
+                        url: testUrl,
+                        status: response.status,
+                        data: data
+                    }, '✅ API endpoint يعمل بشكل صحيح:');
+                } else {
+                    displayResult('apiTestResult', `❌ API endpoint لا يعمل: Status ${response.status}, Message: ${data.message || 'غير محدد'}`, 'error');
+                }
+            } catch (error) {
+                displayResult('apiTestResult', `❌ خطأ في اختبار API: ${error.message}`, 'error');
+            }
+        }
+
+        // 5. فحص Backend logs
+        async function checkBackendLogs() {
+            displayResult('backendLogsResult', `
+                📋 لفحص Backend logs:
+                <br>1. افتح terminal في مجلد backend
+                <br>2. شغل الأمر: npm start أو node server.js
+                <br>3. راقب الرسائل في console
+                <br>4. جرب استدعاء API endpoints
+                <br><br>
+                🔍 ابحث عن رسائل مثل:
+                <br>- "📅 تم جلب X اجتماع للفريلانسر FRE-340255"
+                <br>- أي رسائل خطأ أو تحذيرات
+                <br>- رسائل MongoDB connection
+            `, 'info');
+        }
+
+        // تشغيل تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            console.log('🚀 بدء اختبار نظام الاجتماعات...');
+            getAllMeetings();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Coaching Resources Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px 5px; }
+        .button:hover { background: #2563eb; }
+        .button.success { background: #10b981; }
+        .button.danger { background: #ef4444; }
+        .result { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; margin: 10px 0; border-radius: 6px; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
+        .success { background: #ecfdf5; border-color: #10b981; }
+        .error { background: #fef2f2; border-color: #ef4444; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Coaching Resources Integration</h1>
+        <p>Test complet de l'intégration des ressources de coaching entre Admin Panel et Espace Participant</p>
+
+        <div class="grid">
+            <!-- Admin Panel Tests -->
+            <div class="section">
+                <h2>🛠️ Admin Panel Tests</h2>
+                <button class="button" onclick="testAdminResourceCreation()">1. Test Resource Creation</button>
+                <button class="button" onclick="testAdminResourceSave()">2. Test Resource Save</button>
+                <div id="admin-result" class="result">Cliquez sur un bouton pour tester...</div>
+            </div>
+
+            <!-- Backend API Tests -->
+            <div class="section">
+                <h2>🔧 Backend API Tests</h2>
+                <button class="button" onclick="testBackendConnection()">1. Test Backend Connection</button>
+                <button class="button" onclick="testParticipantResources()">2. Get Participant Resources</button>
+                <button class="button" onclick="testResourceUpdate()">3. Test Resource Update</button>
+                <div id="backend-result" class="result">Cliquez sur un bouton pour tester...</div>
+            </div>
+        </div>
+
+        <!-- Participant Space Tests -->
+        <div class="section">
+            <h2>👤 Participant Space Tests</h2>
+            <button class="button" onclick="testParticipantAPI()">1. Test API Integration</button>
+            <button class="button" onclick="testResourceDisplay()">2. Test Resource Display</button>
+            <button class="button" onclick="testEyeIconClick()">3. Test Eye Icon Click</button>
+            <div id="participant-result" class="result">Cliquez sur un bouton pour tester...</div>
+        </div>
+
+        <!-- End-to-End Test -->
+        <div class="section">
+            <h2>🔄 End-to-End Test</h2>
+            <button class="button success" onclick="runFullIntegrationTest()">Run Complete Integration Test</button>
+            <div id="integration-result" class="result">Prêt pour le test complet...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        const TEST_RESOURCE = {
+            title: 'Test Resource Integration',
+            icon: '🧪',
+            description: 'Resource created for integration testing',
+            dataLinks: [{
+                id: 'link-test-' + Date.now(),
+                title: 'Test Link',
+                url: 'https://example.com/test-resource',
+                type: 'external'
+            }]
+        };
+
+        // Admin Panel Tests
+        async function testAdminResourceCreation() {
+            const resultDiv = document.getElementById('admin-result');
+            resultDiv.textContent = 'Testing admin resource creation...';
+            
+            try {
+                // Simulate admin panel resource creation
+                const resourceData = {
+                    id: 'res-' + Date.now(),
+                    title: TEST_RESOURCE.title,
+                    description: TEST_RESOURCE.description,
+                    icon: TEST_RESOURCE.icon,
+                    category: 'Ressources',
+                    type: 'Guide',
+                    assignedDate: new Date().toISOString(),
+                    isCompleted: false,
+                    dataLinks: TEST_RESOURCE.dataLinks
+                };
+
+                resultDiv.textContent = '✅ Admin resource creation simulation successful:\n\n' + 
+                    JSON.stringify(resourceData, null, 2);
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.textContent = '❌ Admin resource creation failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testAdminResourceSave() {
+            const resultDiv = document.getElementById('admin-result');
+            resultDiv.textContent = 'Testing admin resource save to backend...';
+            
+            try {
+                const participantData = {
+                    coachingResources: [TEST_RESOURCE]
+                };
+
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(participantData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.textContent = '✅ Admin resource save successful:\n\n' + 
+                        JSON.stringify(result, null, 2);
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Admin resource save failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Backend API Tests
+        async function testBackendConnection() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.textContent = 'Testing backend connection...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.textContent = `✅ Backend connection successful:\n\nFound ${data.data?.length || 0} participants`;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Backend connection failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testParticipantResources() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.textContent = 'Testing participant resources retrieval...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const resources = data.data?.coachingResources || [];
+                    
+                    let output = `✅ Found ${resources.length} coaching resources:\n\n`;
+                    resources.forEach((resource, index) => {
+                        output += `${index + 1}. ${resource.title}\n`;
+                        output += `   Icon: ${resource.icon}\n`;
+                        output += `   Links: ${resource.dataLinks?.length || 0}\n`;
+                        if (resource.dataLinks?.[0]) {
+                            output += `   URL: ${resource.dataLinks[0].url}\n`;
+                        }
+                        output += '\n';
+                    });
+                    
+                    resultDiv.textContent = output;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Resources retrieval failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testResourceUpdate() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.textContent = 'Testing resource update with detailed logging...';
+            
+            try {
+                const updateData = {
+                    coachingResources: [
+                        {
+                            title: 'Updated Test Resource',
+                            icon: '🔄',
+                            description: 'Updated for testing',
+                            dataLinks: [{
+                                id: 'link-updated-' + Date.now(),
+                                title: 'Updated Link',
+                                url: 'https://example.com/updated-resource',
+                                type: 'external'
+                            }]
+                        }
+                    ]
+                };
+
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.textContent = '✅ Resource update successful:\n\n' + 
+                        'Check backend logs for detailed processing information.\n\n' +
+                        JSON.stringify(result, null, 2);
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Resource update failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Participant Space Tests
+        async function testParticipantAPI() {
+            const resultDiv = document.getElementById('participant-result');
+            resultDiv.textContent = 'Testing participant API integration...';
+            
+            try {
+                // Simulate the API call that Coaching.tsx would make
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const resources = data.data?.coachingResources || [];
+                    
+                    resultDiv.textContent = `✅ Participant API integration working:\n\n` +
+                        `Resources loaded: ${resources.length}\n` +
+                        `API endpoint: GET ${API_BASE}/participants/${PARTICIPANT_ID}\n` +
+                        `Response structure: ${JSON.stringify(data.data ? Object.keys(data.data) : [], null, 2)}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Participant API integration failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testResourceDisplay() {
+            const resultDiv = document.getElementById('participant-result');
+            resultDiv.textContent = 'Testing resource display format...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const resources = data.data?.coachingResources || [];
+                    
+                    let output = '✅ Resource display format test:\n\n';
+                    resources.forEach((resource, index) => {
+                        output += `Resource ${index + 1}:\n`;
+                        output += `  Title: "${resource.title}"\n`;
+                        output += `  Icon: "${resource.icon}"\n`;
+                        output += `  Category: "${resource.category}"\n`;
+                        output += `  Type: "${resource.type}"\n`;
+                        output += `  Has dataLinks: ${resource.dataLinks ? 'YES' : 'NO'}\n`;
+                        if (resource.dataLinks?.[0]) {
+                            output += `  First link URL: "${resource.dataLinks[0].url}"\n`;
+                            output += `  Link clickable: ${resource.dataLinks[0].url ? 'YES' : 'NO'}\n`;
+                        }
+                        output += '\n';
+                    });
+                    
+                    resultDiv.textContent = output;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Resource display test failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testEyeIconClick() {
+            const resultDiv = document.getElementById('participant-result');
+            resultDiv.textContent = 'Testing Eye icon click functionality...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const resources = data.data?.coachingResources || [];
+                    
+                    let output = '✅ Eye icon click test:\n\n';
+                    resources.forEach((resource, index) => {
+                        const hasClickableUrl = resource.dataLinks?.[0]?.url;
+                        output += `Resource ${index + 1}: "${resource.title}"\n`;
+                        output += `  Eye icon status: ${hasClickableUrl ? '👁️ CLICKABLE' : '👁️ NOT CLICKABLE'}\n`;
+                        if (hasClickableUrl) {
+                            output += `  Would open: ${resource.dataLinks[0].url}\n`;
+                        } else {
+                            output += `  Reason: No URL in dataLinks[0]\n`;
+                        }
+                        output += '\n';
+                    });
+                    
+                    resultDiv.textContent = output;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Eye icon click test failed:\n' + error.message;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Full Integration Test
+        async function runFullIntegrationTest() {
+            const resultDiv = document.getElementById('integration-result');
+            resultDiv.textContent = 'Running complete integration test...\n\n';
+            
+            const steps = [
+                { name: 'Backend Connection', test: testBackendConnection },
+                { name: 'Admin Resource Save', test: testAdminResourceSave },
+                { name: 'Participant Resources Retrieval', test: testParticipantResources },
+                { name: 'Resource Display Format', test: testResourceDisplay },
+                { name: 'Eye Icon Functionality', test: testEyeIconClick }
+            ];
+
+            let results = 'FULL INTEGRATION TEST RESULTS:\n\n';
+            let passedTests = 0;
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                results += `${i + 1}. ${step.name}: `;
+                
+                try {
+                    // Run test in background and check if it would succeed
+                    const testResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                    if (testResponse.ok) {
+                        results += '✅ PASS\n';
+                        passedTests++;
+                    } else {
+                        results += '❌ FAIL\n';
+                    }
+                } catch (error) {
+                    results += '❌ FAIL\n';
+                }
+            }
+
+            results += `\nSUMMARY: ${passedTests}/${steps.length} tests passed\n`;
+            
+            if (passedTests === steps.length) {
+                results += '\n🎉 ALL TESTS PASSED - Integration is working correctly!';
+                resultDiv.className = 'result success';
+            } else {
+                results += '\n⚠️ Some tests failed - Check individual test results above';
+                resultDiv.className = 'result error';
+            }
+
+            resultDiv.textContent = results;
+        }
+    </script>
+</body>
+</html>

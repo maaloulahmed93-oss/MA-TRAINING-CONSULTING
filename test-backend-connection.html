@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Connection - ENT-752810</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.online { background: #28a745; color: white; }
+        .status.offline { background: #dc3545; color: white; }
+        .json-display {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Backend Connection - ENT-752810</h1>
+        
+        <div class="test-section info">
+            <h3>État des Services</h3>
+            <p><strong>Backend API:</strong> <span id="backendStatus">Vérification...</span></p>
+            <p><strong>Admin Panel:</strong> <span id="adminStatus">Vérification...</span></p>
+            <p><strong>Frontend:</strong> <span id="frontendStatus">Vérification...</span></p>
+        </div>
+
+        <div class="test-section">
+            <h3>Tests de Diagnostic</h3>
+            <button onclick="testBackendHealth()">1. Test Santé Backend</button>
+            <button onclick="testAllPartners()">2. Lister Partenaires</button>
+            <button onclick="testSpecificPartner()">3. Test ENT-752810</button>
+            <button onclick="testPartnerLogin()">4. Test Login API</button>
+            <button onclick="testDatabaseSync()">5. Test Sync DB</button>
+            <button onclick="runFullDiagnostic()">🚀 Diagnostic Complet</button>
+            <button onclick="clearLog()">Effacer</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Résultats</h3>
+            <div id="log" class="log">Initialisation des tests...\n</div>
+        </div>
+
+        <div class="test-section">
+            <h3>Données JSON</h3>
+            <div id="jsonDisplay" class="json-display">Les données JSON apparaîtront ici...</div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const ADMIN_URL = 'http://localhost:8536';
+        const FRONTEND_URL = 'http://localhost:5174';
+        const TARGET_PARTNER = 'ENT-752810';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function displayJson(data, title = 'Données') {
+            const jsonElement = document.getElementById('jsonDisplay');
+            jsonElement.textContent = `=== ${title} ===\n${JSON.stringify(data, null, 2)}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = 'Log effacé...\n';
+            document.getElementById('jsonDisplay').textContent = 'Les données JSON apparaîtront ici...';
+        }
+
+        function updateStatus(elementId, status, isOnline) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `${status} <span class="status ${isOnline ? 'online' : 'offline'}">${isOnline ? 'ONLINE' : 'OFFLINE'}</span>`;
+        }
+
+        async function testBackendHealth() {
+            log('🔍 Test de santé du Backend...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend accessible - Status: ${data.status}`, 'success');
+                    displayJson(data, 'Health Check');
+                    updateStatus('backendStatus', 'http://localhost:3001', true);
+                    return true;
+                } else {
+                    log(`❌ Backend erreur - Status: ${response.status}`, 'error');
+                    updateStatus('backendStatus', 'http://localhost:3001', false);
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Backend inaccessible: ${error.message}`, 'error');
+                updateStatus('backendStatus', 'http://localhost:3001', false);
+                return false;
+            }
+        }
+
+        async function testAllPartners() {
+            log('🔍 Récupération de tous les partenaires...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.count} partenaires trouvés`, 'success');
+                    
+                    // Chercher ENT-752810 spécifiquement
+                    const targetFound = data.data.find(p => p.partnerId === TARGET_PARTNER);
+                    if (targetFound) {
+                        log(`🎯 TROUVÉ: ${TARGET_PARTNER} existe dans la base!`, 'success');
+                        log(`   Nom: ${targetFound.fullName}`, 'success');
+                        log(`   Email: ${targetFound.email}`, 'success');
+                        log(`   Type: ${targetFound.type}`, 'success');
+                        log(`   Actif: ${targetFound.isActive}`, 'success');
+                    } else {
+                        log(`❌ ${TARGET_PARTNER} NON TROUVÉ dans la base!`, 'error');
+                    }
+                    
+                    displayJson(data, 'Tous les Partenaires');
+                    return data;
+                } else {
+                    log(`❌ Erreur récupération partenaires: ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testSpecificPartner() {
+            log(`🔍 Test spécifique pour ${TARGET_PARTNER}...`);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners/${TARGET_PARTNER}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${TARGET_PARTNER} trouvé directement!`, 'success');
+                    log(`   Nom: ${data.data.fullName}`, 'success');
+                    log(`   Email: ${data.data.email}`, 'success');
+                    log(`   Type: ${data.data.type}`, 'success');
+                    displayJson(data, `Partenaire ${TARGET_PARTNER}`);
+                    return true;
+                } else {
+                    const errorData = await response.json();
+                    log(`❌ ${TARGET_PARTNER} non trouvé: ${errorData.message}`, 'error');
+                    displayJson(errorData, 'Erreur Partenaire');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur test partenaire: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testPartnerLogin() {
+            log(`🔍 Test login API pour ${TARGET_PARTNER}...`);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: TARGET_PARTNER }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login API réussi pour ${TARGET_PARTNER}!`, 'success');
+                    log(`   Message: ${data.message}`, 'success');
+                    displayJson(data, 'Login API Response');
+                    return true;
+                } else {
+                    log(`❌ Login API échoué: ${data.message}`, 'error');
+                    displayJson(data, 'Login API Error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur login API: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testDatabaseSync() {
+            log('🔍 Test synchronisation base de données...');
+            
+            // Test 1: Vérifier si le partenaire existe
+            const partnerExists = await testSpecificPartner();
+            
+            // Test 2: Vérifier l'API de login
+            const loginWorks = await testPartnerLogin();
+            
+            // Test 3: Vérifier la liste complète
+            const allPartners = await testAllPartners();
+            
+            if (partnerExists && loginWorks && allPartners) {
+                log('✅ Synchronisation DB parfaite!', 'success');
+                return true;
+            } else {
+                log('❌ Problème de synchronisation détecté', 'error');
+                
+                if (!partnerExists) {
+                    log('   - Partenaire non trouvé individuellement', 'warning');
+                }
+                if (!loginWorks) {
+                    log('   - API de login ne fonctionne pas', 'warning');
+                }
+                if (!allPartners) {
+                    log('   - Impossible de lister les partenaires', 'warning');
+                }
+                
+                return false;
+            }
+        }
+
+        async function runFullDiagnostic() {
+            log('🚀 === DIAGNOSTIC COMPLET ===');
+            log('=====================================');
+            
+            // Étape 1: Santé Backend
+            const backendHealth = await testBackendHealth();
+            if (!backendHealth) {
+                log('❌ ARRÊT: Backend inaccessible', 'error');
+                return;
+            }
+            
+            // Étape 2: Liste des partenaires
+            const partnersData = await testAllPartners();
+            if (!partnersData) {
+                log('❌ ARRÊT: Impossible de lister les partenaires', 'error');
+                return;
+            }
+            
+            // Étape 3: Test spécifique
+            const specificTest = await testSpecificPartner();
+            
+            // Étape 4: Test login
+            const loginTest = await testPartnerLogin();
+            
+            // Étape 5: Synchronisation
+            const syncTest = await testDatabaseSync();
+            
+            // Résumé final
+            log('=====================================');
+            log('📊 RÉSUMÉ DU DIAGNOSTIC:');
+            log(`✅ Backend Health: ${backendHealth ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Liste Partenaires: ${partnersData ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Test Spécifique: ${specificTest ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Login API: ${loginTest ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Synchronisation: ${syncTest ? 'OK' : 'ÉCHEC'}`);
+            
+            if (backendHealth && partnersData && specificTest && loginTest && syncTest) {
+                log('🎉 DIAGNOSTIC COMPLET: TOUT FONCTIONNE!', 'success');
+                log(`✅ ${TARGET_PARTNER} devrait maintenant fonctionner`, 'success');
+            } else {
+                log('❌ DIAGNOSTIC: PROBLÈMES DÉTECTÉS', 'error');
+                log('🔧 Vérifiez les logs ci-dessus pour les détails', 'warning');
+            }
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', async () => {
+            log('🔄 Initialisation des tests...');
+            await testBackendHealth();
+            
+            // Test rapide des autres services
+            try {
+                await fetch(ADMIN_URL);
+                updateStatus('adminStatus', 'http://localhost:8536', true);
+            } catch {
+                updateStatus('adminStatus', 'http://localhost:8536', false);
+            }
+            
+            try {
+                await fetch(FRONTEND_URL);
+                updateStatus('frontendStatus', 'http://localhost:5174', true);
+            } catch {
+                updateStatus('frontendStatus', 'http://localhost:5174', false);
+            }
+            
+            log(`🎯 Prêt à tester ${TARGET_PARTNER}`);
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import * as freelancerAuthService from '../../services/freelancerAuth';
 
 interface SafeFreelancerLoginModalProps {
   onAuthenticated: (freelancerId: string) => void;
@@ -7,23 +6,21 @@ interface SafeFreelancerLoginModalProps {
 
 const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onAuthenticated }) => {
   const [freelancerId, setFreelancerId] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showDemoIds, setShowDemoIds] = useState(false);
-
-  const demoIds = [
-    'FREEL123',
-    'FREEL456', 
-    'FREELANCER789',
-    'DEMO-FREELANCER'
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!freelancerId.trim()) {
       setError('Veuillez saisir un ID de freelancer');
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('Veuillez saisir votre email');
       return;
     }
 
@@ -37,41 +34,45 @@ const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onA
     setSuccess('');
 
     try {
-      // Simulate authentication process
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Try to authenticate using backend API
+      const response = await fetch('http://localhost:3001/api/partners/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          partnerId: freelancerId.toUpperCase(),
+          email: email.trim(),
+          partnerType: 'freelancer'
+        })
+      });
+
+      const data = await response.json();
       
-      // Try to authenticate using the service if available
-      let isAuthenticated = false;
-      
-      try {
-        isAuthenticated = await freelancerAuthService.authenticateFreelancer(freelancerId);
-      } catch (serviceError) {
-        console.error('❌ Authentication service error:', serviceError);
-        // Fallback: accept demo IDs
-        isAuthenticated = demoIds.includes(freelancerId.toUpperCase());
-      }
-      
-      if (isAuthenticated) {
+      if (response.ok && data.success) {
         setSuccess('Connexion réussie !');
+        
+        // Sauvegarder la session localement
+        const session = {
+          freelancerId: freelancerId.toUpperCase(),
+          timestamp: Date.now(),
+          isValid: true
+        };
+        localStorage.setItem('freelancer_session', JSON.stringify(session));
+        
         setTimeout(() => {
           onAuthenticated(freelancerId);
         }, 500);
       } else {
-        setError('ID de freelancer invalide');
+        setError(data.message || 'ID de freelancer ou email invalide');
       }
       
     } catch (error) {
       console.error('❌ Login error:', error);
-      setError('Erreur lors de la connexion');
+      setError('Erreur lors de la connexion au serveur');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoIdClick = (id: string) => {
-    setFreelancerId(id);
-    setError('');
-    setSuccess('');
   };
 
   return (
@@ -83,7 +84,7 @@ const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onA
             <span className="text-2xl text-white">🔐</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-800">Accès Sécurisé Freelancer</h2>
-          <p className="text-gray-600 mt-2">Entrez votre ID pour accéder à votre espace</p>
+          <p className="text-gray-600 mt-2">Entrez votre ID et email pour accéder à votre espace</p>
         </div>
 
         {/* Form */}
@@ -101,9 +102,31 @@ const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onA
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Entrez votre ID freelancer"
                 disabled={isLoading}
+                required
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <span className="text-gray-400">👤</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              Email du compte
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="votre.email@exemple.com"
+                disabled={isLoading}
+                required
+              />
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <span className="text-gray-400">✉️</span>
               </div>
             </div>
           </div>
@@ -131,7 +154,7 @@ const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onA
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !freelancerId.trim() || !email.trim()}
             className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:from-green-600 hover:to-blue-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
@@ -145,37 +168,8 @@ const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onA
           </button>
         </form>
 
-        {/* Demo IDs Section */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={() => setShowDemoIds(!showDemoIds)}
-            className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            {showDemoIds ? '🔼' : '🔽'} IDs de démonstration
-          </button>
-          
-          {showDemoIds && (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs text-gray-500">Cliquez sur un ID pour le tester :</p>
-              <div className="grid grid-cols-2 gap-2">
-                {demoIds.map((id) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => handleDemoIdClick(id)}
-                    className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded transition-colors"
-                  >
-                    {id}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* Security Note */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+        <div className="mt-6 p-3 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-700">
             🔒 Votre session expirera automatiquement après 24 heures d'inactivité.
           </p>

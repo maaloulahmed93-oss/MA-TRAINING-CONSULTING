@@ -1,0 +1,14 @@
+{
+  "name": "backend-scripts",
+  "version": "1.0.0",
+  "description": "Backend maintenance scripts",
+  "type": "module",
+  "scripts": {
+    "clean-data": "node scripts/cleanCorruptedData.js",
+    "check-data": "node scripts/checkDataIntegrity.js"
+  },
+  "dependencies": {
+    "mongoose": "^7.0.0",
+    "dotenv": "^16.0.0"
+  }
+}

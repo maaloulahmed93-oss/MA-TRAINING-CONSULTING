@@ -3,24 +3,26 @@ import { PartnershipSession } from '../types/partnership';
 // Clé pour le stockage local
 const PARTNERSHIP_SESSION_KEY = 'partnership_session';
 
-// IDs de partenaires autorisés (hashés pour la sécurité)
-const AUTHORIZED_PARTNER_IDS = new Map([
-  ['PARTNER123', 'p1a2r3t4n5e6r'],
-  ['ENTREPRISE456', 'e1n2t3r4e5p6r7i8s9e'],
-]);
+// URL de l'API backend
+const API_BASE_URL = 'http://localhost:3001';
 
-// Fonction de hachage simple (pour la démo)
-const hashPartnerId = (id: string): string => {
-  return id.split('').map((char, index) => 
-    char.charCodeAt(0).toString(16) + (index % 3)
-  ).join('').substring(0, 12);
-};
+// Vérifier si un ID de partenaire est valide via l'API
+export const verifyPartnerId = async (partnerId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/partners/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ partnerId: partnerId.toUpperCase() }),
+    });
 
-// Vérifier si un ID de partenaire est valide
-export const verifyPartnerId = (partnerId: string): boolean => {
-  const hashedId = hashPartnerId(partnerId);
-  return Array.from(AUTHORIZED_PARTNER_IDS.values()).includes(hashedId) ||
-         AUTHORIZED_PARTNER_IDS.has(partnerId);
+    const data = await response.json();
+    return response.ok && data.success;
+  } catch (error) {
+    console.error('Erreur lors de la vérification du partenaire:', error);
+    return false;
+  }
 };
 
 // Sauvegarder la session du partenaire
@@ -69,15 +71,19 @@ export const clearPartnershipSession = (): void => {
 
 // Authentifier un partenaire
 export const authenticatePartner = async (partnerId: string): Promise<boolean> => {
-  // Simulation d'un délai d'API
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  if (verifyPartnerId(partnerId)) {
-    savePartnershipSession(partnerId);
-    return true;
+  try {
+    const isValid = await verifyPartnerId(partnerId);
+    
+    if (isValid) {
+      savePartnershipSession(partnerId);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Erreur lors de l\'authentification:', error);
+    return false;
   }
-  
-  return false;
 };
 
 // Fonction utilitaire pour obtenir l'ID du partenaire connecté
@@ -86,10 +92,13 @@ export const getCurrentPartnerId = (): string | null => {
   return session ? session.partnerId : null;
 };
 
-// Fonction de debug pour obtenir les informations de hachage (développement uniquement)
-export const getHashInfo = () => {
+// Fonction de debug pour obtenir les informations de session (développement uniquement)
+export const getSessionInfo = () => {
+  const session = getPartnershipSession();
   return {
-    'PARTNER123': hashPartnerId('PARTNER123'),
-    'ENTREPRISE456': hashPartnerId('ENTREPRISE456')
+    hasSession: !!session,
+    partnerId: session?.partnerId || null,
+    timestamp: session?.timestamp || null,
+    isValid: session?.isValid || false
   };
 };

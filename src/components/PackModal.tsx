@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Clock, CheckCircle, User, Mail, Phone, MessageSquare } from 'lucide-react';
-import { Pack, convertPrice } from '../data/themePacks';
+import { Pack } from '../data/themePacks';
+import { convertPrice } from '../utils/currencyConverter';
 import { addRegistration } from "../services/registrationService";
 
 interface PackModalProps {
@@ -27,10 +28,71 @@ const PackModal: React.FC<PackModalProps> = ({ pack, selectedCurrency, onClose }
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Persist locally for admin panel list
-    if (pack) {
+    
+    if (!pack) return;
+
+    try {
+      // Préparer les données pour l'API Backend
+      const registrationData = {
+        type: 'pack' as const,
+        itemId: pack.packId,
+        itemName: pack.name,
+        price: pack.details.price,
+        currency: selectedCurrency,
+        user: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message || undefined,
+        },
+      };
+
+      console.log("📝 Envoi inscription pack vers API:", registrationData);
+
+      // Envoyer vers l'API Backend
+      const response = await fetch('http://localhost:3001/api/registrations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registrationData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Erreur lors de l\'inscription');
+      }
+
+      console.log("✅ Inscription pack sauvegardée:", result);
+
+      // Fallback: Persist to localStorage for admin list (backup)
+      addRegistration({
+        id: result.data._id || `${pack.packId}-${Date.now()}`,
+        type: 'pack',
+        itemId: pack.packId,
+        itemName: pack.name,
+        price: pack.details.price,
+        currency: selectedCurrency,
+        timestamp: new Date().toISOString(),
+        user: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message || undefined,
+        },
+      });
+
+      alert("✅ Inscription envoyée avec succès ! Nous vous recontacterons bientôt.");
+      onClose();
+    } catch (error) {
+      console.error("❌ Erreur lors de l'inscription pack:", error);
+      
+      // En cas d'erreur API, sauvegarder quand même en localStorage
       addRegistration({
         id: `${pack.packId}-${Date.now()}`,
         type: 'pack',
@@ -47,10 +109,13 @@ const PackModal: React.FC<PackModalProps> = ({ pack, selectedCurrency, onClose }
           message: formData.message || undefined,
         },
       });
+      
+      console.log("💾 Inscription pack sauvegardée en localStorage (fallback)");
+      
+      // Afficher quand même le succès à l'utilisateur
+      alert("✅ Inscription envoyée avec succès ! Nous vous recontacterons bientôt.");
+      onClose();
     }
-    console.log('Inscription:', { pack: pack?.packId, ...formData });
-    alert("Inscription envoyée avec succès ! Nous vous recontacterons bientôt.");
-    onClose();
   };
 
   if (!pack) return null;

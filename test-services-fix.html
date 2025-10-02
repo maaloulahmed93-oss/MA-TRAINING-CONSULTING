@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Services Fix - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #059669;
+            border-bottom: 3px solid #d1fae5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #059669;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .test-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Test Services Fix</h1>
+            <p>Vérification du fix pour les services commerciaux</p>
+        </div>
+
+        <!-- Fix Appliqué -->
+        <div class="fix-section">
+            <h3>🔧 FIX APPLIQUÉ:</h3>
+            <ul>
+                <li>✅ <strong>POST Route:</strong> Ajout explicite de <code>isActive: true</code></li>
+                <li>✅ <strong>GET Route:</strong> Debug complet + fallback sur tous les services</li>
+                <li>✅ <strong>Services par défaut:</strong> Tous avec <code>isActive: true</code></li>
+                <li>✅ <strong>Logging:</strong> Debug détaillé pour identifier les problèmes</li>
+            </ul>
+        </div>
+
+        <!-- Test Plan -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>🧪 Test Complet</h3>
+                <button class="test-button" onclick="testComplet()">
+                    🚀 TEST COMPLET
+                </button>
+                <div id="test-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>➕ Créer Service</h3>
+                <button class="test-button" onclick="creerService()">
+                    ➕ CRÉER SERVICE TEST
+                </button>
+                <div id="create-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Test Assignment -->
+        <div style="margin-top: 30px; padding: 25px; background: #ecfdf5; border: 2px solid #059669; border-radius: 10px;">
+            <h3>🎯 Test Assignment Commercial</h3>
+            <button onclick="testAssignment()">🔗 Test Assignment</button>
+            <div id="assignment-result" class="result"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div style="margin-top: 30px; padding: 25px; background: #f8fafc; border: 2px solid #64748b; border-radius: 10px;">
+            <h3>📋 Instructions de Test:</h3>
+            <ol>
+                <li><strong>Redémarrer Backend:</strong> <code>npm run dev</code> dans /backend</li>
+                <li><strong>Test Complet:</strong> Cliquer "🚀 TEST COMPLET"</li>
+                <li><strong>Vérifier Admin Panel:</strong> Aller sur /commercial-services</li>
+                <li><strong>Créer Service:</strong> Utiliser le formulaire</li>
+                <li><strong>Vérifier Assignment:</strong> Assigner à un commercial</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function testComplet() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 TEST COMPLET EN COURS...\n\n';
+
+            try {
+                // 1. Test GET Services
+                resultDiv.textContent += '1️⃣ TEST GET SERVICES...\n';
+                const getResponse = await fetch(`${API_BASE}/admin/services`);
+                const getResult = await getResponse.json();
+                
+                resultDiv.textContent += `GET Status: ${getResponse.status}\n`;
+                resultDiv.textContent += `GET Success: ${getResult.success}\n`;
+                resultDiv.textContent += `Services trouvés: ${getResult.data?.length || 0}\n\n`;
+
+                if (getResult.data && getResult.data.length > 0) {
+                    resultDiv.textContent += 'Services existants:\n';
+                    getResult.data.forEach((service, index) => {
+                        resultDiv.textContent += `  ${index + 1}. ${service.titre} (${service.commission}€)\n`;
+                    });
+                    resultDiv.textContent += '\n';
+                }
+
+                // 2. Test POST Service
+                resultDiv.textContent += '2️⃣ TEST POST SERVICE...\n';
+                const newService = {
+                    titre: `Service Test ${new Date().toLocaleTimeString()}`,
+                    description: 'Service créé pour test du fix',
+                    categorie: 'Test Fix',
+                    prixPublic: 500,
+                    prixCommercial: 400,
+                    commission: 100,
+                    duree: '2h'
+                };
+
+                const postResponse = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newService)
+                });
+
+                const postResult = await postResponse.json();
+                resultDiv.textContent += `POST Status: ${postResponse.status}\n`;
+                resultDiv.textContent += `POST Success: ${postResult.success}\n`;
+                resultDiv.textContent += `Service créé: ${postResult.data?.titre || 'N/A'}\n\n`;
+
+                // 3. Test GET après POST
+                resultDiv.textContent += '3️⃣ TEST GET APRÈS POST...\n';
+                const reGetResponse = await fetch(`${API_BASE}/admin/services`);
+                const reGetResult = await reGetResponse.json();
+                
+                resultDiv.textContent += `Re-GET Status: ${reGetResponse.status}\n`;
+                resultDiv.textContent += `Re-GET Success: ${reGetResult.success}\n`;
+                resultDiv.textContent += `Services après création: ${reGetResult.data?.length || 0}\n\n`;
+
+                // Résultat final
+                if (postResult.success && reGetResult.data && reGetResult.data.length > getResult.data?.length) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '🎉 FIX RÉUSSI!\n';
+                    resultDiv.textContent += 'Services créés et récupérés avec succès.\n';
+                    resultDiv.textContent += 'Le problème est résolu!';
+                } else if (reGetResult.data && reGetResult.data.length > 0) {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ PARTIELLEMENT RÉUSSI\n';
+                    resultDiv.textContent += 'Services existants récupérés, mais création peut avoir échoué.';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ PROBLÈME PERSISTE\n';
+                    resultDiv.textContent += 'Aucun service récupéré.';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR: ${error.message}`;
+            }
+        }
+
+        async function creerService() {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '➕ Création service...\n\n';
+
+            const service = {
+                titre: `Marketing Digital ${Date.now()}`,
+                description: 'Formation complète en marketing digital et réseaux sociaux',
+                categorie: 'Marketing',
+                prixPublic: 1500,
+                prixCommercial: 1200,
+                commission: 300,
+                duree: '3 jours'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(service)
+                });
+
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Message: ${result.message}\n`;
+                
+                if (result.data) {
+                    resultDiv.textContent += `\nService créé:\n`;
+                    resultDiv.textContent += `- Titre: ${result.data.titre}\n`;
+                    resultDiv.textContent += `- Commission: ${result.data.commission}€\n`;
+                    resultDiv.textContent += `- isActive: ${result.data.isActive}\n`;
+                }
+
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n✅ Service créé avec succès!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ Échec de création';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testAssignment() {
+            const resultDiv = document.getElementById('assignment-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Test Assignment...\n\n';
+
+            try {
+                // 1. Get services
+                const servicesResponse = await fetch(`${API_BASE}/admin/services`);
+                const servicesResult = await servicesResponse.json();
+                
+                // 2. Get commercials
+                const commercialsResponse = await fetch(`${API_BASE}/admin/commercials`);
+                const commercialsResult = await commercialsResponse.json();
+                
+                resultDiv.textContent += `Services disponibles: ${servicesResult.data?.length || 0}\n`;
+                resultDiv.textContent += `Commerciaux disponibles: ${commercialsResult.data?.length || 0}\n\n`;
+
+                if (servicesResult.data?.length > 0 && commercialsResult.data?.length > 0) {
+                    const service = servicesResult.data[0];
+                    const commercial = commercialsResult.data[0];
+                    
+                    // 3. Test assignment
+                    const assignResponse = await fetch(`${API_BASE}/admin/assign-service`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            serviceId: service._id,
+                            commercialId: commercial._id
+                        })
+                    });
+
+                    const assignResult = await assignResponse.json();
+                    
+                    resultDiv.textContent += `Assignment Status: ${assignResponse.status}\n`;
+                    resultDiv.textContent += `Assignment Success: ${assignResult.success}\n`;
+                    resultDiv.textContent += `Message: ${assignResult.message}\n`;
+
+                    if (assignResult.success) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n✅ Assignment réussi!';
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.textContent += '\n⚠️ Assignment échoué';
+                    }
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Pas assez de données pour tester assignment';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('✅ Test Services Fix chargé');
+        };
+    </script>
+</body>
+</html>

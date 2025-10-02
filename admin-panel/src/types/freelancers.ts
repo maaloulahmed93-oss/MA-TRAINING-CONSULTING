@@ -43,6 +43,7 @@ export interface MeetingReminder { minutesBefore: number; channel: 'email' | 'in
 
 export interface FreelancerMeeting {
   id: string;
+  _id?: string; // MongoDB ObjectId
   subject: string;
   type: MeetingType;
   date: string;     // ISO yyyy-mm-dd

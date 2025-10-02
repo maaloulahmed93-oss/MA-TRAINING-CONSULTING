@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Delete Service - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #ef4444;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+        .service-item {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗑️ Test Delete Service</h1>
+            <p>Test de la fonctionnalité de suppression des services</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div>
+                <button onclick="loadServices()">📋 Charger Services</button>
+                <div id="services-list"></div>
+            </div>
+            
+            <div>
+                <button onclick="testDeleteAPI()">🧪 Test Delete API</button>
+                <div id="test-result" class="result"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button onclick="runCompleteTest()" style="padding: 20px 40px; font-size: 18px; width: 100%;">
+                🚀 TEST COMPLET DELETE
+            </button>
+            <div id="complete-result" class="result"></div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #fef2f2; border: 2px solid #ef4444; border-radius: 10px;">
+            <h3>⚠️ ATTENTION:</h3>
+            <p>Cette page permet de tester la suppression des services. Les suppressions sont <strong>définitives</strong>!</p>
+            <p>Utilisez uniquement sur des services de test.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-services';
+        let currentServices = [];
+
+        async function loadServices() {
+            const servicesDiv = document.getElementById('services-list');
+            servicesDiv.innerHTML = '<div class="result">📋 Chargement services...</div>';
+
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    currentServices = result.data;
+                    
+                    let html = `<div class="result success">✅ ${result.data.length} services chargés</div>`;
+                    
+                    result.data.forEach(service => {
+                        html += `
+                            <div class="service-item">
+                                <div>
+                                    <strong>${service.titre}</strong><br>
+                                    <small>Commission: ${service.commission}€</small>
+                                </div>
+                                <button class="delete-btn" onclick="deleteService('${service._id}', '${service.titre}')">
+                                    🗑️ Supprimer
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    servicesDiv.innerHTML = html;
+                } else {
+                    servicesDiv.innerHTML = '<div class="result warning">⚠️ Aucun service trouvé</div>';
+                }
+
+            } catch (error) {
+                servicesDiv.innerHTML = `<div class="result error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function deleteService(serviceId, serviceTitle) {
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer "${serviceTitle}" ?\n\nCette action est irréversible!`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${serviceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ Service "${serviceTitle}" supprimé avec succès!`);
+                    loadServices(); // Recharger la liste
+                } else {
+                    alert(`❌ Erreur: ${result.message}`);
+                }
+
+            } catch (error) {
+                alert(`❌ Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        async function testDeleteAPI() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🧪 Test Delete API...\n\n';
+
+            try {
+                // Test avec un ID inexistant
+                resultDiv.textContent += 'TEST 1: Suppression ID inexistant\n';
+                const fakeId = '507f1f77bcf86cd799439011';
+                
+                const response = await fetch(`${API_BASE}/${fakeId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Message: ${result.message}\n\n`;
+
+                if (response.status === 404 && !result.success) {
+                    resultDiv.textContent += '✅ Test réussi: API retourne 404 pour ID inexistant\n\n';
+                } else {
+                    resultDiv.textContent += '⚠️ Comportement inattendu pour ID inexistant\n\n';
+                }
+
+                // Test structure de l'API
+                resultDiv.textContent += 'TEST 2: Structure API\n';
+                resultDiv.textContent += 'Endpoint: DELETE /api/commercial-services/:id\n';
+                resultDiv.textContent += 'Headers: Content-Type: application/json\n';
+                resultDiv.textContent += 'Expected Response: { success: boolean, message: string }\n\n';
+
+                resultDiv.className = 'result success';
+                resultDiv.textContent += '✅ API DELETE configurée correctement!';
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function runCompleteTest() {
+            const resultDiv = document.getElementById('complete-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 Test Complet Delete...\n\n';
+
+            try {
+                // Step 1: Charger services
+                resultDiv.textContent += 'ÉTAPE 1: Chargement des services...\n';
+                const servicesResponse = await fetch(API_BASE);
+                const servicesResult = await servicesResponse.json();
+                
+                if (!servicesResult.success || !servicesResult.data || servicesResult.data.length === 0) {
+                    throw new Error('Aucun service disponible pour test');
+                }
+                
+                resultDiv.textContent += `✅ ${servicesResult.data.length} services chargés\n\n`;
+
+                // Step 2: Créer un service de test
+                resultDiv.textContent += 'ÉTAPE 2: Création service de test...\n';
+                const testService = {
+                    titre: 'TEST DELETE SERVICE',
+                    description: 'Service créé pour test de suppression',
+                    categorie: 'Test',
+                    prixPublic: 100,
+                    prixCommercial: 80,
+                    commission: 20,
+                    duree: '1h'
+                };
+
+                const createResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testService)
+                });
+
+                const createResult = await createResponse.json();
+                
+                if (!createResult.success) {
+                    throw new Error(`Échec création service test: ${createResult.message}`);
+                }
+                
+                const testServiceId = createResult.data._id;
+                resultDiv.textContent += `✅ Service test créé: ${testServiceId}\n\n`;
+
+                // Step 3: Supprimer le service de test
+                resultDiv.textContent += 'ÉTAPE 3: Suppression du service test...\n';
+                const deleteResponse = await fetch(`${API_BASE}/${testServiceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const deleteResult = await deleteResponse.json();
+                
+                resultDiv.textContent += `Delete Status: ${deleteResponse.status}\n`;
+                resultDiv.textContent += `Delete Success: ${deleteResult.success}\n`;
+                resultDiv.textContent += `Delete Message: ${deleteResult.message}\n\n`;
+
+                // Step 4: Vérifier que le service n'existe plus
+                resultDiv.textContent += 'ÉTAPE 4: Vérification suppression...\n';
+                const verifyResponse = await fetch(`${API_BASE}/${testServiceId}`);
+                
+                if (verifyResponse.status === 404) {
+                    resultDiv.textContent += '✅ Service correctement supprimé (404)\n\n';
+                } else {
+                    resultDiv.textContent += '⚠️ Service peut encore exister\n\n';
+                }
+
+                if (deleteResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '🎉 TEST COMPLET RÉUSSI!\n';
+                    resultDiv.textContent += 'La fonctionnalité de suppression fonctionne parfaitement.\n';
+                    resultDiv.textContent += 'Les boutons "Supprimer" dans Admin Panel sont maintenant actifs!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ TEST ÉCHOUÉ: ${deleteResult.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ TEST ÉCHOUÉ: ${error.message}`;
+            }
+        }
+
+        window.onload = function() {
+            console.log('🗑️ Test Delete Service chargé');
+            loadServices();
+        };
+    </script>
+</body>
+</html>

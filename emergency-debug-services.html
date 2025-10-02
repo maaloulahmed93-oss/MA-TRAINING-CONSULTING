@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Debug Services - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #dc2626;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .emergency-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .critical-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            padding: 25px 50px;
+            font-size: 22px;
+            width: 100%;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Emergency Debug Services</h1>
+            <p>Diagnostic d'urgence - Services ne s'affichent pas même avec Actualiser</p>
+        </div>
+
+        <!-- Problème Critique -->
+        <div class="emergency-section">
+            <h3>🚨 PROBLÈME CRITIQUE:</h3>
+            <ul>
+                <li><strong>Symptôme:</strong> "Service créé avec succès!" mais ne s'affiche nulle part</li>
+                <li><strong>Échec:</strong> Bouton "🔄 Actualiser" ne fonctionne pas</li>
+                <li><strong>Impact:</strong> Services Disponibles reste vide</li>
+                <li><strong>Impact:</strong> Select "Assigner un Service" reste vide</li>
+            </ul>
+            <p><strong>🎯 DIAGNOSTIC:</strong> Problème plus profond que React state - possiblement API ou Backend</p>
+        </div>
+
+        <!-- Diagnostic d'Urgence -->
+        <div style="text-align: center;">
+            <button class="critical-button" onclick="emergencyDiagnostic()">
+                🚨 DIAGNOSTIC D'URGENCE COMPLET
+            </button>
+            <div id="emergency-result" class="result"></div>
+        </div>
+
+        <!-- Tests Spécifiques -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>🔍 Test API Direct</h3>
+                <button onclick="testApiDirect()">📡 API Brut</button>
+                <button onclick="testCreateAndCheck()">➕ Créer & Vérifier</button>
+                <div id="api-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>🔧 Test Endpoints</h3>
+                <button onclick="testAllEndpoints()">🌐 Tous Endpoints</button>
+                <button onclick="testCORS()">🔒 Test CORS</button>
+                <div id="endpoints-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Solution d'Urgence -->
+        <div style="margin-top: 30px; padding: 25px; background: #f59e0b; color: white; border-radius: 10px;">
+            <h3>⚡ HYPOTHÈSES CRITIQUES:</h3>
+            <ol>
+                <li><strong>API Endpoint Incorrect:</strong> Frontend appelle le mauvais URL</li>
+                <li><strong>CORS Bloqué:</strong> Navigateur bloque les requêtes</li>
+                <li><strong>Backend Crash:</strong> Service API ne répond pas</li>
+                <li><strong>Database Disconnect:</strong> MongoDB déconnecté</li>
+                <li><strong>Port Conflict:</strong> Backend sur mauvais port</li>
+            </ol>
+        </div>
+
+        <!-- Instructions Debug -->
+        <div style="margin-top: 20px; padding: 20px; background: #f3f4f6; border-radius: 8px;">
+            <h3>🔍 Instructions Debug Immédiat:</h3>
+            <ol>
+                <li><strong>Vérifiez Backend:</strong> <code>http://localhost:3001</code> accessible?</li>
+                <li><strong>Vérifiez Console Network:</strong> Requêtes GET/POST arrivent?</li>
+                <li><strong>Vérifiez Console Errors:</strong> Erreurs CORS ou 404?</li>
+                <li><strong>Testez API Direct:</strong> Cliquez "DIAGNOSTIC D'URGENCE"</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const BACKEND_BASE = 'http://localhost:3001';
+
+        async function emergencyDiagnostic() {
+            const resultDiv = document.getElementById('emergency-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚨 DIAGNOSTIC D\'URGENCE EN COURS...\n\n';
+
+            let issues = [];
+
+            try {
+                // Test 1: Backend Accessibility
+                resultDiv.textContent += '1️⃣ TEST ACCESSIBILITÉ BACKEND...\n';
+                try {
+                    const backendResponse = await fetch(BACKEND_BASE);
+                    resultDiv.textContent += `✅ Backend accessible (${backendResponse.status})\n`;
+                } catch (e) {
+                    resultDiv.textContent += `❌ Backend inaccessible: ${e.message}\n`;
+                    issues.push('Backend offline ou port incorrect');
+                }
+
+                // Test 2: API Endpoint Test
+                resultDiv.textContent += '\n2️⃣ TEST ENDPOINT SERVICES...\n';
+                try {
+                    const servicesResponse = await fetch(`${API_BASE}/admin/services`);
+                    resultDiv.textContent += `Status: ${servicesResponse.status}\n`;
+                    
+                    if (servicesResponse.ok) {
+                        const servicesResult = await servicesResponse.json();
+                        resultDiv.textContent += `Response: ${JSON.stringify(servicesResult, null, 2)}\n`;
+                        
+                        if (servicesResult.success) {
+                            resultDiv.textContent += `✅ API fonctionne: ${servicesResult.data?.length || 0} services\n`;
+                            
+                            if (servicesResult.data && servicesResult.data.length > 0) {
+                                resultDiv.textContent += '\n📋 SERVICES TROUVÉS:\n';
+                                servicesResult.data.forEach((service, index) => {
+                                    resultDiv.textContent += `${index + 1}. ${service.titre} (${service._id})\n`;
+                                });
+                            } else {
+                                issues.push('API fonctionne mais aucun service en base');
+                            }
+                        } else {
+                            issues.push(`API erreur: ${servicesResult.message}`);
+                        }
+                    } else {
+                        issues.push(`HTTP ${servicesResponse.status}: ${servicesResponse.statusText}`);
+                    }
+                } catch (e) {
+                    resultDiv.textContent += `❌ Endpoint erreur: ${e.message}\n`;
+                    issues.push('Endpoint services inaccessible');
+                }
+
+                // Test 3: Create Test Service
+                resultDiv.textContent += '\n3️⃣ TEST CRÉATION SERVICE...\n';
+                try {
+                    const testService = {
+                        titre: `Emergency Test ${Date.now()}`,
+                        description: 'Service créé pour diagnostic d\'urgence',
+                        categorie: 'Emergency',
+                        prixPublic: 100,
+                        prixCommercial: 80,
+                        commission: 20,
+                        duree: '1h'
+                    };
+
+                    const createResponse = await fetch(`${API_BASE}/admin/services`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testService)
+                    });
+
+                    resultDiv.textContent += `Create Status: ${createResponse.status}\n`;
+                    
+                    if (createResponse.ok) {
+                        const createResult = await createResponse.json();
+                        resultDiv.textContent += `Create Response: ${JSON.stringify(createResult, null, 2)}\n`;
+                        
+                        if (createResult.success) {
+                            resultDiv.textContent += `✅ Création réussie: ${createResult.data.titre}\n`;
+                        } else {
+                            issues.push(`Création échouée: ${createResult.message}`);
+                        }
+                    } else {
+                        issues.push(`Création HTTP ${createResponse.status}`);
+                    }
+                } catch (e) {
+                    resultDiv.textContent += `❌ Création erreur: ${e.message}\n`;
+                    issues.push('Création service impossible');
+                }
+
+                // Test 4: Re-check after creation
+                resultDiv.textContent += '\n4️⃣ RE-VÉRIFICATION APRÈS CRÉATION...\n';
+                try {
+                    const recheckResponse = await fetch(`${API_BASE}/admin/services`);
+                    if (recheckResponse.ok) {
+                        const recheckResult = await recheckResponse.json();
+                        if (recheckResult.success) {
+                            resultDiv.textContent += `✅ Services après création: ${recheckResult.data?.length || 0}\n`;
+                        }
+                    }
+                } catch (e) {
+                    resultDiv.textContent += `❌ Re-check erreur: ${e.message}\n`;
+                }
+
+                // Diagnostic Final
+                resultDiv.textContent += '\n🎯 DIAGNOSTIC FINAL:\n';
+                if (issues.length === 0) {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += 
+                        '⚠️ PARADOXE DÉTECTÉ!\n\n' +
+                        '✅ Backend accessible\n' +
+                        '✅ API fonctionne\n' +
+                        '✅ Services existent\n' +
+                        '✅ Création fonctionne\n' +
+                        '❌ Frontend ne les affiche pas\n\n' +
+                        '🔍 CAUSES POSSIBLES:\n' +
+                        '1. Frontend appelle un autre endpoint\n' +
+                        '2. CORS bloque les requêtes dans le navigateur\n' +
+                        '3. Cache navigateur corrompu\n' +
+                        '4. JavaScript erreur silencieuse\n' +
+                        '5. React state complètement cassé\n\n' +
+                        '🚨 ACTION REQUISE:\n' +
+                        'Vérifiez Network Tab dans DevTools\n' +
+                        'pendant que vous cliquez "Actualiser"';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ PROBLÈMES DÉTECTÉS:\n';
+                    issues.forEach((issue, index) => {
+                        resultDiv.textContent += `${index + 1}. ${issue}\n`;
+                    });
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR CRITIQUE: ${error.message}`;
+            }
+        }
+
+        async function testApiDirect() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📡 Test API Direct...\n\n';
+
+            try {
+                // Test exact endpoint que le frontend utilise
+                const response = await fetch('http://localhost:3001/api/commercial-new/admin/services');
+                
+                resultDiv.textContent += `URL: http://localhost:3001/api/commercial-new/admin/services\n`;
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `OK: ${response.ok}\n`;
+                resultDiv.textContent += `Headers: ${JSON.stringify([...response.headers.entries()], null, 2)}\n\n`;
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.textContent += `Response Body:\n${JSON.stringify(result, null, 2)}\n`;
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += `\n✅ API FONCTIONNE PARFAITEMENT!\n`;
+                        resultDiv.textContent += `${result.data.length} services trouvés\n`;
+                        resultDiv.textContent += `\n🚨 PROBLÈME CONFIRMÉ: Frontend ne lit pas ces données!`;
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.textContent += `\n⚠️ API fonctionne mais aucun service`;
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    const errorText = await response.text();
+                    resultDiv.textContent += `Error Body: ${errorText}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCreateAndCheck() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '➕ Test Créer & Vérifier...\n\n';
+
+            try {
+                // Créer un service
+                const newService = {
+                    titre: `Test Direct ${new Date().toLocaleTimeString()}`,
+                    description: 'Service créé directement via test',
+                    categorie: 'Test Direct',
+                    prixPublic: 150,
+                    prixCommercial: 120,
+                    commission: 30,
+                    duree: '90min'
+                };
+
+                resultDiv.textContent += 'Création en cours...\n';
+                const createResponse = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newService)
+                });
+
+                resultDiv.textContent += `Create Status: ${createResponse.status}\n`;
+                
+                if (createResponse.ok) {
+                    const createResult = await createResponse.json();
+                    resultDiv.textContent += `Create Result: ${JSON.stringify(createResult, null, 2)}\n\n`;
+                    
+                    // Vérifier immédiatement
+                    resultDiv.textContent += 'Vérification immédiate...\n';
+                    const checkResponse = await fetch(`${API_BASE}/admin/services`);
+                    
+                    if (checkResponse.ok) {
+                        const checkResult = await checkResponse.json();
+                        resultDiv.textContent += `Check Result: ${JSON.stringify(checkResult, null, 2)}\n`;
+                        
+                        if (checkResult.success && checkResult.data) {
+                            resultDiv.className = 'result success';
+                            resultDiv.textContent += `\n✅ CRÉATION ET VÉRIFICATION RÉUSSIES!\n`;
+                            resultDiv.textContent += `Services totaux: ${checkResult.data.length}\n`;
+                            resultDiv.textContent += `\n🎯 LE BACKEND FONCTIONNE PARFAITEMENT!\n`;
+                            resultDiv.textContent += `Le problème est 100% dans le Frontend.`;
+                        }
+                    }
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testAllEndpoints() {
+            const resultDiv = document.getElementById('endpoints-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🌐 Test Tous Endpoints...\n\n';
+
+            const endpoints = [
+                'http://localhost:3001',
+                'http://localhost:3001/api',
+                'http://localhost:3001/api/commercial-new',
+                'http://localhost:3001/api/commercial-new/admin',
+                'http://localhost:3001/api/commercial-new/admin/services'
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    resultDiv.textContent += `Testing: ${endpoint}\n`;
+                    const response = await fetch(endpoint);
+                    resultDiv.textContent += `  Status: ${response.status} ${response.statusText}\n`;
+                } catch (e) {
+                    resultDiv.textContent += `  Error: ${e.message}\n`;
+                }
+                resultDiv.textContent += '\n';
+            }
+        }
+
+        async function testCORS() {
+            const resultDiv = document.getElementById('endpoints-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔒 Test CORS...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'OPTIONS'
+                });
+                
+                resultDiv.textContent += `OPTIONS Status: ${response.status}\n`;
+                resultDiv.textContent += `CORS Headers:\n`;
+                
+                const corsHeaders = [
+                    'access-control-allow-origin',
+                    'access-control-allow-methods',
+                    'access-control-allow-headers'
+                ];
+                
+                corsHeaders.forEach(header => {
+                    const value = response.headers.get(header);
+                    resultDiv.textContent += `  ${header}: ${value || 'NOT SET'}\n`;
+                });
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ CORS Error: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🚨 Emergency Debug Services chargé');
+        };
+    </script>
+</body>
+</html>

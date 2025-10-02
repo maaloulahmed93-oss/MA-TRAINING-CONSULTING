@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Correction Authentification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Correction Authentification</h1>
+        
+        <div class="test-section info">
+            <h3>Problème Identifié</h3>
+            <p><strong>Conflit:</strong> Mock Auth vs API Réelle</p>
+            <p><strong>Solution:</strong> Remplacer Mock Auth par API MongoDB</p>
+            <p><strong>ID Test:</strong> ENT-752810</p>
+        </div>
+
+        <div class="test-section">
+            <h3>Tests de Validation</h3>
+            <button onclick="testDirectAPI()">1. Test API Direct</button>
+            <button onclick="testNewAuthSystem()">2. Test Nouveau Système Auth</button>
+            <button onclick="testFullWorkflow()">3. Test Workflow Complet</button>
+            <button onclick="clearLog()">Effacer</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Résultats</h3>
+            <div id="log" class="log">Prêt à tester la correction...\n</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001';
+        const TEST_PARTNER_ID = 'ENT-752810';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = 'Log effacé...\n';
+        }
+
+        async function testDirectAPI() {
+            log('🔍 Test API Direct MongoDB...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: TEST_PARTNER_ID }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ API Direct: ${TEST_PARTNER_ID} trouvé!`, 'success');
+                    log(`   Nom: ${data.data.fullName}`, 'success');
+                    log(`   Email: ${data.data.email}`, 'success');
+                    return true;
+                } else {
+                    log(`❌ API Direct: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur API: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testNewAuthSystem() {
+            log('🔐 Test Nouveau Système Auth...');
+            
+            // Simuler la nouvelle fonction verifyPartnerId
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: TEST_PARTNER_ID.toUpperCase() }),
+                });
+
+                const data = await response.json();
+                const isValid = response.ok && data.success;
+                
+                if (isValid) {
+                    log('✅ Nouveau système auth: Validation réussie!', 'success');
+                    
+                    // Simuler la sauvegarde de session
+                    const session = {
+                        partnerId: TEST_PARTNER_ID.toUpperCase(),
+                        timestamp: Date.now(),
+                        isValid: true
+                    };
+                    localStorage.setItem('partnership_session', JSON.stringify(session));
+                    log('✅ Session sauvegardée localement', 'success');
+                    
+                    return true;
+                } else {
+                    log(`❌ Nouveau système auth: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur nouveau système: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testFullWorkflow() {
+            log('🚀 === TEST WORKFLOW COMPLET ===');
+            log('=====================================');
+            
+            // Étape 1: Test API Direct
+            const apiOk = await testDirectAPI();
+            if (!apiOk) {
+                log('❌ ARRÊT: API inaccessible', 'error');
+                return;
+            }
+            
+            // Étape 2: Test Nouveau Système Auth
+            const authOk = await testNewAuthSystem();
+            if (!authOk) {
+                log('❌ ARRÊT: Authentification échouée', 'error');
+                return;
+            }
+            
+            // Étape 3: Vérifier Session
+            const session = localStorage.getItem('partnership_session');
+            if (session) {
+                const sessionData = JSON.parse(session);
+                log('✅ Session vérifiée:', 'success');
+                log(`   Partner ID: ${sessionData.partnerId}`, 'success');
+                log(`   Timestamp: ${new Date(sessionData.timestamp).toLocaleString()}`, 'success');
+                log(`   Valid: ${sessionData.isValid}`, 'success');
+            }
+            
+            // Résumé
+            log('=====================================');
+            log('🎉 CORRECTION RÉUSSIE!', 'success');
+            log('✅ API MongoDB fonctionne', 'success');
+            log('✅ Nouveau système auth opérationnel', 'success');
+            log('✅ Session gérée correctement', 'success');
+            log('🔄 Rechargez l\'Espace Entreprise pour tester', 'success');
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', () => {
+            log('🔧 Test de correction du système d\'authentification');
+            log('📋 Problème: Conflit entre Mock Auth et API réelle');
+            log('🎯 Solution: Migration complète vers API MongoDB');
+            log('');
+            log('Utilisez les boutons ci-dessus pour valider la correction');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار شريط التقدم المتحرك</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes shine {
+            0% { 
+                transform: translateX(-100%) skewX(-12deg); 
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% { 
+                transform: translateX(300%) skewX(-12deg); 
+                opacity: 0;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-shine {
+            animation: shine 3s infinite ease-in-out;
+        }
+        
+        .animate-pulse-custom {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">اختبار شريط التقدم المتحرك</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-6 text-gray-700">أمثلة على أشرطة التقدم</h2>
+            
+            <!-- Progress bars with different values -->
+            <div class="space-y-6">
+                <!-- 15% Progress -->
+                <div class="progress-container" data-progress="15">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-900 font-semibold">يوسف خليفي</span>
+                        <span class="text-gray-600">15%</span>
+                    </div>
+                    <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                        <div class="progress-bar h-full rounded-full relative overflow-hidden bg-gradient-to-r from-red-400 via-red-500 to-red-600 shadow-sm transition-all duration-1000 ease-out" style="width: 0%;">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 animate-shine" style="width: 40%;"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse-custom"></div>
+                        </div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div class="w-2 h-2 rounded-full bg-white shadow-sm opacity-80"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 34% Progress -->
+                <div class="progress-container" data-progress="34">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-900 font-semibold">أمينة ساسي</span>
+                        <span class="text-gray-600">34%</span>
+                    </div>
+                    <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                        <div class="progress-bar h-full rounded-full relative overflow-hidden bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 shadow-sm transition-all duration-1000 ease-out" style="width: 0%;">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 animate-shine" style="width: 40%;"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse-custom"></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white drop-shadow-lg">34%</span>
+                        </div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div class="w-2 h-2 rounded-full bg-white shadow-sm opacity-80"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 67% Progress -->
+                <div class="progress-container" data-progress="67">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-900 font-semibold">محمد تريكي</span>
+                        <span class="text-gray-600">67%</span>
+                    </div>
+                    <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                        <div class="progress-bar h-full rounded-full relative overflow-hidden bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 shadow-sm transition-all duration-1000 ease-out" style="width: 0%;">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 animate-shine" style="width: 40%;"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse-custom"></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white drop-shadow-lg">67%</span>
+                        </div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div class="w-2 h-2 rounded-full bg-white shadow-sm opacity-80"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 85% Progress -->
+                <div class="progress-container" data-progress="85">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-900 font-semibold">أحمد بن علي</span>
+                        <span class="text-gray-600">85%</span>
+                    </div>
+                    <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                        <div class="progress-bar h-full rounded-full relative overflow-hidden bg-gradient-to-r from-green-400 via-green-500 to-green-600 shadow-sm transition-all duration-1000 ease-out" style="width: 0%;">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 animate-shine" style="width: 40%;"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse-custom"></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white drop-shadow-lg">85%</span>
+                        </div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div class="w-2 h-2 rounded-full bg-white shadow-sm opacity-80"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 92% Progress -->
+                <div class="progress-container" data-progress="92">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-900 font-semibold">فاطمة غربي</span>
+                        <span class="text-gray-600">92%</span>
+                    </div>
+                    <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                        <div class="progress-bar h-full rounded-full relative overflow-hidden bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 shadow-sm transition-all duration-1000 ease-out" style="width: 0%;">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 animate-shine" style="width: 40%;"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse-custom"></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white drop-shadow-lg">92%</span>
+                        </div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div class="w-2 h-2 rounded-full bg-white shadow-sm opacity-80"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 100% Progress -->
+                <div class="progress-container" data-progress="100">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-900 font-semibold">ليلى بوعزيزي</span>
+                        <span class="text-gray-600">100%</span>
+                    </div>
+                    <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                        <div class="progress-bar h-full rounded-full relative overflow-hidden bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 shadow-sm transition-all duration-1000 ease-out" style="width: 0%;">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 animate-shine" style="width: 40%;"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse-custom"></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-white drop-shadow-lg">100%</span>
+                        </div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div class="w-2 h-2 rounded-full bg-white shadow-sm animate-ping"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="animateProgressBars()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    🚀 تشغيل الرسوم المتحركة
+                </button>
+                <button onclick="resetProgressBars()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors ml-4">
+                    🔄 إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function animateProgressBars() {
+            const containers = document.querySelectorAll('.progress-container');
+            
+            containers.forEach((container, index) => {
+                setTimeout(() => {
+                    const progress = parseInt(container.dataset.progress);
+                    const progressBar = container.querySelector('.progress-bar');
+                    const indicator = container.querySelector('.w-2.h-2');
+                    
+                    // Animate the progress bar
+                    progressBar.style.width = progress + '%';
+                    
+                    // Add ping animation to indicator
+                    if (progress > 0) {
+                        indicator.classList.add('animate-ping');
+                        setTimeout(() => {
+                            indicator.classList.remove('animate-ping');
+                        }, 2000);
+                    }
+                }, index * 300);
+            });
+        }
+
+        function resetProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            const indicators = document.querySelectorAll('.w-2.h-2');
+            
+            progressBars.forEach(bar => {
+                bar.style.width = '0%';
+            });
+            
+            indicators.forEach(indicator => {
+                indicator.classList.remove('animate-ping');
+            });
+        }
+
+        // Auto-animate on page load
+        window.addEventListener('load', () => {
+            setTimeout(animateProgressBars, 500);
+        });
+    </script>
+</body>
+</html>

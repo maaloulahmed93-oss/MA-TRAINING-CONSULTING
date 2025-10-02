@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Folder, 
@@ -12,15 +12,37 @@ import {
   BarChart3,
   TrendingUp
 } from 'lucide-react';
-import { ProjectStatus, FreelancerStats } from '../../types/freelancer';
-import { getProjectStatus, mockFreelancerStats } from '../../services/freelancerData';
+import { FreelancerStats, Project } from '../../types/freelancer';
+import { mockFreelancerStats, getProjects } from '../../services/freelancerData';
 
 const ProjectsTab: React.FC = () => {
-  // Suivi des données mock
-  console.log('Projects:', getProjectStatus());
-  const [projects] = useState<ProjectStatus[]>(getProjectStatus());
+  const [projects, setProjects] = useState<Project[]>([]);
   const [stats] = useState<FreelancerStats>(mockFreelancerStats);
   const [filter, setFilter] = useState<'all' | 'in_progress' | 'completed' | 'cancelled'>('all');
+
+  // تحديث المشاريع عند تحميل المكون
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const { getFreelancerSession } = await import('../../services/freelancerAuth');
+        const session = getFreelancerSession();
+        const freelancerId = session?.freelancerId;
+        
+        const allProjects = await getProjects(freelancerId);
+        setProjects(allProjects);
+        console.log(`📊 تم تحميل ${allProjects.length} مشاريع`);
+      } catch (error) {
+        console.error('خطأ في تحميل المشاريع:', error);
+      }
+    };
+    
+    loadProjects();
+    
+    // تحديث كل 10 ثوانٍ للحصول على المشاريع الجديدة
+    const interval = setInterval(loadProjects, 10000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredProjects = projects.filter(project => 
     filter === 'all' || project.status === filter
@@ -90,77 +112,110 @@ const ProjectsTab: React.FC = () => {
     return diffDays;
   };
 
+  // تحديث تقدم المشروع
+  const updateProjectProgress = async (projectId: string, newProgress: number) => {
+    try {
+      // التأكد من أن النسبة بين 0 و 100
+      const clampedProgress = Math.max(0, Math.min(100, newProgress));
+      
+      // تحديث فوري في الواجهة
+      setProjects(prevProjects => 
+        prevProjects.map(project => 
+          project.id === projectId 
+            ? { ...project, progress: clampedProgress }
+            : project
+        )
+      );
+
+      // حفظ التحديث في localStorage
+      const updatedProjects = projects.map(project => 
+        project.id === projectId 
+          ? { ...project, progress: clampedProgress }
+          : project
+      );
+      
+      try {
+        localStorage.setItem('freelancerProjects', JSON.stringify(updatedProjects));
+        console.log(`📊 Progression du projet ${projectId} mise à jour: ${clampedProgress}%`);
+      } catch (error) {
+        console.error('خطأ في حفظ تقدم المشروع:', error);
+      }
+
+      // TODO: إضافة API call لحفظ التحديث في قاعدة البيانات
+      console.log(`📡 API call: Update project ${projectId} progress to ${clampedProgress}%`);
+      
+    } catch (error) {
+      console.error('خطأ في تحديث تقدم المشروع:', error);
+    }
+  };
+
+  // تحديث حالة المشروع أو حذفه
+  const updateProjectStatus = async (projectId: string, newStatus: 'in_progress' | 'completed' | 'cancelled') => {
+    try {
+      if (newStatus === 'cancelled') {
+        // تأكيد الحذف
+        const projectToDelete = projects.find(p => p.id === projectId);
+        const confirmDelete = window.confirm(
+          `Êtes-vous sûr de vouloir supprimer définitivement le projet "${projectToDelete?.title}" ?\n\nCette action ne peut pas être annulée.`
+        );
+        
+        if (!confirmDelete) {
+          return; // إلغاء الحذف
+        }
+
+        // إذا كان الستاتوس "Annulés" - احذف المشروع نهائياً
+        setProjects(prevProjects => 
+          prevProjects.filter(project => project.id !== projectId)
+        );
+
+        // حذف من localStorage أيضاً
+        const updatedProjects = projects.filter(project => project.id !== projectId);
+        
+        try {
+          localStorage.setItem('freelancerProjects', JSON.stringify(updatedProjects));
+          console.log(`🗑️ Projet "${projectToDelete?.title}" supprimé définitivement`);
+        } catch (error) {
+          console.error('خطأ في حذف المشروع من localStorage:', error);
+        }
+
+        // TODO: إضافة API call لحذف المشروع من قاعدة البيانات
+        console.log(`📡 API call: Delete project ${projectId} permanently`);
+        
+      } else {
+        // للحالات الأخرى - تحديث الحالة فقط
+        setProjects(prevProjects => 
+          prevProjects.map(project => 
+            project.id === projectId 
+              ? { ...project, status: newStatus }
+              : project
+          )
+        );
+
+        // حفظ التحديث في localStorage
+        const updatedProjects = projects.map(project => 
+          project.id === projectId 
+            ? { ...project, status: newStatus }
+            : project
+        );
+        
+        try {
+          localStorage.setItem('freelancerProjects', JSON.stringify(updatedProjects));
+          console.log(`✅ Statut du projet ${projectId} mis à jour: ${newStatus}`);
+        } catch (error) {
+          console.error('خطأ في حفظ حالة المشروع:', error);
+        }
+
+        // TODO: إضافة API call لحفظ التحديث في قاعدة البيانات
+        console.log(`📡 API call: Update project ${projectId} status to ${newStatus}`);
+      }
+      
+    } catch (error) {
+      console.error('خطأ في تحديث/حذف المشروع:', error);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-200"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Projets totaux</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalProjects}</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Folder className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-200"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Terminés</p>
-              <p className="text-2xl font-bold text-green-600">{stats.completedProjects}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-200"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Taux de réussite</p>
-              <p className="text-2xl font-bold text-purple-600">{stats.successRate}%</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-200"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Revenus totaux</p>
-              <p className="text-2xl font-bold text-orange-600">{stats.totalEarnings.toLocaleString()} €</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-orange-600" />
-            </div>
-          </div>
-        </motion.div>
-      </div>
 
       {/* Header avec filtres */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -242,19 +297,70 @@ const ProjectsTab: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Barre de progression */}
+                {/* Barre de progression avec contrôles */}
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-gray-700">Progression</span>
-                    <span className="text-sm font-bold text-gray-900">{project.progress}%</span>
+                    <div className="flex items-center gap-3">
+                      {/* Boutons de contrôle */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => updateProjectProgress(project.id, project.progress - 5)}
+                          disabled={project.progress <= 0}
+                          className="w-8 h-8 rounded-full bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm font-bold transition-colors"
+                          title="Diminuer de 5%"
+                        >
+                          −
+                        </button>
+                        <span className="text-sm font-bold text-gray-900 min-w-[3rem] text-center">
+                          {project.progress}%
+                        </span>
+                        <button
+                          onClick={() => updateProjectProgress(project.id, project.progress + 5)}
+                          disabled={project.progress >= 100}
+                          className="w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm font-bold transition-colors"
+                          title="Augmenter de 5%"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-3 relative">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${project.progress}%` }}
-                      transition={{ duration: 1, delay: index * 0.1 }}
-                      className={`h-2 rounded-full ${getProgressColor(project.progress)}`}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className={`h-3 rounded-full ${getProgressColor(project.progress)} transition-all duration-300`}
                     />
+                    {/* Marqueurs de progression */}
+                    <div className="absolute top-0 left-0 w-full h-3 flex items-center">
+                      {[25, 50, 75].map(mark => (
+                        <div
+                          key={mark}
+                          className="absolute w-0.5 h-3 bg-white opacity-50"
+                          style={{ left: `${mark}%` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Boutons de progression rapide */}
+                  <div className="flex gap-1 mt-2">
+                    {[0, 25, 50, 75, 100].map(percentage => (
+                      <button
+                        key={percentage}
+                        onClick={() => updateProjectProgress(project.id, percentage)}
+                        className={`px-2 py-1 text-xs rounded transition-colors ${
+                          project.progress === percentage
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                        title={`Définir à ${percentage}%`}
+                      >
+                        {percentage}%
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -290,7 +396,7 @@ const ProjectsTab: React.FC = () => {
 
                 {/* Informations sur les délais */}
                 {project.status === 'in_progress' && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-gray-50 rounded-lg mb-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-700">Temps restant:</span>
                       <span className={`text-sm font-bold ${
@@ -311,6 +417,40 @@ const ProjectsTab: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Boutons de changement de statut */}
+                <div className="flex gap-2 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => updateProjectStatus(project.id, 'in_progress')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      project.status === 'in_progress'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
+                    En cours
+                  </button>
+                  <button
+                    onClick={() => updateProjectStatus(project.id, 'completed')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      project.status === 'completed'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    Terminés
+                  </button>
+                  <button
+                    onClick={() => updateProjectStatus(project.id, 'cancelled')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      project.status === 'cancelled'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                    }`}
+                  >
+                    Annulés
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>

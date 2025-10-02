@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Participant Data Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { background: #d4edda; padding: 10px; border-radius: 4px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 10px; border-radius: 4px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 10px; border-radius: 4px; color: #856404; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .step { background: #e9ecef; padding: 15px; border-radius: 8px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Participant Data Flow</h1>
+        <p>Debug pour comprendre pourquoi les formations disparaissent après "Mettre à jour"</p>
+
+        <div class="warning">
+            <strong>Problème observé:</strong><br>
+            1. Formation "Marketing" visible avant "Mettre à jour"<br>
+            2. Formation disparaît après "Mettre à jour"<br>
+            3. Besoin de comprendre le flux de données
+        </div>
+
+        <div class="step">
+            <h3>🔄 Étape 1: Récupérer PART-177037</h3>
+            <button class="btn-primary" onclick="step1_getParticipant()">Récupérer Participant</button>
+            <div id="step1-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>📝 Étape 2: Ajouter Formation Test</h3>
+            <button class="btn-success" onclick="step2_addFormation()" disabled id="step2-btn">Ajouter Formation Test</button>
+            <div id="step2-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>🔄 Étape 3: Récupérer Après Mise à Jour</h3>
+            <button class="btn-warning" onclick="step3_getAfterUpdate()" disabled id="step3-btn">Récupérer Après Update</button>
+            <div id="step3-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>🔍 Étape 4: Comparer Données</h3>
+            <button class="btn-danger" onclick="step4_compare()" disabled id="step4-btn">Comparer Données</button>
+            <div id="step4-result"></div>
+        </div>
+
+        <button onclick="clearAll()">Effacer Tout</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        
+        let originalData = null;
+        let updatedData = null;
+
+        function log(message, type = 'info', targetId = 'results') {
+            const target = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            target.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearAll() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('step1-result').innerHTML = '';
+            document.getElementById('step2-result').innerHTML = '';
+            document.getElementById('step3-result').innerHTML = '';
+            document.getElementById('step4-result').innerHTML = '';
+            
+            // Reset buttons
+            document.getElementById('step2-btn').disabled = true;
+            document.getElementById('step3-btn').disabled = true;
+            document.getElementById('step4-btn').disabled = true;
+        }
+
+        async function step1_getParticipant() {
+            log('🔄 Récupération du participant PART-177037...', 'info', 'step1-result');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    originalData = result.data;
+                    log('✅ Participant récupéré avec succès!', 'success', 'step1-result');
+                    log(`📊 Formations trouvées: ${originalData.formations?.length || 0}`, 'info', 'step1-result');
+                    log(`📊 Projets trouvés: ${originalData.projects?.length || 0}`, 'info', 'step1-result');
+                    
+                    if (originalData.formations && originalData.formations.length > 0) {
+                        log('📋 Formations existantes:', 'info', 'step1-result');
+                        originalData.formations.forEach((f, i) => {
+                            log(`  ${i+1}. ${f.title} (${f.status}) - Progress: ${f.progress}%`, 'info', 'step1-result');
+                        });
+                    }
+                    
+                    log(`<pre>${JSON.stringify(originalData, null, 2)}</pre>`, 'info', 'step1-result');
+                    
+                    // Enable next step
+                    document.getElementById('step2-btn').disabled = false;
+                } else {
+                    log(`❌ Erreur: ${result.message}`, 'error', 'step1-result');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error', 'step1-result');
+            }
+        }
+
+        async function step2_addFormation() {
+            if (!originalData) {
+                log('❌ Pas de données originales. Exécutez l\'étape 1 d\'abord.', 'error', 'step2-result');
+                return;
+            }
+
+            log('🔄 Ajout d\'une formation test...', 'info', 'step2-result');
+            
+            // Créer une nouvelle formation
+            const newFormation = {
+                id: `form-debug-${Date.now()}`,
+                title: 'Formation Debug Test',
+                description: 'Formation ajoutée pour test de debug',
+                domain: 'Debug',
+                level: 'Débutant',
+                duration: '2 heures',
+                status: 'not_started',
+                progress: 0,
+                enrollmentDate: new Date().toISOString(),
+                courses: [],
+                links: []
+            };
+
+            // Ajouter à la liste existante
+            const updatedFormations = [...(originalData.formations || []), newFormation];
+            
+            const updateData = {
+                ...originalData,
+                formations: updatedFormations,
+                lastActivity: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    log('✅ Formation ajoutée avec succès!', 'success', 'step2-result');
+                    log(`📊 Nouvelles formations: ${updatedFormations.length}`, 'info', 'step2-result');
+                    log(`<pre>${JSON.stringify(result, null, 2)}</pre>`, 'info', 'step2-result');
+                    
+                    // Enable next step
+                    document.getElementById('step3-btn').disabled = false;
+                } else {
+                    log(`❌ Erreur lors de l'ajout: ${result.message}`, 'error', 'step2-result');
+                    log(`<pre>${JSON.stringify(result, null, 2)}</pre>`, 'error', 'step2-result');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error', 'step2-result');
+            }
+        }
+
+        async function step3_getAfterUpdate() {
+            log('🔄 Récupération après mise à jour...', 'info', 'step3-result');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    updatedData = result.data;
+                    log('✅ Données récupérées après mise à jour!', 'success', 'step3-result');
+                    log(`📊 Formations après update: ${updatedData.formations?.length || 0}`, 'info', 'step3-result');
+                    log(`📊 Projets après update: ${updatedData.projects?.length || 0}`, 'info', 'step3-result');
+                    
+                    if (updatedData.formations && updatedData.formations.length > 0) {
+                        log('📋 Formations après update:', 'info', 'step3-result');
+                        updatedData.formations.forEach((f, i) => {
+                            log(`  ${i+1}. ${f.title} (${f.status}) - Progress: ${f.progress}%`, 'info', 'step3-result');
+                        });
+                    } else {
+                        log('⚠️ Aucune formation trouvée après update!', 'warning', 'step3-result');
+                    }
+                    
+                    log(`<pre>${JSON.stringify(updatedData, null, 2)}</pre>`, 'info', 'step3-result');
+                    
+                    // Enable next step
+                    document.getElementById('step4-btn').disabled = false;
+                } else {
+                    log(`❌ Erreur: ${result.message}`, 'error', 'step3-result');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error', 'step3-result');
+            }
+        }
+
+        async function step4_compare() {
+            if (!originalData || !updatedData) {
+                log('❌ Données manquantes pour la comparaison', 'error', 'step4-result');
+                return;
+            }
+
+            log('🔍 Comparaison des données...', 'info', 'step4-result');
+            
+            const originalFormations = originalData.formations?.length || 0;
+            const updatedFormations = updatedData.formations?.length || 0;
+            
+            log(`📊 Formations avant: ${originalFormations}`, 'info', 'step4-result');
+            log(`📊 Formations après: ${updatedFormations}`, 'info', 'step4-result');
+            
+            if (updatedFormations > originalFormations) {
+                log('✅ Les formations ont été ajoutées avec succès!', 'success', 'step4-result');
+            } else if (updatedFormations === originalFormations) {
+                log('⚠️ Aucune nouvelle formation ajoutée', 'warning', 'step4-result');
+            } else {
+                log('❌ Des formations ont été perdues!', 'error', 'step4-result');
+            }
+
+            // Comparaison détaillée
+            log('🔍 Analyse détaillée:', 'info', 'step4-result');
+            
+            if (originalData.formations) {
+                log('📋 Formations originales:', 'info', 'step4-result');
+                originalData.formations.forEach(f => {
+                    log(`  - ${f.title}`, 'info', 'step4-result');
+                });
+            }
+            
+            if (updatedData.formations) {
+                log('📋 Formations après update:', 'info', 'step4-result');
+                updatedData.formations.forEach(f => {
+                    log(`  - ${f.title}`, 'info', 'step4-result');
+                });
+            }
+        }
+
+        // Auto-start
+        window.addEventListener('load', () => {
+            log('🚀 Debug Participant Data Flow chargé', 'info');
+            log('Cliquez sur "Récupérer Participant" pour commencer', 'info');
+        });
+    </script>
+</body>
+</html>

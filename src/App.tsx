@@ -3,9 +3,10 @@ import HomePage from "./pages/HomePage";
 import EspaceParticipantPage from "./pages/EspaceParticipantPage";
 import EspaceFormateurPage from "./pages/EspaceFormateurPage";
 import EspaceFreelancerPage from "./pages/EspaceFreelancerPage";
-import EspaceCommercialPage from "./pages/EspaceCommercialPage";
+import EspaceCommercialNewPage from "./pages/EspaceCommercialNewPage";
 import EspacePartenaireePage from "./pages/EspacePartenaireePage";
 import PartnershipPage from "./components/PartnershipPage";
+import VerificationAttestationPage from "./pages/VerificationAttestationPage";
 // Pages sections Espace Partenariat
 import PartenaireProjectsPage from "./pages/partenaire/PartenaireProjectsPage";
 import PartenaireFormationsCoAnimeesPage from "./pages/partenaire/PartenaireFormationsCoAnimeesPage";
@@ -34,7 +35,7 @@ function App() {
             />
             <Route
               path="/espace-commercial"
-              element={<EspaceCommercialPage />}
+              element={<EspaceCommercialNewPage />}
             />
             <Route
               path="/espace-partenariat"
@@ -61,6 +62,8 @@ function App() {
               path="/partenaire/messages"
               element={<PartenaireMessagesPage />}
             />
+            {/* Verification d'attestation */}
+            <Route path="/verification-attestation" element={<VerificationAttestationPage />} />
             {/* Test route (temporary) */}
             <Route path="/test-projects" element={<ProjectsTestPage />} />
           </Routes>

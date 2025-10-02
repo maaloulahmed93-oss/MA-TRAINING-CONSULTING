@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Skills Display Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        
+        .skills-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .skill-badge {
+            padding: 4px 12px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .data-box {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .data-box h4 {
+            margin-top: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Test - Skills Display Fix</h1>
+        <p>Test de l'affichage des compétences dans Freelancer Space</p>
+
+        <!-- Test des compétences actuelles -->
+        <div class="section">
+            <h3>1. Vérification des Compétences</h3>
+            <button class="btn-primary" onclick="checkSkillsData()">Vérifier Compétences</button>
+            <div id="skills-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Comparaison Admin vs Freelancer -->
+        <div class="section">
+            <h3>2. Comparaison Admin Panel vs Freelancer Space</h3>
+            <button class="btn-success" onclick="compareSkillsData()">Comparer les Données</button>
+            <div id="compare-result" style="display: none;"></div>
+        </div>
+
+        <!-- Aperçu du nouveau design -->
+        <div class="section">
+            <h3>3. Aperçu du Nouveau Design</h3>
+            <button class="btn-warning" onclick="showNewDesign()">Voir le Nouveau Design</button>
+            <div id="design-result" style="display: none;"></div>
+        </div>
+
+        <!-- Test de création avec compétences -->
+        <div class="section">
+            <h3>4. Test de Création avec Compétences</h3>
+            <button class="btn-success" onclick="createTestOffer()">Créer Offre Test</button>
+            <div id="create-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="section">
+            <h3>5. Instructions</h3>
+            <ol>
+                <li>Vérifiez d'abord les compétences dans les données actuelles</li>
+                <li>Comparez avec Admin Panel pour voir les différences</li>
+                <li>Regardez l'aperçu du nouveau design</li>
+                <li>Créez une offre test avec des compétences</li>
+                <li>Allez sur <a href="http://localhost:5173/espace-freelancer" target="_blank">Freelancer Space</a></li>
+                <li>Vérifiez que les compétences apparaissent comme badges colorés</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Vérifier les compétences actuelles
+        async function checkSkillsData() {
+            const resultDiv = document.getElementById('skills-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Vérification des compétences...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-offers/for-freelancer/FRE-340255`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let result = `📊 Analyse des Compétences (${data.count} offres):\n\n`;
+                    
+                    data.data.forEach((offer, index) => {
+                        result += `${index + 1}. "${offer.title}"\n`;
+                        result += `   Skills: ${JSON.stringify(offer.skills)}\n`;
+                        result += `   Skills Type: ${typeof offer.skills}\n`;
+                        result += `   Skills Length: ${offer.skills ? offer.skills.length : 'undefined'}\n`;
+                        result += `   Requirements: ${JSON.stringify(offer.requirements)}\n\n`;
+                    });
+                    
+                    // Analyse globale
+                    const offersWithSkills = data.data.filter(o => o.skills && o.skills.length > 0);
+                    result += `📈 Statistiques:\n`;
+                    result += `   Offres avec compétences: ${offersWithSkills.length}/${data.count}\n`;
+                    result += `   Offres sans compétences: ${data.count - offersWithSkills.length}/${data.count}\n`;
+                    
+                    if (offersWithSkills.length === 0) {
+                        result += `\n❌ PROBLÈME: Aucune offre n'a de compétences!\n`;
+                        result += `   Causes possibles:\n`;
+                        result += `   - Les compétences ne sont pas sauvegardées dans Admin Panel\n`;
+                        result += `   - La transformation API ne passe pas les compétences\n`;
+                        result += `   - Les données sont corrompues\n`;
+                    }
+                    
+                    showResult(resultDiv, offersWithSkills.length > 0 ? 'success' : 'error', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur: ${data.message || 'Pas de données'}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        // Comparer Admin Panel vs Freelancer
+        async function compareSkillsData() {
+            const resultDiv = document.getElementById('compare-result');
+            resultDiv.style.display = 'block';
+            
+            try {
+                // Admin Panel data
+                const adminData = localStorage.getItem('freelancer_offers');
+                const adminOffers = adminData ? JSON.parse(adminData) : [];
+                
+                // Backend data
+                const backendResponse = await fetch(`${API_BASE}/freelancer-offers`);
+                const backendResult = await backendResponse.json();
+                const backendOffers = backendResult.success ? backendResult.data : [];
+                
+                // Freelancer data
+                const freelancerResponse = await fetch(`${API_BASE}/freelancer-offers/for-freelancer/FRE-340255`);
+                const freelancerResult = await freelancerResponse.json();
+                const freelancerOffers = freelancerResult.success ? freelancerResult.data : [];
+                
+                let html = '<div class="comparison">';
+                
+                // Admin Panel
+                html += '<div class="data-box">';
+                html += '<h4>📊 Admin Panel (localStorage)</h4>';
+                if (adminOffers.length > 0) {
+                    adminOffers.forEach((offer, index) => {
+                        html += `<p><strong>${index + 1}. ${offer.title}</strong></p>`;
+                        html += `<div class="skills-preview">`;
+                        if (offer.skills && offer.skills.length > 0) {
+                            offer.skills.forEach(skill => {
+                                html += `<span class="skill-badge">${skill}</span>`;
+                            });
+                        } else {
+                            html += `<span style="color: #999;">Pas de compétences</span>`;
+                        }
+                        html += `</div>`;
+                    });
+                } else {
+                    html += '<p style="color: #999;">Aucune donnée Admin Panel</p>';
+                }
+                html += '</div>';
+                
+                // Freelancer Space
+                html += '<div class="data-box">';
+                html += '<h4>📱 Freelancer Space (API)</h4>';
+                if (freelancerOffers.length > 0) {
+                    freelancerOffers.forEach((offer, index) => {
+                        html += `<p><strong>${index + 1}. ${offer.title}</strong></p>`;
+                        html += `<div class="skills-preview">`;
+                        if (offer.skills && offer.skills.length > 0) {
+                            offer.skills.forEach(skill => {
+                                html += `<span class="skill-badge">${skill}</span>`;
+                            });
+                        } else {
+                            html += `<span style="color: #999;">Pas de compétences</span>`;
+                        }
+                        html += `</div>`;
+                    });
+                } else {
+                    html += '<p style="color: #999;">Aucune donnée Freelancer</p>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+                
+                // Analyse
+                html += '<div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border-radius: 8px;">';
+                html += '<h4>🔍 Analyse:</h4>';
+                
+                const adminHasSkills = adminOffers.some(o => o.skills && o.skills.length > 0);
+                const freelancerHasSkills = freelancerOffers.some(o => o.skills && o.skills.length > 0);
+                
+                if (adminHasSkills && !freelancerHasSkills) {
+                    html += '<p>❌ <strong>Problème détecté:</strong> Admin Panel a des compétences mais Freelancer Space n\'en a pas</p>';
+                    html += '<p>🔧 <strong>Solution:</strong> Problème de transformation API ou synchronisation</p>';
+                } else if (!adminHasSkills && !freelancerHasSkills) {
+                    html += '<p>⚠️ <strong>Problème:</strong> Aucun système n\'a de compétences</p>';
+                    html += '<p>🔧 <strong>Solution:</strong> Créer des offres avec compétences dans Admin Panel</p>';
+                } else if (freelancerHasSkills) {
+                    html += '<p>✅ <strong>Bon:</strong> Freelancer Space a des compétences</p>';
+                }
+                
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        // Montrer le nouveau design
+        function showNewDesign() {
+            const resultDiv = document.getElementById('design-result');
+            resultDiv.style.display = 'block';
+            
+            resultDiv.innerHTML = `
+                <h4>✨ Nouveau Design des Compétences:</h4>
+                
+                <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background-color: #f9f9f9; margin: 15px 0;">
+                    <h5 style="margin-top: 0; color: #333;">🚀 Développeur React Senior</h5>
+                    
+                    <div style="margin: 15px 0;">
+                        <h6 style="margin-bottom: 8px; color: #333; font-weight: 600;">Compétences requises :</h6>
+                        <div class="skills-preview">
+                            <span class="skill-badge">React</span>
+                            <span class="skill-badge">TypeScript</span>
+                            <span class="skill-badge">JavaScript</span>
+                            <span class="skill-badge">Node.js</span>
+                            <span class="skill-badge">MongoDB</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <h6 style="margin-bottom: 8px; color: #333; font-weight: 600;">Exigences supplémentaires :</h6>
+                        <ul style="margin: 0; padding-left: 20px; color: #666;">
+                            <li>5+ ans d'expérience en développement React</li>
+                            <li>Expérience avec TypeScript obligatoire</li>
+                            <li>Connaissance des API REST</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h4>🔧 Améliorations Appliquées:</h4>
+                <ul>
+                    <li>✅ <strong>Badges colorés</strong> pour chaque compétence</li>
+                    <li>✅ <strong>Section séparée</strong> "Compétences requises"</li>
+                    <li>✅ <strong>Section optionnelle</strong> "Exigences supplémentaires"</li>
+                    <li>✅ <strong>Design responsive</strong> avec flex-wrap</li>
+                    <li>✅ <strong>Gestion des cas vides</strong> avec message informatif</li>
+                </ul>
+            `;
+        }
+
+        // Créer une offre test avec compétences
+        async function createTestOffer() {
+            const resultDiv = document.getElementById('create-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Création d\'une offre test avec compétences...');
+                
+                const testOffer = {
+                    title: "Développeur Full Stack Test",
+                    company: "TechCorp Test",
+                    description: "Offre de test pour vérifier l'affichage des compétences",
+                    contractType: "full-time",
+                    seniority: "mid",
+                    locationType: "remote",
+                    salaryMin: 2500,
+                    salaryMax: 3500,
+                    currency: "TND",
+                    skills: ["React", "Node.js", "TypeScript", "MongoDB", "Express"],
+                    requirements: ["3+ ans d'expérience", "Maîtrise de Git", "Anglais technique"],
+                    visibility: "all",
+                    status: "published"
+                };
+                
+                const response = await fetch(`${API_BASE}/freelancer-offers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testOffer)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    let resultText = `✅ Offre test créée avec succès!\n\n`;
+                    resultText += `ID: ${result.data._id}\n`;
+                    resultText += `Titre: ${result.data.title}\n`;
+                    resultText += `Compétences: ${JSON.stringify(result.data.skills)}\n`;
+                    resultText += `Requirements: ${JSON.stringify(result.data.requirements)}\n\n`;
+                    resultText += `🎯 Maintenant, allez sur Freelancer Space pour voir l'affichage!`;
+                    
+                    showResult(resultDiv, 'success', resultText);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur: ${result.message}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Fonction utilitaire
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-load
+        window.onload = function() {
+            console.log('🎯 Skills Display Fix Test loaded');
+        };
+    </script>
+</body>
+</html>

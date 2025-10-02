@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Debug - Projet PART-177037</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; }
+        .section { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+        .section:last-child { border-bottom: none; }
+        .test-button { background: #dc2626; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin: 5px; font-weight: 500; }
+        .test-button:hover { background: #991b1b; }
+        .test-button.success { background: #16a34a; }
+        .result { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
+        .success { background: #dcfce7; border-color: #16a34a; color: #166534; }
+        .error { background: #fef2f2; border-color: #dc2626; color: #991b1b; }
+        .warning { background: #fefce8; border-color: #ca8a04; color: #a16207; }
+        .info { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+        .highlight { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .urgent { background: #fecaca; padding: 8px; border-radius: 6px; border-left: 4px solid #dc2626; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Live Debug</h1>
+            <p>Diagnostic en temps réel du projet PART-177037 "dbdc"</p>
+            <div style="font-size: 14px; margin-top: 15px; opacity: 0.9;">
+                Problème: "Pas de lien" malgré les corrections
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Diagnostic Immédiat</h2>
+            <button class="test-button" onclick="runFullDiagnosis()">🚀 Diagnostic Complet</button>
+            <div id="diagnosis-result" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Données Brutes</h2>
+            <button class="test-button" onclick="showRawData()">📋 Voir Données API</button>
+            <div id="raw-data-result" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ Solution Immédiate</h2>
+            <div class="urgent">
+                <h3>⚡ Action Requise</h3>
+                <p><strong>Le projet n'a pas de projectUrl dans la base de données.</strong></p>
+                <p>Vous devez ajouter le lien via le Panel Admin :</p>
+                <ol>
+                    <li>Aller sur <code>localhost:8536/participants</code></li>
+                    <li>Chercher <code>PART-177037</code></li>
+                    <li>Modifier le projet "dbdc"</li>
+                    <li>Ajouter le lien : <code>https://www.youtube.com/watch?v=wwhPciDPE5s&list=RDV4NEJel0A92Q&index=5</code></li>
+                    <li>Sauvegarder</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Vérification Post-Fix</h2>
+            <button class="test-button" onclick="verifyFix()">✅ Vérifier Correction</button>
+            <div id="verify-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        
+        async function runFullDiagnosis() {
+            const resultDiv = document.getElementById('diagnosis-result');
+            resultDiv.textContent = 'Diagnostic en cours...';
+            
+            try {
+                console.log('🔍 Diagnostic complet pour PART-177037');
+                
+                // Test 1: API Projects Direct
+                const projectsResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}/projects`);
+                const projectsData = await projectsResponse.json();
+                
+                // Test 2: Participant Data
+                const participantResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const participantData = await participantResponse.json();
+                
+                console.log('📊 Projects API:', projectsData);
+                console.log('👤 Participant API:', participantData);
+                
+                let diagnosis = '';
+                let hasProjectUrl = false;
+                
+                if (projectsData.success && projectsData.data.length > 0) {
+                    const project = projectsData.data[0];
+                    hasProjectUrl = project.projectUrl && project.projectUrl.trim();
+                    
+                    diagnosis = `
+                        <strong>📋 Projet "dbdc" trouvé</strong><br>
+                        • ID: ${project._id}<br>
+                        • Titre: ${project.title}<br>
+                        • Status: ${project.status}<br>
+                        • ProjectUrl: <span class="highlight">${project.projectUrl || 'VIDE/ABSENT'}</span><br>
+                        • IsActive: ${project.isActive}<br><br>
+                        
+                        <strong>🔍 Analyse:</strong><br>
+                        • ProjectUrl présent: <span class="highlight">${hasProjectUrl ? 'OUI' : 'NON'}</span><br>
+                        • Comportement attendu: <span class="highlight">${hasProjectUrl ? 'Bouton vert "Ouvrir lien"' : 'Bouton bleu "Détails"'}</span><br>
+                        • Problème: <span class="highlight">${hasProjectUrl ? 'Aucun - devrait fonctionner' : 'ProjectUrl manquant dans la base'}</span><br><br>
+                    `;
+                    
+                    if (!hasProjectUrl) {
+                        diagnosis += `
+                            <strong>🚨 PROBLÈME CONFIRMÉ:</strong><br>
+                            Le champ projectUrl est vide dans la base de données.<br>
+                            Vous devez l'ajouter via le Panel Admin.<br><br>
+                        `;
+                    }
+                } else {
+                    diagnosis = '<strong>❌ Aucun projet trouvé</strong><br>';
+                }
+                
+                // Simulation transformation
+                if (projectsData.success && projectsData.data.length > 0) {
+                    const apiProject = projectsData.data[0];
+                    const transformedProject = {
+                        projectUrl: apiProject.projectUrl || apiProject.files?.[0]?.url
+                    };
+                    
+                    const finalHasUrl = transformedProject.projectUrl && transformedProject.projectUrl.trim();
+                    
+                    diagnosis += `
+                        <strong>🔄 Simulation Transformation:</strong><br>
+                        • API projectUrl: <span class="highlight">${apiProject.projectUrl || 'VIDE'}</span><br>
+                        • Files[0] URL: <span class="highlight">${apiProject.files?.[0]?.url || 'VIDE'}</span><br>
+                        • Final projectUrl: <span class="highlight">${transformedProject.projectUrl || 'VIDE'}</span><br>
+                        • Final hasUrl: <span class="highlight">${finalHasUrl ? 'TRUE' : 'FALSE'}</span><br><br>
+                        
+                        <strong>💡 Conclusion:</strong><br>
+                        ${finalHasUrl ? 
+                            '✅ Le projet devrait afficher "Ouvrir lien"' : 
+                            '❌ Le projet affichera "Pas de lien" - Action requise'
+                        }
+                    `;
+                }
+                
+                resultDiv.className = hasProjectUrl ? 'result success' : 'result error';
+                resultDiv.innerHTML = diagnosis;
+                
+            } catch (error) {
+                console.error('❌ Erreur diagnostic:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>❌ Erreur</strong><br>${error.message}`;
+            }
+        }
+        
+        async function showRawData() {
+            const resultDiv = document.getElementById('raw-data-result');
+            resultDiv.textContent = 'Chargement données...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}/projects`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    resultDiv.className = 'result info';
+                    resultDiv.innerHTML = `
+                        <strong>📊 Données Brutes API</strong><br><br>
+                        <pre>${JSON.stringify(data.data[0], null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.innerHTML = '<strong>⚠️ Aucune donnée trouvée</strong>';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>❌ Erreur</strong><br>${error.message}`;
+            }
+        }
+        
+        async function verifyFix() {
+            const resultDiv = document.getElementById('verify-result');
+            resultDiv.textContent = 'Vérification...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}/projects`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const project = data.data[0];
+                    const hasUrl = project.projectUrl && project.projectUrl.trim();
+                    
+                    if (hasUrl) {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = `
+                            <strong>🎉 CORRECTION RÉUSSIE !</strong><br><br>
+                            • ProjectUrl: <span class="highlight">${project.projectUrl}</span><br>
+                            • Status: Lien présent<br>
+                            • Comportement: Bouton vert "Ouvrir lien"<br><br>
+                            <strong>✅ Le problème est résolu !</strong><br>
+                            Rafraîchissez l'Espace Participant pour voir le changement.
+                        `;
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.innerHTML = `
+                            <strong>⚠️ Correction pas encore appliquée</strong><br><br>
+                            • ProjectUrl: <span class="highlight">${project.projectUrl || 'TOUJOURS VIDE'}</span><br>
+                            • Action: Vérifiez que vous avez sauvegardé dans le Panel Admin<br>
+                            • Redémarrez le backend si nécessaire
+                        `;
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '<strong>❌ Projet non trouvé</strong>';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>❌ Erreur</strong><br>${error.message}`;
+            }
+        }
+        
+        // Auto-run diagnosis on page load
+        window.onload = function() {
+            console.log('🚨 Live Debug - Diagnostic automatique');
+            setTimeout(() => {
+                runFullDiagnosis();
+            }, 1000);
+        };
+        
+        // Auto-refresh every 10 seconds to check for changes
+        setInterval(() => {
+            console.log('🔄 Auto-refresh diagnostic...');
+            runFullDiagnosis();
+        }, 10000);
+    </script>
+</body>
+</html>

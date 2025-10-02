@@ -10,7 +10,7 @@ export interface Program {
   price?: number;
   duration: string;
   level: string;
-  category: string;
+  category: string | { _id: string; name: string };
   instructor: string;
   maxStudents: number;
   features: string[];

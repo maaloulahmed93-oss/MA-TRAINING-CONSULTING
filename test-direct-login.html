@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Direct Login - ENT-752810</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .partner-id {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test Direct Login - ENT-752810</h1>
+        
+        <div class="test-section info">
+            <h3>ID de Partenaire Trouvé</h3>
+            <div class="partner-id" id="partnerId">ENT-752810</div>
+            <p><strong>Nom:</strong> <span id="partnerName">eded</span></p>
+            <p><strong>Email:</strong> <span id="partnerEmail">fagim81542@ekuali.com</span></p>
+            <p><strong>Type:</strong> entreprise</p>
+            <p><strong>Statut:</strong> Actif</p>
+        </div>
+
+        <div class="test-section">
+            <h3>Tests de Login</h3>
+            <button onclick="testBackendHealth()">1. Test Backend Health</button>
+            <button onclick="testDirectLogin()">2. Test Login Direct</button>
+            <button onclick="testFrontendLogin()">3. Test Frontend Login</button>
+            <button onclick="openEspacePartenariat()">4. Ouvrir Espace Partenariat</button>
+            <button onclick="clearLog()">Effacer Log</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Résultats</h3>
+            <div id="log" class="log">Prêt pour les tests...\n</div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const FRONTEND_URL = 'http://localhost:5173';
+        const PARTNER_ID = 'ENT-752810';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = 'Log effacé...\n';
+        }
+
+        async function testBackendHealth() {
+            log('🔍 Test de santé du Backend...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend accessible - Status: ${data.status}`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Backend erreur - Status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Backend inaccessible: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testDirectLogin() {
+            log(`🔐 Test login direct pour ${PARTNER_ID}...`);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: PARTNER_ID }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login API réussi!`, 'success');
+                    log(`   Message: ${data.message}`, 'success');
+                    log(`   Partenaire: ${data.data.fullName}`, 'success');
+                    log(`   Email: ${data.data.email}`, 'success');
+                    log(`   Dernière connexion mise à jour`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Login API échoué: ${data.message}`, 'error');
+                    log(`   Status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur login API: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testFrontendLogin() {
+            log('🌐 Test du système de login frontend...');
+            
+            // Simuler le processus de login frontend
+            try {
+                // 1. Vérifier si l'API backend fonctionne
+                const backendOk = await testDirectLogin();
+                
+                if (backendOk) {
+                    // 2. Simuler le stockage de session
+                    const sessionData = {
+                        partnerId: PARTNER_ID,
+                        loginTime: new Date().toISOString(),
+                        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+                    };
+                    
+                    localStorage.setItem('partnerSession', JSON.stringify(sessionData));
+                    log('✅ Session simulée créée dans localStorage', 'success');
+                    
+                    // 3. Vérifier la session
+                    const storedSession = localStorage.getItem('partnerSession');
+                    if (storedSession) {
+                        const session = JSON.parse(storedSession);
+                        log(`✅ Session vérifiée - Expire le: ${new Date(session.expiresAt).toLocaleString()}`, 'success');
+                        
+                        log('🎉 FRONTEND LOGIN SIMULATION RÉUSSIE!', 'success');
+                        log('👉 Vous pouvez maintenant ouvrir l\'Espace Partenariat', 'success');
+                        return true;
+                    }
+                }
+                
+                log('❌ Échec de la simulation frontend', 'error');
+                return false;
+                
+            } catch (error) {
+                log(`❌ Erreur simulation frontend: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        function openEspacePartenariat() {
+            log('🌐 Ouverture de l\'Espace Partenariat...');
+            const url = `${FRONTEND_URL}/espace-partenariat`;
+            log(`📍 URL: ${url}`, 'info');
+            
+            // Ouvrir dans un nouvel onglet
+            window.open(url, '_blank');
+            log('✅ Nouvel onglet ouvert - Vérifiez si la connexion fonctionne', 'success');
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', async () => {
+            log('🔄 Initialisation...');
+            log(`🎯 Partenaire cible: ${PARTNER_ID}`);
+            log('📋 Tests disponibles ci-dessus');
+            
+            // Test rapide du backend
+            await testBackendHealth();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final - Notifications MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.urgent { background: #dc3545; font-weight: bold; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 400px; }
+        .notification-preview { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; background: #f9f9f9; }
+        .notification-title { font-weight: bold; color: #333; margin-bottom: 8px; }
+        .notification-desc { color: #666; margin-bottom: 10px; }
+        .notification-link { color: #007bff; text-decoration: underline; cursor: pointer; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #007bff; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Test Final - Notifications MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Corrections Appliquées avec Succès!</h3>
+            <p>D'après les logs de la console, les corrections fonctionnent parfaitement :</p>
+            <ul>
+                <li>✅ <strong>Anti-duplication active</strong> - "🧹 Removed X duplicate notifications"</li>
+                <li>✅ <strong>Liens préservés</strong> - Notifications créées avec liens complets</li>
+                <li>✅ <strong>Sauvegarde/Restauration</strong> - localStorage fonctionne correctement</li>
+            </ul>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalNotifications">-</div>
+                <div class="stat-label">Notifications Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="notificationsWithLinks">-</div>
+                <div class="stat-label">Avec Liens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="duplicatesFound">-</div>
+                <div class="stat-label">Doublons Détectés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">-</div>
+                <div class="stat-label">Taux de Succès</div>
+            </div>
+        </div>
+
+        <button onclick="testCurrentNotifications()" class="success">🔍 Vérifier Notifications Actuelles</button>
+        <button onclick="testParticipantSpace()">🖥️ Test Espace Participant</button>
+        <button onclick="testLinkFunctionality()" class="urgent">🔗 Test Fonctionnalité Liens</button>
+        <button onclick="runCompleteTest()">🧪 Test Complet</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testCurrentNotifications() {
+            log('🔍 Test des notifications actuelles...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.length > 0) {
+                        log(`✅ ${data.data.length} notifications trouvées`, 'success');
+                        
+                        // Update stats
+                        document.getElementById('totalNotifications').textContent = data.data.length;
+                        
+                        let withLinks = 0;
+                        let duplicates = new Set();
+                        let duplicateCount = 0;
+                        
+                        data.data.forEach((notif, index) => {
+                            // Check for links
+                            if (notif.link && notif.link.trim() !== '') {
+                                withLinks++;
+                            }
+                            
+                            // Check for duplicates
+                            const key = `${notif.title}-${notif.description}`;
+                            if (duplicates.has(key)) {
+                                duplicateCount++;
+                            } else {
+                                duplicates.add(key);
+                            }
+                            
+                            // Log notification details
+                            log(`📋 Notification ${index + 1}: "${notif.title}"`, 'info');
+                            log(`   📄 Type: ${notif.type}`, 'info');
+                            log(`   📝 Description: ${notif.description ? '✅ Présente' : '❌ Manquante'}`, 
+                                notif.description ? 'success' : 'error');
+                            log(`   🔗 Link: ${notif.link ? '✅ Présent' : '❌ Manquant'}`, 
+                                notif.link ? 'success' : 'error');
+                            
+                            if (notif.link) {
+                                log(`   🌐 URL: ${notif.link}`, 'info');
+                            }
+                            
+                            // Create preview
+                            const preview = document.createElement('div');
+                            preview.className = 'notification-preview';
+                            preview.innerHTML = `
+                                <div class="notification-title">📢 ${notif.title}</div>
+                                <div class="notification-desc">${notif.description || 'Pas de description'}</div>
+                                ${notif.link ? `<div class="notification-link" onclick="window.open('${notif.link}', '_blank')">🔗 ${notif.link}</div>` : '<div style="color: #999;">Aucun lien</div>'}
+                            `;
+                            document.getElementById('results').appendChild(preview);
+                            
+                            log('---', 'info');
+                        });
+                        
+                        // Update stats
+                        document.getElementById('notificationsWithLinks').textContent = withLinks;
+                        document.getElementById('duplicatesFound').textContent = duplicateCount;
+                        document.getElementById('successRate').textContent = `${Math.round((withLinks / data.data.length) * 100)}%`;
+                        
+                        // Final assessment
+                        if (duplicateCount === 0 && withLinks > 0) {
+                            log('🎉 EXCELLENT! Aucun doublon et liens fonctionnels', 'success');
+                        } else if (duplicateCount > 0) {
+                            log(`⚠️ ${duplicateCount} doublons détectés`, 'warning');
+                        } else {
+                            log('⚠️ Aucun lien trouvé dans les notifications', 'warning');
+                        }
+                        
+                    } else {
+                        log('❌ Aucune notification trouvée', 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testParticipantSpace() {
+            log('🖥️ Test de l\'espace participant...', 'info');
+            
+            log('📋 Instructions pour tester l\'espace participant:', 'warning');
+            log('1. Ouvrez un nouvel onglet: http://localhost:5173/espace-participant', 'info');
+            log('2. Connectez-vous avec: PART-550776 / gharbi@gmail.com', 'info');
+            log('3. Cliquez sur l\'icône Notifications (🔔)', 'info');
+            log('4. Vérifiez que les notifications s\'affichent avec:', 'info');
+            log('   - Titre complet', 'info');
+            log('   - Description détaillée', 'info');
+            log('   - Liens cliquables (bouton "Accéder au lien")', 'info');
+            log('   - Pas de doublons', 'info');
+            
+            // Auto-open participant space
+            setTimeout(() => {
+                const participantUrl = 'http://localhost:5173/espace-participant';
+                log(`🚀 Ouverture automatique: ${participantUrl}`, 'success');
+                window.open(participantUrl, '_blank');
+            }, 2000);
+        }
+
+        async function testLinkFunctionality() {
+            log('🔗 Test de la fonctionnalité des liens...', 'urgent');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.length > 0) {
+                        
+                        const notificationsWithLinks = data.data.filter(n => n.link && n.link.trim() !== '');
+                        
+                        if (notificationsWithLinks.length > 0) {
+                            log(`✅ ${notificationsWithLinks.length} notifications avec liens trouvées`, 'success');
+                            
+                            notificationsWithLinks.forEach((notif, index) => {
+                                log(`🔗 Lien ${index + 1}: ${notif.title}`, 'info');
+                                log(`   URL: ${notif.link}`, 'info');
+                                
+                                // Test if URL is valid
+                                try {
+                                    new URL(notif.link);
+                                    log(`   ✅ URL valide`, 'success');
+                                } catch {
+                                    log(`   ❌ URL invalide`, 'error');
+                                }
+                            });
+                            
+                            log('🎯 Test: Cliquez sur un lien ci-dessous pour vérifier:', 'warning');
+                            notificationsWithLinks.forEach((notif, index) => {
+                                const linkButton = document.createElement('button');
+                                linkButton.textContent = `🔗 Tester: ${notif.title}`;
+                                linkButton.onclick = () => {
+                                    log(`🚀 Ouverture du lien: ${notif.link}`, 'info');
+                                    window.open(notif.link, '_blank');
+                                };
+                                document.getElementById('results').appendChild(linkButton);
+                            });
+                            
+                        } else {
+                            log('❌ Aucune notification avec lien trouvée', 'error');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function runCompleteTest() {
+            log('🧪 Démarrage du test complet...', 'info');
+            
+            // Clear previous results
+            document.getElementById('results').innerHTML = '';
+            
+            // Run all tests in sequence
+            await testCurrentNotifications();
+            
+            setTimeout(() => {
+                log('🎯 Résumé du Test Complet:', 'success');
+                
+                const total = parseInt(document.getElementById('totalNotifications').textContent) || 0;
+                const withLinks = parseInt(document.getElementById('notificationsWithLinks').textContent) || 0;
+                const duplicates = parseInt(document.getElementById('duplicatesFound').textContent) || 0;
+                
+                if (total > 0 && withLinks > 0 && duplicates === 0) {
+                    log('🎉 SUCCÈS TOTAL! Le système fonctionne parfaitement:', 'success');
+                    log(`   ✅ ${total} notifications trouvées`, 'success');
+                    log(`   ✅ ${withLinks} notifications avec liens`, 'success');
+                    log(`   ✅ 0 doublon détecté`, 'success');
+                    log('   ✅ Corrections appliquées avec succès!', 'success');
+                } else {
+                    log('⚠️ Quelques points à vérifier:', 'warning');
+                    if (duplicates > 0) log(`   - ${duplicates} doublons à nettoyer`, 'warning');
+                    if (withLinks === 0) log(`   - Aucun lien fonctionnel trouvé`, 'warning');
+                }
+                
+                log('📋 Prochaines étapes recommandées:', 'info');
+                log('1. Tester l\'espace participant (bouton ci-dessus)', 'info');
+                log('2. Vérifier l\'affichage des liens dans l\'interface', 'info');
+                log('3. Confirmer que les corrections sont permanentes', 'info');
+                
+            }, 3000);
+        }
+
+        // Auto-run on load
+        window.onload = function() {
+            setTimeout(() => {
+                log('🎉 Test Final - Vérification des Corrections', 'success');
+                log('📊 D\'après les logs de la console, les corrections sont actives!', 'info');
+                log('🔄 Lancement du test automatique...', 'info');
+                
+                // Auto-run complete test
+                runCompleteTest();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

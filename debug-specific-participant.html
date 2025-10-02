@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص المشارك PART-653876</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 10px; max-height: 400px; overflow-y: auto; direction: ltr; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص المشارك PART-653876</h1>
+        <p>المشارك الذي أضفت له formation "ddc" لكن لا يظهر في البانل</p>
+
+        <div class="warning">
+            <h3>🚨 المشكلة:</h3>
+            <ul>
+                <li>✅ أضفت formation "ddc" للمشارك PART-653876</li>
+                <li>✅ Backend logs تظهر: "1 programmes changés"</li>
+                <li>✅ ضغطت "Mettre à jour"</li>
+                <li>❌ المشارك لا يزال يظهر "0 formation" في البانل</li>
+                <li>🎯 <strong>المشكلة: البيانات تحفظ لكن لا تسترجع</strong></li>
+            </ul>
+        </div>
+
+        <button class="btn-primary" onclick="checkSpecificParticipant()">1. فحص المشارك PART-653876</button>
+        <button class="btn-success" onclick="checkDatabaseDirectly()">2. فحص قاعدة البيانات</button>
+        <button class="btn-danger" onclick="checkAllCollections()">3. فحص جميع Collections</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const TARGET_PARTICIPANT = 'PART-653876';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="${type}"><strong>[${time}]</strong> ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function checkSpecificParticipant() {
+            log(`🔄 فحص المشارك ${TARGET_PARTICIPANT} مباشرة...`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TARGET_PARTICIPANT}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const participant = result.data;
+                    log(`✅ تم العثور على المشارك: ${participant.fullName}`, 'success');
+                    log(`📊 معرف المشارك: ${participant.id || participant.partnerId}`, 'info');
+                    log(`📊 عدد Formations: ${participant.formations?.length || 0}`, 'info');
+                    log(`📊 عدد Projects: ${participant.projects?.length || 0}`, 'info');
+                    log(`📊 عدد Resources: ${participant.coachingResources?.length || 0}`, 'info');
+                    
+                    if (participant.formations && participant.formations.length > 0) {
+                        log('🎓 تفاصيل Formations الموجودة:', 'success');
+                        participant.formations.forEach((f, i) => {
+                            log(`  Formation ${i+1}: "${f.title}"`, 'success');
+                            log(`    ID: ${f.id}`, 'info');
+                            log(`    Status: ${f.status}`, 'info');
+                            log(`    Progress: ${f.progress}%`, 'info');
+                            log(`    Links: ${f.links?.length || 0}`, 'info');
+                            log(`    Courses: ${f.courses?.length || 0}`, 'info');
+                        });
+                        
+                        // البحث عن formation "ddc"
+                        const ddcFormation = participant.formations.find(f => f.title === 'ddc');
+                        if (ddcFormation) {
+                            log('🎉 وجدت formation "ddc" في قاعدة البيانات!', 'success');
+                            log('✅ البيانات محفوظة صحيح في قاعدة البيانات', 'success');
+                            log('🚨 المشكلة: البانل لا يسترجع البيانات صحيح', 'error');
+                        } else {
+                            log('❌ لم أجد formation "ddc" في البيانات المسترجعة', 'error');
+                        }
+                        
+                    } else {
+                        log('❌ لا توجد formations في البيانات المسترجعة', 'error');
+                        log('🚨 هذا يؤكد أن المشكلة في GET route أو Database query', 'error');
+                    }
+                    
+                    log('<h4>📋 البيانات الكاملة المسترجعة:</h4>', 'info');
+                    log(`<pre>${JSON.stringify(participant, null, 2)}</pre>`, 'info');
+                    
+                } else {
+                    log(`❌ فشل في العثور على المشارك: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في الشبكة: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkDatabaseDirectly() {
+            log('🔄 فحص قاعدة البيانات مباشرة...', 'info');
+            
+            // فحص Partner
+            try {
+                log('📤 فحص Partner collection...', 'info');
+                const partnerResponse = await fetch(`${API_BASE}/partners/${TARGET_PARTICIPANT}`);
+                if (partnerResponse.ok) {
+                    const partnerResult = await partnerResponse.json();
+                    if (partnerResult.success) {
+                        log(`✅ Partner موجود: ${partnerResult.data.fullName}`, 'success');
+                    } else {
+                        log(`❌ Partner غير موجود`, 'error');
+                    }
+                } else {
+                    log(`⚠️ Partner endpoint غير متوفر (${partnerResponse.status})`, 'warning');
+                }
+            } catch (e) {
+                log(`⚠️ خطأ في فحص Partner: ${e.message}`, 'warning');
+            }
+            
+            // محاولة فحص ParticipantFormations مباشرة (إذا كان endpoint متوفر)
+            try {
+                log('📤 محاولة فحص ParticipantFormations...', 'info');
+                const formationsResponse = await fetch(`${API_BASE}/participant-formations?participantId=${TARGET_PARTICIPANT}`);
+                if (formationsResponse.ok) {
+                    const formationsResult = await formationsResponse.json();
+                    log(`📊 ParticipantFormations response: ${JSON.stringify(formationsResult)}`, 'info');
+                } else {
+                    log(`⚠️ ParticipantFormations endpoint غير متوفر (${formationsResponse.status})`, 'warning');
+                }
+            } catch (e) {
+                log(`⚠️ خطأ في فحص ParticipantFormations: ${e.message}`, 'warning');
+            }
+        }
+
+        async function checkAllCollections() {
+            log('🔄 فحص جميع Collections...', 'info');
+            
+            const endpoints = [
+                '/participants',
+                '/partners', 
+                '/programs',
+                '/formations'
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    log(`📤 فحص ${endpoint}...`, 'info');
+                    const response = await fetch(`${API_BASE}${endpoint}`);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data) {
+                            log(`✅ ${endpoint}: ${result.data.length} records`, 'success');
+                            
+                            // البحث عن TARGET_PARTICIPANT في البيانات
+                            if (Array.isArray(result.data)) {
+                                const found = result.data.find(item => 
+                                    item.id === TARGET_PARTICIPANT || 
+                                    item.partnerId === TARGET_PARTICIPANT ||
+                                    item.participantId === TARGET_PARTICIPANT
+                                );
+                                if (found) {
+                                    log(`  🎯 وجدت ${TARGET_PARTICIPANT} في ${endpoint}`, 'success');
+                                }
+                            }
+                        } else {
+                            log(`⚠️ ${endpoint}: no data`, 'warning');
+                        }
+                    } else {
+                        log(`⚠️ ${endpoint}: ${response.status}`, 'warning');
+                    }
+                } catch (e) {
+                    log(`⚠️ ${endpoint}: ${e.message}`, 'warning');
+                }
+            }
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', () => {
+            log('🚀 أداة تشخيص المشارك PART-653876 جاهزة', 'success');
+            log('🎯 الهدف: معرفة سبب عدم ظهور formation "ddc" في البانل', 'info');
+            log('📋 من الصور: Backend حفظ البيانات لكن البانل لا يظهرها', 'warning');
+            log('🔍 سنفحص البيانات مباشرة من API', 'info');
+        });
+    </script>
+</body>
+</html>

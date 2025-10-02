@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix COM-923432 - Quick</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: #f0f9ff;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background: #2563eb; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fef2f2; color: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix COM-923432</h1>
+        <p>Correction rapide pour l'accès commercial</p>
+        
+        <button onclick="fixCOM923432()">
+            🚀 Corriger COM-923432
+        </button>
+        
+        <button onclick="testLogin()">
+            🧪 Tester Connexion
+        </button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function fixCOM923432() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div>🔄 Correction en cours...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/commercial-new/fix-com-923432');
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ ${result.message}<br>
+                            Partner ID: ${result.data.partnerId}<br>
+                            Nom: ${result.data.fullName}<br>
+                            Email: ${result.data.email}<br>
+                            Niveau: ${result.data.niveau}<br><br>
+                            🎉 Vous pouvez maintenant vous connecter!
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">❌ ${result.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+        
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div>🧪 Test de connexion...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/commercial-new/COM-923432/login', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ Connexion réussie!<br>
+                            Nom: ${result.data.fullName}<br>
+                            Niveau: ${result.data.niveau}<br><br>
+                            🎯 Allez sur: <a href="http://localhost:5173/espace-commercial" target="_blank">Espace Commercial</a>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">❌ ${result.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

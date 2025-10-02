@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Supprimer - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f9ff;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        button:hover { background: #2563eb; }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error { background: #fef2f2; color: #dc2626; border: 2px solid #ef4444; }
+        .success { background: #f0fdf4; color: #166534; border: 2px solid #22c55e; }
+        .warning { background: #fffbeb; color: #d97706; border: 2px solid #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Supprimer</h1>
+        <p>Diagnostic complet pour identifier pourquoi "Supprimer" ne fonctionne pas</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <button onclick="testBackendRoute()">🔍 Test Backend Route</button>
+                <div id="backend-result" class="result"></div>
+            </div>
+            
+            <div>
+                <button onclick="testFrontendButton()">🖱️ Test Frontend Button</button>
+                <div id="frontend-result" class="result"></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button onclick="testCompleteFlow()" style="width: 100%; padding: 20px; font-size: 18px;">
+                🚀 TEST COMPLET DIAGNOSTIC
+            </button>
+            <div id="complete-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testBackendRoute() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔍 Test Backend Route...\n\n';
+
+            try {
+                // Test 1: Vérifier que le serveur répond
+                resultDiv.textContent += 'TEST 1: Serveur backend\n';
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                
+                if (healthResponse.ok) {
+                    resultDiv.textContent += '✅ Backend accessible\n\n';
+                } else {
+                    throw new Error('Backend non accessible');
+                }
+
+                // Test 2: Vérifier route DELETE
+                resultDiv.textContent += 'TEST 2: Route DELETE\n';
+                const deleteResponse = await fetch('http://localhost:3001/api/commercial-services/test-fake-id', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const deleteResult = await deleteResponse.json();
+                
+                resultDiv.textContent += `Status: ${deleteResponse.status}\n`;
+                resultDiv.textContent += `Response: ${JSON.stringify(deleteResult, null, 2)}\n\n`;
+
+                if (deleteResponse.status === 404 && deleteResult.message?.includes('non trouvé')) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ Route DELETE fonctionne!\n';
+                    resultDiv.textContent += 'Le backend répond correctement aux requêtes DELETE.';
+                } else if (deleteResponse.status === 500) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ Erreur serveur dans route DELETE\n';
+                    resultDiv.textContent += 'Vérifier les logs backend.';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Comportement inattendu de la route DELETE';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}\n\n`;
+                
+                if (error.message.includes('Failed to fetch')) {
+                    resultDiv.textContent += 'CAUSE PROBABLE:\n';
+                    resultDiv.textContent += '- Backend non démarré (npm run dev)\n';
+                    resultDiv.textContent += '- Port 3001 non accessible\n';
+                    resultDiv.textContent += '- CORS non configuré';
+                } else {
+                    resultDiv.textContent += 'CAUSE PROBABLE:\n';
+                    resultDiv.textContent += '- Route DELETE non implémentée\n';
+                    resultDiv.textContent += '- Erreur dans le code backend';
+                }
+            }
+        }
+
+        async function testFrontendButton() {
+            const resultDiv = document.getElementById('frontend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🖱️ Test Frontend Button...\n\n';
+
+            try {
+                // Simuler le clic sur bouton Supprimer
+                resultDiv.textContent += 'SIMULATION CLIC BOUTON SUPPRIMER:\n\n';
+                
+                // Test de la fonction handleDeleteService
+                resultDiv.textContent += 'TEST 1: Fonction handleDeleteService\n';
+                
+                // Vérifier si la fonction existe (simulation)
+                const functionExists = typeof handleDeleteService !== 'undefined';
+                resultDiv.textContent += `Fonction définie: ${functionExists ? 'OUI' : 'NON'}\n\n`;
+                
+                if (!functionExists) {
+                    resultDiv.textContent += 'PROBLÈME IDENTIFIÉ:\n';
+                    resultDiv.textContent += '❌ La fonction handleDeleteService n\'est pas définie\n';
+                    resultDiv.textContent += 'SOLUTION: Vérifier que le code a été sauvegardé dans CommercialServicesPage.tsx\n\n';
+                }
+
+                // Test 2: Event handlers
+                resultDiv.textContent += 'TEST 2: Event Handlers\n';
+                resultDiv.textContent += 'Vérification que les boutons ont onClick handlers...\n\n';
+
+                // Test 3: État des boutons
+                resultDiv.textContent += 'TEST 3: État des boutons\n';
+                resultDiv.textContent += 'Vérification disabled state, loading state...\n\n';
+
+                // Instructions de debug
+                resultDiv.textContent += 'INSTRUCTIONS DEBUG:\n';
+                resultDiv.textContent += '1. Ouvrir Admin Panel: http://localhost:8536/commercial-services\n';
+                resultDiv.textContent += '2. Ouvrir DevTools (F12)\n';
+                resultDiv.textContent += '3. Aller dans Console\n';
+                resultDiv.textContent += '4. Cliquer sur bouton Supprimer\n';
+                resultDiv.textContent += '5. Vérifier les erreurs dans Console\n\n';
+
+                resultDiv.className = 'result warning';
+                resultDiv.textContent += '⚠️ Test frontend nécessite inspection manuelle';
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCompleteFlow() {
+            const resultDiv = document.getElementById('complete-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 Diagnostic Complet...\n\n';
+
+            try {
+                // Étape 1: Vérifier backend
+                resultDiv.textContent += 'ÉTAPE 1: Vérification Backend\n';
+                
+                const healthCheck = await fetch('http://localhost:3001/api/health');
+                if (!healthCheck.ok) {
+                    throw new Error('Backend non accessible - Démarrer avec "npm run dev"');
+                }
+                resultDiv.textContent += '✅ Backend accessible\n\n';
+
+                // Étape 2: Vérifier services
+                resultDiv.textContent += 'ÉTAPE 2: Vérification Services\n';
+                
+                const servicesResponse = await fetch('http://localhost:3001/api/commercial-services');
+                const servicesResult = await servicesResponse.json();
+                
+                if (!servicesResult.success || !servicesResult.data) {
+                    throw new Error('Impossible de charger les services');
+                }
+                
+                resultDiv.textContent += `✅ ${servicesResult.data.length} services trouvés\n\n`;
+
+                // Étape 3: Test route DELETE
+                resultDiv.textContent += 'ÉTAPE 3: Test Route DELETE\n';
+                
+                const testDeleteResponse = await fetch('http://localhost:3001/api/commercial-services/fake-id-test', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const testDeleteResult = await testDeleteResponse.json();
+                
+                if (testDeleteResponse.status === 404) {
+                    resultDiv.textContent += '✅ Route DELETE configurée\n\n';
+                } else {
+                    resultDiv.textContent += `⚠️ Route DELETE: Status ${testDeleteResponse.status}\n\n`;
+                }
+
+                // Étape 4: Diagnostic final
+                resultDiv.textContent += 'DIAGNOSTIC FINAL:\n\n';
+                
+                if (healthCheck.ok && servicesResult.success && testDeleteResponse.status === 404) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ BACKEND FONCTIONNE CORRECTEMENT\n\n';
+                    resultDiv.textContent += 'PROBLÈME PROBABLE: FRONTEND\n\n';
+                    resultDiv.textContent += 'SOLUTIONS:\n';
+                    resultDiv.textContent += '1. Redémarrer Admin Panel: npm run dev\n';
+                    resultDiv.textContent += '2. Vider cache navigateur (Ctrl+F5)\n';
+                    resultDiv.textContent += '3. Vérifier Console DevTools pour erreurs\n';
+                    resultDiv.textContent += '4. Vérifier que handleDeleteService est défini\n\n';
+                    resultDiv.textContent += 'ÉTAPES MANUELLES:\n';
+                    resultDiv.textContent += '1. Ouvrir: http://localhost:8536/commercial-services\n';
+                    resultDiv.textContent += '2. F12 → Console\n';
+                    resultDiv.textContent += '3. Taper: console.log(typeof handleDeleteService)\n';
+                    resultDiv.textContent += '4. Si "undefined", le code n\'est pas chargé';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ PROBLÈME BACKEND DÉTECTÉ\n\n';
+                    resultDiv.textContent += 'SOLUTIONS:\n';
+                    resultDiv.textContent += '1. Redémarrer backend: npm run dev\n';
+                    resultDiv.textContent += '2. Vérifier logs backend\n';
+                    resultDiv.textContent += '3. Vérifier route DELETE dans commercialServices.js';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR CRITIQUE: ${error.message}\n\n`;
+                
+                if (error.message.includes('Failed to fetch')) {
+                    resultDiv.textContent += 'SOLUTION IMMÉDIATE:\n';
+                    resultDiv.textContent += '1. cd backend\n';
+                    resultDiv.textContent += '2. npm run dev\n';
+                    resultDiv.textContent += '3. Attendre "Serveur démarré sur le port 3001"\n';
+                    resultDiv.textContent += '4. Relancer ce test';
+                } else {
+                    resultDiv.textContent += 'VÉRIFIER:\n';
+                    resultDiv.textContent += '- Backend démarré\n';
+                    resultDiv.textContent += '- Port 3001 libre\n';
+                    resultDiv.textContent += '- Pas d\'erreurs dans logs backend';
+                }
+            }
+        }
+
+        // Fonction de test pour handleDeleteService
+        function handleDeleteService(serviceId, serviceTitle) {
+            console.log('🧪 TEST handleDeleteService appelée');
+            console.log('ServiceID:', serviceId);
+            console.log('ServiceTitle:', serviceTitle);
+            return 'Fonction définie et fonctionnelle';
+        }
+
+        window.onload = function() {
+            console.log('🔧 Debug Supprimer chargé');
+            
+            // Test automatique après 2 secondes
+            setTimeout(() => {
+                testCompleteFlow();
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

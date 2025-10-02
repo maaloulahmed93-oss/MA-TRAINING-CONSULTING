@@ -140,21 +140,20 @@ const generateMockData = (): EvenementPartenariat[] => {
   ];
 };
 
-// Fonctions CRUD pour les événements
-export const getEvenements = (): EvenementPartenariat[] => {
+// Fonctions CRUD pour les événements avec support partnerId
+export const getEvenements = (partnerId?: string): EvenementPartenariat[] => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const storageKey = partnerId ? `${STORAGE_KEY}_${partnerId}` : STORAGE_KEY;
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       return JSON.parse(stored);
-    } else {
-      // Générer et sauvegarder les données mock si aucune donnée n'existe
-      const mockData = generateMockData();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData));
-      return mockData;
     }
+    
+    // Plus de données mock par défaut - retourner tableau vide
+    return [];
   } catch (error) {
     console.error('Erreur lors de la lecture des événements:', error);
-    return generateMockData();
+    return [];
   }
 };
 

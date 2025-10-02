@@ -30,13 +30,21 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   console.log(`📦 GET /api/packs/${req.params.id}`);
   try {
-    const pack = await Pack.findOne({ 
-      $or: [
-        { _id: req.params.id },
-        { packId: req.params.id }
-      ],
+    let pack = null;
+    
+    // Essayer d'abord avec packId (plus probable)
+    pack = await Pack.findOne({ 
+      packId: req.params.id,
       isActive: true 
     });
+    
+    // Si pas trouvé et que l'ID ressemble à un ObjectId, essayer avec _id
+    if (!pack && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      pack = await Pack.findOne({ 
+        _id: req.params.id,
+        isActive: true 
+      });
+    }
 
     if (!pack) {
       console.log('❌ Pack non trouvé');
@@ -109,20 +117,29 @@ router.put('/:id', validatePackUpdate, async (req, res) => {
   console.log('📄 Données de mise à jour:', JSON.stringify(req.body, null, 2));
 
   try {
-    const pack = await Pack.findOneAndUpdate(
-      { 
-        $or: [
-          { _id: req.params.id },
-          { packId: req.params.id }
-        ],
-        isActive: true 
-      },
+    let pack = null;
+    
+    // Essayer d'abord avec packId (plus probable)
+    pack = await Pack.findOneAndUpdate(
+      { packId: req.params.id, isActive: true },
       req.body,
       { 
         new: true, 
         runValidators: true 
       }
     );
+    
+    // Si pas trouvé et que l'ID ressemble à un ObjectId, essayer avec _id
+    if (!pack && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      pack = await Pack.findOneAndUpdate(
+        { _id: req.params.id, isActive: true },
+        req.body,
+        { 
+          new: true, 
+          runValidators: true 
+        }
+      );
+    }
 
     if (!pack) {
       console.log('❌ Pack non trouvé pour mise à jour');
@@ -153,17 +170,23 @@ router.delete('/:id', async (req, res) => {
   console.log(`📦 DELETE /api/packs/${req.params.id} - Suppression du pack`);
 
   try {
-    const pack = await Pack.findOneAndUpdate(
-      { 
-        $or: [
-          { _id: req.params.id },
-          { packId: req.params.id }
-        ],
-        isActive: true 
-      },
+    let pack = null;
+    
+    // Essayer d'abord avec packId (plus probable)
+    pack = await Pack.findOneAndUpdate(
+      { packId: req.params.id, isActive: true },
       { isActive: false },
       { new: true }
     );
+    
+    // Si pas trouvé et que l'ID ressemble à un ObjectId, essayer avec _id
+    if (!pack && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      pack = await Pack.findOneAndUpdate(
+        { _id: req.params.id, isActive: true },
+        { isActive: false },
+        { new: true }
+      );
+    }
 
     if (!pack) {
       console.log('❌ Pack non trouvé pour suppression');

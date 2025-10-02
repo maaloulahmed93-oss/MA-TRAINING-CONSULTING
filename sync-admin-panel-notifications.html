@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Admin Panel Notifications - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.urgent { background: #ff6b6b; color: white; font-weight: bold; }
+        button.success { background: #28a745; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 300px; }
+        .notification-preview { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .notification-preview.info { border-left: 4px solid #17a2b8; }
+        .notification-preview.job { border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Sync Admin Panel Notifications - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ مشكلة الإشعارات</h3>
+            <p><strong>Admin Panel:</strong> الإشعارات موجودة ومدخلة</p>
+            <p><strong>Espace Participant:</strong> الإشعارات لا تظهر</p>
+            <p><strong>السبب:</strong> الإشعارات لا تُحفظ في MongoDB عند الضغط على "Mettre à jour"</p>
+        </div>
+
+        <div class="info">
+            <h3>📋 الإشعارات المرئية في Admin Panel:</h3>
+            
+            <div class="notification-preview info">
+                <strong>📄 Information (1)</strong><br>
+                العنوان: مستقر<br>
+                الوصف: سيسيس<br>
+                رابط: Lien de téléchargement<br>
+                التاريخ: 28/09/2025 20:00
+            </div>
+            
+            <div class="notification-preview info">
+                <strong>📄 Information (2)</strong><br>
+                العنوان: بلوتوث<br>
+                الوصف: فاينل<br>
+                التاريخ: 28/09/2025 19:58
+            </div>
+            
+            <div class="notification-preview info">
+                <strong>📄 Information (3)</strong><br>
+                العنوان: بلوتوث<br>
+                الوصف: فاينل<br>
+                التاريخ: 28/09/2025 19:54
+            </div>
+            
+            <div class="notification-preview job">
+                <strong>💼 Offre d'emploi</strong><br>
+                العنوان: تيثي<br>
+                الشركة: شركات<br>
+                الوصف: تيثي<br>
+                التاريخ: 28/09/2025 17:23
+            </div>
+        </div>
+
+        <div class="warning">
+            <h4>🎯 الحل:</h4>
+            <p>سنقوم بنقل هذه الإشعارات بالضبط من Admin Panel إلى Backend/MongoDB</p>
+        </div>
+
+        <button onclick="syncAllNotifications()" class="urgent">⚡ SYNC ALL NOTIFICATIONS</button>
+        <button onclick="clearAndSync()" class="success">🔄 Clear & Sync Fresh</button>
+        <button onclick="verifySync()">🔍 Verify</button>
+        <button onclick="testEspaceParticipant()">🖥️ Test Espace</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function syncAllNotifications() {
+            log('⚡ SYNCHRONISATION DE TOUTES LES NOTIFICATIONS...', 'error');
+            
+            // Exact notifications from Admin Panel images
+            const adminPanelNotifications = [
+                {
+                    title: 'مستقر',
+                    message: 'سيسيس',
+                    type: 'information',
+                    description: 'سيسيس',
+                    link: 'https://example.com/download-link',
+                    date: '2025-09-28T18:00:00.000Z',
+                    isRead: false,
+                    priority: 'medium'
+                },
+                {
+                    title: 'بلوتوث',
+                    message: 'فاينل',
+                    type: 'information',
+                    description: 'فاينل',
+                    date: '2025-09-28T17:58:00.000Z',
+                    isRead: false,
+                    priority: 'medium'
+                },
+                {
+                    title: 'بلوتوث',
+                    message: 'فاينل',
+                    type: 'information',
+                    description: 'فاينل',
+                    date: '2025-09-28T17:54:00.000Z',
+                    isRead: false,
+                    priority: 'medium'
+                },
+                {
+                    title: 'تيثي',
+                    message: 'تيثي - Offre d\'emploi chez شركات',
+                    type: 'offre_emploi',
+                    description: 'تيثي',
+                    company: 'شركات',
+                    date: '2025-09-28T15:23:00.000Z',
+                    isRead: false,
+                    priority: 'high'
+                }
+            ];
+            
+            log(`📤 Synchronisation de ${adminPanelNotifications.length} notifications exactes...`, 'info');
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < adminPanelNotifications.length; i++) {
+                const notification = adminPanelNotifications[i];
+                log(`📤 Sync ${i + 1}/4: "${notification.title}" (${notification.type})`, 'info');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            log(`✅ SUCCESS ${i + 1}: "${notification.title}" → ${data.data._id}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`❌ Failed ${i + 1}: ${data.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ HTTP Error ${i + 1}: ${response.status}`, 'error');
+                        const errorText = await response.text();
+                        log(`Details: ${errorText}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Network Error ${i + 1}: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            log(`📊 SYNC RESULT: ${successCount}/${adminPanelNotifications.length} notifications synchronized`, 
+                successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                log('🎉 SYNCHRONISATION RÉUSSIE! Vérification dans 3 secondes...', 'success');
+                setTimeout(() => verifySync(), 3000);
+            } else {
+                log('❌ ÉCHEC TOTAL - Vérifiez que le backend est démarré!', 'error');
+            }
+        }
+
+        async function clearAndSync() {
+            log('🔄 CLEAR & SYNC FRESH...', 'warning');
+            
+            try {
+                // First, try to clear existing notifications
+                log('🗑️ Tentative de suppression des anciennes notifications...', 'info');
+                
+                // Get current participant data
+                const getResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (getResponse.ok) {
+                    const getData = await getResponse.json();
+                    if (getData.success && getData.data) {
+                        // Update with empty notifications
+                        const updateData = {
+                            ...getData.data,
+                            notifications: [],
+                            updatedAt: new Date().toISOString()
+                        };
+                        
+                        const updateResponse = await fetch('http://localhost:3001/api/participants/PART-550776', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+                        
+                        if (updateResponse.ok) {
+                            log('✅ Anciennes notifications supprimées', 'success');
+                        }
+                    }
+                }
+                
+                // Wait a bit then sync new ones
+                setTimeout(() => {
+                    log('➕ Ajout des nouvelles notifications...', 'info');
+                    syncAllNotifications();
+                }, 2000);
+                
+            } catch (error) {
+                log(`❌ Erreur clear: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifySync() {
+            log('🔍 Vérification de la synchronisation...', 'info');
+            
+            try {
+                // Check notifications API
+                const notifResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (notifResponse.ok) {
+                    const notifData = await notifResponse.json();
+                    log(`✅ API Notifications: ${notifData.data?.length || 0} trouvées`, 
+                        notifData.data?.length > 0 ? 'success' : 'error');
+                    
+                    if (notifData.data?.length > 0) {
+                        log('📋 Notifications synchronisées:', 'success');
+                        notifData.data.forEach((notif, index) => {
+                            const icon = notif.type === 'information' ? '📄' : '💼';
+                            log(`${icon} ${index + 1}. "${notif.title}" (${notif.type})`, 'info');
+                        });
+                        
+                        // Check for specific notifications
+                        const hasInfo1 = notifData.data.some(n => n.title === 'مستقر');
+                        const hasInfo2 = notifData.data.some(n => n.title === 'بلوتوث');
+                        const hasJob = notifData.data.some(n => n.title === 'تيثي' && n.type === 'offre_emploi');
+                        
+                        log(`🔍 Vérification spécifique:`, 'info');
+                        log(`- "مستقر": ${hasInfo1 ? '✅' : '❌'}`, hasInfo1 ? 'success' : 'error');
+                        log(`- "بلوتوث": ${hasInfo2 ? '✅' : '❌'}`, hasInfo2 ? 'success' : 'error');
+                        log(`- "تيثي" (job): ${hasJob ? '✅' : '❌'}`, hasJob ? 'success' : 'error');
+                        
+                        if (hasInfo1 && hasInfo2 && hasJob) {
+                            log('🎉 PARFAIT! Toutes les notifications Admin Panel sont synchronisées!', 'success');
+                        }
+                    }
+                }
+                
+                // Check participant API
+                const partResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (partResponse.ok) {
+                    const partData = await partResponse.json();
+                    log(`✅ Participant API: ${partData.data?.notifications?.length || 0} notifications`, 
+                        partData.data?.notifications?.length > 0 ? 'success' : 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEspaceParticipant() {
+            log('🖥️ Test Espace Participant...', 'info');
+            
+            log('📋 Instructions de test:', 'warning');
+            log('1. Allez sur: http://localhost:5173/espace-participant', 'info');
+            log('2. Connectez-vous:', 'info');
+            log('   - ID: PART-550776', 'info');
+            log('   - Email: gharbi@gmail.com', 'info');
+            log('3. Cliquez sur bouton Notifications (🔔)', 'info');
+            log('4. Vous devriez voir:', 'info');
+            log('   📄 "مستقر" (Information)', 'info');
+            log('   📄 "بلوتوث" (Information) x2', 'info');
+            log('   💼 "تيثي" (Offre d\'emploi)', 'info');
+            
+            log('🔍 Si les notifications n\'apparaissent pas:', 'warning');
+            log('1. Rechargez la page (Ctrl+F5)', 'info');
+            log('2. Ouvrez Console (F12) et cherchez des erreurs', 'info');
+            log('3. Vérifiez les logs: "✅ Loaded X notifications from API"', 'info');
+            
+            // Auto-verify
+            setTimeout(async () => {
+                log('🔄 Vérification automatique...', 'info');
+                await verifySync();
+            }, 2000);
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🎯 NOTIFICATIONS ADMIN PANEL DÉTECTÉES:', 'warning');
+                log('📄 "مستقر" + "سيسيس" (Information)', 'info');
+                log('📄 "بلوتوث" + "فاينل" (Information) x2', 'info');
+                log('💼 "تيثي" + "شركات" (Offre d\'emploi)', 'info');
+                log('⚡ Cliquez sur "SYNC ALL NOTIFICATIONS" pour les synchroniser', 'warning');
+                log('💡 Assurez-vous que le backend est démarré', 'info');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 إصلاح نهائي - مشكلة تكرار الإشعارات</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .critical { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; }
+        .success { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        .error { background: linear-gradient(135deg, #f44336, #d32f2f); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        .info { background: linear-gradient(135deg, #2196F3, #1976D2); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        .warning { background: linear-gradient(135deg, #FF9800, #F57C00); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        button { 
+            padding: 18px 30px; margin: 12px 8px; background: linear-gradient(135deg, #ff6b6b, #ee5a52); 
+            color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; 
+            transition: all 0.3s ease; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        button.success { background: linear-gradient(135deg, #51cf66, #40c057); }
+        button.urgent { background: linear-gradient(135deg, #fd79a8, #e84393); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .result { margin: 15px 0; padding: 18px; border-radius: 10px; border-left: 6px solid #ff6b6b; background: #fff5f5; }
+        pre { background: #f8f9fa; padding: 20px; border-radius: 10px; font-size: 12px; overflow-x: auto; max-height: 500px; border: 2px solid #e9ecef; }
+        h1 { color: #495057; text-align: center; margin-bottom: 30px; font-size: 32px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .notification-preview { 
+            background: #f8f9fa; border: 2px solid #dee2e6; padding: 20px; margin: 15px 0; 
+            border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .notification-title { font-weight: bold; color: #495057; font-size: 18px; margin-bottom: 10px; }
+        .notification-link { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: 500; }
+        .duplicate-indicator { background: #ff6b6b; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 إصلاح نهائي - مشكلة تكرار الإشعارات</h1>
+        
+        <div class="critical">
+            <h3>🔥 المشكلة المكتشفة</h3>
+            <p><strong>المشكلة:</strong> عند إنشاء إشعار واحد، يتم حفظ نسختين:</p>
+            <ul>
+                <li>📄 <strong>نسخة مع الرابط</strong> - تظهر في Admin Panel</li>
+                <li>📄 <strong>نسخة بدون رابط</strong> - تظهر في Espace Participant</li>
+            </ul>
+            <p><strong>السبب:</strong> localStorage يحتوي على نسخ متعددة بحقول مختلفة</p>
+        </div>
+
+        <div class="info">
+            <h3>🎯 الحل المطلوب</h3>
+            <p>تنظيف localStorage وضمان حفظ نسخة واحدة فقط لكل إشعار مع جميع الحقول</p>
+        </div>
+
+        <button onclick="analyzeCurrentProblem()" class="urgent">🔍 تحليل المشكلة الحالية</button>
+        <button onclick="cleanDuplicateNotifications()" class="success">🧹 تنظيف التكرارات</button>
+        <button onclick="fixNotificationStructure()">🔧 إصلاح بنية البيانات</button>
+        <button onclick="testFinalResult()">✅ اختبار النتيجة النهائية</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function analyzeCurrentProblem() {
+            log('🔍 تحليل المشكلة الحالية...', 'critical');
+            
+            try {
+                // Check API data
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        log(`📊 البيانات في قاعدة البيانات: ${data.data.length} إشعار`, 'info');
+                        
+                        data.data.forEach((notif, index) => {
+                            log(`📋 إشعار ${index + 1}: "${notif.title}"`, 'info');
+                            log(`   🔗 الرابط: ${notif.link ? '✅ موجود' : '❌ مفقود'}`, notif.link ? 'success' : 'error');
+                            log(`   📝 الوصف: ${notif.description || 'غير محدد'}`, 'info');
+                            
+                            if (notif.link) {
+                                log(`   🌐 URL: ${notif.link}`, 'success');
+                            }
+                        });
+                    }
+                }
+                
+                // Check localStorage
+                const backupNotifications = localStorage.getItem('matc_notifications_backup');
+                if (backupNotifications) {
+                    const backup = JSON.parse(backupNotifications);
+                    log(`💾 البيانات في localStorage: ${backup.length} إشعار`, 'warning');
+                    
+                    // Check for duplicates
+                    const titles = {};
+                    let duplicates = 0;
+                    
+                    backup.forEach((notif, index) => {
+                        const key = notif.title;
+                        if (titles[key]) {
+                            titles[key].push(index);
+                            duplicates++;
+                        } else {
+                            titles[key] = [index];
+                        }
+                    });
+                    
+                    if (duplicates > 0) {
+                        log(`🚨 تم اكتشاف ${duplicates} تكرار في localStorage!`, 'error');
+                        
+                        Object.keys(titles).forEach(title => {
+                            if (titles[title].length > 1) {
+                                log(`🔄 "${title}" مكرر ${titles[title].length} مرات`, 'error');
+                                
+                                titles[title].forEach(idx => {
+                                    const notif = backup[idx];
+                                    log(`   📄 نسخة ${idx + 1}: رابط=${notif.link ? '✅' : '❌'}, وصف=${notif.description ? '✅' : '❌'}`, 'warning');
+                                });
+                            }
+                        });
+                    } else {
+                        log('✅ لا توجد تكرارات في localStorage', 'success');
+                    }
+                } else {
+                    log('⚠️ لا توجد بيانات في localStorage', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ في التحليل: ${error.message}`, 'error');
+            }
+        }
+
+        async function cleanDuplicateNotifications() {
+            log('🧹 تنظيف التكرارات...', 'warning');
+            
+            try {
+                // Step 1: Clean localStorage
+                const backupNotifications = localStorage.getItem('matc_notifications_backup');
+                if (backupNotifications) {
+                    const backup = JSON.parse(backupNotifications);
+                    log(`📥 تم العثور على ${backup.length} إشعار في localStorage`, 'info');
+                    
+                    // Remove duplicates by title, keeping the one with most complete data
+                    const uniqueNotifications = [];
+                    const seenTitles = new Set();
+                    
+                    backup.forEach(notif => {
+                        if (!seenTitles.has(notif.title)) {
+                            seenTitles.add(notif.title);
+                            uniqueNotifications.push(notif);
+                        } else {
+                            // Find existing notification with same title
+                            const existingIndex = uniqueNotifications.findIndex(n => n.title === notif.title);
+                            const existing = uniqueNotifications[existingIndex];
+                            
+                            // Keep the one with more complete data (has link and description)
+                            if (notif.link && !existing.link) {
+                                uniqueNotifications[existingIndex] = notif;
+                                log(`🔄 استبدال "${notif.title}" بالنسخة الأكثر اكتمالاً`, 'success');
+                            }
+                        }
+                    });
+                    
+                    log(`✅ تم تنظيف localStorage: ${backup.length} → ${uniqueNotifications.length}`, 'success');
+                    localStorage.setItem('matc_notifications_backup', JSON.stringify(uniqueNotifications));
+                }
+                
+                // Step 2: Clean database via API
+                log('🔄 تنظيف قاعدة البيانات...', 'info');
+                
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        const notifications = data.data;
+                        
+                        // Remove duplicates by title
+                        const uniqueApiNotifications = [];
+                        const seenApiTitles = new Set();
+                        
+                        notifications.forEach(notif => {
+                            if (!seenApiTitles.has(notif.title)) {
+                                seenApiTitles.add(notif.title);
+                                uniqueApiNotifications.push(notif);
+                            }
+                        });
+                        
+                        if (uniqueApiNotifications.length !== notifications.length) {
+                            log(`🗑️ إزالة ${notifications.length - uniqueApiNotifications.length} تكرار من قاعدة البيانات`, 'success');
+                            
+                            // Update participant with cleaned notifications
+                            const participantResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                            if (participantResponse.ok) {
+                                const participantData = await participantResponse.json();
+                                if (participantData.success) {
+                                    await fetch('http://localhost:3001/api/participants/PART-550776', {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            ...participantData.data,
+                                            notifications: uniqueApiNotifications
+                                        })
+                                    });
+                                    log('✅ تم تحديث قاعدة البيانات بالبيانات المنظفة', 'success');
+                                }
+                            }
+                        } else {
+                            log('✅ لا توجد تكرارات في قاعدة البيانات', 'success');
+                        }
+                    }
+                }
+                
+                log('🎉 تم تنظيف جميع التكرارات بنجاح!', 'success');
+                
+            } catch (error) {
+                log(`❌ خطأ في التنظيف: ${error.message}`, 'error');
+            }
+        }
+
+        async function fixNotificationStructure() {
+            log('🔧 إصلاح بنية البيانات...', 'info');
+            
+            try {
+                // Get current notifications
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        const notifications = data.data;
+                        log(`📋 معالجة ${notifications.length} إشعار...`, 'info');
+                        
+                        // Fix each notification to ensure all required fields exist
+                        const fixedNotifications = notifications.map(notif => ({
+                            id: notif.id || `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                            title: notif.title || 'إشعار',
+                            message: notif.message || notif.description || 'رسالة الإشعار',
+                            description: notif.description || notif.message || 'وصف الإشعار',
+                            type: notif.type || 'information',
+                            date: notif.date || new Date().toISOString(),
+                            isRead: notif.isRead || false,
+                            link: notif.link || '',
+                            contact: notif.contact || '',
+                            priority: notif.priority || 'medium'
+                        }));
+                        
+                        log('✅ تم إصلاح بنية جميع الإشعارات', 'success');
+                        
+                        // Update database
+                        const participantResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                        if (participantResponse.ok) {
+                            const participantData = await participantResponse.json();
+                            if (participantData.success) {
+                                await fetch('http://localhost:3001/api/participants/PART-550776', {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        ...participantData.data,
+                                        notifications: fixedNotifications
+                                    })
+                                });
+                                log('✅ تم حفظ البيانات المُصلحة في قاعدة البيانات', 'success');
+                                
+                                // Update localStorage
+                                localStorage.setItem('matc_notifications_backup', JSON.stringify(fixedNotifications));
+                                log('✅ تم تحديث localStorage بالبيانات المُصلحة', 'success');
+                            }
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ في الإصلاح: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFinalResult() {
+            log('✅ اختبار النتيجة النهائية...', 'success');
+            
+            try {
+                // Test API
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        log(`📊 النتيجة النهائية: ${data.data.length} إشعار في قاعدة البيانات`, 'success');
+                        
+                        let notificationsWithLinks = 0;
+                        let duplicates = 0;
+                        const seenTitles = new Set();
+                        
+                        data.data.forEach((notif, index) => {
+                            if (seenTitles.has(notif.title)) {
+                                duplicates++;
+                            } else {
+                                seenTitles.add(notif.title);
+                            }
+                            
+                            if (notif.link && notif.link.trim() !== '') {
+                                notificationsWithLinks++;
+                            }
+                            
+                            // Create preview
+                            const preview = document.createElement('div');
+                            preview.className = 'notification-preview';
+                            preview.innerHTML = `
+                                <div class="notification-title">📢 ${notif.title} ${duplicates > 0 ? '<span class="duplicate-indicator">مكرر</span>' : ''}</div>
+                                <div>📝 الوصف: ${notif.description || 'غير محدد'}</div>
+                                <div>🔗 الرابط: ${notif.link ? `<span class="notification-link">${notif.link}</span>` : 'غير محدد'}</div>
+                                <div>📅 التاريخ: ${new Date(notif.date).toLocaleString('ar')}</div>
+                            `;
+                            document.getElementById('results').appendChild(preview);
+                        });
+                        
+                        // Final assessment
+                        if (duplicates === 0 && notificationsWithLinks > 0) {
+                            log('🎉 مثالي! لا توجد تكرارات وجميع الروابط تعمل', 'success');
+                        } else if (duplicates > 0) {
+                            log(`⚠️ لا يزال هناك ${duplicates} تكرار`, 'error');
+                        } else if (notificationsWithLinks === 0) {
+                            log('⚠️ لا توجد إشعارات بروابط', 'warning');
+                        }
+                        
+                        log('📋 تعليمات الاختبار النهائي:', 'info');
+                        log('1. اذهب إلى Admin Panel وتحقق من عدم وجود تكرارات', 'info');
+                        log('2. اذهب إلى Espace Participant وتحقق من ظهور الروابط', 'info');
+                        log('3. اضغط Ctrl+F5 لتحديث الصفحات', 'info');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ في الاختبار: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run analysis on load
+        window.onload = function() {
+            setTimeout(() => {
+                log('🚨 مشكلة تكرار الإشعارات - تحليل تلقائي', 'critical');
+                analyzeCurrentProblem();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

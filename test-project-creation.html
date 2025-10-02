@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 اختبار إضافة المشاريع للشركاء</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+        }
+        .test-section {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .success { 
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+            color: #155724;
+        }
+        .error { 
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .warning { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .info { 
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        button {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log {
+            background: #2d3748;
+            color: #e2e8f0;
+            border: 1px solid #4a5568;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 13px;
+            direction: ltr;
+        }
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .partner-card {
+            border: 2px solid #007bff;
+            padding: 20px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f8f9ff, #e3f2fd);
+        }
+        .partner-card h4 {
+            margin: 0 0 15px 0;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .project-item {
+            background: rgba(255,255,255,0.8);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-right: 4px solid #007bff;
+        }
+        .project-title {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .project-status {
+            font-size: 12px;
+            color: #666;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 اختبار إضافة المشاريع للشركاء</h1>
+            <p><strong>الهدف:</strong> التأكد من أن كل مشروع يُسجل للشريك المحدد فقط</p>
+        </div>
+        
+        <div class="test-section info">
+            <h3>📋 خطة الاختبار</h3>
+            <ol>
+                <li><strong>فحص الشركاء الموجودين</strong> في قاعدة البيانات</li>
+                <li><strong>إنشاء شريك تجريبي</strong> إذا لم يوجد</li>
+                <li><strong>إضافة مشروع جديد</strong> للشريك المحدد</li>
+                <li><strong>التحقق من الحفظ</strong> في قاعدة البيانات</li>
+                <li><strong>التأكد من العزل</strong> - عدم ظهور المشروع للشركاء الآخرين</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 أدوات الاختبار</h3>
+            <button onclick="checkPartners()">👥 فحص الشركاء</button>
+            <button onclick="createTestPartner()">➕ إنشاء شريك تجريبي</button>
+            <button onclick="testProjectCreation()">📝 اختبار إضافة مشروع</button>
+            <button onclick="verifyIsolation()">🔒 التحقق من العزل</button>
+            <button onclick="runFullTest()">🧪 اختبار شامل</button>
+        </div>
+
+        <div class="form-section" id="projectForm" style="display: none;">
+            <h3>📝 إضافة مشروع جديد</h3>
+            <div class="form-group">
+                <label>اختر الشريك:</label>
+                <select id="partnerSelect">
+                    <option value="">-- اختر شريك --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>عنوان المشروع:</label>
+                <input type="text" id="projectTitle" placeholder="مثال: تطوير موقع إلكتروني">
+            </div>
+            <div class="form-group">
+                <label>وصف المشروع:</label>
+                <textarea id="projectDescription" placeholder="وصف مفصل للمشروع..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>حالة المشروع:</label>
+                <select id="projectStatus">
+                    <option value="planning">تخطيط</option>
+                    <option value="in_progress">قيد التنفيذ</option>
+                    <option value="completed">مكتمل</option>
+                    <option value="on_hold">متوقف</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الميزانية:</label>
+                <input type="number" id="projectBudget" placeholder="50000">
+            </div>
+            <button onclick="createProject()">✅ إنشاء المشروع</button>
+        </div>
+
+        <div id="results" class="log">🚀 جاهز للاختبار...\n</div>
+
+        <div class="partner-grid" id="partnerGrid" style="display: none;">
+            <!-- سيتم ملء البيانات هنا -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const log = document.getElementById('results');
+        let partners = [];
+        
+        function logMessage(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            const logEntry = `[${timestamp}] ${emoji} ${message}\n`;
+            log.textContent += logEntry;
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+
+        async function apiCall(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'خطأ في API'}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                logMessage(`خطأ في API: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function checkPartners() {
+            logMessage('🔍 فحص الشركاء الموجودين...');
+            try {
+                const response = await apiCall('/partners?type=entreprise');
+                partners = response.data || [];
+                
+                logMessage(`📊 تم العثور على ${partners.length} شريك`, 'success');
+                
+                if (partners.length > 0) {
+                    partners.forEach(partner => {
+                        logMessage(`🏢 ${partner.partnerId}: ${partner.fullName} (${partner.isActive ? 'نشط' : 'غير نشط'})`);
+                    });
+                    
+                    updatePartnerSelect();
+                    document.getElementById('projectForm').style.display = 'block';
+                } else {
+                    logMessage('⚠️ لا توجد شركاء. يجب إنشاء شريك أولاً', 'warning');
+                }
+                
+                return partners;
+            } catch (error) {
+                logMessage(`خطأ في فحص الشركاء: ${error.message}`, 'error');
+                return [];
+            }
+        }
+
+        function updatePartnerSelect() {
+            const select = document.getElementById('partnerSelect');
+            select.innerHTML = '<option value="">-- اختر شريك --</option>';
+            
+            partners.forEach(partner => {
+                const option = document.createElement('option');
+                option.value = partner.partnerId;
+                option.textContent = `${partner.partnerId} - ${partner.fullName}`;
+                select.appendChild(option);
+            });
+        }
+
+        async function createTestPartner() {
+            logMessage('➕ إنشاء شريك تجريبي...');
+            
+            const testPartner = {
+                fullName: 'شركة اختبار المشاريع',
+                email: 'test-projects@company.com',
+                type: 'entreprise',
+                contactPerson: 'مدير الاختبار',
+                isActive: true
+            };
+            
+            try {
+                const response = await apiCall('/partners', {
+                    method: 'POST',
+                    body: JSON.stringify(testPartner)
+                });
+                
+                if (response.success && response.data) {
+                    logMessage(`✅ شريك تجريبي تم إنشاؤه: ${response.data.partnerId}`, 'success');
+                    partners.push(response.data);
+                    updatePartnerSelect();
+                    document.getElementById('projectForm').style.display = 'block';
+                } else {
+                    logMessage('❌ فشل في إنشاء الشريك التجريبي', 'error');
+                }
+            } catch (error) {
+                if (error.message.includes('duplicate') || error.message.includes('E11000')) {
+                    logMessage('⚠️ الشريك التجريبي موجود مسبقاً', 'warning');
+                    await checkPartners(); // إعادة تحميل القائمة
+                } else {
+                    logMessage(`خطأ في إنشاء الشريك: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function createProject() {
+            const partnerId = document.getElementById('partnerSelect').value;
+            const title = document.getElementById('projectTitle').value;
+            const description = document.getElementById('projectDescription').value;
+            const status = document.getElementById('projectStatus').value;
+            const budget = document.getElementById('projectBudget').value;
+            
+            if (!partnerId || !title) {
+                logMessage('⚠️ يرجى اختيار شريك وإدخال عنوان المشروع', 'warning');
+                return;
+            }
+            
+            logMessage(`📝 إنشاء مشروع "${title}" للشريك ${partnerId}...`);
+            
+            const projectData = {
+                title,
+                description: description || 'مشروع تجريبي',
+                status,
+                startDate: '2024-01-15',
+                endDate: '2024-06-15',
+                budget: budget ? parseInt(budget) : 50000,
+                progress: 0,
+                objectives: ['تطوير النظام', 'اختبار الوظائف'],
+                deliverables: ['تطبيق ويب', 'وثائق فنية']
+            };
+            
+            try {
+                // محاولة استخدام Enterprise API
+                logMessage('🔄 استخدام Enterprise API...');
+                const response = await apiCall(`/enterprise/${partnerId}/projects`, {
+                    method: 'POST',
+                    body: JSON.stringify(projectData)
+                });
+                
+                if (response.success && response.data) {
+                    logMessage(`✅ مشروع تم إنشاؤه بنجاح: ${response.data.projectId || 'ID غير محدد'}`, 'success');
+                    
+                    // مسح النموذج
+                    document.getElementById('projectTitle').value = '';
+                    document.getElementById('projectDescription').value = '';
+                    document.getElementById('projectBudget').value = '';
+                    
+                    // التحقق من الحفظ
+                    await verifyProjectSaved(partnerId, title);
+                } else {
+                    logMessage('❌ فشل في إنشاء المشروع', 'error');
+                }
+            } catch (error) {
+                logMessage(`خطأ في إنشاء المشروع: ${error.message}`, 'error');
+                
+                // محاولة بديلة
+                logMessage('🔄 محاولة بديلة...');
+                try {
+                    const fallbackData = { ...projectData, partnerId };
+                    const fallbackResponse = await apiCall('/projects', {
+                        method: 'POST',
+                        body: JSON.stringify(fallbackData)
+                    });
+                    
+                    if (fallbackResponse.success) {
+                        logMessage('✅ المشروع تم إنشاؤه بالطريقة البديلة', 'success');
+                    }
+                } catch (fallbackError) {
+                    logMessage(`❌ فشل في الطريقة البديلة: ${fallbackError.message}`, 'error');
+                }
+            }
+        }
+
+        async function verifyProjectSaved(partnerId, projectTitle) {
+            logMessage(`🔍 التحقق من حفظ المشروع "${projectTitle}"...`);
+            
+            try {
+                const response = await apiCall(`/enterprise/${partnerId}/projects`);
+                
+                if (response.success && response.data) {
+                    const projects = response.data;
+                    const foundProject = projects.find(p => p.title === projectTitle);
+                    
+                    if (foundProject) {
+                        logMessage(`✅ المشروع محفوظ بنجاح مع partnerId: ${foundProject.partnerId}`, 'success');
+                        return true;
+                    } else {
+                        logMessage(`❌ المشروع غير موجود في قاعدة البيانات`, 'error');
+                        return false;
+                    }
+                } else {
+                    logMessage(`❌ خطأ في استرجاع المشاريع: ${response.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                logMessage(`خطأ في التحقق: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testProjectCreation() {
+            logMessage('🧪 اختبار إضافة المشاريع...');
+            
+            if (partners.length === 0) {
+                await checkPartners();
+            }
+            
+            if (partners.length === 0) {
+                await createTestPartner();
+            }
+            
+            if (partners.length > 0) {
+                const partner = partners[0];
+                const testProject = {
+                    title: `مشروع اختبار - ${new Date().toLocaleTimeString()}`,
+                    description: 'مشروع لاختبار النظام',
+                    status: 'planning',
+                    startDate: '2024-01-15',
+                    endDate: '2024-06-15',
+                    budget: 75000,
+                    progress: 0
+                };
+                
+                try {
+                    const response = await apiCall(`/enterprise/${partner.partnerId}/projects`, {
+                        method: 'POST',
+                        body: JSON.stringify(testProject)
+                    });
+                    
+                    if (response.success) {
+                        logMessage(`✅ اختبار ناجح: مشروع تم إنشاؤه للشريك ${partner.partnerId}`, 'success');
+                        await displayPartnerProjects();
+                    }
+                } catch (error) {
+                    logMessage(`❌ فشل الاختبار: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function verifyIsolation() {
+            logMessage('🔒 التحقق من عزل البيانات...');
+            
+            if (partners.length < 2) {
+                logMessage('⚠️ يحتاج إلى شريكين على الأقل للتحقق من العزل', 'warning');
+                return;
+            }
+            
+            let isolationPassed = true;
+            
+            for (const partner of partners.slice(0, 2)) {
+                try {
+                    const response = await apiCall(`/enterprise/${partner.partnerId}/projects`);
+                    
+                    if (response.success && response.data) {
+                        const projects = response.data;
+                        logMessage(`🏢 ${partner.partnerId}: ${projects.length} مشروع`);
+                        
+                        // التحقق من أن جميع المشاريع تخص هذا الشريك
+                        for (const project of projects) {
+                            if (project.partnerId !== partner.partnerId) {
+                                logMessage(`❌ عزل فاشل: مشروع ${project.title} يظهر للشريك الخطأ`, 'error');
+                                isolationPassed = false;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    logMessage(`خطأ في فحص الشريك ${partner.partnerId}: ${error.message}`, 'error');
+                    isolationPassed = false;
+                }
+            }
+            
+            if (isolationPassed) {
+                logMessage('🎉 العزل يعمل بشكل مثالي!', 'success');
+            } else {
+                logMessage('⚠️ مشكلة في العزل - يحتاج إصلاح', 'warning');
+            }
+        }
+
+        async function displayPartnerProjects() {
+            const grid = document.getElementById('partnerGrid');
+            grid.innerHTML = '';
+            grid.style.display = 'grid';
+            
+            for (const partner of partners.slice(0, 3)) {
+                try {
+                    const response = await apiCall(`/enterprise/${partner.partnerId}/projects`);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'partner-card';
+                    
+                    let projectsHtml = '';
+                    if (response.success && response.data && response.data.length > 0) {
+                        response.data.forEach(project => {
+                            projectsHtml += `
+                                <div class="project-item">
+                                    <div class="project-title">${project.title}</div>
+                                    <div class="project-status">الحالة: ${project.status} | الميزانية: ${project.budget || 'غير محدد'}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        projectsHtml = '<div style="color: #666; text-align: center; padding: 20px;">لا توجد مشاريع</div>';
+                    }
+                    
+                    card.innerHTML = `
+                        <h4>🏢 ${partner.partnerId}</h4>
+                        <p><strong>${partner.fullName}</strong></p>
+                        <p>عدد المشاريع: ${response.data ? response.data.length : 0}</p>
+                        ${projectsHtml}
+                    `;
+                    
+                    grid.appendChild(card);
+                } catch (error) {
+                    logMessage(`خطأ في عرض مشاريع ${partner.partnerId}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function runFullTest() {
+            logMessage('🚀 بدء الاختبار الشامل...');
+            logMessage('=' .repeat(50));
+            
+            try {
+                await checkPartners();
+                await testProjectCreation();
+                await verifyIsolation();
+                await displayPartnerProjects();
+                
+                logMessage('🎉 الاختبار الشامل مكتمل!', 'success');
+            } catch (error) {
+                logMessage(`❌ خطأ في الاختبار الشامل: ${error.message}`, 'error');
+            }
+        }
+
+        // تشغيل تلقائي عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            logMessage('🧪 نظام اختبار إضافة المشاريع - MATC');
+            logMessage('ℹ️ ابدأ بفحص الشركاء أو تشغيل الاختبار الشامل');
+        });
+    </script>
+</body>
+</html>

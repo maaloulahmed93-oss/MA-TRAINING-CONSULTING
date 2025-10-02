@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Click Supprimer - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f9ff;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background: #f0fdf4; color: #166534; border: 2px solid #22c55e; }
+        .instructions {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Click Supprimer</h1>
+        <p>Test pour vérifier que les clics sur boutons fonctionnent</p>
+
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li><strong>Ferme le clavier virtuel</strong> dans Admin Panel</li>
+                <li><strong>Teste ces boutons</strong> ci-dessous</li>
+                <li><strong>Si ça marche ici</strong> → Problème résolu</li>
+                <li><strong>Si ça marche pas</strong> → Problème plus profond</li>
+            </ol>
+        </div>
+
+        <h3>🔴 Boutons de test:</h3>
+        
+        <button class="test-button" onclick="testDelete('service1', 'Test Service 1')">
+            🗑️ Supprimer Service 1
+        </button>
+        
+        <button class="test-button" onclick="testDelete('service2', 'Test Service 2')">
+            🗑️ Supprimer Service 2
+        </button>
+        
+        <button class="test-button" onclick="testDelete('service3', 'Test Service 3')">
+            🗑️ Supprimer Service 3
+        </button>
+
+        <div id="result" class="result">Cliquez sur un bouton pour tester...</div>
+
+        <div style="margin-top: 30px;">
+            <h3>🔧 Test API Direct:</h3>
+            <button class="test-button" onclick="testRealDelete()" style="background: #dc2626;">
+                🚀 Test Suppression Réelle
+            </button>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h3>🎯 Résultats attendus:</h3>
+            <ul>
+                <li>✅ <strong>Boutons cliquables</strong> → Hover effect visible</li>
+                <li>✅ <strong>Confirmation popup</strong> → Dialog "Êtes-vous sûr?"</li>
+                <li>✅ <strong>Message de succès</strong> → "Service supprimé"</li>
+                <li>❌ <strong>Rien ne se passe</strong> → Problème JavaScript</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function testDelete(serviceId, serviceTitle) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            
+            console.log('🧪 Test Delete appelé');
+            console.log('ServiceID:', serviceId);
+            console.log('ServiceTitle:', serviceTitle);
+            
+            resultDiv.textContent = `🧪 Test Delete appelé!\n\n`;
+            resultDiv.textContent += `ServiceID: ${serviceId}\n`;
+            resultDiv.textContent += `ServiceTitle: ${serviceTitle}\n\n`;
+            
+            // Simuler la confirmation
+            const confirmed = confirm(`Êtes-vous sûr de vouloir supprimer "${serviceTitle}" ?\n\nCeci est juste un test.`);
+            
+            if (confirmed) {
+                resultDiv.className = 'result success';
+                resultDiv.textContent += `✅ CONFIRMATION REÇUE!\n`;
+                resultDiv.textContent += `L'utilisateur a confirmé la suppression.\n\n`;
+                resultDiv.textContent += `DIAGNOSTIC:\n`;
+                resultDiv.textContent += `- Bouton cliquable: ✅\n`;
+                resultDiv.textContent += `- JavaScript fonctionne: ✅\n`;
+                resultDiv.textContent += `- Confirmation popup: ✅\n\n`;
+                resultDiv.textContent += `CONCLUSION: Le problème n'est PAS dans les clics!\n`;
+                resultDiv.textContent += `Le problème est probablement dans l'API backend.`;
+            } else {
+                resultDiv.textContent += `❌ Suppression annulée par l'utilisateur.\n`;
+                resultDiv.textContent += `Mais le bouton fonctionne correctement!`;
+            }
+        }
+
+        async function testRealDelete() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 Test Suppression Réelle...\n\n';
+
+            try {
+                // Test avec un ID fake
+                const fakeId = '507f1f77bcf86cd799439011';
+                
+                resultDiv.textContent += `Tentative DELETE: /api/commercial-services/${fakeId}\n\n`;
+                
+                const response = await fetch(`http://localhost:3001/api/commercial-services/${fakeId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Response: ${JSON.stringify(result, null, 2)}\n\n`;
+
+                if (response.status === 404 && result.message?.includes('non trouvé')) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ API DELETE FONCTIONNE!\n\n';
+                    resultDiv.textContent += 'DIAGNOSTIC COMPLET:\n';
+                    resultDiv.textContent += '- Frontend: Boutons cliquables ✅\n';
+                    resultDiv.textContent += '- Backend: Route DELETE active ✅\n';
+                    resultDiv.textContent += '- API: Réponses correctes ✅\n\n';
+                    resultDiv.textContent += 'SOLUTION: Redémarrer Admin Panel\n';
+                    resultDiv.textContent += '1. Ctrl+C dans terminal admin-panel\n';
+                    resultDiv.textContent += '2. npm run dev\n';
+                    resultDiv.textContent += '3. Vider cache navigateur (Ctrl+F5)';
+                } else {
+                    resultDiv.textContent += '⚠️ Réponse inattendue de l\'API\n';
+                    resultDiv.textContent += 'Vérifier les logs backend.';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}\n\n`;
+                
+                if (error.message.includes('Failed to fetch')) {
+                    resultDiv.textContent += 'PROBLÈME: Backend non accessible\n';
+                    resultDiv.textContent += 'SOLUTION: Démarrer backend (npm run dev)';
+                } else {
+                    resultDiv.textContent += 'PROBLÈME: Erreur réseau ou CORS';
+                }
+            }
+        }
+
+        window.onload = function() {
+            console.log('🧪 Test Click Supprimer chargé');
+            
+            // Test automatique des événements
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('test-button')) {
+                    console.log('✅ Clic détecté sur bouton test');
+                }
+            });
+        };
+    </script>
+</body>
+</html>

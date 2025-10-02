@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنظيف شامل للبيانات التجريبية</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .error { background: #fee; border-color: #fcc; color: #c33; }
+        .success { background: #efe; border-color: #cfc; color: #363; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #e3f2fd; border-color: #bbdefb; color: #0d47a1; }
+        .danger { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        button { padding: 12px 24px; margin: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th { background: #f5f5f5; font-weight: bold; }
+        .partner-card { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 6px; background: #fafafa; }
+        .type-participant { border-left: 4px solid #dc3545; background: #fff5f5; }
+        .mock-data { border-left: 4px solid #ffc107; background: #fffbf0; }
+        .progress-bar { width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: #dc3545; transition: width 0.3s ease; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 تنظيف شامل للبيانات التجريبية</h1>
+        
+        <div class="section success">
+            <h3>✅ الإجراءات المنفذة:</h3>
+            <ul>
+                <li>✅ تعطيل البيانات التجريبية في <code>participantData.ts</code></li>
+                <li>✅ تعطيل Auto-Seeding في <code>ParticipantsPage.tsx</code></li>
+                <li>✅ تعطيل جميع البيانات في <code>mockParticipants.ts</code></li>
+                <li>✅ إنشاء مصفوفة فارغة للبيانات التجريبية</li>
+            </ul>
+        </div>
+
+        <div class="section danger">
+            <h3>🎯 البيانات التجريبية المعروفة:</h3>
+            <div class="mock-data">
+                <h4>📋 قائمة البيانات التي يجب حذفها:</h4>
+                <ul>
+                    <li><strong>PART-2024-001</strong> - Ahmed Benali (ahmed.benali@email.com)</li>
+                    <li><strong>PART-2024-002</strong> - Fatima El Mansouri (fatima.elmansouri@email.com)</li>
+                    <li><strong>PART-2024-003</strong> - Youssef Trabelsi (youssef.trabelsi@example.com)</li>
+                    <li><strong>PART-2024-004</strong> - Amina Sassi (amina.sassi@email.com)</li>
+                    <li><strong>PART-2024-005</strong> - Youssef Khelifi (youssef.khelifi@email.com)</li>
+                    <li><strong>PART-2024-006</strong> - Leila Bouazizi (leila.bouazizi@email.com)</li>
+                    <li><strong>PART-834809</strong> - aziz ben ameur (ameur@gmail.com)</li>
+                    <li><strong>FRE-340255</strong> - ismail (ismail@gmail.com)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🔧 أدوات التنظيف:</h3>
+            <button class="btn-primary" onclick="scanAllSystems()">
+                <span id="scanIcon">🔍</span> فحص شامل للنظام
+            </button>
+            <button class="btn-danger" onclick="deleteAllMockData()" id="deleteBtn" disabled>
+                <span id="deleteIcon">🗑️</span> حذف جميع البيانات التجريبية
+            </button>
+            <button class="btn-success" onclick="verifyCleanup()">
+                <span id="verifyIcon">✅</span> التحقق من التنظيف
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let mockDataFound = [];
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function setButtonLoading(buttonId, loading) {
+            const btn = document.getElementById(buttonId);
+            if (btn) {
+                btn.disabled = loading;
+                const icon = btn.querySelector('span');
+                if (loading) {
+                    icon.innerHTML = '<div class="loading"></div>';
+                } else {
+                    if (buttonId === 'scanIcon') icon.innerHTML = '🔍';
+                    else if (buttonId === 'deleteIcon') icon.innerHTML = '🗑️';
+                    else if (buttonId === 'verifyIcon') icon.innerHTML = '✅';
+                }
+            }
+        }
+
+        async function scanAllSystems() {
+            log('🔍 بدء الفحص الشامل للنظام...', 'info');
+            
+            try {
+                // فحص قاعدة البيانات
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const partners = data.data;
+                    
+                    // البحث عن البيانات التجريبية
+                    const mockEmails = [
+                        'ahmed.benali@email.com', 'fatima.elmansouri@email.com', 
+                        'youssef.trabelsi@example.com', 'fatima.gharbi@email.com',
+                        'mohamed.triki@email.com', 'amina.sassi@email.com',
+                        'youssef.khelifi@email.com', 'leila.bouazizi@email.com',
+                        'ameur@gmail.com', 'ismail@gmail.com'
+                    ];
+                    
+                    const mockPartnerIds = [
+                        'PART-2024-001', 'PART-2024-002', 'PART-2024-003',
+                        'PART-2024-004', 'PART-2024-005', 'PART-2024-006',
+                        'PART-814809', 'PART-834809', 'FRE-340255'
+                    ];
+                    
+                    mockDataFound = partners.filter(p => 
+                        mockEmails.includes(p.email) ||
+                        mockPartnerIds.includes(p.partnerId) ||
+                        p.email.includes('@example.com') ||
+                        p.email.includes('@email.com') ||
+                        p.type === 'participant'
+                    );
+                    
+                    // عرض النتائج
+                    let resultsHtml = '<h4>📊 نتائج الفحص:</h4>';
+                    resultsHtml += `<p><strong>إجمالي الشركاء:</strong> ${partners.length}</p>`;
+                    resultsHtml += `<p><strong>البيانات التجريبية المكتشفة:</strong> ${mockDataFound.length}</p>`;
+                    
+                    if (mockDataFound.length > 0) {
+                        resultsHtml += '<h4>🔍 البيانات التجريبية المكتشفة:</h4>';
+                        mockDataFound.forEach((partner, index) => {
+                            resultsHtml += `
+                                <div class="partner-card type-participant">
+                                    <strong>${index + 1}. ${partner.partnerId}</strong> - ${partner.fullName}<br>
+                                    <small>📧 ${partner.email} | النوع: ${partner.type}</small><br>
+                                    <small>📅 تاريخ الإنشاء: ${new Date(partner.createdAt).toLocaleDateString('ar')}</small>
+                                </div>
+                            `;
+                        });
+                        
+                        resultsHtml += '<div class="danger"><strong>⚠️ هذه البيانات تحتاج إلى حذف!</strong></div>';
+                        document.getElementById('deleteBtn').disabled = false;
+                    } else {
+                        resultsHtml += '<div class="success"><strong>✅ لا توجد بيانات تجريبية في قاعدة البيانات!</strong></div>';
+                    }
+                    
+                    log(resultsHtml, mockDataFound.length > 0 ? 'warning' : 'success');
+                } else {
+                    log(`❌ خطأ في API: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في الاتصال: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteAllMockData() {
+            if (mockDataFound.length === 0) {
+                log('❌ لا توجد بيانات تجريبية للحذف', 'error');
+                return;
+            }
+            
+            const confirmMessage = `هل أنت متأكد من حذف ${mockDataFound.length} بيانات تجريبية نهائياً؟\n\nهذا الإجراء لا يمكن التراجع عنه!`;
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            const doubleConfirm = prompt('اكتب "DELETE ALL" بالأحرف الكبيرة للتأكيد:');
+            if (doubleConfirm !== 'DELETE ALL') {
+                log('❌ تم إلغاء عملية الحذف', 'warning');
+                return;
+            }
+            
+            log('🗑️ بدء حذف جميع البيانات التجريبية...', 'warning');
+            
+            // عد تنازلي
+            for (let i = 5; i > 0; i--) {
+                log(`<div style="font-size: 18px; font-weight: bold; color: #dc3545;">⏳ بدء الحذف خلال ${i} ثوانٍ...</div>`, 'warning');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            try {
+                let successCount = 0;
+                let errorCount = 0;
+                const total = mockDataFound.length;
+                
+                // إنشاء شريط التقدم
+                let progressHtml = `
+                    <h4>🔄 حذف ${total} بيانات تجريبية...</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div id="progressText">0 / ${total}</div>
+                `;
+                log(progressHtml, 'info');
+                
+                // حذف كل بيانات تجريبية
+                for (let i = 0; i < mockDataFound.length; i++) {
+                    const partner = mockDataFound[i];
+                    
+                    try {
+                        const response = await fetch(`${API_BASE}/partners/${partner.partnerId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (response.ok) {
+                            successCount++;
+                            log(`✅ تم حذف ${partner.partnerId} (${partner.fullName})`, 'success');
+                        } else {
+                            errorCount++;
+                            const errorData = await response.json();
+                            log(`❌ فشل حذف ${partner.partnerId}: ${errorData.message || response.statusText}`, 'error');
+                        }
+                    } catch (error) {
+                        errorCount++;
+                        log(`❌ خطأ في حذف ${partner.partnerId}: ${error.message}`, 'error');
+                    }
+                    
+                    // تحديث شريط التقدم
+                    const progress = ((i + 1) / total) * 100;
+                    const progressFill = document.getElementById('progressFill');
+                    const progressText = document.getElementById('progressText');
+                    if (progressFill) progressFill.style.width = `${progress}%`;
+                    if (progressText) progressText.textContent = `${i + 1} / ${total}`;
+                    
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+                // النتيجة النهائية
+                if (successCount > 0) {
+                    log(`🎉 تم حذف ${successCount} بيانات تجريبية بنجاح!`, 'success');
+                }
+                if (errorCount > 0) {
+                    log(`⚠️ فشل حذف ${errorCount} بيانات`, 'warning');
+                }
+                
+                // إعادة فحص النظام
+                log('🔄 إعادة فحص النظام...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await scanAllSystems();
+                
+            } catch (error) {
+                log(`❌ خطأ في عملية الحذف: ${error.message}`, 'error');
+            } finally {
+                mockDataFound = [];
+                document.getElementById('deleteBtn').disabled = true;
+            }
+        }
+
+        async function verifyCleanup() {
+            log('✅ التحقق من نظافة النظام...', 'info');
+            
+            try {
+                // فحص قاعدة البيانات
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const partners = data.data;
+                    
+                    // تجميع حسب النوع
+                    const typeStats = {};
+                    partners.forEach(partner => {
+                        typeStats[partner.type] = (typeStats[partner.type] || 0) + 1;
+                    });
+                    
+                    let verifyHtml = '<h4>📊 حالة النظام النهائية:</h4>';
+                    verifyHtml += '<table><tr><th>النوع</th><th>العدد</th></tr>';
+                    
+                    Object.entries(typeStats).forEach(([type, count]) => {
+                        const isParticipant = type === 'participant';
+                        verifyHtml += `<tr ${isParticipant ? 'style="background: #fff5f5; color: #dc3545;"' : ''}><td>${type}</td><td>${count}</td></tr>`;
+                    });
+                    
+                    verifyHtml += '</table>';
+                    
+                    const hasParticipants = typeStats['participant'] > 0;
+                    const expectedTypes = ['formateur', 'freelancer', 'commercial', 'entreprise'];
+                    const hasOnlyValidTypes = Object.keys(typeStats).every(type => expectedTypes.includes(type));
+                    
+                    if (hasParticipants) {
+                        verifyHtml += '<div class="error"><strong>❌ لا يزال هناك شركاء من نوع "participant"!</strong></div>';
+                    } else if (hasOnlyValidTypes) {
+                        verifyHtml += '<div class="success"><strong>🎉 النظام نظيف! يحتوي على الأنواع الصحيحة فقط (4 أنواع)</strong></div>';
+                    } else {
+                        verifyHtml += '<div class="warning"><strong>⚠️ قد يوجد أنواع غير متوقعة</strong></div>';
+                    }
+                    
+                    log(verifyHtml, hasParticipants ? 'error' : (hasOnlyValidTypes ? 'success' : 'warning'));
+                } else {
+                    log(`❌ خطأ في التحقق: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في التحقق: ${error.message}`, 'error');
+            }
+        }
+
+        // فحص تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            log('🚀 مرحباً بك في أداة التنظيف الشامل', 'info');
+            log('اضغط "فحص شامل للنظام" للبدء', 'info');
+        };
+    </script>
+</body>
+</html>

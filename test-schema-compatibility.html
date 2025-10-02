@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Schema Compatibility Test</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px 5px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .test-case {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+        }
+        .mismatch {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .compatible {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Schema Compatibility Test</h1>
+        <p>Testing frontend data structure against backend Mongoose schemas</p>
+
+        <div class="warning">
+            <h3>⚠️ CRITICAL SCHEMA ISSUES IDENTIFIED</h3>
+            <ul>
+                <li><strong>Sessions Links:</strong> Frontend sends session.links but backend sessions schema has NO links field</li>
+                <li><strong>Session Fields:</strong> Frontend sends 'description' and 'order', backend expects 'date'</li>
+                <li><strong>CastError Source:</strong> Session links are being rejected by Mongoose</li>
+            </ul>
+        </div>
+
+        <div class="test-case mismatch">
+            <h3>❌ CURRENT PROBLEMATIC PAYLOAD</h3>
+            <p>This payload will FAIL with current schema:</p>
+            <button class="btn-danger" onclick="testCurrentProblematicPayload()">Test Current (Will Fail)</button>
+            <pre id="current-payload"></pre>
+        </div>
+
+        <div class="test-case compatible">
+            <h3>✅ FIXED SCHEMA COMPATIBLE PAYLOAD</h3>
+            <p>This payload will WORK with fixed schema:</p>
+            <button class="btn-success" onclick="testFixedSchemaPayload()">Test Fixed Schema (Should Work)</button>
+            <pre id="fixed-payload"></pre>
+        </div>
+
+        <div class="test-case">
+            <h3>🧪 Schema Validation Tests</h3>
+            <button class="btn-primary" onclick="createTestParticipant()">1. Create Test Participant</button>
+            <button class="btn-warning" onclick="testFormationWithSessions()">2. Test Formation with Sessions</button>
+            <button class="btn-success" onclick="verifyDataPersistence()">3. Verify Data Persistence</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const TEST_PARTICIPANT_ID = 'PART-SCHEMA-TEST';
+
+        // Current problematic payload (matches frontend structure)
+        const currentPayload = {
+            fullName: 'Schema Test Participant',
+            email: 'schema.test@matc.com',
+            formations: [{
+                id: 'form-schema-test',
+                title: 'Formation with Sessions and Links',
+                description: 'Testing schema compatibility',
+                domain: 'Test',
+                level: 'Débutant',
+                duration: '3 heures',
+                status: 'not_started',
+                progress: 0,
+                enrollmentDate: new Date().toISOString(),
+                courses: [{
+                    id: 'course-1',
+                    title: 'Test Course',
+                    description: 'Course with sessions',
+                    progress: 0,
+                    isCompleted: false,
+                    duration: '2 heures',
+                    modules: [],
+                    sessions: [{
+                        id: 'session-1',
+                        title: 'Test Session',
+                        description: 'Session description',  // ❌ Backend expects 'date'
+                        duration: '1 heure',
+                        isCompleted: false,
+                        order: 1,                           // ❌ Backend doesn't have 'order'
+                        links: [{                           // ❌ Backend sessions have NO links field!
+                            id: 'link-1',
+                            title: 'Session Video',
+                            url: 'https://test-video.com',
+                            type: 'video'
+                        }, {
+                            id: 'link-2',
+                            title: 'Session Document',
+                            url: 'https://test-doc.com',
+                            type: 'file'
+                        }]
+                    }]
+                }],
+                links: [{
+                    id: 'formation-link-1',
+                    title: 'Formation Overview',
+                    url: 'https://formation-overview.com',
+                    type: 'Résumé'
+                }]
+            }],
+            projects: [],
+            coachingResources: [],
+            notifications: []
+        };
+
+        // Fixed payload (compatible with corrected schema)
+        const fixedPayload = {
+            ...currentPayload,
+            formations: [{
+                ...currentPayload.formations[0],
+                courses: [{
+                    ...currentPayload.formations[0].courses[0],
+                    sessions: [{
+                        id: 'session-1',
+                        title: 'Test Session',
+                        description: 'Session description',  // ✅ Now supported
+                        date: new Date().toISOString(),     // ✅ Keep for compatibility
+                        duration: '1 heure',
+                        isCompleted: false,
+                        order: 1,                           // ✅ Now supported
+                        links: [{                           // ✅ Now supported in sessions!
+                            id: 'link-1',
+                            title: 'Session Video',
+                            url: 'https://test-video.com',
+                            type: 'video'
+                        }, {
+                            id: 'link-2',
+                            title: 'Session Document',
+                            url: 'https://test-doc.com',
+                            type: 'file'
+                        }]
+                    }]
+                }]
+            }]
+        };
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">
+                <strong>[${timestamp}]</strong> ${message}
+            </div>`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function testCurrentProblematicPayload() {
+            document.getElementById('current-payload').textContent = 
+                JSON.stringify(currentPayload, null, 2);
+            log('📋 Current problematic payload displayed', 'warning');
+            log('⚠️ This payload will cause CastError due to session.links field', 'error');
+        }
+
+        function testFixedSchemaPayload() {
+            document.getElementById('fixed-payload').textContent = 
+                JSON.stringify(fixedPayload, null, 2);
+            log('📋 Fixed schema payload displayed', 'success');
+            log('✅ This payload will work after schema update', 'success');
+        }
+
+        async function createTestParticipant() {
+            log('🔄 Creating test participant for schema validation...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        partnerId: TEST_PARTICIPANT_ID,
+                        fullName: 'Schema Test Participant',
+                        firstName: 'Schema',
+                        lastName: 'Test',
+                        email: 'schema.test@matc.com',
+                        phone: '+216 99 000 111',
+                        status: 'active'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ Test participant created successfully!', 'success');
+                } else {
+                    if (result.message && result.message.includes('existe déjà')) {
+                        log('ℹ️ Test participant already exists, proceeding...', 'warning');
+                    } else {
+                        log(`❌ Failed to create test participant: ${result.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Error creating test participant: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFormationWithSessions() {
+            log('🔄 Testing formation with sessions and links...', 'info');
+            log('⚠️ This test will likely FAIL with current schema', 'warning');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentPayload)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ Formation with sessions saved successfully! (Schema might be fixed)', 'success');
+                } else {
+                    log(`❌ Formation save failed (Expected): ${result.message}`, 'error');
+                    if (result.error) {
+                        log(`🔍 Error details: ${result.error}`, 'error');
+                        
+                        // Check for specific CastError patterns
+                        if (result.error.includes('CastError') || result.error.includes('Cast to')) {
+                            log('🎯 CONFIRMED: CastError due to schema mismatch', 'error');
+                            log('💡 Solution: Update ParticipantFormation schema to include session.links', 'warning');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyDataPersistence() {
+            log('🔄 Verifying data persistence...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const formations = result.data.formations || [];
+                    log(`📊 Formations retrieved: ${formations.length}`, 'info');
+                    
+                    if (formations.length > 0) {
+                        formations.forEach((formation, index) => {
+                            log(`🎓 Formation ${index + 1}: ${formation.title}`, 'info');
+                            
+                            if (formation.courses && formation.courses.length > 0) {
+                                formation.courses.forEach((course, courseIndex) => {
+                                    log(`  📚 Course ${courseIndex + 1}: ${course.title}`, 'info');
+                                    
+                                    if (course.sessions && course.sessions.length > 0) {
+                                        course.sessions.forEach((session, sessionIndex) => {
+                                            log(`    📝 Session ${sessionIndex + 1}: ${session.title}`, 'info');
+                                            
+                                            if (session.links) {
+                                                log(`      🔗 Session links: ${session.links.length}`, 'success');
+                                            } else {
+                                                log(`      ❌ No session links found (schema issue)`, 'error');
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        log('❌ No formations found (data not persisted due to schema errors)', 'error');
+                    }
+                } else {
+                    log(`❌ Failed to retrieve participant data: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error verifying data: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', () => {
+            log('🚀 Schema Compatibility Test Tool Loaded', 'success');
+            log('📋 Identified Issues:', 'warning');
+            log('  1. Sessions schema missing links field', 'warning');
+            log('  2. Sessions schema missing description and order fields', 'warning');
+            log('  3. Frontend-backend field name mismatches', 'warning');
+            log('', 'info');
+            log('🎯 Goal: Identify exact schema incompatibilities causing CastErrors', 'info');
+            
+            // Auto-display payloads
+            testCurrentProblematicPayload();
+            testFixedSchemaPayload();
+        });
+    </script>
+</body>
+</html>

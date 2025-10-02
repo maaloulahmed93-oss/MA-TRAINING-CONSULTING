@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص عرض البيانات في Frontend</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 10px; max-height: 400px; overflow-y: auto; direction: ltr; text-align: left; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .backend-data, .frontend-data { border: 2px solid #e9ecef; border-radius: 8px; padding: 15px; }
+        .backend-data { border-color: #28a745; }
+        .frontend-data { border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص عرض البيانات في Frontend</h1>
+        <p>Backend يعمل صحيح لكن Frontend لا يعرض البيانات</p>
+
+        <div class="success">
+            <h3>✅ ما نجح في Backend:</h3>
+            <ul>
+                <li>Formation "ddc" حفظ بنجاح للمشارك PART-653876</li>
+                <li>GET request يجد 1 formation في قاعدة البيانات</li>
+                <li>ParticipantProject validation تم إصلاحه</li>
+            </ul>
+        </div>
+
+        <div class="error">
+            <h3>❌ المشكلة المتبقية:</h3>
+            <ul>
+                <li>Frontend admin panel يظهر فورم فارغ</li>
+                <li>البيانات موجودة في قاعدة البيانات لكن لا تظهر في UI</li>
+                <li>مشكلة في Frontend rendering أو state management</li>
+            </ul>
+        </div>
+
+        <button class="btn-primary" onclick="testBackendData()">1. اختبار Backend Data</button>
+        <button class="btn-success" onclick="testFrontendAPI()">2. اختبار Frontend API Call</button>
+        <button class="btn-danger" onclick="compareData()">3. مقارنة Backend vs Frontend</button>
+
+        <div class="comparison">
+            <div class="backend-data">
+                <h4>🔧 Backend Data</h4>
+                <div id="backend-results"></div>
+            </div>
+            <div class="frontend-data">
+                <h4>🖥️ Frontend Data</h4>
+                <div id="frontend-results"></div>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const TARGET_PARTICIPANT = 'PART-653876';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="${type}"><strong>[${time}]</strong> ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function logBackend(message) {
+            const backendResults = document.getElementById('backend-results');
+            backendResults.innerHTML += `<div style="margin: 5px 0; font-size: 12px;">${message}</div>`;
+        }
+
+        function logFrontend(message) {
+            const frontendResults = document.getElementById('frontend-results');
+            frontendResults.innerHTML += `<div style="margin: 5px 0; font-size: 12px;">${message}</div>`;
+        }
+
+        async function testBackendData() {
+            log('🔄 اختبار Backend Data مباشرة...', 'info');
+            document.getElementById('backend-results').innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TARGET_PARTICIPANT}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const participant = result.data;
+                    
+                    logBackend(`✅ المشارك: ${participant.fullName}`);
+                    logBackend(`📊 Formations: ${participant.formations?.length || 0}`);
+                    logBackend(`📊 Projects: ${participant.projects?.length || 0}`);
+                    
+                    if (participant.formations && participant.formations.length > 0) {
+                        logBackend(`🎓 Formation Details:`);
+                        participant.formations.forEach((f, i) => {
+                            logBackend(`  ${i+1}. "${f.title}"`);
+                            logBackend(`     ID: ${f.id}`);
+                            logBackend(`     Status: ${f.status}`);
+                            logBackend(`     Progress: ${f.progress}%`);
+                            logBackend(`     Links: ${f.links?.length || 0}`);
+                        });
+                        
+                        log('✅ Backend: البيانات موجودة وصحيحة', 'success');
+                    } else {
+                        logBackend('❌ لا توجد formations');
+                        log('❌ Backend: لا توجد formations', 'error');
+                    }
+                    
+                    logBackend(`<pre>${JSON.stringify(participant, null, 2)}</pre>`);
+                    
+                } else {
+                    log(`❌ Backend Error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Backend Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFrontendAPI() {
+            log('🔄 اختبار Frontend API Call (محاكاة admin panel)...', 'info');
+            document.getElementById('frontend-results').innerHTML = '';
+            
+            try {
+                // محاكاة نفس الطريقة التي يستخدمها admin panel
+                const response = await fetch(`${API_BASE}/participants`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const participants = result.data || [];
+                    logFrontend(`📊 إجمالي المشاركين: ${participants.length}`);
+                    
+                    const targetParticipant = participants.find(p => 
+                        p.id === TARGET_PARTICIPANT || p.partnerId === TARGET_PARTICIPANT
+                    );
+                    
+                    if (targetParticipant) {
+                        logFrontend(`✅ وجدت المشارك: ${targetParticipant.fullName}`);
+                        logFrontend(`📊 Formations: ${targetParticipant.formations?.length || 0}`);
+                        logFrontend(`📊 Projects: ${targetParticipant.projects?.length || 0}`);
+                        
+                        if (targetParticipant.formations && targetParticipant.formations.length > 0) {
+                            logFrontend(`🎓 Formations في قائمة المشاركين:`);
+                            targetParticipant.formations.forEach((f, i) => {
+                                logFrontend(`  ${i+1}. "${f.title}"`);
+                            });
+                            log('✅ Frontend API: البيانات موجودة في قائمة المشاركين', 'success');
+                        } else {
+                            logFrontend('❌ لا توجد formations في قائمة المشاركين');
+                            log('❌ Frontend API: البيانات مفقودة من قائمة المشاركين', 'error');
+                        }
+                    } else {
+                        logFrontend(`❌ لم أجد المشارك ${TARGET_PARTICIPANT} في القائمة`);
+                        log('❌ Frontend API: المشارك غير موجود في القائمة', 'error');
+                    }
+                    
+                } else {
+                    log(`❌ Frontend API Error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Frontend API Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function compareData() {
+            log('🔄 مقارنة البيانات بين Backend وFrontend...', 'info');
+            
+            await testBackendData();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testFrontendAPI();
+            
+            log('📊 تحليل المقارنة:', 'info');
+            log('🔍 إذا كانت البيانات موجودة في Backend لكن مفقودة في Frontend API:', 'warning');
+            log('   - المشكلة في GET /api/participants route', 'warning');
+            log('   - أو في تجميع البيانات من collections منفصلة', 'warning');
+            log('🔍 إذا كانت البيانات موجودة في كلاهما لكن لا تظهر في UI:', 'warning');
+            log('   - المشكلة في Frontend rendering أو state management', 'warning');
+            log('   - أو في ParticipantForm component', 'warning');
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', () => {
+            log('🚀 أداة تشخيص Frontend Display جاهزة', 'success');
+            log('🎯 الهدف: معرفة سبب عدم عرض البيانات في admin panel', 'info');
+            log('📋 Backend console يظهر: "Found 1 formations" لكن UI فارغ', 'warning');
+        });
+    </script>
+</body>
+</html>

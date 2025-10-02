@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار مزامنة التقدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">اختبار مزامنة التقدم بين لوحة الإدارة ومساحة المشارك</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Admin Panel Simulation -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-600">🔧 لوحة الإدارة</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">المشارك</label>
+                        <select id="participantSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="PART-814809">aziz ben ameur (PART-814809)</option>
+                            <option value="PART-2024-001">Ahmed Benali (PART-2024-001)</option>
+                            <option value="PART-2024-002">Fatima El Mansouri (PART-2024-002)</option>
+                            <option value="PART-2024-003">Youssef Trabelsi (PART-2024-003)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">التقدم العام: <span id="progressValue">0</span>%</label>
+                        <input type="range" id="progressSlider" min="0" max="100" value="0" class="w-full">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الدورات المكتملة</label>
+                            <input type="number" id="completedCourses" min="0" max="50" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ساعات الدراسة</label>
+                            <input type="number" id="studyTime" min="0" max="500" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الأهداف المحققة</label>
+                            <input type="number" id="achievedGoals" min="0" max="50" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">إجمالي الأهداف</label>
+                            <input type="number" id="totalGoals" min="1" max="50" value="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+
+                    <button onclick="updateProgress()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        💾 حفظ التحديثات
+                    </button>
+                </div>
+            </div>
+
+            <!-- Participant Space Simulation -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-600">👤 مساحة المشارك</h2>
+                
+                <div class="space-y-6">
+                    <!-- Progress Overview -->
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-blue-600 mb-2" id="displayProgress">0%</div>
+                        <p class="text-gray-600">التقدم العام</p>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                            <div id="progressBar" class="h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="displayCompletedCourses">0</div>
+                            <p class="text-sm text-blue-800">الدورات المكتملة</p>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-green-600" id="displayStudyTime">0h</div>
+                            <p class="text-sm text-green-800">ساعات الدراسة</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-orange-800">الأهداف المحققة</span>
+                            <span class="text-lg font-bold text-orange-600" id="displayGoals">0/6</span>
+                        </div>
+                        <div class="w-full bg-orange-200 rounded-full h-2">
+                            <div id="goalsBar" class="h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-orange-700 mt-1" id="goalsPercentage">0% مكتمل</p>
+                    </div>
+
+                    <!-- Recent Activities -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">الأنشطة الحديثة</h3>
+                        <div id="activitiesList" class="space-y-2">
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-blue-600 text-sm">📚</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">مرحباً بك في مساحة المشارك</p>
+                                    <p class="text-xs text-gray-500">ابدأ رحلتك التعليمية</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-yellow-800 mb-3">📋 تعليمات الاختبار</h3>
+            <ol class="list-decimal list-inside space-y-2 text-yellow-700">
+                <li>اختر مشاركاً من القائمة المنسدلة</li>
+                <li>عدّل القيم في لوحة الإدارة (التقدم، الدورات، الساعات، الأهداف)</li>
+                <li>اضغط "حفظ التحديثات" لرؤية التغييرات في مساحة المشارك</li>
+                <li>لاحظ كيف تتحدث جميع الإحصائيات فوراً</li>
+                <li>جرب مشاركين مختلفين لرؤية بياناتهم المختلفة</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Mock participant data
+        const participants = {
+            'PART-814809': {
+                name: 'aziz ben ameur',
+                totalProgress: 0,
+                completedCourses: 0,
+                studyTime: 0,
+                achievedGoals: 0,
+                totalGoals: 6
+            },
+            'PART-2024-001': {
+                name: 'Ahmed Benali',
+                totalProgress: 85,
+                completedCourses: 12,
+                studyTime: 60,
+                achievedGoals: 15,
+                totalGoals: 18
+            },
+            'PART-2024-002': {
+                name: 'Fatima El Mansouri',
+                totalProgress: 92,
+                completedCourses: 18,
+                studyTime: 90,
+                achievedGoals: 22,
+                totalGoals: 24
+            },
+            'PART-2024-003': {
+                name: 'Youssef Trabelsi',
+                totalProgress: 67,
+                completedCourses: 8,
+                studyTime: 40,
+                achievedGoals: 10,
+                totalGoals: 15
+            }
+        };
+
+        // Load participant data
+        function loadParticipant(participantId) {
+            const participant = participants[participantId];
+            if (!participant) return;
+
+            // Update admin panel
+            document.getElementById('progressSlider').value = participant.totalProgress;
+            document.getElementById('progressValue').textContent = participant.totalProgress;
+            document.getElementById('completedCourses').value = participant.completedCourses;
+            document.getElementById('studyTime').value = participant.studyTime;
+            document.getElementById('achievedGoals').value = participant.achievedGoals;
+            document.getElementById('totalGoals').value = participant.totalGoals;
+
+            // Update participant space
+            updateParticipantDisplay();
+        }
+
+        // Update participant display
+        function updateParticipantDisplay() {
+            const progress = parseInt(document.getElementById('progressSlider').value);
+            const completedCourses = parseInt(document.getElementById('completedCourses').value);
+            const studyTime = parseInt(document.getElementById('studyTime').value);
+            const achievedGoals = parseInt(document.getElementById('achievedGoals').value);
+            const totalGoals = parseInt(document.getElementById('totalGoals').value);
+
+            // Update progress
+            document.getElementById('displayProgress').textContent = progress + '%';
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Update statistics
+            document.getElementById('displayCompletedCourses').textContent = completedCourses;
+            document.getElementById('displayStudyTime').textContent = studyTime + 'h';
+            document.getElementById('displayGoals').textContent = achievedGoals + '/' + totalGoals;
+
+            // Update goals bar
+            const goalsPercentage = totalGoals > 0 ? Math.round((achievedGoals / totalGoals) * 100) : 0;
+            document.getElementById('goalsBar').style.width = goalsPercentage + '%';
+            document.getElementById('goalsPercentage').textContent = goalsPercentage + '% مكتمل';
+
+            // Update activities
+            updateActivities(completedCourses, achievedGoals);
+        }
+
+        // Update activities based on progress
+        function updateActivities(completedCourses, achievedGoals) {
+            const activitiesList = document.getElementById('activitiesList');
+            let activities = [];
+
+            if (completedCourses > 0) {
+                activities.push({
+                    icon: '🎓',
+                    title: `تم إكمال ${completedCourses} دورة تدريبية`,
+                    description: 'تهانينا على إنجازك!'
+                });
+            }
+
+            if (achievedGoals > 0) {
+                activities.push({
+                    icon: '🎯',
+                    title: `تحقيق ${achievedGoals} هدف`,
+                    description: 'استمر في التقدم الرائع'
+                });
+            }
+
+            if (activities.length === 0) {
+                activities.push({
+                    icon: '📚',
+                    title: 'مرحباً بك في مساحة المشارك',
+                    description: 'ابدأ رحلتك التعليمية'
+                });
+            }
+
+            activitiesList.innerHTML = activities.map(activity => `
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-blue-600 text-sm">${activity.icon}</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">${activity.title}</p>
+                        <p class="text-xs text-gray-500">${activity.description}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update progress function
+        function updateProgress() {
+            const participantId = document.getElementById('participantSelect').value;
+            const progress = parseInt(document.getElementById('progressSlider').value);
+            const completedCourses = parseInt(document.getElementById('completedCourses').value);
+            const studyTime = parseInt(document.getElementById('studyTime').value);
+            const achievedGoals = parseInt(document.getElementById('achievedGoals').value);
+            const totalGoals = parseInt(document.getElementById('totalGoals').value);
+
+            // Update mock data
+            participants[participantId] = {
+                ...participants[participantId],
+                totalProgress: progress,
+                completedCourses: completedCourses,
+                studyTime: studyTime,
+                achievedGoals: achievedGoals,
+                totalGoals: totalGoals
+            };
+
+            // Update display
+            updateParticipantDisplay();
+
+            // Show success message
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✅ تم الحفظ!';
+            button.classList.add('bg-green-600');
+            button.classList.remove('bg-blue-600');
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-600');
+                button.classList.add('bg-blue-600');
+            }, 2000);
+        }
+
+        // Event listeners
+        document.getElementById('participantSelect').addEventListener('change', (e) => {
+            loadParticipant(e.target.value);
+        });
+
+        document.getElementById('progressSlider').addEventListener('input', (e) => {
+            document.getElementById('progressValue').textContent = e.target.value;
+        });
+
+        // Initialize
+        loadParticipant('PART-814809');
+    </script>
+</body>
+</html>

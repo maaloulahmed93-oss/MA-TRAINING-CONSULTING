@@ -27,6 +27,7 @@ export const ROUTES = {
   
   // Partners & Freelancers
   PARTNERS: '/partners',
+  COMMERCIAL_SERVICES: '/commercial-services',
   FREELANCER_OFFERS: '/partners/freelancer-offers',
   FREELANCER_MEETINGS: '/partners/freelancer-meetings',
   
@@ -126,6 +127,10 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
         href: ROUTES.PARTNERS,
       },
       {
+        name: 'Services Commerciaux',
+        href: ROUTES.COMMERCIAL_SERVICES,
+      },
+      {
         name: 'Freelancer Offers',
         href: ROUTES.FREELANCER_OFFERS,
       },
@@ -134,7 +139,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
         href: ROUTES.FREELANCER_MEETINGS,
       },
       {
-        name: 'Notifications',
+        name: 'Livrables',
         href: ROUTES.NOTIFICATIONS,
       },
     ],

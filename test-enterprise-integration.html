@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Intégration Entreprise - Migration Mock Data vers API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .json-display {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Test Intégration Entreprise - Migration Mock Data vers API</h1>
+        
+        <div class="test-section info">
+            <h3>État du Système</h3>
+            <p><strong>Backend API:</strong> <span id="backendStatus">Vérification...</span></p>
+            <p><strong>Frontend:</strong> <span id="frontendStatus">Vérification...</span></p>
+            <p><strong>Admin Panel:</strong> <span id="adminStatus">Vérification...</span></p>
+            <p><strong>ID Test:</strong> <span id="testPartnerId">ENT-752810</span></p>
+        </div>
+
+        <div class="test-section">
+            <h3>Tests de Migration</h3>
+            <button onclick="testBackendHealth()">1. Test Backend Health</button>
+            <button onclick="testPartnerLogin()">2. Test Login Entreprise</button>
+            <button onclick="testEnterpriseProfile()">3. Test Profil API</button>
+            <button onclick="testEnterpriseStats()">4. Test Statistiques</button>
+            <button onclick="testCreateProject()">5. Test Création Projet</button>
+            <button onclick="testCreateParticipant()">6. Test Ajout Participant</button>
+            <button onclick="runFullMigrationTest()">🚀 Test Migration Complet</button>
+            <button onclick="clearLog()">Effacer</button>
+        </div>
+
+        <div class="test-section">
+            <h3>Statistiques Entreprise</h3>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProjects">-</div>
+                    <div class="stat-label">Projets Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeProjects">-</div>
+                    <div class="stat-label">Projets Actifs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalFormations">-</div>
+                    <div class="stat-label">Formations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalParticipants">-</div>
+                    <div class="stat-label">Participants</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="satisfactionRate">-</div>
+                    <div class="stat-label">Satisfaction (%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Résultats des Tests</h3>
+            <div id="log" class="log">Initialisation des tests de migration...\n</div>
+        </div>
+
+        <div class="test-section">
+            <h3>Données JSON</h3>
+            <div id="jsonDisplay" class="json-display">Les données JSON apparaîtront ici...</div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const FRONTEND_URL = 'http://localhost:5173';
+        const ADMIN_URL = 'http://localhost:8536';
+        const TEST_PARTNER_ID = 'ENT-752810';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function displayJson(data, title = 'Données') {
+            const jsonElement = document.getElementById('jsonDisplay');
+            jsonElement.textContent = `=== ${title} ===\n${JSON.stringify(data, null, 2)}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = 'Log effacé...\n';
+            document.getElementById('jsonDisplay').textContent = 'Les données JSON apparaîtront ici...';
+        }
+
+        function updateStats(stats) {
+            if (stats) {
+                document.getElementById('totalProjects').textContent = stats.totalProjects || 0;
+                document.getElementById('activeProjects').textContent = stats.activeProjects || 0;
+                document.getElementById('totalFormations').textContent = stats.totalFormations || 0;
+                document.getElementById('totalParticipants').textContent = stats.totalParticipants || 0;
+                document.getElementById('satisfactionRate').textContent = stats.satisfactionRate || 0;
+            }
+        }
+
+        async function testBackendHealth() {
+            log('🔍 Test de santé du Backend...');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend accessible - Status: ${data.status}`, 'success');
+                    document.getElementById('backendStatus').textContent = '✅ Online';
+                    return true;
+                } else {
+                    log(`❌ Backend erreur - Status: ${response.status}`, 'error');
+                    document.getElementById('backendStatus').textContent = '❌ Offline';
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Backend inaccessible: ${error.message}`, 'error');
+                document.getElementById('backendStatus').textContent = '❌ Offline';
+                return false;
+            }
+        }
+
+        async function testPartnerLogin() {
+            log(`🔐 Test login pour ${TEST_PARTNER_ID}...`);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: TEST_PARTNER_ID }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login réussi pour ${TEST_PARTNER_ID}`, 'success');
+                    log(`   Nom: ${data.data.fullName}`, 'success');
+                    log(`   Email: ${data.data.email}`, 'success');
+                    displayJson(data.data, 'Données Partenaire');
+                    return data.data;
+                } else {
+                    log(`❌ Login échoué: ${data.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur login: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testEnterpriseProfile() {
+            log(`👤 Test récupération profil entreprise...`);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/enterprise/${TEST_PARTNER_ID}/profile`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Profil récupéré avec succès`, 'success');
+                    log(`   Nom: ${result.data.fullName}`, 'success');
+                    log(`   Contact: ${result.data.contactPerson || 'Non défini'}`, 'success');
+                    log(`   Téléphone: ${result.data.phone || 'Non défini'}`, 'success');
+                    displayJson(result.data, 'Profil Entreprise');
+                    return result.data;
+                } else {
+                    const error = await response.json();
+                    log(`❌ Erreur profil: ${error.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur API profil: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testEnterpriseStats() {
+            log(`📊 Test récupération statistiques...`);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/enterprise/${TEST_PARTNER_ID}/stats`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Statistiques récupérées`, 'success');
+                    log(`   Projets totaux: ${result.data.totalProjects}`, 'success');
+                    log(`   Projets actifs: ${result.data.activeProjects}`, 'success');
+                    log(`   Participants: ${result.data.totalParticipants}`, 'success');
+                    log(`   Satisfaction: ${result.data.satisfactionRate}%`, 'success');
+                    
+                    updateStats(result.data);
+                    displayJson(result.data, 'Statistiques Entreprise');
+                    return result.data;
+                } else {
+                    const error = await response.json();
+                    log(`❌ Erreur stats: ${error.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur API stats: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testCreateProject() {
+            log(`📁 Test création d'un projet...`);
+            try {
+                const projectData = {
+                    title: 'Projet Test Migration API',
+                    description: 'Projet de test pour valider la migration des mock data vers l\'API',
+                    status: 'planning',
+                    progress: 0,
+                    startDate: new Date().toISOString(),
+                    endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // +90 jours
+                    budget: 15000,
+                    participants: ['Développeur Test', 'Chef de Projet'],
+                    objectives: ['Valider l\'API', 'Tester l\'intégration', 'Migrer les données'],
+                    deliverables: ['API fonctionnelle', 'Tests validés', 'Documentation']
+                };
+
+                const response = await fetch(`${BACKEND_URL}/api/enterprise/${TEST_PARTNER_ID}/projects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(projectData),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Projet créé avec succès`, 'success');
+                    log(`   ID: ${result.data.projectId}`, 'success');
+                    log(`   Titre: ${result.data.title}`, 'success');
+                    displayJson(result.data, 'Nouveau Projet');
+                    return result.data;
+                } else {
+                    const error = await response.json();
+                    log(`❌ Erreur création projet: ${error.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur API projet: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testCreateParticipant() {
+            log(`👥 Test ajout d'un participant...`);
+            try {
+                const participantData = {
+                    fullName: 'Jean Dupont Test',
+                    email: 'jean.dupont.test@entreprise.com',
+                    phone: '+33 1 23 45 67 89',
+                    position: 'Développeur Senior',
+                    department: 'IT',
+                    employeeId: 'EMP-001',
+                    status: 'active'
+                };
+
+                const response = await fetch(`${BACKEND_URL}/api/enterprise/${TEST_PARTNER_ID}/participants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(participantData),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Participant ajouté avec succès`, 'success');
+                    log(`   ID: ${result.data.participantId}`, 'success');
+                    log(`   Nom: ${result.data.fullName}`, 'success');
+                    log(`   Poste: ${result.data.position}`, 'success');
+                    displayJson(result.data, 'Nouveau Participant');
+                    return result.data;
+                } else {
+                    const error = await response.json();
+                    log(`❌ Erreur ajout participant: ${error.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur API participant: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function runFullMigrationTest() {
+            log('🚀 === TEST MIGRATION COMPLET ===');
+            log('=====================================');
+            
+            let allTestsPassed = true;
+            
+            // Test 1: Backend Health
+            const backendOk = await testBackendHealth();
+            if (!backendOk) {
+                log('❌ ARRÊT: Backend inaccessible', 'error');
+                return;
+            }
+            
+            // Test 2: Login Entreprise
+            const loginData = await testPartnerLogin();
+            if (!loginData) {
+                log('❌ ARRÊT: Login entreprise échoué', 'error');
+                allTestsPassed = false;
+            }
+            
+            // Test 3: Profil Entreprise
+            const profileData = await testEnterpriseProfile();
+            if (!profileData) {
+                log('⚠️ Profil entreprise non accessible', 'warning');
+                allTestsPassed = false;
+            }
+            
+            // Test 4: Statistiques
+            const statsData = await testEnterpriseStats();
+            if (!statsData) {
+                log('⚠️ Statistiques non accessibles', 'warning');
+                allTestsPassed = false;
+            }
+            
+            // Test 5: Création Projet
+            const projectData = await testCreateProject();
+            if (!projectData) {
+                log('⚠️ Création projet échouée', 'warning');
+                allTestsPassed = false;
+            }
+            
+            // Test 6: Ajout Participant
+            const participantData = await testCreateParticipant();
+            if (!participantData) {
+                log('⚠️ Ajout participant échoué', 'warning');
+                allTestsPassed = false;
+            }
+            
+            // Résumé final
+            log('=====================================');
+            log('📊 RÉSUMÉ DE LA MIGRATION:');
+            log(`✅ Backend Health: ${backendOk ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Login Entreprise: ${loginData ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Profil API: ${profileData ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Statistiques: ${statsData ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Création Projet: ${projectData ? 'OK' : 'ÉCHEC'}`);
+            log(`✅ Ajout Participant: ${participantData ? 'OK' : 'ÉCHEC'}`);
+            
+            if (allTestsPassed) {
+                log('🎉 MIGRATION RÉUSSIE: Tous les tests sont passés!', 'success');
+                log('✅ L\'API remplace maintenant les mock data', 'success');
+                log('✅ L\'Espace Entreprise est prêt pour la production', 'success');
+            } else {
+                log('⚠️ MIGRATION PARTIELLE: Certains tests ont échoué', 'warning');
+                log('🔧 Vérifiez les logs ci-dessus pour les détails', 'warning');
+            }
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', async () => {
+            log('🔄 Initialisation des tests de migration...');
+            document.getElementById('testPartnerId').textContent = TEST_PARTNER_ID;
+            
+            // Test rapide du backend
+            await testBackendHealth();
+            
+            log(`🎯 Prêt à tester la migration pour ${TEST_PARTNER_ID}`);
+            log('📋 Utilisez les boutons ci-dessus pour tester individuellement');
+            log('🚀 Ou lancez le test complet avec le bouton "Test Migration Complet"');
+        });
+    </script>
+</body>
+</html>

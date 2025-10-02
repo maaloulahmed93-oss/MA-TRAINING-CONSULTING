@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧹 Clean Duplicates Now</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #dc3545;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clean Duplicates Now</h1>
+        
+        <div class="warning">
+            <strong>⚠️ تنظيف المكررات الفوري</strong><br>
+            هذه الأداة ستحذف الإشعارات المكررة وتحتفظ بالإشعار الذي يحتوي على رابط.
+        </div>
+
+        <h2>🛠️ إجراءات التنظيف:</h2>
+        <button onclick="cleanDuplicates()" class="success">🧹 تنظيف المكررات الآن</button>
+        <button onclick="showCurrentState()">📊 عرض الحالة الحالية</button>
+        <button onclick="refreshAdmin()">🔄 تحديث Admin Panel</button>
+
+        <h2>📋 نتائج التنظيف:</h2>
+        <pre id="results"></pre>
+    </div>
+
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('results').textContent = '';
+        }
+
+        function getNotificationKey() {
+            const keys = Object.keys(localStorage);
+            return keys.find(key => 
+                key.includes('notification') || key.includes('PART-')
+            ) || 'PART-550776-notifications';
+        }
+
+        function getNotifications() {
+            const key = getNotificationKey();
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error('Error parsing notifications:', e);
+                return [];
+            }
+        }
+
+        function saveNotifications(notifications) {
+            const key = getNotificationKey();
+            localStorage.setItem(key, JSON.stringify(notifications));
+        }
+
+        function showCurrentState() {
+            clearLog();
+            log('📊 عرض الحالة الحالية...');
+            
+            const notifications = getNotifications();
+            log(`📝 إجمالي الإشعارات: ${notifications.length}`);
+            
+            notifications.forEach((notif, index) => {
+                const hasLink = !!(notif.link && notif.link.trim());
+                log(`${index + 1}. "${notif.title}" - ${notif.description} - ${hasLink ? '🔗 مع رابط' : '❌ بدون رابط'}`);
+            });
+            
+            // تحليل المكررات
+            const titleGroups = {};
+            notifications.forEach((notif, index) => {
+                const key = `${notif.title}-${notif.description}`;
+                if (!titleGroups[key]) {
+                    titleGroups[key] = [];
+                }
+                titleGroups[key].push({index, notif});
+            });
+            
+            const duplicates = Object.entries(titleGroups).filter(([key, group]) => group.length > 1);
+            
+            if (duplicates.length > 0) {
+                log('\n⚠️ مكررات موجودة:');
+                duplicates.forEach(([key, group]) => {
+                    log(`   "${group[0].notif.title}" - ${group.length} مرات`);
+                });
+            } else {
+                log('\n✅ لا توجد مكررات');
+            }
+        }
+
+        function cleanDuplicates() {
+            clearLog();
+            log('🧹 بدء تنظيف المكررات...');
+            
+            const notifications = getNotifications();
+            log(`📊 الإشعارات الأصلية: ${notifications.length}`);
+            
+            // تجميع الإشعارات حسب العنوان والوصف
+            const groups = {};
+            
+            notifications.forEach((notif, index) => {
+                const key = `${notif.title}-${notif.description}`;
+                if (!groups[key]) {
+                    groups[key] = [];
+                }
+                groups[key].push(notif);
+            });
+            
+            // اختيار أفضل إشعار من كل مجموعة
+            const cleanedNotifications = [];
+            let removedCount = 0;
+            
+            Object.entries(groups).forEach(([key, group]) => {
+                if (group.length > 1) {
+                    log(`🔍 معالجة مجموعة "${group[0].title}" - ${group.length} إشعارات`);
+                    
+                    // ترتيب حسب الأولوية: الذي يحتوي على رابط أولاً
+                    group.sort((a, b) => {
+                        const aHasLink = !!(a.link && a.link.trim());
+                        const bHasLink = !!(b.link && b.link.trim());
+                        
+                        if (aHasLink && !bHasLink) return -1;
+                        if (!aHasLink && bHasLink) return 1;
+                        
+                        // إذا كان كلاهما يحتوي على رابط أو لا يحتوي، اختر الأحدث
+                        return new Date(b.date) - new Date(a.date);
+                    });
+                    
+                    const best = group[0];
+                    cleanedNotifications.push(best);
+                    removedCount += group.length - 1;
+                    
+                    log(`   ✅ احتفظ بالإشعار: ${best.link ? 'مع رابط' : 'بدون رابط'}`);
+                    log(`   🗑️ حذف ${group.length - 1} مكرر`);
+                } else {
+                    cleanedNotifications.push(group[0]);
+                }
+            });
+            
+            // حفظ النتائج
+            saveNotifications(cleanedNotifications);
+            
+            log(`\n🎉 تم التنظيف بنجاح!`);
+            log(`📊 قبل: ${notifications.length} إشعار`);
+            log(`📊 بعد: ${cleanedNotifications.length} إشعار`);
+            log(`🗑️ تم حذف: ${removedCount} مكرر`);
+            
+            // عرض النتيجة النهائية
+            log('\n📋 الإشعارات النهائية:');
+            cleanedNotifications.forEach((notif, index) => {
+                const hasLink = !!(notif.link && notif.link.trim());
+                log(`${index + 1}. "${notif.title}" - ${hasLink ? '🔗 مع رابط' : '❌ بدون رابط'}`);
+            });
+        }
+
+        function refreshAdmin() {
+            clearLog();
+            log('🔄 تحديث Admin Panel...');
+            
+            if (window.opener) {
+                try {
+                    window.opener.location.reload();
+                    log('✅ تم تحديث Admin Panel');
+                    setTimeout(() => window.close(), 2000);
+                } catch (e) {
+                    log(`❌ لا يمكن التحديث: ${e.message}`);
+                }
+            } else {
+                log('ℹ️ لا توجد نافذة أصل. يرجى التحديث يدوياً (F5)');
+            }
+        }
+
+        // عرض الحالة الحالية عند التحميل
+        window.onload = () => {
+            showCurrentState();
+        };
+    </script>
+</body>
+</html>

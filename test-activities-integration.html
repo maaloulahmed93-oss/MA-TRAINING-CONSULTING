@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 اختبار ربط الأنشطة الحديثة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">🎯 ربط الأنشطة الحديثة بحسابات المشارك</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Admin Panel Simulation -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-600">🔧 لوحة الإدارة - تحديث البيانات</h2>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">التقدم العام</label>
+                            <input type="number" id="adminProgress" min="0" max="100" value="85" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الدورات المكتملة</label>
+                            <input type="number" id="adminCourses" min="0" max="50" value="12" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ساعات الدراسة</label>
+                            <input type="number" id="adminHours" min="0" max="500" value="60" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الأهداف المحققة</label>
+                            <input type="number" id="adminGoals" min="0" max="50" value="15" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    
+                    <button onclick="updateParticipantData()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        💾 تحديث بيانات المشارك
+                    </button>
+                </div>
+            </div>
+
+            <!-- Participant Space Simulation -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-600">👤 مساحة المشارك - الأنشطة الحديثة</h2>
+                
+                <div id="activitiesContainer" class="space-y-3">
+                    <!-- Activities will be generated here -->
+                </div>
+                
+                <button onclick="refreshActivities()" class="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                    🔄 تحديث الأنشطة
+                </button>
+            </div>
+        </div>
+
+        <!-- Activity Generation Logic -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-purple-600">⚙️ منطق إنشاء الأنشطة</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">📊 الأنشطة المبنية على البيانات</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><strong>الدورات المكتملة:</strong> إذا > 0 → نشاط إنجاز الدورات</li>
+                        <li><strong>ساعات الدراسة:</strong> عند الوصول لـ 25h, 50h, 100h → نشاط معلم</li>
+                        <li><strong>الأهداف المحققة:</strong> إذا ≥ 25% → نشاط تقدم الأهداف</li>
+                        <li><strong>التقدم العام:</strong> عند 25%, 50%, 75%, 90% → نشاط معلم</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">🎨 أنواع الأنشطة</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                            <span><strong>course:</strong> إنجاز الدورات</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+                            <span><strong>achievement:</strong> معالم الدراسة والأهداف</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+                            <span><strong>achievement:</strong> تقدم الأهداف</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-purple-500 rounded-full"></div>
+                            <span><strong>achievement:</strong> معالم التقدم العام</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Steps -->
+        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-yellow-800">🔗 خطوات الربط</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="font-semibold text-yellow-800 mb-2">1. تحديث في لوحة الإدارة</h3>
+                    <p class="text-sm text-yellow-700">عندما يحدث المدير بيانات المشارك (التقدم، الدورات، الساعات، الأهداف)</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-yellow-800 mb-2">2. حفظ في قاعدة البيانات</h3>
+                    <p class="text-sm text-yellow-700">البيانات تُحفظ في Backend وتصبح متاحة لمساحة المشارك</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-yellow-800 mb-2">3. إنشاء الأنشطة تلقائياً</h3>
+                    <p class="text-sm text-yellow-700">مساحة المشارك تقرأ البيانات وتنشئ أنشطة حديثة مناسبة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current participant data
+        let participantData = {
+            totalProgress: 85,
+            completedCourses: 12,
+            studyTime: 60,
+            achievedGoals: 15,
+            totalGoals: 18
+        };
+
+        function updateParticipantData() {
+            participantData = {
+                totalProgress: parseInt(document.getElementById('adminProgress').value),
+                completedCourses: parseInt(document.getElementById('adminCourses').value),
+                studyTime: parseInt(document.getElementById('adminHours').value),
+                achievedGoals: parseInt(document.getElementById('adminGoals').value),
+                totalGoals: 18
+            };
+            
+            console.log('📊 Participant data updated:', participantData);
+            refreshActivities();
+        }
+
+        function generateActivities() {
+            const activities = [];
+            const { totalProgress, completedCourses, studyTime, achievedGoals, totalGoals } = participantData;
+            
+            // Activity for course completion
+            if (completedCourses > 0) {
+                activities.push({
+                    id: 'courses-completed',
+                    title: `${completedCourses} cours terminé${completedCourses > 1 ? 's' : ''}`,
+                    description: `Félicitations ! Vous avez terminé ${completedCourses} cours avec succès.`,
+                    type: 'course',
+                    bgColor: 'bg-green-50',
+                    iconColor: 'text-green-600',
+                    icon: '🏆',
+                    time: 'Il y a 2 jours'
+                });
+            }
+
+            // Activity for study time milestones
+            if (studyTime >= 25) {
+                const milestones = [25, 50, 100, 200];
+                const achievedMilestone = milestones.filter(m => studyTime >= m).pop();
+                if (achievedMilestone) {
+                    activities.push({
+                        id: `study-milestone-${achievedMilestone}`,
+                        title: `${achievedMilestone}h d'étude atteintes`,
+                        description: `Bravo ! Vous avez consacré ${studyTime}h à votre formation.`,
+                        type: 'achievement',
+                        bgColor: 'bg-blue-50',
+                        iconColor: 'text-blue-600',
+                        icon: '⏰',
+                        time: 'Il y a 1 jour'
+                    });
+                }
+            }
+
+            // Activity for goals achievement
+            if (achievedGoals > 0 && totalGoals > 0) {
+                const progressPercentage = Math.round((achievedGoals / totalGoals) * 100);
+                if (progressPercentage >= 25) {
+                    activities.push({
+                        id: 'goals-progress',
+                        title: `${achievedGoals}/${totalGoals} objectifs atteints`,
+                        description: `Excellent progrès ! Vous avez atteint ${progressPercentage}% de vos objectifs.`,
+                        type: 'achievement',
+                        bgColor: 'bg-orange-50',
+                        iconColor: 'text-orange-600',
+                        icon: '🎯',
+                        time: 'Il y a 3 heures'
+                    });
+                }
+            }
+
+            // Activity for overall progress milestones
+            if (totalProgress >= 25) {
+                const milestones = [25, 50, 75, 90];
+                const achievedMilestone = milestones.filter(m => totalProgress >= m).pop();
+                if (achievedMilestone) {
+                    activities.push({
+                        id: `progress-milestone-${achievedMilestone}`,
+                        title: `${totalProgress}% de progression globale`,
+                        description: `Fantastique ! Vous avez atteint ${achievedMilestone}% de votre parcours de formation.`,
+                        type: 'achievement',
+                        bgColor: 'bg-purple-50',
+                        iconColor: 'text-purple-600',
+                        icon: '📈',
+                        time: 'Il y a 5 heures'
+                    });
+                }
+            }
+
+            // Default welcome activity if no activities
+            if (activities.length === 0) {
+                activities.push({
+                    id: 'welcome-activity',
+                    title: 'Bienvenue dans votre espace participant',
+                    description: 'Votre compte a été activé avec succès. Commencez votre parcours de formation.',
+                    type: 'achievement',
+                    bgColor: 'bg-green-50',
+                    iconColor: 'text-green-600',
+                    icon: '🎉',
+                    time: 'Il y a 1 jour'
+                });
+            }
+
+            return activities;
+        }
+
+        function refreshActivities() {
+            const activities = generateActivities();
+            const container = document.getElementById('activitiesContainer');
+            
+            container.innerHTML = activities.map(activity => `
+                <div class="flex items-start space-x-3 p-3 ${activity.bgColor} rounded-lg border border-gray-200">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 ${activity.bgColor} rounded-full flex items-center justify-center">
+                            <span class="text-lg">${activity.icon}</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900">${activity.title}</p>
+                        <p class="text-sm text-gray-600">${activity.description}</p>
+                        <p class="text-xs text-gray-500 mt-1">${activity.time}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            console.log(`🎯 Generated ${activities.length} activities:`, activities);
+        }
+
+        // Initialize
+        refreshActivities();
+    </script>
+</body>
+</html>

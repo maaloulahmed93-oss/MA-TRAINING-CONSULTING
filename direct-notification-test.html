@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Notification Test - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.urgent { background: #ff6b6b; color: white; font-weight: bold; }
+        button.success { background: #28a745; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Direct Notification Test - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ لم تجد الإشعارات</h3>
+            <p>دعنا نتحقق من السبب ونحل المشكلة مباشرة</p>
+        </div>
+
+        <button onclick="testBackendConnection()" class="urgent">🔍 Test Backend</button>
+        <button onclick="addSimpleNotification()" class="success">➕ Add Simple Test</button>
+        <button onclick="checkNotifications()">📋 Check Notifications</button>
+        <button onclick="runFullDiagnostic()">🚀 Full Diagnostic</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testBackendConnection() {
+            log('🔍 Test connexion Backend...', 'info');
+            
+            try {
+                // Test basic connection
+                const response = await fetch('http://localhost:3001/api/participants');
+                log(`📊 Backend Status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend accessible', 'success');
+                    
+                    // Test specific participant
+                    const partResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                    if (partResponse.ok) {
+                        const partData = await partResponse.json();
+                        log('✅ Participant PART-550776 trouvé', 'success');
+                        log(`📊 Notifications actuelles: ${partData.data?.notifications?.length || 0}`, 'info');
+                    }
+                } else {
+                    log('❌ Backend non accessible', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur connexion: ${error.message}`, 'error');
+            }
+        }
+
+        async function addSimpleNotification() {
+            log('➕ Ajout notification simple...', 'info');
+            
+            const simpleNotification = {
+                title: 'Test Simple',
+                message: 'Notification de test simple pour vérifier le système',
+                type: 'information'
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(simpleNotification)
+                });
+                
+                log(`📊 POST Response: ${response.status}`, 'info');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Notification ajoutée avec succès!', 'success');
+                    log(`📋 ID: ${data.data?._id}`, 'info');
+                    
+                    // Immediate verification
+                    setTimeout(() => checkNotifications(), 1000);
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Erreur POST: ${response.status}`, 'error');
+                    log(`Details: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkNotifications() {
+            log('📋 Vérification notifications...', 'info');
+            
+            try {
+                // Check notifications API
+                const notifResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (notifResponse.ok) {
+                    const notifData = await notifResponse.json();
+                    log(`📊 API Notifications: ${notifData.data?.length || 0} trouvées`, 
+                        notifData.data?.length > 0 ? 'success' : 'warning');
+                    
+                    if (notifData.data?.length > 0) {
+                        notifData.data.forEach((notif, index) => {
+                            log(`${index + 1}. "${notif.title}" (${notif.type})`, 'info');
+                        });
+                    }
+                }
+                
+                // Check participant API
+                const partResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (partResponse.ok) {
+                    const partData = await partResponse.json();
+                    log(`📊 Participant API: ${partData.data?.notifications?.length || 0} notifications`, 
+                        partData.data?.notifications?.length > 0 ? 'success' : 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullDiagnostic() {
+            log('🚀 Diagnostic complet...', 'info');
+            
+            // Step 1: Test backend
+            await testBackendConnection();
+            
+            // Step 2: Add simple notification
+            setTimeout(async () => {
+                await addSimpleNotification();
+                
+                // Step 3: Check results
+                setTimeout(async () => {
+                    await checkNotifications();
+                    
+                    log('📊 Diagnostic terminé', 'success');
+                    log('🔍 Instructions:', 'warning');
+                    log('1. Si notifications > 0: allez tester espace participant', 'info');
+                    log('2. Si notifications = 0: problème dans backend', 'info');
+                    log('3. Vérifiez backend logs pour plus de détails', 'info');
+                }, 2000);
+            }, 2000);
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('❌ Problème: Aucune notification trouvée', 'error');
+                log('🎯 Diagnostic et test direct en cours...', 'warning');
+                runFullDiagnostic();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

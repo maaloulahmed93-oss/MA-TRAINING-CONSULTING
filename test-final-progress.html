@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 اختبار نهائي - تحديث التقدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">🎯 اختبار نهائي - تحديث التقدم</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-blue-600">📋 خطوات الاختبار النهائي</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">افتح لوحة الإدارة</h3>
+                        <p class="text-gray-600">اذهب إلى: <code class="bg-gray-100 px-2 py-1 rounded">http://localhost:8080/participants</code></p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">اختر مشاركاً</h3>
+                        <p class="text-gray-600">ابحث عن "aziz ben ameur" أو أي مشارك آخر</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">اضغط على أيقونة التقدم</h3>
+                        <p class="text-gray-600">اضغط على أيقونة الرسم البياني الخضراء 📊 في عمود الإجراءات</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">عدّل القيم</h3>
+                        <p class="text-gray-600">غيّر التقدم، الدورات المكتملة، ساعات الدراسة، والأهداف</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">احفظ التغييرات</h3>
+                        <p class="text-gray-600">اضغط "Mettre à jour" وراقب النتائج</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Expected Results -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-600">✅ النتائج المتوقعة</h2>
+                
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                        <span class="text-sm">رسالة نجاح تظهر في أعلى الصفحة</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                        <span class="text-sm">الصف يضيء بالأخضر لمدة 3 ثوان</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                        <span class="text-sm">شريط التقدم يتحرك للقيمة الجديدة</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                        <span class="text-sm">النافذة تُغلق تلقائياً</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                        <span class="text-sm">عند إعادة فتح النافذة، القيم الجديدة تظهر</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Messages -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-600">📡 رسائل Console المتوقعة</h2>
+                
+                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-xs space-y-1">
+                    <div>📊 Loading progress modal with values: {...}</div>
+                    <div>🔄 Updating participant: PART-834809</div>
+                    <div>✅ Participant PUT successful: PART-834809</div>
+                    <div>✅ API update successful: {...}</div>
+                    <div>✅ Immediate UI update completed</div>
+                    <div>✅ Participants list refreshed from API</div>
+                    <div>✅ Progress update completed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="mt-8 bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-red-600">🚨 إذا لم يعمل</h2>
+            
+            <div class="space-y-3">
+                <div>
+                    <h3 class="font-semibold text-red-800">1. تحقق من Backend</h3>
+                    <p class="text-red-700">تأكد من تشغيل: <code class="bg-red-100 px-2 py-1 rounded">npm run dev</code> في مجلد backend</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-red-800">2. تحقق من Frontend</h3>
+                    <p class="text-red-700">تأكد من تشغيل: <code class="bg-red-100 px-2 py-1 rounded">npm run dev</code> في مجلد admin-panel</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-red-800">3. تحقق من Console</h3>
+                    <p class="text-red-700">افتح Developer Tools (F12) وابحث عن أخطاء JavaScript</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-red-800">4. تحقق من Network</h3>
+                    <p class="text-red-700">في Network tab، تأكد من نجاح PUT request إلى /api/participants</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Tools -->
+        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-yellow-600">🔧 أدوات التشخيص</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="debug-progress-flow.html" class="bg-yellow-500 text-white px-4 py-2 rounded-lg text-center hover:bg-yellow-600 transition-colors">
+                    🔍 أداة تتبع البيانات
+                </a>
+                
+                <a href="test-progress-sync.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-600 transition-colors">
+                    🔄 اختبار المزامنة
+                </a>
+                
+                <a href="test-progress-save.html" class="bg-green-500 text-white px-4 py-2 rounded-lg text-center hover:bg-green-600 transition-colors">
+                    💾 اختبار الحفظ
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

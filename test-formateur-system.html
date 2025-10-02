@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système Formateurs - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Système Formateurs MATC</h1>
+        <p>Test complet du système de gestion des formateurs</p>
+
+        <!-- API Health Check -->
+        <div class="section">
+            <h2>🔍 Vérification API</h2>
+            <button class="btn-primary" onclick="checkApiHealth()">Vérifier API</button>
+            <div id="apiStatus"></div>
+        </div>
+
+        <!-- Create Partner -->
+        <div class="section">
+            <h2>➕ Créer un Formateur</h2>
+            <div class="form-group">
+                <label>Nom Complet:</label>
+                <input type="text" id="partnerName" placeholder="Ahmed Benali" value="Test Formateur">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="partnerEmail" placeholder="ahmed@example.com" value="test@formateur.com">
+            </div>
+            <button class="btn-success" onclick="createPartner()">Créer Formateur</button>
+            <div id="createResult"></div>
+        </div>
+
+        <!-- Partner Login -->
+        <div class="section">
+            <h2>🔐 Test Connexion Formateur</h2>
+            <div class="form-group">
+                <label>ID Formateur:</label>
+                <input type="text" id="loginId" placeholder="FOR-123456">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe (optionnel):</label>
+                <input type="password" id="loginPassword" placeholder="Laisser vide si non configuré">
+            </div>
+            <button class="btn-primary" onclick="testLogin()">Se Connecter</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <!-- Session Management -->
+        <div class="section">
+            <h2>📚 Gestion des Sessions</h2>
+            <div class="form-group">
+                <label>ID Formateur:</label>
+                <input type="text" id="sessionFormateurId" placeholder="FOR-123456">
+            </div>
+            <button class="btn-primary" onclick="loadSessions()">Charger Sessions</button>
+            <button class="btn-success" onclick="createTestSession()">Créer Session Test</button>
+            <div id="sessionsResult"></div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="section">
+            <h2>📊 Statistiques</h2>
+            <div class="form-group">
+                <label>ID Formateur:</label>
+                <input type="text" id="statsFormateurId" placeholder="FOR-123456">
+            </div>
+            <button class="btn-warning" onclick="loadStats()">Charger Statistiques</button>
+            <div id="statsResult"></div>
+        </div>
+
+        <!-- All Partners -->
+        <div class="section">
+            <h2>👥 Liste des Partenaires</h2>
+            <button class="btn-primary" onclick="loadAllPartners()">Charger Tous les Partenaires</button>
+            <button class="btn-primary" onclick="loadFormateurs()">Charger Formateurs Seulement</button>
+            <div id="partnersResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        async function checkApiHealth() {
+            const statusDiv = document.getElementById('apiStatus');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = `<div class="success">✅ API en ligne: ${data.message}</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div class="error">❌ API erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Connexion échouée: ${error.message}</div>`;
+            }
+        }
+
+        async function createPartner() {
+            const resultDiv = document.getElementById('createResult');
+            const name = document.getElementById('partnerName').value;
+            const email = document.getElementById('partnerEmail').value;
+            
+            if (!name || !email) {
+                resultDiv.innerHTML = '<div class="error">❌ Nom et email requis</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: name,
+                        email: email,
+                        type: 'formateur'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Formateur créé avec succès!<br>
+                            <strong>ID:</strong> ${data.data.partnerId}<br>
+                            <strong>Nom:</strong> ${data.data.fullName}<br>
+                            <strong>Email:</strong> ${data.data.email}
+                        </div>
+                    `;
+                    // Auto-fill login form
+                    document.getElementById('loginId').value = data.data.partnerId;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            const id = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!id) {
+                resultDiv.innerHTML = '<div class="error">❌ ID formateur requis</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners/${id}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: password || undefined })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Connexion réussie!<br>
+                            <strong>ID:</strong> ${data.data.partnerId}<br>
+                            <strong>Nom:</strong> ${data.data.fullName}<br>
+                            <strong>Email:</strong> ${data.data.email}<br>
+                            <strong>Dernière connexion:</strong> ${new Date(data.data.lastLogin).toLocaleString()}
+                        </div>
+                    `;
+                    // Auto-fill other forms
+                    document.getElementById('sessionFormateurId').value = data.data.partnerId;
+                    document.getElementById('statsFormateurId').value = data.data.partnerId;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function loadSessions() {
+            const resultDiv = document.getElementById('sessionsResult');
+            const formateurId = document.getElementById('sessionFormateurId').value;
+            
+            if (!formateurId) {
+                resultDiv.innerHTML = '<div class="error">❌ ID formateur requis</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-sessions/${formateurId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const sessions = data.data || [];
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ ${sessions.length} session(s) trouvée(s)
+                            <pre>${JSON.stringify(sessions, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function createTestSession() {
+            const formateurId = document.getElementById('sessionFormateurId').value;
+            
+            if (!formateurId) {
+                alert('ID formateur requis');
+                return;
+            }
+            
+            try {
+                // First get categories
+                const categoriesResponse = await fetch(`${API_BASE}/categories`);
+                const categoriesData = await categoriesResponse.json();
+                const categories = categoriesData.data || [];
+                
+                if (categories.length === 0) {
+                    alert('Aucune catégorie disponible. Créez d\'abord une catégorie.');
+                    return;
+                }
+                
+                const sessionData = {
+                    formateurId: formateurId,
+                    titre: 'Session Test - ' + new Date().toLocaleString(),
+                    description: 'Session de test créée automatiquement',
+                    categorie: categories[0]._id,
+                    niveau: 'Débutant',
+                    prix: 299,
+                    duree: { heures: 20, semaines: 4, sessions: 8 }
+                };
+                
+                const response = await fetch(`${API_BASE}/formateur-sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(sessionData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('sessionsResult').innerHTML = `
+                        <div class="success">✅ Session créée avec succès!</div>
+                    `;
+                    loadSessions(); // Reload sessions
+                } else {
+                    document.getElementById('sessionsResult').innerHTML = `
+                        <div class="error">❌ Erreur création session: ${data.message}</div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('sessionsResult').innerHTML = `
+                    <div class="error">❌ Erreur: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function loadStats() {
+            const resultDiv = document.getElementById('statsResult');
+            const formateurId = document.getElementById('statsFormateurId').value;
+            
+            if (!formateurId) {
+                resultDiv.innerHTML = '<div class="error">❌ ID formateur requis</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-sessions/${formateurId}/stats`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const stats = data.data;
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Statistiques chargées</div>
+                        <div class="stats">
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.totalSessions}</div>
+                                <div class="stat-label">Total Sessions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.sessionsEnCours}</div>
+                                <div class="stat-label">En Cours</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.totalParticipants}</div>
+                                <div class="stat-label">Participants</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.revenuTotal}€</div>
+                                <div class="stat-label">Revenus Total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.revenuEnAttente}€</div>
+                                <div class="stat-label">En Attente</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.noteMoyenne.toFixed(1)}/5</div>
+                                <div class="stat-label">Note Moyenne</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function loadAllPartners() {
+            const resultDiv = document.getElementById('partnersResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const partners = data.data || [];
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ ${partners.length} partenaire(s) trouvé(s)
+                            <pre>${JSON.stringify(partners, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function loadFormateurs() {
+            const resultDiv = document.getElementById('partnersResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners?type=formateur`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const formateurs = data.data || [];
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ ${formateurs.length} formateur(s) trouvé(s)
+                            <pre>${JSON.stringify(formateurs, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-check API on load
+        window.onload = function() {
+            checkApiHealth();
+        };
+    </script>
+</body>
+</html>

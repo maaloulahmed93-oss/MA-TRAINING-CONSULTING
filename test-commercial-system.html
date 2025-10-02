@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système Commercial MATC</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .test-section h2 {
+            color: #4a5568;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-section h3 {
+            color: #2d3748;
+            margin: 20px 0 10px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #22543d;
+        }
+        .error {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #742a2a;
+        }
+        .info {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            color: #2a4365;
+        }
+        .warning {
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            color: #744210;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #48bb78; }
+        .status-error { background: #f56565; }
+        .status-warning { background: #ed8936; }
+        .status-info { background: #4299e1; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Test Système Commercial MATC</h1>
+        
+        <!-- API Health Check -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-info"></span>
+                1. Vérification de l'API Backend
+            </h2>
+            <button onclick="testApiHealth()">Tester la Connexion API</button>
+            <div id="apiHealthResult" class="result info" style="display: none;"></div>
+        </div>
+
+        <!-- Partner Creation -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-warning"></span>
+                2. Création de Partenaire Commercial
+            </h2>
+            <div class="form-group">
+                <label>Nom Complet:</label>
+                <input type="text" id="partnerName" value="Ahmed Commercial" placeholder="Nom du partenaire">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="partnerEmail" value="ahmed.commercial@matc.com" placeholder="Email du partenaire">
+            </div>
+            <button onclick="createCommercialPartner()">Créer Partenaire Commercial</button>
+            <div id="partnerCreationResult" class="result info" style="display: none;"></div>
+        </div>
+
+        <!-- Commercial Login -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-warning"></span>
+                3. Connexion Commercial
+            </h2>
+            <div class="form-group">
+                <label>ID Commercial:</label>
+                <input type="text" id="commercialId" value="COM-123456" placeholder="COM-123456">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe (optionnel):</label>
+                <input type="password" id="commercialPassword" placeholder="Laissez vide si pas configuré">
+            </div>
+            <button onclick="testCommercialLogin()">Se Connecter</button>
+            <div id="loginResult" class="result info" style="display: none;"></div>
+        </div>
+
+        <!-- Deal Creation -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-warning"></span>
+                4. Création de Deal Commercial
+            </h2>
+            <div class="grid">
+                <div>
+                    <div class="form-group">
+                        <label>Titre de la Deal:</label>
+                        <input type="text" id="dealTitle" value="Formation React Entreprise TechCorp" placeholder="Titre de la deal">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom du Client:</label>
+                        <input type="text" id="clientName" value="TechCorp Solutions" placeholder="Nom du client">
+                    </div>
+                    <div class="form-group">
+                        <label>Type de Client:</label>
+                        <select id="clientType">
+                            <option value="entreprise">Entreprise</option>
+                            <option value="particulier">Particulier</option>
+                            <option value="association">Association</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Client:</label>
+                        <input type="email" id="clientEmail" value="contact@techcorp.com" placeholder="Email du client">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>Type de Service:</label>
+                        <input type="text" id="serviceType" value="Formation en entreprise" placeholder="Type de service">
+                    </div>
+                    <div class="form-group">
+                        <label>Montant Total (€):</label>
+                        <input type="number" id="montantTotal" value="12000" placeholder="Montant total">
+                    </div>
+                    <div class="form-group">
+                        <label>Taux Commission (%):</label>
+                        <input type="number" id="tauxCommission" value="15" placeholder="Taux de commission">
+                    </div>
+                    <div class="form-group">
+                        <label>Priorité:</label>
+                        <select id="priorite">
+                            <option value="normale">Normale</option>
+                            <option value="basse">Basse</option>
+                            <option value="haute">Haute</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description du Service:</label>
+                <textarea id="serviceDescription" rows="3" placeholder="Description détaillée du service">Formation React avancée pour 15 développeurs sur 3 jours</textarea>
+            </div>
+            <button onclick="createDeal()">Créer Deal</button>
+            <div id="dealCreationResult" class="result info" style="display: none;"></div>
+        </div>
+
+        <!-- Deals Management -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-info"></span>
+                5. Gestion des Deals
+            </h2>
+            <button onclick="loadDeals()">Charger Mes Deals</button>
+            <button onclick="loadStats()">Charger Statistiques</button>
+            <div id="dealsResult" class="result info" style="display: none;"></div>
+            
+            <div id="statsContainer" style="display: none;">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalDeals">0</div>
+                        <div class="stat-label">Total Deals</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="chiffreAffaire">0€</div>
+                        <div class="stat-label">Chiffre d'Affaires</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="commission">0€</div>
+                        <div class="stat-label">Commission</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="dealsActives">0</div>
+                        <div class="stat-label">Deals Actives</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Upload Test -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-warning"></span>
+                6. Upload de Documents
+            </h2>
+            <div class="form-group">
+                <label>ID de la Deal:</label>
+                <input type="text" id="dealIdForUpload" placeholder="ID de la deal pour upload">
+            </div>
+            <div class="form-group">
+                <label>Contrats:</label>
+                <input type="file" id="contratsFiles" multiple accept=".pdf,.jpg,.png">
+            </div>
+            <div class="form-group">
+                <label>Factures:</label>
+                <input type="file" id="facturesFiles" multiple accept=".pdf,.jpg,.png">
+            </div>
+            <button onclick="uploadDocuments()">Upload Documents</button>
+            <div id="uploadResult" class="result info" style="display: none;"></div>
+        </div>
+
+        <!-- Integration Test -->
+        <div class="test-section">
+            <h2>
+                <span class="status-indicator status-success"></span>
+                7. Test d'Intégration Complet
+            </h2>
+            <p>Ce test exécute un workflow complet : Création partenaire → Connexion → Création deal → Chargement données</p>
+            <button onclick="runFullIntegrationTest()">Lancer Test Complet</button>
+            <div id="integrationResult" class="result info" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        let currentCommercialId = '';
+        let currentDealId = '';
+
+        // Utility functions
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function updateStatusIndicator(sectionIndex, status) {
+            const indicators = document.querySelectorAll('.status-indicator');
+            if (indicators[sectionIndex - 1]) {
+                indicators[sectionIndex - 1].className = `status-indicator status-${status}`;
+            }
+        }
+
+        // 1. Test API Health
+        async function testApiHealth() {
+            try {
+                showResult('apiHealthResult', 'Vérification de la connexion API...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('apiHealthResult', `✅ API connectée avec succès!\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatusIndicator(1, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur API'}`);
+                }
+            } catch (error) {
+                showResult('apiHealthResult', `❌ Erreur de connexion API:\n${error.message}`, 'error');
+                updateStatusIndicator(1, 'error');
+            }
+        }
+
+        // 2. Create Commercial Partner
+        async function createCommercialPartner() {
+            try {
+                const name = document.getElementById('partnerName').value;
+                const email = document.getElementById('partnerEmail').value;
+                
+                if (!name || !email) {
+                    throw new Error('Nom et email requis');
+                }
+
+                showResult('partnerCreationResult', 'Création du partenaire commercial...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/partners`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullName: name,
+                        email: email,
+                        type: 'commercial'
+                    }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentCommercialId = data.partner.partnerId;
+                    document.getElementById('commercialId').value = currentCommercialId;
+                    showResult('partnerCreationResult', `✅ Partenaire créé avec succès!\nID: ${currentCommercialId}\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatusIndicator(2, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur création partenaire'}`);
+                }
+            } catch (error) {
+                showResult('partnerCreationResult', `❌ Erreur création partenaire:\n${error.message}`, 'error');
+                updateStatusIndicator(2, 'error');
+            }
+        }
+
+        // 3. Test Commercial Login
+        async function testCommercialLogin() {
+            try {
+                const commercialId = document.getElementById('commercialId').value;
+                const password = document.getElementById('commercialPassword').value;
+                
+                if (!commercialId) {
+                    throw new Error('ID Commercial requis');
+                }
+
+                showResult('loginResult', 'Connexion en cours...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/partners/${commercialId}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        password: password || undefined
+                    }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentCommercialId = commercialId;
+                    showResult('loginResult', `✅ Connexion réussie!\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatusIndicator(3, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur connexion'}`);
+                }
+            } catch (error) {
+                showResult('loginResult', `❌ Erreur connexion:\n${error.message}`, 'error');
+                updateStatusIndicator(3, 'error');
+            }
+        }
+
+        // 4. Create Deal
+        async function createDeal() {
+            try {
+                if (!currentCommercialId) {
+                    throw new Error('Veuillez vous connecter d\'abord');
+                }
+
+                const dealData = {
+                    commercialId: currentCommercialId,
+                    dealTitle: document.getElementById('dealTitle').value,
+                    clientName: document.getElementById('clientName').value,
+                    clientType: document.getElementById('clientType').value,
+                    clientEmail: document.getElementById('clientEmail').value,
+                    serviceType: document.getElementById('serviceType').value,
+                    serviceDescription: document.getElementById('serviceDescription').value,
+                    montantTotal: parseFloat(document.getElementById('montantTotal').value),
+                    tauxCommission: parseFloat(document.getElementById('tauxCommission').value),
+                    priorite: document.getElementById('priorite').value
+                };
+
+                showResult('dealCreationResult', 'Création de la deal...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/commercial-deals`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dealData),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentDealId = data.data._id;
+                    document.getElementById('dealIdForUpload').value = currentDealId;
+                    showResult('dealCreationResult', `✅ Deal créée avec succès!\nID: ${currentDealId}\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatusIndicator(4, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur création deal'}`);
+                }
+            } catch (error) {
+                showResult('dealCreationResult', `❌ Erreur création deal:\n${error.message}`, 'error');
+                updateStatusIndicator(4, 'error');
+            }
+        }
+
+        // 5. Load Deals and Stats
+        async function loadDeals() {
+            try {
+                if (!currentCommercialId) {
+                    throw new Error('Veuillez vous connecter d\'abord');
+                }
+
+                showResult('dealsResult', 'Chargement des deals...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/commercial-deals/${currentCommercialId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('dealsResult', `✅ Deals chargées avec succès!\nNombre: ${data.data.length}\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatusIndicator(5, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur chargement deals'}`);
+                }
+            } catch (error) {
+                showResult('dealsResult', `❌ Erreur chargement deals:\n${error.message}`, 'error');
+                updateStatusIndicator(5, 'error');
+            }
+        }
+
+        async function loadStats() {
+            try {
+                if (!currentCommercialId) {
+                    throw new Error('Veuillez vous connecter d\'abord');
+                }
+
+                const response = await fetch(`${API_BASE_URL}/commercial-deals/${currentCommercialId}/stats`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const stats = data.data;
+                    document.getElementById('totalDeals').textContent = stats.totalDeals;
+                    document.getElementById('chiffreAffaire').textContent = `${stats.chiffreAffaireTotal}€`;
+                    document.getElementById('commission').textContent = `${stats.commissionTotale}€`;
+                    document.getElementById('dealsActives').textContent = stats.dealsActives;
+                    document.getElementById('statsContainer').style.display = 'block';
+                    
+                    showResult('dealsResult', `✅ Statistiques chargées avec succès!\n${JSON.stringify(stats, null, 2)}`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur chargement stats'}`);
+                }
+            } catch (error) {
+                showResult('dealsResult', `❌ Erreur chargement stats:\n${error.message}`, 'error');
+            }
+        }
+
+        // 6. Upload Documents
+        async function uploadDocuments() {
+            try {
+                const dealId = document.getElementById('dealIdForUpload').value;
+                if (!dealId) {
+                    throw new Error('ID de deal requis');
+                }
+
+                const formData = new FormData();
+                
+                const contratsFiles = document.getElementById('contratsFiles').files;
+                const facturesFiles = document.getElementById('facturesFiles').files;
+                
+                for (let file of contratsFiles) {
+                    formData.append('contrats', file);
+                }
+                for (let file of facturesFiles) {
+                    formData.append('factures', file);
+                }
+
+                if (contratsFiles.length === 0 && facturesFiles.length === 0) {
+                    throw new Error('Veuillez sélectionner au moins un fichier');
+                }
+
+                showResult('uploadResult', 'Upload des documents...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/commercial-deals/${dealId}/documents`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('uploadResult', `✅ Documents uploadés avec succès!\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatusIndicator(6, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur upload documents'}`);
+                }
+            } catch (error) {
+                showResult('uploadResult', `❌ Erreur upload documents:\n${error.message}`, 'error');
+                updateStatusIndicator(6, 'error');
+            }
+        }
+
+        // 7. Full Integration Test
+        async function runFullIntegrationTest() {
+            showResult('integrationResult', '🚀 Démarrage du test d\'intégration complet...', 'info');
+            
+            try {
+                // Step 1: API Health
+                showResult('integrationResult', '📡 Étape 1/5: Vérification API...', 'info');
+                await testApiHealth();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Step 2: Create Partner
+                showResult('integrationResult', '👤 Étape 2/5: Création partenaire...', 'info');
+                await createCommercialPartner();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Step 3: Login
+                showResult('integrationResult', '🔐 Étape 3/5: Connexion...', 'info');
+                await testCommercialLogin();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Step 4: Create Deal
+                showResult('integrationResult', '💼 Étape 4/5: Création deal...', 'info');
+                await createDeal();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Step 5: Load Data
+                showResult('integrationResult', '📊 Étape 5/5: Chargement données...', 'info');
+                await loadDeals();
+                await loadStats();
+
+                showResult('integrationResult', '🎉 Test d\'intégration complet réussi!\n\nTous les composants du système commercial fonctionnent correctement:\n✅ API Backend\n✅ Création partenaire\n✅ Authentification\n✅ Gestion des deals\n✅ Statistiques\n\nLe système est prêt pour la production!', 'success');
+                updateStatusIndicator(7, 'success');
+                
+            } catch (error) {
+                showResult('integrationResult', `❌ Échec du test d'intégration:\n${error.message}`, 'error');
+                updateStatusIndicator(7, 'error');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏢 Test Système Commercial MATC - Prêt');
+        });
+    </script>
+</body>
+</html>

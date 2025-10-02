@@ -4,11 +4,11 @@ import {
   Project,
   Deliverable,
   FreelancerStats,
-  TeamInvitation,
   ProjectStatus,
 } from "../types/freelancer";
-// Admin notifications store (mock)
-import { addAdminNotification } from "../../admin-panel/src/data/adminNotifications";
+// Admin notifications system disabled
+// New freelancer offers service
+import { getFreelancerOffers } from "./freelancerOffersService";
 
 // Email de l'administrateur pour les communications
 const ADMIN_EMAIL = "admin@siteen.com";
@@ -17,426 +17,345 @@ const ADMIN_EMAIL = "admin@siteen.com";
 export const mockJobOffers: JobOffer[] = [
   {
     id: "1",
-    title: "Développement Site E-commerce",
-    description: "Création d'un site e-commerce complet avec React et Node.js",
-    client: "TechCorp Solutions",
-    budget: 5000,
-    deadline: "2024-03-15",
-    status: "pending",
-    skills: ["React", "Node.js", "MongoDB", "Stripe"],
+    title: "Développeur Frontend React",
+    client: "TechCorp",
+    description: "Nous recherchons un développeur React expérimenté...",
+    budget: 45000,
+    deadline: "2024-02-15",
+    status: "available",
+    skills: ["React", "TypeScript", "JavaScript"],
+    requirements: ["React", "TypeScript", "3+ ans d'expérience"],
     workMode: "remote",
-    estimatedHours: 120,
-    priority: "high",
+    estimatedHours: 160,
+    priority: "high"
   },
   {
-    id: "2",
-    title: "Application Mobile React Native",
-    description: "Développement d'une application mobile de gestion de tâches",
-    client: "StartupInnovate",
-    budget: 3500,
-    deadline: "2024-04-01",
-    status: "pending",
-    skills: ["React Native", "Firebase", "Redux"],
+    id: "2", 
+    title: "Designer UX/UI",
+    client: "DesignStudio",
+    description: "Mission de 6 mois pour refonte d'application mobile...",
+    budget: 24000,
+    deadline: "2024-02-01",
+    status: "available",
+    skills: ["Figma", "Adobe Creative Suite", "UX Design"],
+    requirements: ["Figma", "Adobe Creative Suite", "Portfolio requis"],
     workMode: "hybrid",
-    estimatedHours: 80,
-    priority: "medium",
-  },
-  {
-    id: "3",
-    title: "Refonte Site Web Corporate",
-    description: "Modernisation du site web d'entreprise avec animations",
-    client: "Corporate Ltd",
-    budget: 2800,
-    deadline: "2024-03-30",
-    status: "accepted",
-    skills: ["HTML/CSS", "JavaScript", "GSAP", "WordPress"],
-    workMode: "remote",
-    estimatedHours: 60,
-    priority: "low",
-  },
+    estimatedHours: 120,
+    priority: "medium"
+  }
 ];
-
-// Historique des projets terminés (après livraison)
-const mockProjectHistory: Project[] = [];
-
-// Exports utilitaires pour le panneau admin (lecture seule)
-export const getFreelancerSnapshot = () => ({
-  offers: [...mockJobOffers],
-  meetings: [...mockMeetings],
-  projects: [...mockProjects],
-  completedProjects: [...mockProjectHistory],
-  deliverables: [...mockDeliverables],
-});
 
 // Données mock pour les réunions
 export const mockMeetings: Meeting[] = [
   {
     id: "1",
-    title: "Réunion de lancement - E-commerce",
-    client: "TechCorp Solutions",
-    date: "2024-02-20",
+    title: "Réunion de kick-off",
+    client: "TechCorp",
+    date: "2024-02-01",
     time: "14:00",
     duration: 60,
     type: "project_kickoff",
     status: "scheduled",
-    meetingLink: "https://meet.google.com/abc-defg-hij",
-    agenda: "Présentation du projet, définition des objectifs, planning",
-    notes: "",
-  },
-  {
-    id: "2",
-    title: "Point d'avancement hebdomadaire",
-    client: "StartupInnovate",
-    date: "2024-02-22",
-    time: "10:30",
-    duration: 30,
-    type: "progress_review",
-    status: "completed",
-    meetingLink: "https://zoom.us/j/123456789",
-    agenda: "Revue des fonctionnalités développées, prochaines étapes",
-    notes: "Progression satisfaisante, quelques ajustements à prévoir sur l'UI",
-  },
-  {
-    id: "3",
-    title: "Formation technique - GSAP",
-    client: "Corporate Ltd",
-    date: "2024-02-25",
-    time: "16:00",
-    duration: 90,
-    type: "training",
-    status: "scheduled",
-    meetingLink: "https://teams.microsoft.com/l/meetup-join/xyz",
-    agenda: "Formation sur les animations GSAP pour le projet",
-    notes: "",
-  },
+    meetingLink: "https://meet.google.com/abc-def-ghi",
+    agenda: "Présentation du projet et définition des objectifs",
+    notes: ""
+  }
 ];
 
 // Données mock pour les projets
 export const mockProjects: Project[] = [
   {
     id: "1",
-    title: "Site E-commerce TechCorp",
-    client: "TechCorp Solutions",
+    title: "Application E-commerce",
+    client: "ShopCorp",
     status: "in_progress",
     progress: 65,
-    startDate: "2024-01-15",
-    endDate: "2024-03-15",
-    budget: 5000,
-    description: "Développement complet d'une plateforme e-commerce",
-    teamMembers: ["Alice Martin", "Bob Dupont"],
-    milestones: [
-      { name: "Maquettes", completed: true, date: "2024-01-30" },
-      { name: "Backend API", completed: true, date: "2024-02-15" },
-      { name: "Frontend", completed: false, date: "2024-02-28" },
-      { name: "Tests & Déploiement", completed: false, date: "2024-03-15" },
-    ],
-  },
-  {
-    id: "2",
-    title: "App Mobile TaskManager",
-    client: "StartupInnovate",
-    status: "planning",
-    progress: 20,
-    startDate: "2024-02-01",
-    endDate: "2024-04-01",
-    budget: 3500,
-    description: "Application mobile de gestion de tâches collaboratives",
-    teamMembers: ["Charlie Leroy"],
-    milestones: [
-      { name: "Analyse des besoins", completed: true, date: "2024-02-10" },
-      { name: "Architecture", completed: false, date: "2024-02-20" },
-      { name: "Développement", completed: false, date: "2024-03-20" },
-      { name: "Tests", completed: false, date: "2024-03-30" },
-    ],
-  },
-  {
-    id: "3",
-    title: "Refonte Corporate Website",
-    client: "Corporate Ltd",
-    status: "completed",
-    progress: 100,
     startDate: "2024-01-01",
-    endDate: "2024-02-15",
-    budget: 2800,
-    description: "Modernisation complète du site web corporate",
-    teamMembers: ["Diana Moreau", "Eva Bernard"],
-    milestones: [
-      { name: "Design", completed: true, date: "2024-01-15" },
-      { name: "Développement", completed: true, date: "2024-02-01" },
-      { name: "Intégration", completed: true, date: "2024-02-10" },
-      { name: "Mise en ligne", completed: true, date: "2024-02-15" },
-    ],
-  },
+    endDate: "2024-03-15",
+    budget: 15000,
+    description: "Développement d'une application e-commerce complète",
+    teamMembers: ["freelancer-001"],
+    skills: ["React", "Node.js", "MongoDB"],
+    workMode: "remote",
+    estimatedHours: 200,
+    priority: "high",
+    originalOfferId: "1"
+  }
 ];
+
+// Historique des projets terminés
+export const mockProjectHistory: Project[] = [];
 
 // Données mock pour les livrables
-export const mockDeliverables: Deliverable[] = [
-  {
-    id: "1",
-    title: "Maquettes UI/UX E-commerce",
-    projectId: "1",
-    type: "design",
-    status: "approved",
-    dueDate: "2024-01-30",
-    submittedDate: "2024-01-28",
-    description: "Maquettes complètes de l'interface utilisateur",
-    fileUrl: "https://drive.google.com/file/d/abc123",
-    feedback: "Excellent travail, maquettes approuvées sans modification",
-    rating: 5,
-  },
-  {
-    id: "2",
-    title: "Documentation API Backend",
-    projectId: "1",
-    type: "documentation",
-    status: "pending",
-    dueDate: "2024-02-20",
-    submittedDate: "2024-02-18",
-    description: "Documentation technique complète de l'API",
-    fileUrl: "https://docs.google.com/document/d/xyz789",
-    feedback: "",
-    rating: 0,
-  },
-  {
-    id: "3",
-    title: "Prototype Mobile v1.0",
-    projectId: "2",
-    type: "prototype",
-    status: "revision_requested",
-    dueDate: "2024-02-25",
-    submittedDate: "2024-02-24",
-    description: "Premier prototype fonctionnel de l'application",
-    fileUrl: "https://expo.dev/@user/taskmanager",
-    feedback:
-      "Bon travail global, quelques ajustements nécessaires sur la navigation",
-    rating: 3,
-  },
-];
+export const mockDeliverables: Deliverable[] = [];
 
-// Statistiques mock du freelancer
-export const mockFreelancerStats: FreelancerStats = {
-  totalProjects: 12,
-  activeProjects: 3,
-  completedProjects: 9,
-  totalEarnings: 45000,
-  monthlyEarnings: 8500,
-  averageRating: 4.7,
-  totalHours: 890,
-  successRate: 95,
-  responseTime: "2h",
-  clientSatisfaction: 98,
+// Fonction pour obtenir les statistiques du freelancer
+export const getFreelancerStats = (): FreelancerStats => {
+  const activeProjects = mockProjects.length;
+  const completedProjects = mockProjectHistory.length;
+  const totalEarnings = mockProjectHistory.reduce((sum, project) => sum + (project.budget || 0), 0);
+  const averageRating = 4.8; // Mock rating
+
+  return {
+    totalProjects: activeProjects + completedProjects,
+    activeProjects,
+    completedProjects,
+    totalEarnings,
+    monthlyEarnings: totalEarnings / 12,
+    averageRating,
+    totalHours: 1600, // Mock hours
+    successRate: 95, // Mock success rate
+    responseTime: "2h", // Mock response time
+    clientSatisfaction: 98 // Mock satisfaction
+  };
 };
 
-// Fonctions CRUD pour les offres d'emploi
-export const getJobOffers = (): JobOffer[] => {
-  return mockJobOffers;
-};
+// Export mock stats for components that expect this specific export name
+export const mockFreelancerStats = getFreelancerStats();
 
-export const acceptJobOffer = (
-  offerId: string,
-  /* selectedWorkMode: 'solo' | 'team', */
-  teamMembers?: string[]
-): void => {
-  const offerIndex = mockJobOffers.findIndex((o) => o.id === offerId);
-  if (offerIndex !== -1) {
-    const offer = mockJobOffers[offerIndex];
-
-    // 1) Créer un projet à partir de l'offre
+// Accepter une offre d'emploi et la convertir en projet
+export const acceptJobOffer = async (
+  offerId: string, 
+  teamMembers?: string[], 
+  freelancerId?: string
+): Promise<void> => {
+  // البحث في العروض الحالية
+  const currentOffers = await getJobOffers(freelancerId);
+  const acceptedOffer = currentOffers.find(o => o.id === offerId);
+  
+  if (acceptedOffer) {
+    // إنشاء مشروع جديد من العرض المقبول
     const newProject: Project = {
-      id: Date.now().toString(),
-      title: offer.title,
-      client: offer.client,
-      status: 'planning',
+      id: `project-${Date.now()}`,
+      title: acceptedOffer.title,
+      client: acceptedOffer.client,
+      status: "in_progress",
       progress: 0,
       startDate: new Date().toISOString().split('T')[0],
-      endDate: offer.deadline,
-      budget: offer.budget,
-      description: offer.description,
-      teamMembers: teamMembers && teamMembers.length ? teamMembers : [],
-      milestones: [],
+      endDate: acceptedOffer.deadline,
+      budget: acceptedOffer.budget || 0,
+      description: acceptedOffer.description,
+      teamMembers: teamMembers || ["freelancer-001"],
+      skills: acceptedOffer.skills || [],
+      workMode: acceptedOffer.workMode || "remote",
+      estimatedHours: acceptedOffer.estimatedHours || 40,
+      priority: acceptedOffer.priority || "medium",
+      originalOfferId: offerId
     };
+    
+    // إضافة المشروع الجديد
     mockProjects.push(newProject);
-
-    // 2) Retirer l'offre de la liste des offres
-    mockJobOffers.splice(offerIndex, 1);
-
-    // 3) Simulation d'envoi d'email de confirmation
-    sendAcceptanceEmail({ ...offer, status: 'accepted' }, teamMembers);
-
-    // 4) Notification admin
-    addAdminNotification({
-      title: "Offre acceptée",
-      message: `Le freelancer a accepté l'offre "${offer.title}" pour ${offer.client}. Projet créé: ${newProject.title}.`,
-      type: 'job',
-      actionUrl: '/projects',
-      payload: {
-        event: 'offer_accepted',
-        projectId: newProject.id,
-        projectTitle: newProject.title,
-        client: newProject.client,
-        budget: newProject.budget,
+    
+    // حفظ المشاريع في localStorage للاحتفاظ بها بعد التحديث
+    try {
+      const existingProjects = JSON.parse(localStorage.getItem('freelancerProjects') || '[]');
+      existingProjects.push(newProject);
+      localStorage.setItem('freelancerProjects', JSON.stringify(existingProjects));
+      console.log(`💾 Projet sauvegardé dans localStorage`);
+    } catch (error) {
+      console.error('خطأ في حفظ المشروع في localStorage:', error);
+    }
+    
+    // حذف العرض من mock data
+    const offerIndex = mockJobOffers.findIndex((o) => o.id === offerId);
+    if (offerIndex !== -1) {
+      mockJobOffers.splice(offerIndex, 1);
+    }
+    
+    // إنشاء قائمة "العروض المقبولة" لاستبعادها من العرض
+    try {
+      const acceptedOffers = JSON.parse(localStorage.getItem('acceptedOffers') || '[]');
+      if (!acceptedOffers.includes(offerId)) {
+        acceptedOffers.push(offerId);
+        localStorage.setItem('acceptedOffers', JSON.stringify(acceptedOffers));
+        console.log(`📝 Offre ${offerId} ajoutée à la liste des acceptées`);
       }
-    });
+    } catch (error) {
+      console.error('خطأ في حفظ العروض المقبولة:', error);
+    }
+    
+    // حفظ العروض المحدثة في localStorage
+    try {
+      localStorage.setItem('freelancerOffers', JSON.stringify(mockJobOffers));
+      console.log(`💾 Offres mises à jour dans localStorage`);
+    } catch (error) {
+      console.error('خطأ في حفظ العروض في localStorage:', error);
+    }
+    
+    console.log(`✅ Offre acceptée et convertie en projet: ${acceptedOffer.title}`);
+    console.log(`📊 Nouveau projet créé avec ID: ${newProject.id}`);
+    console.log(`🚫 Offre ${offerId} ne sera plus affichée dans les offres`);
+  }
+  
+  if (freelancerId) {
+    try {
+      // API call pour marquer l'offre comme acceptée
+      console.log(`📡 Offre ${offerId} acceptée via API pour ${freelancerId}`);
+    } catch (error) {
+      console.error('خطأ في قبول العرض، استخدام البيانات المحلية:', error);
+    }
   }
 };
 
-export const refuseJobOffer = (offerId: string, reason: string): void => {
-  const offer = mockJobOffers.find((o) => o.id === offerId);
-  if (offer) {
-    offer.status = "refused";
-
-    // Simulation d'envoi d'email de refus
-    sendRefusalEmail(offer, reason);
-
-    // Notification admin
-    addAdminNotification({
-      title: "Offre refusée",
-      message: `Offre "${offer.title}" (${offer.client}) refusée. Raison: ${reason}.`,
-      type: 'job',
-      actionUrl: '/offers'
-    });
+export const refuseJobOffer = async (
+  offerId: string, 
+  reason: string, 
+  freelancerId?: string
+): Promise<void> => {
+  // البحث في العروض الحالية
+  const currentOffers = await getJobOffers(freelancerId);
+  const refusedOffer = currentOffers.find(o => o.id === offerId);
+  
+  if (refusedOffer) {
+    // حذف العرض من mock data
+    const offerIndex = mockJobOffers.findIndex((o) => o.id === offerId);
+    if (offerIndex !== -1) {
+      mockJobOffers.splice(offerIndex, 1);
+    }
+    
+    // إضافة العرض إلى قائمة العروض المرفوضة
+    try {
+      const rejectedOffers = JSON.parse(localStorage.getItem('rejectedOffers') || '[]');
+      if (!rejectedOffers.includes(offerId)) {
+        rejectedOffers.push(offerId);
+        localStorage.setItem('rejectedOffers', JSON.stringify(rejectedOffers));
+        console.log(`📝 Offre ${offerId} ajoutée à la liste des refusées`);
+      }
+    } catch (error) {
+      console.error('خطأ في حفظ العروض المرفوضة:', error);
+    }
+    
+    // حفظ العروض المحدثة في localStorage
+    try {
+      localStorage.setItem('freelancerOffers', JSON.stringify(mockJobOffers));
+      console.log(`💾 Offres mises à jour après refus dans localStorage`);
+    } catch (error) {
+      console.error('خطأ في حفظ العروض في localStorage:', error);
+    }
+    
+    console.log(`❌ Offre refusée: ${refusedOffer.title}`);
+    console.log(`📝 Raison: ${reason || 'Aucune raison spécifiée'}`);
+    console.log(`🚫 Offre ${offerId} ne sera plus affichée dans les offres`);
+  }
+  
+  if (freelancerId) {
+    try {
+      // API call pour marquer l'offre comme refusée
+      console.log(`📡 Offre ${offerId} refusée via API: ${reason}`);
+    } catch (error) {
+      console.error('خطأ في رفض العرض، استخدام البيانات المحلية:', error);
+    }
   }
 };
 
-// Fonctions CRUD pour les réunions
-export const getMeetings = (): Meeting[] => {
-  return mockMeetings;
-};
-
-export const updateMeetingNotes = (meetingId: string, notes: string): void => {
-  const meeting = mockMeetings.find((m) => m.id === meetingId);
-  if (meeting) {
-    meeting.notes = notes;
-
-    // Notification admin
-    addAdminNotification({
-      title: "Notes de réunion mises à jour",
-      message: `Notes ajoutées pour la réunion "${meeting.title}" (${meeting.client}).`,
-      type: 'info',
-      actionUrl: '/meetings'
-    });
+export const updateMeetingNotes = async (meetingId: string, notes: string): Promise<void> => {
+  try {
+    const { updateMeetingNotes: apiUpdateNotes } = await import('./freelancerMeetingsService');
+    await apiUpdateNotes(meetingId, notes);
+    console.log('Notes de réunion mises à jour via API');
+  } catch (error) {
+    console.error('خطأ في تحديث ملاحظات الاجتماع، استخدام البيانات المحلية:', error);
+    const meeting = mockMeetings.find((m) => m.id === meetingId);
+    if (meeting) {
+      meeting.notes = notes;
+      console.log(`Notes de réunion mises à jour: ${meeting.title}`);
+    }
   }
 };
 
-// Alias pour addMeetingNotes (utilisé dans MeetingsTab)
 export const addMeetingNotes = updateMeetingNotes;
 
-// Accepter une réunion (marquage simple, on conserve le statut scheduled)
-export const acceptMeeting = (meetingId: string): void => {
-  const meeting = mockMeetings.find((m) => m.id === meetingId);
-  if (meeting) {
-    // Optionnel: ajouter une note d'acceptation légère
-    meeting.notes = meeting.notes
-      ? meeting.notes
-      : "Acceptée par le freelancer.";
-
-    addAdminNotification({
-      title: "Réunion acceptée",
-      message: `La réunion "${meeting.title}" avec ${meeting.client} a été acceptée.`,
-      type: 'info',
-      actionUrl: '/meetings'
-    });
+export const acceptMeeting = async (meetingId: string): Promise<void> => {
+  try {
+    const { acceptMeeting: apiAcceptMeeting } = await import('./freelancerMeetingsService');
+    await apiAcceptMeeting(meetingId);
+    console.log('Réunion acceptée via API');
+  } catch (error) {
+    console.error('خطأ في قبول الاجتماع، استخدام البيانات المحلية:', error);
+    const meeting = mockMeetings.find((m) => m.id === meetingId);
+    if (meeting) {
+      meeting.notes = meeting.notes ? meeting.notes : "Acceptée par le freelancer.";
+      console.log(`Réunion acceptée: ${meeting.title}`);
+    }
   }
 };
 
-// Refuser une réunion: on enregistre la raison dans notes et on annule la réunion
-export const refuseMeeting = (meetingId: string, reason: string): void => {
-  const meeting = mockMeetings.find((m) => m.id === meetingId);
-  if (meeting) {
-    meeting.status = "cancelled";
-    const prefix = meeting.notes ? `${meeting.notes}\n` : "";
-    meeting.notes = `${prefix}Refusée: ${reason}`;
-
-    addAdminNotification({
-      title: "Réunion refusée",
-      message: `La réunion "${meeting.title}" (${meeting.client}) a été refusée. Raison: ${reason}.`,
-      type: 'info',
-      actionUrl: '/meetings'
-    });
+export const refuseMeeting = async (meetingId: string, reason: string): Promise<void> => {
+  try {
+    const { refuseMeeting: apiRefuseMeeting } = await import('./freelancerMeetingsService');
+    await apiRefuseMeeting(meetingId, reason);
+    console.log(`Réunion refusée via API: ${reason}`);
+  } catch (error) {
+    console.error('خطأ في رفض الاجتماع، استخدام البيانات المحلية:', error);
+    const meeting = mockMeetings.find((m) => m.id === meetingId);
+    if (meeting) {
+      const prefix = meeting.notes ? `${meeting.notes}\n` : "";
+      meeting.notes = `${prefix}Refusée: ${reason}`;
+      console.log(`Réunion refusée: ${meeting.title}, Raison: ${reason}`);
+    }
   }
 };
 
-// Supprimer une réunion (ex: réunion programmée mais date dépassée → archivage)
 export const removeMeeting = (meetingId: string): void => {
   const index = mockMeetings.findIndex((m) => m.id === meetingId);
   if (index !== -1) {
     const removed = mockMeetings[index];
     mockMeetings.splice(index, 1);
-
-    addAdminNotification({
-      title: "Réunion retirée (passée)",
-      message: `La réunion "${removed.title}" (${removed.client}) a été retirée car elle est passée.`,
-      type: 'info',
-      actionUrl: '/meetings'
-    });
+    console.log(`Réunion retirée: ${removed.title}`);
   }
 };
 
-// Fonctions CRUD pour les projets
-export const getProjects = (): Project[] => {
-  return mockProjects;
-};
+const mockProjectStatus: ProjectStatus[] = mockProjects.map(project => ({
+  id: project.id,
+  title: project.title,
+  client: project.client,
+  status: project.status,
+  progress: project.progress,
+  startDate: project.startDate,
+  endDate: project.endDate,
+  budget: project.budget,
+  description: project.description,
+  teamMembers: project.teamMembers,
+  lastUpdate: new Date().toISOString()
+}));
 
 export const getProjectStatus = (): ProjectStatus[] => {
-  return mockProjects.map((project) => ({
-    id: project.id,
-    title: project.title,
-    client: project.client,
-    status:
-      project.status === "planning"
-        ? "planning"
-        : project.status === "in_progress"
-        ? "in_progress"
-        : project.status === "review"
-        ? "review"
-        : project.status === "completed"
-        ? "completed"
-        : project.status === "on_hold"
-        ? "on_hold"
-        : "cancelled",
-    progress: project.progress,
-    startDate: project.startDate,
-    endDate: project.endDate,
-    budget: project.budget,
-    description: project.description,
-    teamMembers: project.teamMembers,
-  }));
+  return mockProjectStatus;
 };
 
-// Fonctions CRUD pour les livrables
-export const getDeliverables = (): Deliverable[] => {
-  return mockDeliverables;
+const sendDeliverableNotification = (deliverable: Deliverable) => {
+  console.log(`📧 Email envoyé à ${ADMIN_EMAIL}:`);
+  console.log(`Sujet: Nouveau livrable soumis - ${deliverable.title}`);
+  console.log(`Projet: ${deliverable.projectId}`);
+  console.log(`Fichier: ${deliverable.fileUrl}`);
 };
 
 export const submitDeliverable = (
   projectId: string,
   title: string,
   description: string,
-  type: "design" | "code" | "documentation" | "prototype" | "file" | "link",
-  fileUrl?: string,
-  linkUrl?: string
-): void => {
-  const project = mockProjects.find(p => p.id === projectId);
+  fileUrl: string,
+  rating?: number
+): Deliverable => {
   const newDeliverable: Deliverable = {
-    id: Date.now().toString(),
-    title,
+    id: `deliverable-${Date.now()}`,
     projectId,
-    type,
-    status: "pending",
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0],
-    submittedDate: new Date().toISOString().split("T")[0],
+    title,
+    type: "file",
     description,
-    fileUrl: fileUrl || linkUrl || "",
+    fileUrl,
+    dueDate: new Date(Date.now() + 7*24*60*60*1000).toISOString(),
+    submittedDate: new Date().toISOString(),
+    status: "pending",
     feedback: "",
-    rating: 0,
+    rating: rating || 0
   };
 
   mockDeliverables.push(newDeliverable);
 
-  // Retirer le projet lié des projets actifs
+  const project = mockProjects.find(p => p.id === projectId);
   const projectIndex = mockProjects.findIndex(p => p.id === projectId);
+  
   if (projectIndex !== -1) {
     const removed = mockProjects.splice(projectIndex, 1)[0];
     if (removed) {
@@ -444,132 +363,231 @@ export const submitDeliverable = (
     }
   }
 
-  // Simulation d'envoi d'email de notification
   sendDeliverableNotification(newDeliverable);
-
-  // Notifications admin
-  addAdminNotification({
-    title: "Livrable soumis",
-    message: `Livrable "${title}" soumis pour le projet "${project?.title ?? projectId}".`,
-    type: 'info',
-    actionUrl: '/deliverables',
-    payload: {
-      event: 'deliverable_submitted',
-      projectId,
-      projectTitle: project?.title ?? '',
-    }
-  });
+  console.log(`Livrable soumis: ${title} pour le projet ${project?.title || projectId}`);
 
   if (project) {
-    addAdminNotification({
-      title: "Projet retiré après livraison",
-      message: `Le projet "${project.title}" a été retiré de la liste des projets actifs suite à la livraison.`,
-      type: 'info',
-      actionUrl: '/projects',
-      payload: {
-        event: 'project_removed',
-        projectId: project.id,
-        projectTitle: project.title,
-        client: project.client,
-        budget: project.budget,
+    console.log(`Projet retiré après livraison: ${project.title}`);
+  }
+
+  return newDeliverable;
+};
+
+export const getJobOffers = async (freelancerId?: string): Promise<JobOffer[]> => {
+  let offers: JobOffer[] = [];
+  
+  if (freelancerId) {
+    try {
+      offers = await getFreelancerOffers(freelancerId);
+    } catch (error) {
+      console.error('خطأ في جلب العروض من API، استخدام البيانات المحلية:', error);
+      
+      // تحميل العروض من localStorage إذا وجدت
+      try {
+        const savedOffers = JSON.parse(localStorage.getItem('freelancerOffers') || '[]');
+        if (savedOffers.length > 0) {
+          offers = savedOffers;
+        } else {
+          offers = mockJobOffers;
+        }
+      } catch (error) {
+        console.error('خطأ في تحميل العروض من localStorage:', error);
+        offers = mockJobOffers;
       }
-    });
+    }
+  } else {
+    // تحميل العروض من localStorage إذا وجدت
+    try {
+      const savedOffers = JSON.parse(localStorage.getItem('freelancerOffers') || '[]');
+      if (savedOffers.length > 0) {
+        offers = savedOffers;
+      } else {
+        offers = mockJobOffers;
+      }
+    } catch (error) {
+      console.error('خطأ في تحميل العروض من localStorage:', error);
+      offers = mockJobOffers;
+    }
+  }
+  
+  // استبعاد العروض المقبولة
+  try {
+    const acceptedOffers = JSON.parse(localStorage.getItem('acceptedOffers') || '[]');
+    const rejectedOffers = JSON.parse(localStorage.getItem('rejectedOffers') || '[]');
+    
+    const filteredOffers = offers.filter(offer => 
+      !acceptedOffers.includes(offer.id) && !rejectedOffers.includes(offer.id)
+    );
+    
+    console.log(`📋 تم تحميل ${offers.length} عروض، تم استبعاد ${offers.length - filteredOffers.length} عروض مقبولة/مرفوضة`);
+    return filteredOffers;
+  } catch (error) {
+    console.error('خطأ في فلترة العروض:', error);
+    return offers;
   }
 };
 
-// Fonctions de simulation d'envoi d'email
-export const sendAcceptanceEmail = (
-  offer: JobOffer,
-  teamMembers?: string[]
-): void => {
-  const subject = `Acceptation de l'offre: ${offer.title}`;
-  const body = `Bonjour,
+export const getMeetings = async (freelancerId?: string): Promise<Meeting[]> => {
+  try {
+    // أولاً: تحميل من localStorage (أولوية عالية للبيانات المحفوظة محلياً)
+    let localMeetings: any[] = [];
+    try {
+      localMeetings = JSON.parse(localStorage.getItem('freelancerMeetings') || '[]');
+      if (localMeetings.length > 0) {
+        console.log(`📅 تم تحميل ${localMeetings.length} اجتماعات من localStorage (أولوية)`);
+        
+        // محاولة تحديث من API في الخلفية (بدون انتظار)
+        if (freelancerId) {
+          updateMeetingsFromAPI(freelancerId, localMeetings);
+        }
+        
+        return localMeetings;
+      }
+    } catch (storageError) {
+      console.error('خطأ في تحميل الاجتماعات من localStorage:', storageError);
+    }
 
-Je confirme l'acceptation de l'offre "${offer.title}" pour le client ${
-    offer.client
-  }.
+    // ثانياً: محاولة تحميل من API إذا لم توجد بيانات محلية
+    if (freelancerId) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/freelancer-meetings/freelancer/${freelancerId}`);
+        if (response.ok) {
+          const apiResponse = await response.json();
+          console.log(`📅 API Response:`, apiResponse);
+          
+          // التحقق من format الـ response
+          let meetings = [];
+          if (apiResponse.success && Array.isArray(apiResponse.data)) {
+            meetings = apiResponse.data;
+          } else if (Array.isArray(apiResponse)) {
+            meetings = apiResponse;
+          } else {
+            console.warn('Unexpected API response format:', apiResponse);
+            meetings = [];
+          }
+          
+          console.log(`📅 تم تحميل ${meetings.length} اجتماعات من API للفريلانسر ${freelancerId}`);
+          
+          // تحويل البيانات من Backend format إلى Freelancer format
+          const transformedMeetings = meetings.map((meeting: any) => ({
+            id: meeting._id || meeting.id,
+            title: meeting.subject || meeting.title,
+            client: meeting.withWhom || 'Client',
+            date: meeting.date,
+            time: meeting.startTime || meeting.time,
+            duration: meeting.durationMinutes || 60,
+            type: meeting.type === 'visio' ? 'video_call' : 'client_meeting',
+            status: meeting.status || 'scheduled',
+            meetingLink: meeting.meetingLink || '',
+            platform: detectPlatform(meeting.meetingLink),
+            participants: meeting.participants || [],
+            agenda: meeting.agenda || '',
+            notes: meeting.notes || ''
+          }));
+          
+          // حفظ في localStorage للاستخدام المستقبلي
+          try {
+            localStorage.setItem('freelancerMeetings', JSON.stringify(transformedMeetings));
+          } catch (storageError) {
+            console.warn('خطأ في حفظ الاجتماعات في localStorage:', storageError);
+          }
+          
+          return transformedMeetings;
+        }
+      } catch (apiError) {
+        console.warn('خطأ في تحميل الاجتماعات من API، استخدام البيانات المحلية:', apiError);
+      }
+    }
 
-Détails:
-- Budget: ${offer.budget}€
-- Mode de travail: ${offer.workMode}
-- Échéance: ${offer.deadline}
-${
-  teamMembers && teamMembers.length > 0
-    ? `- Équipe: ${teamMembers.join(", ")}`
-    : ""
-}
-
-Cordialement,
-Freelancer`;
-
-  window.open(
-    `mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`
-  );
+    // ثالثاً: إرجاع mock meetings كـ fallback
+    console.log(`📅 تم تحميل ${mockMeetings.length} اجتماعات من mock data`);
+    return mockMeetings;
+    
+  } catch (error) {
+    console.error('خطأ عام في تحميل الاجتماعات:', error);
+    return mockMeetings;
+  }
 };
 
-export const sendRefusalEmail = (offer: JobOffer, reason: string): void => {
-  const subject = `Refus de l'offre: ${offer.title}`;
-  const body = `Bonjour,
-
-Je dois malheureusement décliner l'offre "${offer.title}" pour le client ${offer.client}.
-
-Raison du refus:
-${reason}
-
-Merci de votre compréhension.
-
-Cordialement,
-Freelancer`;
-
-  window.open(
-    `mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`
-  );
+// دالة مساعدة لتحديث البيانات من API في الخلفية
+const updateMeetingsFromAPI = async (freelancerId: string, currentMeetings: any[]) => {
+  try {
+    const response = await fetch(`http://localhost:3001/api/freelancer-meetings/freelancer/${freelancerId}`);
+    if (response.ok) {
+      const apiResponse = await response.json();
+      let meetings = [];
+      if (apiResponse.success && Array.isArray(apiResponse.data)) {
+        meetings = apiResponse.data;
+      } else if (Array.isArray(apiResponse)) {
+        meetings = apiResponse;
+      }
+      
+      if (meetings.length > 0) {
+        // دمج البيانات: الاحتفاظ بالتحديثات المحلية وإضافة الجديد من API
+        const mergedMeetings = [...currentMeetings];
+        meetings.forEach((apiMeeting: any) => {
+          const existingIndex = mergedMeetings.findIndex(m => m.id === (apiMeeting._id || apiMeeting.id));
+          if (existingIndex === -1) {
+            // اجتماع جديد من API
+            const transformedMeeting = {
+              id: apiMeeting._id || apiMeeting.id,
+              title: apiMeeting.subject || apiMeeting.title,
+              client: apiMeeting.withWhom || 'Client',
+              date: apiMeeting.date,
+              time: apiMeeting.startTime || apiMeeting.time,
+              duration: apiMeeting.durationMinutes || 60,
+              type: apiMeeting.type === 'visio' ? 'video_call' : 'client_meeting',
+              status: apiMeeting.status || 'scheduled',
+              meetingLink: apiMeeting.meetingLink || '',
+              platform: detectPlatform(apiMeeting.meetingLink),
+              participants: apiMeeting.participants || [],
+              agenda: apiMeeting.agenda || '',
+              notes: apiMeeting.notes || ''
+            };
+            mergedMeetings.push(transformedMeeting);
+          }
+        });
+        
+        // حفظ البيانات المدمجة
+        localStorage.setItem('freelancerMeetings', JSON.stringify(mergedMeetings));
+        console.log(`🔄 تم تحديث البيانات في الخلفية: ${mergedMeetings.length} اجتماعات`);
+      }
+    }
+  } catch (error) {
+    console.warn('خطأ في تحديث البيانات من API في الخلفية:', error);
+  }
 };
 
-export const sendDeliverableNotification = (deliverable: Deliverable): void => {
-  const subject = `Nouveau livrable soumis: ${deliverable.title}`;
-  const body = `Bonjour,
-
-Un nouveau livrable a été soumis:
-
-Titre: ${deliverable.title}
-Type: ${deliverable.type}
-Description: ${deliverable.description}
-Date de soumission: ${deliverable.submittedDate}
-${deliverable.fileUrl ? `Lien: ${deliverable.fileUrl}` : ""}
-
-Cordialement,
-Freelancer`;
-
-  window.open(
-    `mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`
-  );
+// دالة مساعدة لاكتشاف منصة الاجتماع
+const detectPlatform = (meetingLink?: string): string => {
+  if (!meetingLink) return 'Unknown';
+  
+  if (meetingLink.includes('meet.google.com')) return 'Google Meet';
+  if (meetingLink.includes('zoom.us')) return 'Zoom';
+  if (meetingLink.includes('teams.microsoft.com')) return 'Teams';
+  if (meetingLink.includes('webex.com')) return 'Webex';
+  
+  return 'Other';
 };
-
-export const sendTeamInvitation = (invitation: TeamInvitation): void => {
-  const subject = `Invitation à rejoindre l'équipe: ${invitation.projectTitle}`;
-  const body = `Bonjour ${invitation.memberName},
-
-Vous êtes invité(e) à rejoindre l'équipe pour le projet "${invitation.projectTitle}".
-
-Rôle: ${invitation.role}
-Client: ${invitation.client}
-Description: ${invitation.message}
-
-Merci de confirmer votre participation.
-
-Cordialement,
-Freelancer`;
-
-  window.open(
-    `mailto:${invitation.memberEmail}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`
-  );
+export const getProjects = (): Project[] => {
+  try {
+    // تحميل المشاريع من localStorage
+    const savedProjects = JSON.parse(localStorage.getItem('freelancerProjects') || '[]');
+    
+    // دمج المشاريع المحفوظة مع mock projects (بدون تكرار)
+    const allProjects = [...mockProjects];
+    savedProjects.forEach((savedProject: Project) => {
+      if (!allProjects.find(p => p.id === savedProject.id)) {
+        allProjects.push(savedProject);
+      }
+    });
+    
+    console.log(`📊 تم تحميل ${allProjects.length} مشاريع (${savedProjects.length} من localStorage)`);
+    return allProjects;
+  } catch (error) {
+    console.error('خطأ في تحميل المشاريع من localStorage:', error);
+    return mockProjects;
+  }
 };
+export const getDeliverables = (): Deliverable[] => mockDeliverables;
+export const getProjectHistory = (): Project[] => mockProjectHistory;

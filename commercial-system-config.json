@@ -1,0 +1,205 @@
+{
+  "systemInfo": {
+    "name": "MATC Commercial System",
+    "version": "1.0.0",
+    "description": "Système commercial avec 3 niveaux de progression",
+    "author": "MATC Development Team",
+    "createdDate": "2025-01-17",
+    "status": "Production Ready"
+  },
+  "services": {
+    "backend": {
+      "name": "Backend API",
+      "port": 3001,
+      "url": "http://localhost:3001",
+      "healthCheck": "/api/health",
+      "mainRoute": "/api/commercial-new",
+      "database": "MongoDB Atlas",
+      "status": "✅ Ready"
+    },
+    "frontend": {
+      "name": "Frontend React",
+      "port": 5173,
+      "url": "http://localhost:5173",
+      "commercialRoute": "/espace-commercial-new",
+      "framework": "React + TypeScript + Tailwind",
+      "status": "✅ Ready"
+    },
+    "adminPanel": {
+      "name": "Admin Panel",
+      "port": 8536,
+      "url": "http://localhost:8536",
+      "commercialServicesRoute": "/commercial-services",
+      "framework": "React + TypeScript",
+      "status": "✅ Ready"
+    }
+  },
+  "security": {
+    "adminSecretCode": "20388542",
+    "sessionManagement": "localStorage",
+    "apiValidation": "Server-side + Client-side",
+    "dataEncryption": "MongoDB native"
+  },
+  "commercialLevels": {
+    "level1": {
+      "name": "Apprenti",
+      "condition": "Nouveau commercial",
+      "benefits": ["5 points par vente confirmée", "Commission standard"],
+      "nextLevelRequirement": "1000 points",
+      "color": "orange"
+    },
+    "level2": {
+      "name": "Confirmé",
+      "condition": "1000 points accumulés",
+      "benefits": ["Gestion des clients", "Suivi chiffre d'affaires", "Possibilité de transfert"],
+      "nextLevelRequirement": "Transfert de 500€",
+      "color": "blue"
+    },
+    "level3": {
+      "name": "Partenaire Officiel",
+      "condition": "Transfert de 500€ effectué",
+      "benefits": ["20% commission directe", "5€ cadeau automatique/mois", "Statut partenaire"],
+      "nextLevelRequirement": "Niveau maximum",
+      "color": "purple"
+    }
+  },
+  "features": {
+    "dashboard": {
+      "tabs": ["Dashboard", "Ventes", "Clients"],
+      "realTimeStats": true,
+      "progressBars": true,
+      "animations": true
+    },
+    "salesManagement": {
+      "addSales": true,
+      "trackCommissions": true,
+      "autoPointCalculation": true,
+      "statusTracking": ["confirmé", "en_attente", "annulé"]
+    },
+    "clientManagement": {
+      "addClients": true,
+      "trackStatus": ["nouveau", "payé", "annulé", "en_attente"],
+      "potentialCalculation": true,
+      "contactInfo": true
+    },
+    "adminFeatures": {
+      "createServices": true,
+      "assignServices": true,
+      "viewStatistics": true,
+      "monthlyGifts": true,
+      "secretCodeProtection": true
+    }
+  },
+  "database": {
+    "collections": {
+      "commercialnews": {
+        "description": "Commercial agents data",
+        "fields": ["partnerId", "fullName", "niveau", "points", "chiffreAffaires", "ventes", "clients"],
+        "indexes": ["partnerId", "niveau", "isActive"]
+      },
+      "commercialservices": {
+        "description": "Services/Programs for commercials",
+        "fields": ["titre", "prixPublic", "commission", "commerciauxAutorises"],
+        "indexes": ["isActive", "creePar"]
+      }
+    }
+  },
+  "api": {
+    "commercialEndpoints": [
+      "POST /{partnerId}/login",
+      "GET /{partnerId}",
+      "GET /{partnerId}/services",
+      "POST /{partnerId}/vente",
+      "POST /{partnerId}/client",
+      "POST /{partnerId}/transfert",
+      "GET /{partnerId}/stats"
+    ],
+    "adminEndpoints": [
+      "POST /admin/service",
+      "POST /admin/services",
+      "POST /admin/assign-service",
+      "POST /admin/monthly-gifts",
+      "POST /admin/stats"
+    ]
+  },
+  "files": {
+    "backend": [
+      "backend/models/CommercialNew.js",
+      "backend/models/CommercialService.js",
+      "backend/routes/commercialNew.js"
+    ],
+    "frontend": [
+      "src/pages/EspaceCommercialNewPage.tsx",
+      "src/components/commercial/CommercialNewDashboard-advanced.tsx",
+      "src/components/commercial/SalesManager.tsx",
+      "src/components/commercial/ClientManager.tsx",
+      "src/services/commercialNewApiService.ts"
+    ],
+    "adminPanel": [
+      "admin-panel/src/pages/CommercialServicesPage.tsx"
+    ],
+    "tests": [
+      "test-commercial-complete-system.html",
+      "test-commercial-advanced.html",
+      "test-commercial-simple.html"
+    ],
+    "documentation": [
+      "COMMERCIAL-SYSTEM-README.md",
+      "COMMERCIAL-SYSTEM-SUMMARY.md"
+    ],
+    "scripts": [
+      "start-commercial-system.bat",
+      "start-commercial-system.sh",
+      "stop-commercial-system.sh"
+    ]
+  },
+  "testData": {
+    "testCommercialId": "COMM-123456",
+    "testService": {
+      "titre": "Formation React Avancée",
+      "prixPublic": 1500,
+      "commission": 150
+    },
+    "testClient": {
+      "nom": "Dupont",
+      "prenom": "Jean",
+      "email": "jean.dupont@example.com"
+    }
+  },
+  "deployment": {
+    "requirements": [
+      "Node.js 18+",
+      "MongoDB Atlas account",
+      "npm or yarn"
+    ],
+    "environmentVariables": [
+      "MONGODB_URI",
+      "SECRET_CODE",
+      "PORT"
+    ],
+    "ports": [3001, 5173, 8536],
+    "commands": {
+      "start": "./start-commercial-system.sh",
+      "stop": "./stop-commercial-system.sh",
+      "test": "Open test-commercial-complete-system.html"
+    }
+  },
+  "monitoring": {
+    "healthChecks": [
+      "http://localhost:3001/api/health",
+      "http://localhost:5173",
+      "http://localhost:8536"
+    ],
+    "logFiles": [
+      "/tmp/matc-Backend.log",
+      "/tmp/matc-Frontend.log",
+      "/tmp/matc-Admin-Panel.log"
+    ]
+  },
+  "support": {
+    "documentation": "COMMERCIAL-SYSTEM-README.md",
+    "testSuite": "test-commercial-complete-system.html",
+    "troubleshooting": "Check logs and health endpoints",
+    "contact": "Technical team via documentation"
+  }
+}

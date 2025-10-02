@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 اختبار GET Participant</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 10px; max-height: 400px; overflow-y: auto; direction: ltr; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 اختبار GET Participant - تشخيص مشكلة الاسترجاع</h1>
+        <p>من الصور: البيانات تحفظ لكن لا تسترجع صحيح</p>
+
+        <div class="warning">
+            <h3>🚨 المشكلة المكتشفة من الصور:</h3>
+            <ul>
+                <li>✅ الفورم يرسل البيانات للباكند</li>
+                <li>✅ الباكند يحفظ البيانات (Backend logs تظهر "programmes changés")</li>
+                <li>✅ المشارك يحفظ بـ ID صحيح</li>
+                <li>❌ البيانات لا تظهر في الفورم بعد الحفظ</li>
+                <li>🎯 <strong>المشكلة: GET route لا يسترجع البيانات صحيح</strong></li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h3>📋 الاختبارات:</h3>
+            <button class="btn-primary" onclick="testGetSpecificParticipant()">1. اختبار GET مشارك محدد</button>
+            <button class="btn-success" onclick="testGetAllParticipants()">2. اختبار GET جميع المشاركين</button>
+            <button class="btn-danger" onclick="testDatabaseDirectly()">3. اختبار قاعدة البيانات مباشرة</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="${type}"><strong>[${time}]</strong> ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function testGetSpecificParticipant() {
+            log('🔄 اختبار GET مشارك محدد...', 'info');
+            
+            // من الصور، آخر ID كان PART-653876
+            const participantIds = ['PART-653876', 'PART-177037', 'PART-DEBUG-FLOW'];
+            
+            for (const id of participantIds) {
+                try {
+                    log(`📤 اختبار GET /api/participants/${id}...`, 'info');
+                    
+                    const response = await fetch(`${API_BASE}/participants/${id}`);
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        log(`✅ نجح استرجاع المشارك ${id}`, 'success');
+                        log(`📊 اسم المشارك: ${result.data.fullName}`, 'info');
+                        log(`📊 عدد Formations: ${result.data.formations?.length || 0}`, 'info');
+                        log(`📊 عدد Projects: ${result.data.projects?.length || 0}`, 'info');
+                        
+                        if (result.data.formations && result.data.formations.length > 0) {
+                            log(`🎓 تفاصيل Formations:`, 'success');
+                            result.data.formations.forEach((f, i) => {
+                                log(`  Formation ${i+1}: ${f.title}`, 'success');
+                                log(`    Links: ${f.links?.length || 0}`, 'success');
+                                log(`    Courses: ${f.courses?.length || 0}`, 'success');
+                                if (f.links && f.links.length > 0) {
+                                    f.links.forEach((link, li) => {
+                                        log(`      Link ${li+1}: ${link.title} (${link.type})`, 'success');
+                                    });
+                                }
+                            });
+                            
+                            log(`🎉 المشارك ${id} لديه بيانات formations!`, 'success');
+                        } else {
+                            log(`❌ المشارك ${id} ليس لديه formations`, 'error');
+                        }
+                        
+                        log(`<pre>${JSON.stringify(result.data, null, 2)}</pre>`, 'info');
+                        break; // وجدنا مشارك بنجاح
+                        
+                    } else {
+                        log(`❌ فشل استرجاع المشارك ${id}: ${result.message}`, 'warning');
+                    }
+                } catch (error) {
+                    log(`❌ خطأ في استرجاع المشارك ${id}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testGetAllParticipants() {
+            log('🔄 اختبار GET جميع المشاركين...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const participants = result.data || [];
+                    log(`✅ تم استرجاع ${participants.length} مشاركين`, 'success');
+                    
+                    if (participants.length > 0) {
+                        log('📊 قائمة المشاركين:', 'info');
+                        participants.forEach((p, i) => {
+                            log(`  ${i+1}. ${p.fullName} (${p.id || p.partnerId})`, 'info');
+                            log(`     Formations: ${p.formations?.length || 0}`, 'info');
+                            log(`     Projects: ${p.projects?.length || 0}`, 'info');
+                        });
+                        
+                        // تحليل المشاركين الذين لديهم formations
+                        const participantsWithFormations = participants.filter(p => p.formations && p.formations.length > 0);
+                        log(`🎓 المشاركين الذين لديهم formations: ${participantsWithFormations.length}`, participantsWithFormations.length > 0 ? 'success' : 'warning');
+                        
+                        if (participantsWithFormations.length === 0) {
+                            log('🚨 مشكلة مكتشفة: لا يوجد مشاركين لديهم formations رغم أن Backend logs تظهر الحفظ!', 'error');
+                            log('💡 هذا يعني أن المشكلة في GET route أو في استرجاع البيانات من قاعدة البيانات', 'error');
+                        }
+                        
+                    } else {
+                        log('❌ لا يوجد مشاركين في قاعدة البيانات', 'error');
+                    }
+                } else {
+                    log(`❌ فشل استرجاع المشاركين: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في استرجاع المشاركين: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDatabaseDirectly() {
+            log('🔄 اختبار قاعدة البيانات مباشرة...', 'info');
+            log('💡 هذا الاختبار يحتاج endpoint خاص للتحقق من قاعدة البيانات مباشرة', 'warning');
+            
+            // اختبار collections منفصلة
+            const collections = [
+                { name: 'Partners', endpoint: '/partners' },
+                { name: 'ParticipantFormations', endpoint: '/participant-formations' },
+                { name: 'ParticipantProjects', endpoint: '/participant-projects' }
+            ];
+            
+            for (const collection of collections) {
+                try {
+                    log(`📤 اختبار ${collection.name}...`, 'info');
+                    
+                    // هذا endpoint قد لا يكون موجود، لكن نجرب
+                    const response = await fetch(`${API_BASE}${collection.endpoint}`);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        log(`✅ ${collection.name}: ${result.data?.length || 0} records`, 'success');
+                    } else {
+                        log(`⚠️ ${collection.name}: endpoint غير متوفر (${response.status})`, 'warning');
+                    }
+                } catch (error) {
+                    log(`⚠️ ${collection.name}: ${error.message}`, 'warning');
+                }
+            }
+            
+            log('🎯 الخلاصة: نحتاج للتحقق من قاعدة البيانات مباشرة عبر MongoDB Compass أو CLI', 'info');
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', () => {
+            log('🚀 أداة اختبار GET Participant جاهزة', 'success');
+            log('🎯 الهدف: معرفة سبب عدم استرجاع البيانات رغم حفظها', 'info');
+            log('📋 من الصور: Backend logs تظهر "programmes changés" لكن البيانات لا تظهر في الفورم', 'warning');
+        });
+    </script>
+</body>
+</html>

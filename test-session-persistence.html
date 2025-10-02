@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Session Persistence - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .credentials { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test Session Persistence - MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Système de session amélioré!</h3>
+            <ul>
+                <li><strong>Persistance automatique:</strong> La session est sauvegardée dans localStorage</li>
+                <li><strong>Restauration automatique:</strong> Reconnexion automatique après actualisation</li>
+                <li><strong>Expiration intelligente:</strong> Session valide 24h</li>
+                <li><strong>Déconnexion propre:</strong> Nettoyage complet des données</li>
+            </ul>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>👤 Participants disponibles</h3>
+                <div class="credentials">
+                    <h4>1. Ahmed Participant Test</h4>
+                    <p><strong>ID:</strong> PART-739438</p>
+                    <p><strong>Email:</strong> ahmed.participant@matc.com</p>
+                </div>
+                <div class="credentials">
+                    <h4>2. Ismael Gharbi</h4>
+                    <p><strong>ID:</strong> PART-550776</p>
+                    <p><strong>Email:</strong> gharbi@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>🧪 Tests de session</h3>
+                <button onclick="checkCurrentSession()">Vérifier session actuelle</button>
+                <button onclick="clearSession()" class="danger">Effacer session</button>
+                <button onclick="simulateLogin()">Simuler connexion</button>
+                <button onclick="testSessionExpiry()" class="warning">Test expiration</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Tests automatiques</h3>
+            <button onclick="testSessionPersistence()" class="success">Test persistance complète</button>
+            <button onclick="testMultipleParticipants()">Test multi-participants</button>
+            <button onclick="testSessionSecurity()">Test sécurité session</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Instructions de test</h3>
+            <div class="info">
+                <h4>Comment tester la persistance:</h4>
+                <ol>
+                    <li>Allez sur <a href="http://localhost:5173/espace-participant" target="_blank">Espace Participant</a></li>
+                    <li>Connectez-vous avec un des participants ci-dessus</li>
+                    <li>Actualisez la page (F5) - vous devriez rester connecté</li>
+                    <li>Fermez l'onglet et rouvrez - vous devriez rester connecté</li>
+                    <li>Cliquez "Déconnexion" - vous devriez retourner à la page de connexion</li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function checkCurrentSession() {
+            log('🔍 Vérification de la session actuelle...', 'info');
+            
+            try {
+                const session = localStorage.getItem('participantSession');
+                const participantId = localStorage.getItem('currentParticipantId');
+                
+                if (session && participantId) {
+                    const sessionData = JSON.parse(session);
+                    const loginTime = new Date(sessionData.loginTime);
+                    const now = new Date();
+                    const hoursDiff = ((now.getTime() - loginTime.getTime()) / (1000 * 60 * 60)).toFixed(1);
+                    
+                    log(`✅ Session active trouvée:`, 'success');
+                    log(`<pre>Participant: ${sessionData.fullName}
+ID: ${sessionData.id}
+Email: ${sessionData.email}
+Connexion: ${loginTime.toLocaleString()}
+Durée: ${hoursDiff}h
+Expire dans: ${(24 - parseFloat(hoursDiff)).toFixed(1)}h</pre>`, 'info');
+                } else {
+                    log('ℹ️ Aucune session active trouvée', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Erreur lecture session: ${error.message}`, 'error');
+            }
+        }
+
+        function clearSession() {
+            log('🗑️ Suppression de la session...', 'info');
+            
+            localStorage.removeItem('participantSession');
+            localStorage.removeItem('currentParticipantId');
+            
+            log('✅ Session supprimée avec succès', 'success');
+        }
+
+        function simulateLogin() {
+            log('🔄 Simulation d\'une connexion...', 'info');
+            
+            const sessionData = {
+                id: 'PART-550776',
+                email: 'gharbi@gmail.com',
+                fullName: 'Ismael Gharbi',
+                loginTime: new Date().toISOString()
+            };
+            
+            localStorage.setItem('participantSession', JSON.stringify(sessionData));
+            localStorage.setItem('currentParticipantId', 'PART-550776');
+            
+            log('✅ Session simulée créée pour Ismael Gharbi', 'success');
+        }
+
+        function testSessionExpiry() {
+            log('⏰ Test d\'expiration de session...', 'info');
+            
+            // Create an expired session (25 hours ago)
+            const expiredTime = new Date();
+            expiredTime.setHours(expiredTime.getHours() - 25);
+            
+            const expiredSession = {
+                id: 'PART-EXPIRED',
+                email: 'expired@test.com',
+                fullName: 'Session Expirée',
+                loginTime: expiredTime.toISOString()
+            };
+            
+            localStorage.setItem('participantSession', JSON.stringify(expiredSession));
+            localStorage.setItem('currentParticipantId', 'PART-EXPIRED');
+            
+            log('✅ Session expirée créée (25h)', 'warning');
+            log('ℹ️ Actualisez l\'espace participant - la session devrait être supprimée automatiquement', 'info');
+        }
+
+        async function testSessionPersistence() {
+            log('🚀 Test complet de persistance...', 'info');
+            
+            // Test 1: Clear existing session
+            clearSession();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test 2: Create new session
+            simulateLogin();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test 3: Verify session exists
+            checkCurrentSession();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test 4: Test session validation
+            const session = localStorage.getItem('participantSession');
+            if (session) {
+                const data = JSON.parse(session);
+                const loginTime = new Date(data.loginTime);
+                const now = new Date();
+                const hoursDiff = (now.getTime() - loginTime.getTime()) / (1000 * 60 * 60);
+                
+                if (hoursDiff < 24) {
+                    log('✅ Session valide (< 24h)', 'success');
+                } else {
+                    log('❌ Session expirée (> 24h)', 'error');
+                }
+            }
+            
+            log('🎉 Test de persistance terminé!', 'success');
+        }
+
+        function testMultipleParticipants() {
+            log('👥 Test multi-participants...', 'info');
+            
+            const participants = [
+                { id: 'PART-739438', email: 'ahmed.participant@matc.com', name: 'Ahmed Participant Test' },
+                { id: 'PART-550776', email: 'gharbi@gmail.com', name: 'Ismael Gharbi' }
+            ];
+            
+            participants.forEach((p, i) => {
+                setTimeout(() => {
+                    const sessionData = {
+                        id: p.id,
+                        email: p.email,
+                        fullName: p.name,
+                        loginTime: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('participantSession', JSON.stringify(sessionData));
+                    localStorage.setItem('currentParticipantId', p.id);
+                    
+                    log(`✅ Session créée pour ${p.name}`, 'success');
+                    
+                    if (i === participants.length - 1) {
+                        setTimeout(() => {
+                            checkCurrentSession();
+                            log('ℹ️ Note: Seule la dernière session est active (comportement normal)', 'info');
+                        }, 500);
+                    }
+                }, i * 1000);
+            });
+        }
+
+        function testSessionSecurity() {
+            log('🔒 Test de sécurité des sessions...', 'info');
+            
+            // Test invalid JSON
+            localStorage.setItem('participantSession', 'invalid-json');
+            try {
+                const session = JSON.parse(localStorage.getItem('participantSession'));
+                log('❌ JSON invalide accepté (problème de sécurité)', 'error');
+            } catch (error) {
+                log('✅ JSON invalide rejeté correctement', 'success');
+                localStorage.removeItem('participantSession');
+            }
+            
+            // Test missing fields
+            const incompleteSession = {
+                id: 'PART-TEST'
+                // Missing email, fullName, loginTime
+            };
+            localStorage.setItem('participantSession', JSON.stringify(incompleteSession));
+            log('✅ Session incomplète créée pour test', 'warning');
+            
+            // Test future date
+            const futureSession = {
+                id: 'PART-FUTURE',
+                email: 'future@test.com',
+                fullName: 'Future User',
+                loginTime: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour in future
+            };
+            localStorage.setItem('participantSession', JSON.stringify(futureSession));
+            log('✅ Session avec date future créée pour test', 'warning');
+            
+            log('🎉 Tests de sécurité terminés - vérifiez le comportement dans l\'espace participant', 'success');
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Vérification automatique au chargement...', 'info');
+                checkCurrentSession();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

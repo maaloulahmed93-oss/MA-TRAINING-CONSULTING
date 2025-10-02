@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   UserIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
-  CalendarIcon,
   AcademicCapIcon,
   BriefcaseIcon,
   BookOpenIcon,
   BellIcon,
+  CheckCircleIcon,
   ClockIcon,
+  PlayIcon,
   DocumentIcon,
   LinkIcon,
-  PlayIcon,
-  CheckCircleIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  MapPinIcon,
+  CalendarIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   XMarkIcon
@@ -27,6 +27,24 @@ interface ParticipantDetailsEnhancedProps {
 
 const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({ participant }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'formations' | 'projects' | 'coaching' | 'notifications'>('overview');
+
+  // Early return if no participant data
+  if (!participant) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-500">Aucune donnée de participant disponible</p>
+      </div>
+    );
+  }
+
+  // Ensure participant data has default values to prevent undefined errors
+  const safeParticipant = {
+    ...participant,
+    formations: Array.isArray(participant?.formations) ? participant.formations : [],
+    projects: Array.isArray(participant?.projects) ? participant.projects : [],
+    coachingResources: Array.isArray(participant?.coachingResources) ? participant.coachingResources : [],
+    notifications: Array.isArray(participant?.notifications) ? participant.notifications : []
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -183,20 +201,20 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques rapides</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{participant.formations.length}</div>
+                  <div className="text-2xl font-bold text-blue-600">{safeParticipant.formations.length}</div>
                   <div className="text-sm text-gray-600">Formations</div>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{participant.projects.length}</div>
+                  <div className="text-2xl font-bold text-green-600">{safeParticipant.projects.length}</div>
                   <div className="text-sm text-gray-600">Projets</div>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{participant.coachingResources.length}</div>
+                  <div className="text-2xl font-bold text-purple-600">{safeParticipant.coachingResources.length}</div>
                   <div className="text-sm text-gray-600">Ressources</div>
                 </div>
                 <div className="text-center p-4 bg-yellow-50 rounded-lg">
                   <div className="text-2xl font-bold text-yellow-600">
-                    {participant.notifications.filter(n => !n.isRead).length}
+                    {safeParticipant.notifications.filter(n => !n.isRead).length}
                   </div>
                   <div className="text-sm text-gray-600">Non lues</div>
                 </div>
@@ -215,7 +233,7 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
 
         {activeTab === 'formations' && (
           <div className="space-y-6">
-            {participant.formations.map((formation) => (
+            {safeParticipant.formations.map((formation) => (
               <div key={formation.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -240,8 +258,8 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
 
                 {/* Courses */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-gray-900">Cours ({formation.courses.length})</h4>
-                  {formation.courses.map((course) => (
+                  <h4 className="font-medium text-gray-900">Cours ({(formation.courses || []).length})</h4>
+                  {(formation.courses || []).map((course) => (
                     <div key={course.id} className="bg-gray-50 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h5 className="font-medium text-gray-900">{course.title}</h5>
@@ -256,9 +274,9 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
                       {/* Modules */}
                       <div className="space-y-2">
                         <div className="text-sm font-medium text-gray-700">
-                          Modules ({course.modules.length})
+                          Modules ({(course.modules || []).length})
                         </div>
-                        {course.modules.map((module) => (
+                        {(course.modules || []).map((module) => (
                           <div key={module.id} className="flex items-center justify-between bg-white rounded p-2">
                             <div className="flex items-center space-x-2">
                               {module.isCompleted ? (
@@ -272,9 +290,9 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
                             </div>
                             <div className="flex items-center space-x-2">
                               <span className="text-xs text-gray-500">{module.duration}</span>
-                              {module.dataLinks.length > 0 && (
+                              {((module.dataLinks || []).length) > 0 && (
                                 <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                  {module.dataLinks.length} lien{module.dataLinks.length > 1 ? 's' : ''}
+                                  {(module.dataLinks || []).length} lien{(module.dataLinks || []).length > 1 ? 's' : ''}
                                 </span>
                               )}
                             </div>
@@ -291,7 +309,7 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
 
         {activeTab === 'projects' && (
           <div className="space-y-6">
-            {participant.projects.map((project) => (
+            {safeParticipant.projects.map((project) => (
               <div key={project.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -327,11 +345,11 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
                   </div>
                 )}
 
-                {project.files.length > 0 && (
+                {((project.files || []).length) > 0 && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Fichiers ({project.files.length})</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">Fichiers ({(project.files || []).length})</h4>
                     <div className="space-y-2">
-                      {project.files.map((file) => (
+                      {(project.files || []).map((file) => (
                         <div key={file.id} className="flex items-center justify-between bg-gray-50 rounded p-2">
                           <div className="flex items-center space-x-2">
                             <DocumentIcon className="w-4 h-4 text-gray-400" />
@@ -355,7 +373,7 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
 
         {activeTab === 'coaching' && (
           <div className="space-y-6">
-            {participant.coachingResources.map((resource) => (
+            {safeParticipant.coachingResources.map((resource) => (
               <div key={resource.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -381,11 +399,11 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
                   </div>
                 </div>
 
-                {resource.dataLinks.length > 0 && (
+                {((resource.dataLinks || []).length) > 0 && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Liens de données ({resource.dataLinks.length})</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">Liens de données ({(resource.dataLinks || []).length})</h4>
                     <div className="space-y-2">
-                      {resource.dataLinks.map((link) => (
+                      {(resource.dataLinks || []).map((link) => (
                         <div key={link.id} className="flex items-center justify-between bg-gray-50 rounded p-2">
                           <div className="flex items-center space-x-2">
                             <LinkIcon className="w-4 h-4 text-gray-400" />
@@ -412,7 +430,7 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
 
         {activeTab === 'notifications' && (
           <div className="space-y-4">
-            {participant.notifications.map((notification) => (
+            {safeParticipant.notifications.map((notification) => (
               <div key={notification.id} className={`bg-white rounded-lg border p-4 ${
                 notification.isRead ? 'border-gray-200' : 'border-blue-200 bg-blue-50'
               }`}>
@@ -451,11 +469,11 @@ const ParticipantDetailsEnhanced: React.FC<ParticipantDetailsEnhancedProps> = ({
                       </div>
                     )}
 
-                    {notification.dataLinks && notification.dataLinks.length > 0 && (
+                    {notification.dataLinks && ((notification.dataLinks || []).length) > 0 && (
                       <div className="mt-3">
                         <div className="text-sm font-medium text-gray-700 mb-2">Actions disponibles</div>
                         <div className="space-y-1">
-                          {notification.dataLinks.map((link) => (
+                          {(notification.dataLinks || []).map((link) => (
                             <div key={link.id} className="flex items-center space-x-2">
                               <LinkIcon className="w-3 h-3 text-gray-400" />
                               <span className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">

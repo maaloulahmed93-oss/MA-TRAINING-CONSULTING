@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Commercial Demo - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .setup-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .warning { color: #f59e0b; font-weight: bold; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Setup Commercial Demo - MATC</h1>
+            <p>Configuration automatique du système commercial</p>
+        </div>
+
+        <!-- Informations -->
+        <div class="info-box">
+            <h3>📋 Ce qui va être créé:</h3>
+            <ul>
+                <li><strong>Commercial Test:</strong> COMM-123456</li>
+                <li><strong>Service Test:</strong> Formation React Avancée</li>
+                <li><strong>Données Demo:</strong> Ventes et clients d'exemple</li>
+                <li><strong>Niveaux:</strong> Progression automatique configurée</li>
+            </ul>
+        </div>
+
+        <!-- Step 1: Créer Commercial -->
+        <div class="setup-section">
+            <h3>1. 👤 Créer Commercial Test</h3>
+            <p>Création d'un commercial avec ID: <strong>COMM-123456</strong></p>
+            <button onclick="createCommercial()">Créer Commercial</button>
+            <div id="commercial-result" class="result"></div>
+        </div>
+
+        <!-- Step 2: Créer Service -->
+        <div class="setup-section">
+            <h3>2. 🛠️ Créer Service Test</h3>
+            <p>Création d'un service de formation avec commission</p>
+            <button onclick="createService()">Créer Service</button>
+            <div id="service-result" class="result"></div>
+        </div>
+
+        <!-- Step 3: Assigner Service -->
+        <div class="setup-section">
+            <h3>3. 🔗 Assigner Service au Commercial</h3>
+            <p>Liaison du service au commercial pour permettre les ventes</p>
+            <button onclick="assignService()">Assigner Service</button>
+            <div id="assign-result" class="result"></div>
+        </div>
+
+        <!-- Step 4: Ajouter Données Demo -->
+        <div class="setup-section">
+            <h3>4. 📊 Ajouter Données Demo</h3>
+            <p>Ajout de ventes et clients d'exemple pour démonstration</p>
+            <button onclick="addDemoData()">Ajouter Données Demo</button>
+            <div id="demo-result" class="result"></div>
+        </div>
+
+        <!-- Setup Complet -->
+        <div class="setup-section">
+            <h3>🎯 Setup Automatique Complet</h3>
+            <p>Exécute toutes les étapes automatiquement</p>
+            <button onclick="runCompleteSetup()" id="complete-btn">
+                🚀 Setup Complet Automatique
+            </button>
+            <div id="complete-result" class="result"></div>
+        </div>
+
+        <!-- Accès au Système -->
+        <div class="info-box">
+            <h3>🌐 Accès au Système:</h3>
+            <p><strong>URL:</strong> <a href="http://localhost:5173/espace-commercial" target="_blank">http://localhost:5173/espace-commercial</a></p>
+            <p><strong>ID Commercial:</strong> COMM-123456</p>
+            <p><strong>Admin Panel:</strong> <a href="http://localhost:8536/commercial-services" target="_blank">http://localhost:8536/commercial-services</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const SECRET_CODE = '20388542';
+        let serviceId = '';
+
+        async function createCommercial() {
+            try {
+                const commercialData = {
+                    type: 'commercial',
+                    fullName: 'Ahmed Commercial Demo',
+                    email: 'ahmed.demo@matc.tn',
+                    phone: '+216 98 765 432',
+                    secteur: 'Commercial'
+                };
+
+                const response = await fetch('http://localhost:3001/api/partners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+                document.getElementById('commercial-result').textContent = 
+                    `✅ Commercial créé!\n${JSON.stringify(result, null, 2)}`;
+                
+                return result.success;
+            } catch (error) {
+                document.getElementById('commercial-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function createService() {
+            try {
+                const serviceData = {
+                    titre: 'Formation React Avancée - Demo',
+                    categorie: 'Développement Web',
+                    description: 'Formation complète React avec hooks, context et tests unitaires',
+                    prixPublic: 1500,
+                    prixCommercial: 1200,
+                    commission: 180,
+                    duree: '3 mois',
+                    secretCode: SECRET_CODE,
+                    adminId: 'demo-setup'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(serviceData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    serviceId = result.data._id;
+                }
+                
+                document.getElementById('service-result').textContent = 
+                    `✅ Service créé!\n${JSON.stringify(result, null, 2)}`;
+                
+                return result.success;
+            } catch (error) {
+                document.getElementById('service-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function assignService() {
+            if (!serviceId) {
+                document.getElementById('assign-result').textContent = 
+                    '⚠️ Créez d\'abord un service';
+                return false;
+            }
+
+            try {
+                const assignData = {
+                    serviceId: serviceId,
+                    partnerId: 'COMM-123456',
+                    secretCode: SECRET_CODE,
+                    adminId: 'demo-setup'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/assign-service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(assignData)
+                });
+
+                const result = await response.json();
+                document.getElementById('assign-result').textContent = 
+                    `✅ Service assigné!\n${JSON.stringify(result, null, 2)}`;
+                
+                return result.success;
+            } catch (error) {
+                document.getElementById('assign-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function addDemoData() {
+            try {
+                // Ajouter quelques ventes demo
+                const ventes = [
+                    {
+                        serviceId: serviceId || 'demo-service',
+                        client: 'TechCorp SARL',
+                        clientEmail: 'contact@techcorp.tn',
+                        montant: 1200,
+                        commission: 180,
+                        methodePaiement: 'Virement bancaire'
+                    },
+                    {
+                        serviceId: serviceId || 'demo-service',
+                        client: 'InnovateLab',
+                        clientEmail: 'info@innovatelab.tn',
+                        montant: 1500,
+                        commission: 180,
+                        methodePaiement: 'Chèque'
+                    }
+                ];
+
+                let results = [];
+                
+                for (const vente of ventes) {
+                    const response = await fetch(`${API_BASE}/COMM-123456/vente`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(vente)
+                    });
+                    const result = await response.json();
+                    results.push(result);
+                }
+
+                // Ajouter quelques clients demo
+                const clients = [
+                    {
+                        nom: 'Ben Ali',
+                        prenom: 'Sami',
+                        email: 'sami.benali@example.tn',
+                        tel: '+216 20 123 456',
+                        programme: 'Formation React',
+                        montant: 1500
+                    },
+                    {
+                        nom: 'Trabelsi',
+                        prenom: 'Leila',
+                        email: 'leila.trabelsi@example.tn',
+                        tel: '+216 25 789 012',
+                        programme: 'Formation Angular',
+                        montant: 1300
+                    }
+                ];
+
+                for (const client of clients) {
+                    const response = await fetch(`${API_BASE}/COMM-123456/client`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(client)
+                    });
+                    const result = await response.json();
+                    results.push(result);
+                }
+
+                document.getElementById('demo-result').textContent = 
+                    `✅ Données demo ajoutées!\n${JSON.stringify(results, null, 2)}`;
+                
+                return true;
+            } catch (error) {
+                document.getElementById('demo-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function runCompleteSetup() {
+            const btn = document.getElementById('complete-btn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Setup en cours...';
+            
+            document.getElementById('complete-result').textContent = 
+                '🚀 Démarrage du setup automatique...\n\n';
+
+            const steps = [
+                { name: 'Commercial', func: createCommercial },
+                { name: 'Service', func: createService },
+                { name: 'Assignation', func: assignService },
+                { name: 'Données Demo', func: addDemoData }
+            ];
+
+            let allSuccess = true;
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                document.getElementById('complete-result').textContent += 
+                    `${i + 1}. ${step.name}...\n`;
+                
+                try {
+                    const success = await step.func();
+                    if (success) {
+                        document.getElementById('complete-result').textContent += 
+                            `   ✅ ${step.name} - OK\n\n`;
+                    } else {
+                        document.getElementById('complete-result').textContent += 
+                            `   ❌ ${step.name} - Échec\n\n`;
+                        allSuccess = false;
+                    }
+                } catch (error) {
+                    document.getElementById('complete-result').textContent += 
+                        `   ❌ ${step.name} - Erreur: ${error.message}\n\n`;
+                    allSuccess = false;
+                }
+                
+                // Pause entre les étapes
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            if (allSuccess) {
+                document.getElementById('complete-result').textContent += 
+                    '🎉 Setup terminé avec succès!\n\n' +
+                    '📋 Prochaines étapes:\n' +
+                    '1. Aller sur: http://localhost:5173/espace-commercial\n' +
+                    '2. Se connecter avec: COMM-123456\n' +
+                    '3. Explorer le dashboard avec les 3 onglets\n' +
+                    '4. Tester les fonctionnalités avancées\n\n' +
+                    '✨ Le système commercial est prêt!';
+            } else {
+                document.getElementById('complete-result').textContent += 
+                    '⚠️ Setup partiellement terminé. Vérifiez les erreurs ci-dessus.';
+            }
+
+            btn.disabled = false;
+            btn.textContent = allSuccess ? '✅ Setup Terminé' : '🔄 Réessayer Setup';
+        }
+
+        // Auto-start message
+        window.onload = function() {
+            console.log('Setup Commercial Demo - MATC');
+            console.log('Prêt pour configuration automatique');
+        };
+    </script>
+</body>
+</html>

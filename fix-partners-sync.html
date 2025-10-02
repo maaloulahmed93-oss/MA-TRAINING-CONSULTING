@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Partners Sync - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .problem {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .solution {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix Partners Synchronization</h1>
+            <p>Synchronisation Admin Panel ↔ Espace Commercial</p>
+        </div>
+
+        <!-- Diagnostic -->
+        <div class="problem">
+            <h3>🚨 Problème Identifié:</h3>
+            <ul>
+                <li><strong>Admin Panel:</strong> Stocke les commerciaux dans table <code>partners</code></li>
+                <li><strong>Espace Commercial:</strong> Cherche dans table <code>commercialnews</code></li>
+                <li><strong>Résultat:</strong> Erreur 404 "Commercial non trouvé"</li>
+                <li><strong>IDs affectés:</strong> COM-923432, COM-569714, etc.</li>
+            </ul>
+        </div>
+
+        <!-- Solution -->
+        <div class="solution">
+            <h3>💡 Solution:</h3>
+            <p>Synchroniser automatiquement tous les commerciaux depuis Admin Panel vers Espace Commercial</p>
+        </div>
+
+        <!-- Fix 1: Synchronisation complète -->
+        <div class="fix-section">
+            <h3>1. 🔄 Synchronisation Complète</h3>
+            <p>Synchroniser TOUS les commerciaux depuis Admin Panel</p>
+            <button onclick="syncAllPartners()">
+                🚀 Synchroniser Tous les Commerciaux
+            </button>
+            <div id="sync-result" class="result"></div>
+        </div>
+
+        <!-- Fix 2: Fix spécifique COM-923432 -->
+        <div class="fix-section">
+            <h3>2. 🎯 Fix Spécifique COM-923432</h3>
+            <p>Corriger uniquement COM-923432 depuis Admin Panel</p>
+            <button onclick="fixCOM923432()">
+                🔧 Fix COM-923432
+            </button>
+            <div id="fix-result" class="result"></div>
+        </div>
+
+        <!-- Test -->
+        <div class="fix-section">
+            <h3>3. 🧪 Test de Connexion</h3>
+            <p>Tester la connexion après synchronisation</p>
+            <input type="text" id="testId" placeholder="COM-923432" style="padding: 10px; margin: 10px; border: 1px solid #ccc; border-radius: 5px; width: 200px;">
+            <button onclick="testLogin()">
+                🧪 Tester Connexion
+            </button>
+            <div id="test-result" class="result"></div>
+        </div>
+
+        <!-- Résultats -->
+        <div class="solution">
+            <h3>🎯 Après Correction:</h3>
+            <p><strong>URL Test:</strong> <a href="http://localhost:5173/espace-commercial" target="_blank">http://localhost:5173/espace-commercial</a></p>
+            <p><strong>IDs à tester:</strong> COM-923432, COM-569714, etc.</p>
+            <p><strong>Résultat attendu:</strong> Connexion réussie + Dashboard</p>
+        </div>
+    </div>
+
+    <script>
+        async function syncAllPartners() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🔄 Synchronisation en cours...';
+            
+            document.getElementById('sync-result').textContent = 
+                '🚀 Démarrage de la synchronisation complète...\n\n';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/commercial-new/sync-all-partners');
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('sync-result').textContent += 
+                        `✅ ${result.message}\n\n` +
+                        `📊 Statistiques:\n` +
+                        `   - Créés: ${result.data.created}\n` +
+                        `   - Existants: ${result.data.existing}\n` +
+                        `   - Total: ${result.data.total}\n\n` +
+                        '🎉 Synchronisation terminée avec succès!\n\n' +
+                        '📋 Tous les commerciaux du Admin Panel sont maintenant\n' +
+                        '   disponibles dans Espace Commercial!\n\n' +
+                        '✨ Vous pouvez maintenant tester les connexions!';
+                    
+                    btn.textContent = '✅ Synchronisation Terminée';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                } else {
+                    throw new Error(result.message || 'Erreur inconnue');
+                }
+
+            } catch (error) {
+                document.getElementById('sync-result').textContent += 
+                    `❌ Erreur: ${error.message}\n\n` +
+                    'Vérifiez que:\n' +
+                    '- Le backend est démarré (port 3001)\n' +
+                    '- MongoDB Atlas est accessible\n' +
+                    '- Les collections partners et commercialnews existent';
+                
+                btn.textContent = '🔄 Réessayer';
+                btn.disabled = false;
+            }
+        }
+
+        async function fixCOM923432() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🔧 Correction en cours...';
+            
+            document.getElementById('fix-result').textContent = 
+                '🔧 Correction spécifique pour COM-923432...\n\n';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/commercial-new/fix-com-923432');
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('fix-result').textContent += 
+                        `✅ ${result.message}\n\n` +
+                        `📋 Détails:\n` +
+                        `   - Partner ID: ${result.data.partnerId}\n` +
+                        `   - Nom: ${result.data.fullName}\n` +
+                        `   - Email: ${result.data.email}\n` +
+                        `   - Niveau: ${result.data.niveau}\n` +
+                        `   - Statut: ${result.data.isActive ? 'Actif' : 'Inactif'}\n\n` +
+                        '🎉 COM-923432 est maintenant disponible!\n\n' +
+                        '🧪 Testez la connexion ci-dessous!';
+                    
+                    btn.textContent = '✅ COM-923432 Corrigé';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                } else {
+                    throw new Error(result.message || 'Erreur inconnue');
+                }
+
+            } catch (error) {
+                document.getElementById('fix-result').textContent += 
+                    `❌ Erreur: ${error.message}`;
+                
+                btn.textContent = '🔄 Réessayer';
+                btn.disabled = false;
+            }
+        }
+
+        async function testLogin() {
+            const testId = document.getElementById('testId').value || 'COM-923432';
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🧪 Test en cours...';
+            
+            document.getElementById('test-result').textContent = 
+                `🧪 Test de connexion pour ${testId}...\n\n`;
+
+            try {
+                const response = await fetch(`http://localhost:3001/api/commercial-new/${testId}/login`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('test-result').textContent += 
+                        `✅ Connexion réussie pour ${testId}!\n\n` +
+                        `📋 Informations:\n` +
+                        `   - Nom: ${result.data.fullName}\n` +
+                        `   - Email: ${result.data.email}\n` +
+                        `   - Niveau: ${result.data.niveau}\n` +
+                        `   - Points: ${result.data.points}\n\n` +
+                        '🎯 Vous pouvez maintenant vous connecter sur:\n' +
+                        '   http://localhost:5173/espace-commercial\n\n' +
+                        '✨ Le problème est résolu!';
+                    
+                    btn.textContent = '✅ Test Réussi';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                } else {
+                    throw new Error(result.message || 'Commercial non trouvé');
+                }
+
+            } catch (error) {
+                document.getElementById('test-result').textContent += 
+                    `❌ Erreur: ${error.message}\n\n` +
+                    'Possible causes:\n' +
+                    '- ID non synchronisé (utilisez la synchronisation)\n' +
+                    '- Backend non accessible\n' +
+                    '- ID inexistant dans Admin Panel';
+                
+                btn.textContent = '🔄 Retester';
+                btn.disabled = false;
+            }
+        }
+
+        // Test de connectivité
+        window.onload = async function() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                console.log('✅ Backend connecté');
+            } catch (error) {
+                console.error('❌ Backend non accessible:', error);
+                alert('⚠️ Assurez-vous que le backend est démarré sur le port 3001');
+            }
+        };
+    </script>
+</body>
+</html>

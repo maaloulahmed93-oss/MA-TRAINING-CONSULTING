@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Diagnosis Tool</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f8f9fa; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .card { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { background: #dc3545; color: white; border: none; padding: 12px 24px; margin: 8px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.warning { background: #ffc107; color: #212529; }
+        button.info { background: #17a2b8; }
+        .result { margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        h1 { color: #dc3545; text-align: center; }
+        h2 { color: #495057; border-bottom: 2px solid #dc3545; padding-bottom: 5px; }
+        .status { padding: 8px 16px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 5px; }
+        .status-online { background: #d4edda; color: #155724; }
+        .status-offline { background: #f8d7da; color: #721c24; }
+        .status-unknown { background: #e2e3e5; color: #495057; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .instruction { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Backend Diagnosis & Fix Tool</h1>
+        <p style="text-align: center; color: #6c757d;">أداة تشخيص وإصلاح Backend MATC</p>
+        
+        <div class="card">
+            <h2>🔍 Backend Status</h2>
+            <div id="backendStatus">
+                <span class="status status-unknown">Checking...</span>
+                <p>Checking backend server status...</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🧪 Diagnostic Tests</h2>
+            <div class="grid">
+                <button onclick="testConnection()">🔌 Test Connection</button>
+                <button onclick="testHealth()">❤️ Health Check</button>
+                <button onclick="testParticipants()">👥 Test Participants</button>
+                <button onclick="testProjects()">📋 Test Projects</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🛠️ Fix Actions</h2>
+            <div class="grid">
+                <button class="warning" onclick="startBackend()">🚀 Start Backend</button>
+                <button class="info" onclick="showInstructions()">📖 Manual Instructions</button>
+                <button class="success" onclick="testAfterFix()">✅ Test After Fix</button>
+            </div>
+        </div>
+        
+        <div class="card" id="instructionsCard" style="display: none;">
+            <h2>📖 Manual Backend Start Instructions</h2>
+            <div class="instruction">
+                <h3>🖥️ Method 1: Using Batch File (Recommended)</h3>
+                <ol>
+                    <li>Double-click on <strong>fix-backend.bat</strong> file</li>
+                    <li>Wait for dependencies to install</li>
+                    <li>Backend will start automatically</li>
+                </ol>
+            </div>
+            
+            <div class="instruction">
+                <h3>⌨️ Method 2: Using Command Line</h3>
+                <pre>cd C:\Users\ahmed\Desktop\MATC SITE\backend
+npm install
+npm start</pre>
+            </div>
+            
+            <div class="instruction">
+                <h3>🔍 Method 3: Using PowerShell</h3>
+                <pre>Set-Location "C:\Users\ahmed\Desktop\MATC SITE\backend"
+npm install
+npm start</pre>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📝 Diagnosis Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function addResult(content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = content;
+            resultsDiv.appendChild(resultDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function updateBackendStatus(status, message) {
+            const statusDiv = document.getElementById('backendStatus');
+            const statusClass = status === 'online' ? 'status-online' : 
+                               status === 'offline' ? 'status-offline' : 'status-unknown';
+            const statusText = status === 'online' ? '✅ Online' : 
+                              status === 'offline' ? '❌ Offline' : '🔍 Unknown';
+            
+            statusDiv.innerHTML = `
+                <span class="status ${statusClass}">${statusText}</span>
+                <p>${message}</p>
+            `;
+        }
+        
+        async function testConnection() {
+            addResult('🔌 <strong>Testing Backend Connection...</strong>', 'info');
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(`${API_BASE}/health`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateBackendStatus('online', 'Backend server is running correctly!');
+                    addResult(`
+                        <h3>✅ Backend Connection Successful!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Message:</strong> ${data.message}</p>
+                        <p><strong>Environment:</strong> ${data.environment}</p>
+                        <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                    `, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateBackendStatus('offline', 'Backend server is not responding');
+                
+                if (error.name === 'AbortError') {
+                    addResult(`
+                        <h3>⏱️ Connection Timeout</h3>
+                        <p>Backend server is not responding within 5 seconds.</p>
+                        <p><strong>Possible causes:</strong></p>
+                        <ul>
+                            <li>Backend server is not running</li>
+                            <li>Server is starting up (wait a moment and try again)</li>
+                            <li>Port 3001 is blocked or in use</li>
+                        </ul>
+                    `, 'warning');
+                } else {
+                    addResult(`
+                        <h3>❌ Backend Connection Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Solution:</strong> Start the backend server using one of the methods below.</p>
+                    `, 'error');
+                }
+            }
+        }
+        
+        async function testHealth() {
+            addResult('❤️ <strong>Testing Health Endpoint...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    addResult(`
+                        <h3>✅ Health Check Passed!</h3>
+                        <p><strong>API Status:</strong> ${data.message}</p>
+                        <p><strong>Environment:</strong> ${data.environment}</p>
+                        <p><strong>Server Time:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+                    `, 'success');
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Health Check Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Backend server may not be running or health endpoint is not working.</p>
+                `, 'error');
+            }
+        }
+        
+        async function testParticipants() {
+            addResult('👥 <strong>Testing Participants API...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`
+                        <h3>✅ Participants API Working!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Participants Found:</strong> ${data.data?.length || 0}</p>
+                        <p><strong>Success:</strong> ${data.success}</p>
+                    `, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Participants API Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>This is the main cause of the "ERR_CONNECTION_RESET" error in Admin Panel.</p>
+                `, 'error');
+            }
+        }
+        
+        async function testProjects() {
+            addResult('📋 <strong>Testing Projects API...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/PART-177037/projects`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const projects = data.data;
+                    const projectsWithUrls = projects.filter(p => p.projectUrl && p.projectUrl.trim());
+                    
+                    addResult(`
+                        <h3>✅ Projects API Working!</h3>
+                        <p><strong>Total Projects:</strong> ${projects.length}</p>
+                        <p><strong>Projects with URLs:</strong> ${projectsWithUrls.length}</p>
+                        <p><strong>URL Success Rate:</strong> ${projects.length > 0 ? Math.round((projectsWithUrls.length / projects.length) * 100) : 0}%</p>
+                    `, 'success');
+                } else {
+                    throw new Error(data.message || 'Projects API failed');
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Projects API Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Backend server may not be running or projects endpoint is not working.</p>
+                `, 'error');
+            }
+        }
+        
+        function startBackend() {
+            addResult('🚀 <strong>Starting Backend Server...</strong>', 'warning');
+            
+            addResult(`
+                <h3>🖥️ Backend Start Instructions</h3>
+                <p><strong>Option 1 - Double-click the batch file:</strong></p>
+                <p>Find and double-click: <code>fix-backend.bat</code></p>
+                
+                <p><strong>Option 2 - Use Command Prompt:</strong></p>
+                <pre>cd C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend
+npm start</pre>
+                
+                <p><strong>Option 3 - Use PowerShell:</strong></p>
+                <pre>Set-Location "C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend"
+npm start</pre>
+                
+                <p><strong>Expected Output:</strong></p>
+                <pre>✅ MongoDB Atlas connecté avec succès
+🚀 Serveur démarré sur le port 3001
+📍 API disponible sur: http://localhost:3001
+🔗 Health check: http://localhost:3001/api/health</pre>
+            `, 'info');
+            
+            // Auto-test after 10 seconds
+            setTimeout(() => {
+                addResult('⏱️ <strong>Auto-testing connection in 10 seconds...</strong>', 'info');
+                setTimeout(testConnection, 10000);
+            }, 1000);
+        }
+        
+        function showInstructions() {
+            const card = document.getElementById('instructionsCard');
+            card.style.display = card.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        async function testAfterFix() {
+            addResult('✅ <strong>Running Complete Test Suite...</strong>', 'info');
+            
+            await testConnection();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testHealth();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testParticipants();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testProjects();
+            
+            addResult(`
+                <h3>🎉 Test Suite Complete!</h3>
+                <p>If all tests passed, your backend is working correctly.</p>
+                <p>You can now refresh your Admin Panel and it should work.</p>
+            `, 'success');
+        }
+        
+        // Auto-run connection test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>

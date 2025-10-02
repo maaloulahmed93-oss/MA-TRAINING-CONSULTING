@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إصلاح تكرار الروابط - الإصدار الثالث</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e74c3c;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .critical { background-color: #f8d7da; color: #721c24; }
+        .fixed { background-color: #d4edda; color: #155724; }
+        .testing { background-color: #fff3cd; color: #856404; }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border-right: 4px solid #e74c3c;
+            background-color: #f8f9fa;
+        }
+        .code-block {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .problem-analysis {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .solution {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .emoji { font-size: 1.2em; }
+        ul, ol { padding-right: 25px; }
+        li { margin: 8px 0; }
+        .highlight { background-color: #fff3cd; padding: 2px 5px; border-radius: 3px; }
+        .console-log {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            direction: ltr;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 إصلاح تكرار الروابط - الإصدار الثالث</h1>
+            <p><strong>التاريخ:</strong> 24 سبتمبر 2025 - 02:15</p>
+            <div>
+                <span class="status-badge critical">🚨 مشكلة في الـ Rendering</span>
+                <span class="status-badge fixed">✅ إصلاح شامل</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 تحليل المشكلة الجذرية</h2>
+            <div class="problem-analysis">
+                <h3>المشكلة الحقيقية:</h3>
+                <p>المشكلة ليست في استدعاء الـ function مرتين، بل في <strong>الـ rendering logic</strong> نفسه!</p>
+                
+                <h4>الأعراض:</h4>
+                <ul>
+                    <li><strong>React Key Warning:</strong> "Encountered two children with the same key"</li>
+                    <li><strong>نفس الـ ID يظهر مرتين:</strong> <code>session-link-1758672473754-qu46c</code></li>
+                    <li><strong>التكرار يحدث في الـ UI</strong> وليس في الـ console logs</li>
+                </ul>
+
+                <h4>السبب الجذري:</h4>
+                <ol>
+                    <li><strong>تضارب البيانات:</strong> البيانات موجودة في <code>courseSessions</code> و <code>formations</code></li>
+                    <li><strong>Sync Logic خاطئ:</strong> في <code>openSessionLinksModal</code> يتم دمج البيانات بدلاً من استبدالها</li>
+                    <li><strong>State Updates متعددة:</strong> تحديث مصدرين للبيانات في نفس الوقت</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ الإصلاحات الشاملة المطبقة</h2>
+            
+            <div class="solution">
+                <h3>1. إصلاح openSessionLinksModal - استبدال البيانات</h3>
+                <div class="code-block">
+// Before: Merging data (causing duplicates)
+setCourseSessions(prev => ({
+  ...prev,
+  [courseKey]: prev[courseKey]?.map((s, idx) => 
+    idx === sessionIndex 
+      ? { ...s, links: session.links || [] }
+      : s
+  ) || []
+}));
+
+// After: Complete replacement
+setCourseSessions(prev => {
+  const updated = { ...prev };
+  if (updated[courseKey] && updated[courseKey][sessionIndex]) {
+    // Replace links completely with authoritative data from formations
+    updated[courseKey][sessionIndex] = {
+      ...updated[courseKey][sessionIndex],
+      links: [...(session.links || [])] // Create new array to avoid reference issues
+    };
+    console.log('🔄 Replaced courseSessions links with formations data');
+  }
+  return updated;
+});
+                </div>
+            </div>
+
+            <div class="solution">
+                <h3>2. إعادة هيكلة addSessionLink - مصدر واحد للحقيقة</h3>
+                <div class="code-block">
+// Update formations array first (authoritative source)
+let updatedFormations;
+setFormations(prev => {
+  updatedFormations = prev.map(formation => {
+    // ... update logic
+  });
+  return updatedFormations;
+});
+
+// Update courseSessions to match formations (single source of truth)
+setCourseSessions(prev => {
+  const updated = { ...prev };
+  if (updated[courseKey] && updated[courseKey][sessionIndex]) {
+    // Get the updated links from formations
+    const formation = updatedFormations?.find(f => 
+      f.courses.some(c => `${f.title}-${c.title}` === currentCourseKey)
+    );
+    const session = course?.sessions[currentSessionIndex];
+    
+    if (session) {
+      updated[currentCourseKey][currentSessionIndex].links = [...(session.links || [])];
+      console.log('📚 Synced courseSessions with formations');
+    }
+  }
+  return updated;
+});
+                </div>
+            </div>
+
+            <div class="solution">
+                <h3>3. تحسين توليد الـ IDs الفريدة</h3>
+                <div class="code-block">
+// Generate unique ID for session links
+const generateUniqueSessionLinkId = () => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).slice(2, 11);
+  const courseId = currentCourseKey.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+  const sessionId = currentSessionIndex?.toString() || '0';
+  return `session-link-${timestamp}-${random}-${courseId}-${sessionId}`;
+};
+
+const newLinkObject = {
+  id: generateUniqueSessionLinkId(),
+  title: titleToAdd,
+  url: urlToAdd,
+  type: newSessionLink.type
+};
+                </div>
+            </div>
+
+            <div class="solution">
+                <h3>4. إضافة Debugging للـ Rendering</h3>
+                <div class="code-block">
+{(() => {
+  const links = currentCourseKey && currentSessionIndex !== null && 
+                courseSessions[currentCourseKey] && 
+                courseSessions[currentCourseKey][currentSessionIndex]?.links || [];
+  console.log('🎨 Rendering links in modal:', links);
+  console.log('🔑 Link IDs:', links.map(l => l.id));
+  return links.length > 0;
+})() ? (
+  <div className="space-y-2">
+    {courseSessions[currentCourseKey][currentSessionIndex].links.map((link, index) => (
+      <div key={link.id || `link-${index}`}>
+        {/* Link content */}
+      </div>
+    ))}
+  </div>
+) : (
+  <p>Aucun lien ajouté pour cette session</p>
+)}
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 خطة الاختبار المحدثة</h2>
+            
+            <div class="problem-analysis">
+                <h3>سيناريوهات الاختبار الجديدة:</h3>
+                <ol>
+                    <li><strong>اختبار فتح Modal:</strong>
+                        <ul>
+                            <li>افتح modal لـ session فارغة</li>
+                            <li>تحقق من console logs للـ sync</li>
+                            <li>تأكد من عدم وجود بيانات مكررة</li>
+                        </ul>
+                    </li>
+                    <li><strong>اختبار إضافة رابط:</strong>
+                        <ul>
+                            <li>أضف رابط واحد</li>
+                            <li>تحقق من console logs للـ rendering</li>
+                            <li>تأكد من عدم ظهور React warnings</li>
+                            <li>تحقق من أن الـ ID فريد</li>
+                        </ul>
+                    </li>
+                    <li><strong>اختبار إعادة فتح Modal:</strong>
+                        <ul>
+                            <li>أضف رابط واحد</li>
+                            <li>أغلق الـ modal</li>
+                            <li>أعد فتح الـ modal</li>
+                            <li>تحقق من عدم تكرار الروابط</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 التحسينات الشاملة</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3>🔧 إصلاحات البيانات</h3>
+                    <ul>
+                        <li>✅ formations = مصدر واحد للحقيقة</li>
+                        <li>✅ courseSessions = UI state مُزامن</li>
+                        <li>✅ استبدال البيانات بدلاً من الدمج</li>
+                        <li>✅ تجنب تضارب المراجع</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>🎨 تحسينات الـ Rendering</h3>
+                    <ul>
+                        <li>✅ IDs فريدة ومعقدة</li>
+                        <li>✅ console logging للـ debugging</li>
+                        <li>✅ تجنب React key conflicts</li>
+                        <li>✅ عرض من مصدر واحد فقط</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚡ تعليمات الاختبار النهائية</h2>
+            <div class="highlight">
+                <p><strong>للتحقق من الإصلاح الشامل:</strong></p>
+                <ol>
+                    <li><strong>افتح Developer Console</strong> ومراقب الـ logs</li>
+                    <li><strong>افتح modal</strong> لـ session جديدة وراقب logs الـ sync</li>
+                    <li><strong>أضف رابط</strong> وراقب logs الـ rendering</li>
+                    <li><strong>تحقق من عدم ظهور:</strong>
+                        <ul>
+                            <li>React key warnings</li>
+                            <li>Console logs مكررة</li>
+                            <li>نفس الـ ID مرتين</li>
+                        </ul>
+                    </li>
+                    <li><strong>اختبر إعادة فتح Modal</strong> للتأكد من الاستقرار</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 الملفات المعدلة</h2>
+            <ul>
+                <li><code>admin-panel/src/components/participants/ParticipantFormEnhanced.tsx</code>
+                    <ul>
+                        <li>✅ إصلاح openSessionLinksModal - استبدال البيانات</li>
+                        <li>✅ إعادة هيكلة addSessionLink - مصدر واحد</li>
+                        <li>✅ تحسين توليد الـ IDs</li>
+                        <li>✅ إضافة debugging للـ rendering</li>
+                        <li>✅ تحسين data synchronization</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #dee2e6;">
+            <p><strong>الحالة:</strong> <span class="status-badge fixed">✅ إصلاح شامل مطبق</span></p>
+            <p><em>جاهز للاختبار النهائي - يجب أن تختفي مشكلة التكرار تماماً</em></p>
+        </div>
+    </div>
+</body>
+</html>

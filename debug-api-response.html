@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug API Response - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 400px; }
+        .critical { background: #ff6b6b; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug API Response - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ Problème identifié dans Console</h3>
+            <p><strong>Log:</strong> "ℹ️ No notifications found for participant"</p>
+            <p><strong>Cause:</strong> API retourne participant data mais sans notifications</p>
+        </div>
+
+        <div class="info">
+            <h4>🎯 Objectif:</h4>
+            <p>Analyser exactement ce que retourne l'API pour comprendre pourquoi les notifications sont vides</p>
+        </div>
+
+        <button onclick="debugAPIResponse()" class="critical">🚨 DEBUG API RESPONSE</button>
+        <button onclick="testBothAPIs()">🔍 Test Both APIs</button>
+        <button onclick="checkBackendLogs()">📋 Check Backend Logic</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function debugAPIResponse() {
+            log('🚨 DEBUG API RESPONSE DÉTAILLÉ...', 'error');
+            
+            try {
+                log('📋 Test GET /api/participants/PART-550776', 'info');
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                
+                log(`📊 Response Status: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`📊 Response Headers: ${response.headers.get('content-type')}`, 'info');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    log('📋 Response Structure Analysis:', 'info');
+                    log(`- success: ${data.success}`, 'info');
+                    log(`- data exists: ${!!data.data}`, 'info');
+                    
+                    if (data.data) {
+                        const participant = data.data;
+                        log('📊 Participant Data Analysis:', 'info');
+                        log(`- fullName: ${participant.fullName}`, 'info');
+                        log(`- email: ${participant.email}`, 'info');
+                        log(`- formations: ${participant.formations?.length || 0}`, 'info');
+                        log(`- projects: ${participant.projects?.length || 0}`, 'info');
+                        log(`- coachingResources: ${participant.coachingResources?.length || 0}`, 'info');
+                        log(`- notifications: ${participant.notifications?.length || 0}`, 
+                            participant.notifications?.length > 0 ? 'success' : 'error');
+                        
+                        log('🔍 Notifications Field Analysis:', 'warning');
+                        log(`- notifications field exists: ${participant.hasOwnProperty('notifications')}`, 'info');
+                        log(`- notifications type: ${typeof participant.notifications}`, 'info');
+                        log(`- notifications is array: ${Array.isArray(participant.notifications)}`, 'info');
+                        
+                        if (participant.notifications) {
+                            if (Array.isArray(participant.notifications)) {
+                                if (participant.notifications.length === 0) {
+                                    log('❌ PROBLÈME: notifications array is EMPTY!', 'error');
+                                    log('💡 Cela explique pourquoi "No notifications found"', 'warning');
+                                } else {
+                                    log(`✅ ${participant.notifications.length} notifications found!`, 'success');
+                                    log(`<pre>Notifications:
+${JSON.stringify(participant.notifications, null, 2)}</pre>`, 'success');
+                                }
+                            } else {
+                                log('❌ PROBLÈME: notifications is not an array!', 'error');
+                                log(`Value: ${JSON.stringify(participant.notifications)}`, 'error');
+                            }
+                        } else {
+                            log('❌ PROBLÈME: notifications field is null/undefined!', 'error');
+                        }
+                        
+                        log(`<pre>Complete Participant Data:
+${JSON.stringify(participant, null, 2)}</pre>`, 'info');
+                    } else {
+                        log('❌ No participant data in response!', 'error');
+                    }
+                } else {
+                    log(`❌ API Error: ${response.status}`, 'error');
+                    const errorText = await response.text();
+                    log(`Error details: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Request Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBothAPIs() {
+            log('🔍 Test des deux APIs...', 'info');
+            
+            // Test 1: Participant API
+            log('📋 Test 1: GET /api/participants/PART-550776', 'info');
+            try {
+                const response1 = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response1.ok) {
+                    const data1 = await response1.json();
+                    const notifications1 = data1.data?.notifications;
+                    log(`✅ Participant API: ${notifications1?.length || 0} notifications`, 
+                        notifications1?.length > 0 ? 'success' : 'error');
+                } else {
+                    log(`❌ Participant API error: ${response1.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Participant API error: ${error.message}`, 'error');
+            }
+            
+            // Test 2: Notifications API
+            log('📋 Test 2: GET /api/participants/PART-550776/notifications', 'info');
+            try {
+                const response2 = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response2.ok) {
+                    const data2 = await response2.json();
+                    const notifications2 = data2.data;
+                    log(`✅ Notifications API: ${notifications2?.length || 0} notifications`, 
+                        notifications2?.length > 0 ? 'success' : 'error');
+                    
+                    if (notifications2?.length > 0) {
+                        log(`<pre>Notifications API Data:
+${JSON.stringify(notifications2, null, 2)}</pre>`, 'success');
+                    }
+                } else {
+                    log(`❌ Notifications API error: ${response2.status}`, 'error');
+                    const errorText = await response2.text();
+                    log(`Error details: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Notifications API error: ${error.message}`, 'error');
+            }
+            
+            log('📊 Comparison Analysis:', 'warning');
+            log('Si Participant API retourne 0 notifications ET Notifications API retourne 0:', 'info');
+            log('  → Le problème est dans le backend (données pas sauvegardées)', 'info');
+            log('Si Participant API retourne 0 notifications MAIS Notifications API retourne >0:', 'info');
+            log('  → Le problème est dans GET participant endpoint', 'info');
+            log('Si les deux retournent >0 notifications:', 'info');
+            log('  → Le problème est dans le frontend component', 'info');
+        }
+
+        async function checkBackendLogs() {
+            log('📋 Vérification de la logique Backend...', 'info');
+            
+            log('🔍 Points à vérifier dans le backend:', 'warning');
+            log('1. Le serveur backend a-t-il été redémarré après les modifications?', 'info');
+            log('2. Les logs backend montrent-ils "Found X notifications for PART-550776"?', 'info');
+            log('3. MongoDB contient-il des documents ParticipantNotification?', 'info');
+            log('4. Le code GET participant charge-t-il vraiment les notifications?', 'info');
+            
+            log('📋 Code à vérifier dans participants.js:', 'warning');
+            log('Ligne ~222: const [formations, projects, resources, notifications] = await Promise.all([', 'info');
+            log('Ligne ~226: ParticipantNotification.find({ participantId: id, isActive: true })', 'info');
+            log('Ligne ~179: notifications, (pas notifications: [])', 'info');
+            
+            log('🧪 Test pour déclencher les logs backend:', 'info');
+            await debugAPIResponse();
+        }
+
+        // Auto-run debug
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🎯 Console logs montrent: "No notifications found for participant"', 'error');
+                log('📋 Cela signifie que l\'API retourne participant sans notifications', 'warning');
+                log('🚨 Lancement du debug API...', 'info');
+                debugAPIResponse();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار نظام Livrables المتكامل</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+        .json-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .livrable-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .livrable-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-revision { background: #d1ecf1; color: #0c5460; }
+        .file-upload {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 اختبار نظام Livrables المتكامل</h1>
+        <p>اختبار شامل لنظام الـ Livrables مع Backend API Integration + File Upload + User Isolation</p>
+
+        <div class="test-section">
+            <h3>1️⃣ فحص Backend API</h3>
+            <button onclick="testBackendConnection()">فحص اتصال Backend</button>
+            <button onclick="testAPIEndpoints()">اختبار API Endpoints</button>
+            <div id="backendResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2️⃣ اختبار User Isolation</h3>
+            <input type="text" id="freelancerIdInput" value="FRE-340255" placeholder="معرف الفريلانسر">
+            <button onclick="testUserIsolation()">اختبار عزل البيانات</button>
+            <button onclick="switchUser('FRE-123456')">تبديل إلى FRE-123456</button>
+            <button onclick="switchUser('FRE-789012')">تبديل إلى FRE-789012</button>
+            <div id="isolationResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3️⃣ اختبار File Upload System</h3>
+            <div class="file-upload">
+                <input type="file" id="testFile" accept=".pdf,.doc,.docx,.jpg,.png">
+                <p>اختر ملف للاختبار (PDF, Word, صورة)</p>
+            </div>
+            <button onclick="testFileUpload()">اختبار رفع ملف</button>
+            <button onclick="testFileValidation()">اختبار validation الملفات</button>
+            <div id="fileUploadResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4️⃣ إنشاء Livrables تجريبية</h3>
+            <button onclick="createTestLivrable('file')">إنشاء livrable بملف</button>
+            <button onclick="createTestLivrable('link')">إنشاء livrable برابط</button>
+            <button onclick="createMultipleLivrables()">إنشاء عدة livrables</button>
+            <div id="createResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5️⃣ عرض وإدارة Livrables</h3>
+            <button onclick="getAllLivrables()">جلب جميع الـ Livrables</button>
+            <button onclick="filterLivrables('pending')">فلترة - En attente</button>
+            <button onclick="filterLivrables('approved')">فلترة - Acceptés</button>
+            <button onclick="filterLivrables('rejected')">فلترة - Refusés</button>
+            <div id="displayResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>6️⃣ اختبار CRUD Operations</h3>
+            <button onclick="testCRUDOperations()">اختبار العمليات الكاملة</button>
+            <button onclick="testUpdateLivrable()">اختبار التحديث</button>
+            <button onclick="testDeleteLivrable()">اختبار الحذف</button>
+            <div id="crudResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>7️⃣ اختبار الإحصائيات</h3>
+            <button onclick="getStats()">جلب إحصائيات الفريلانسر</button>
+            <button onclick="generateReport()">إنشاء تقرير شامل</button>
+            <div id="statsResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let currentFreelancerId = 'FRE-340255';
+        let testLivrableId = null;
+
+        // دالة لعرض النتائج
+        function displayResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${type}">${content}</div>`;
+        }
+
+        // دالة لعرض JSON بشكل منسق
+        function displayJSON(elementId, data, title = '') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                ${title ? `<div class="info">${title}</div>` : ''}
+                <div class="json-display">${JSON.stringify(data, null, 2)}</div>
+            `;
+        }
+
+        // 1. فحص Backend API
+        async function testBackendConnection() {
+            try {
+                displayResult('backendResult', '🔄 فحص اتصال Backend...');
+                
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResult('backendResult', `✅ Backend متصل بنجاح: ${data.message}`, 'success');
+                } else {
+                    displayResult('backendResult', '❌ Backend غير متاح', 'error');
+                }
+            } catch (error) {
+                displayResult('backendResult', `❌ خطأ في الاتصال: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPIEndpoints() {
+            try {
+                displayResult('backendResult', '🔄 اختبار API endpoints...');
+                
+                const endpoints = [
+                    { method: 'GET', url: `${API_BASE}/freelancer-deliverables/freelancer/${currentFreelancerId}` },
+                    { method: 'GET', url: `${API_BASE}/freelancer-deliverables/stats/${currentFreelancerId}` }
+                ];
+
+                const results = [];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(endpoint.url, { method: endpoint.method });
+                        const data = await response.json();
+                        
+                        results.push({
+                            endpoint: `${endpoint.method} ${endpoint.url}`,
+                            status: response.status,
+                            success: data.success,
+                            data: data.data
+                        });
+                    } catch (error) {
+                        results.push({
+                            endpoint: `${endpoint.method} ${endpoint.url}`,
+                            error: error.message
+                        });
+                    }
+                }
+
+                displayJSON('backendResult', results, '📊 نتائج اختبار API endpoints:');
+            } catch (error) {
+                displayResult('backendResult', `❌ خطأ في اختبار APIs: ${error.message}`, 'error');
+            }
+        }
+
+        // 2. اختبار User Isolation
+        async function testUserIsolation() {
+            try {
+                const freelancerId = document.getElementById('freelancerIdInput').value;
+                displayResult('isolationResult', `🔄 اختبار عزل البيانات للفريلانسر ${freelancerId}...`);
+                
+                const response = await fetch(`${API_BASE}/freelancer-deliverables/freelancer/${freelancerId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJSON('isolationResult', {
+                        freelancerId: freelancerId,
+                        totalLivrables: data.data.length,
+                        livrables: data.data.map(l => ({
+                            id: l._id,
+                            title: l.title,
+                            freelancerId: l.freelancerId,
+                            status: l.status
+                        }))
+                    }, `✅ بيانات الفريلانسر ${freelancerId}:`);
+                } else {
+                    displayResult('isolationResult', `❌ خطأ: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('isolationResult', `❌ خطأ في اختبار العزل: ${error.message}`, 'error');
+            }
+        }
+
+        function switchUser(freelancerId) {
+            currentFreelancerId = freelancerId;
+            document.getElementById('freelancerIdInput').value = freelancerId;
+            displayResult('isolationResult', `🔄 تم التبديل إلى الفريلانسر ${freelancerId}`, 'info');
+            testUserIsolation();
+        }
+
+        // 3. اختبار File Upload
+        async function testFileUpload() {
+            try {
+                const fileInput = document.getElementById('testFile');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    displayResult('fileUploadResult', '❌ يرجى اختيار ملف أولاً', 'error');
+                    return;
+                }
+
+                displayResult('fileUploadResult', `🔄 اختبار رفع الملف: ${file.name}...`);
+
+                const formData = new FormData();
+                formData.append('title', `اختبار رفع ملف - ${file.name}`);
+                formData.append('description', 'ملف تجريبي لاختبار النظام');
+                formData.append('freelancerId', currentFreelancerId);
+                formData.append('projectId', 'TEST-PROJECT-001');
+                formData.append('projectTitle', 'مشروع اختبار');
+                formData.append('type', 'file');
+                formData.append('file', file);
+
+                const response = await fetch(`${API_BASE}/freelancer-deliverables`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    testLivrableId = data.data._id;
+                    displayJSON('fileUploadResult', {
+                        message: 'تم رفع الملف بنجاح!',
+                        livrable: {
+                            id: data.data._id,
+                            title: data.data.title,
+                            fileName: data.data.fileName,
+                            fileSize: data.data.fileSize,
+                            mimeType: data.data.mimeType,
+                            fileUrl: data.data.fileUrl
+                        }
+                    }, '✅ نتيجة رفع الملف:');
+                } else {
+                    displayResult('fileUploadResult', `❌ خطأ في رفع الملف: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('fileUploadResult', `❌ خطأ في رفع الملف: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFileValidation() {
+            displayResult('fileUploadResult', '🔄 اختبار validation الملفات...', 'info');
+            
+            // محاكاة ملفات مختلفة
+            const testCases = [
+                { name: 'document.pdf', type: 'application/pdf', size: 1024 * 1024, valid: true },
+                { name: 'image.jpg', type: 'image/jpeg', size: 2 * 1024 * 1024, valid: true },
+                { name: 'large.zip', type: 'application/zip', size: 60 * 1024 * 1024, valid: false },
+                { name: 'script.exe', type: 'application/exe', size: 1024, valid: false }
+            ];
+
+            const results = testCases.map(testCase => {
+                const isValidType = [
+                    'application/pdf', 'application/msword', 'image/jpeg', 'image/png',
+                    'application/zip', 'text/plain'
+                ].includes(testCase.type);
+                
+                const isValidSize = testCase.size <= 50 * 1024 * 1024;
+                const isValid = isValidType && isValidSize;
+
+                return {
+                    file: testCase.name,
+                    type: testCase.type,
+                    size: `${Math.round(testCase.size / 1024 / 1024 * 100) / 100} MB`,
+                    validType: isValidType,
+                    validSize: isValidSize,
+                    valid: isValid,
+                    expected: testCase.valid
+                };
+            });
+
+            displayJSON('fileUploadResult', results, '📋 نتائج اختبار validation:');
+        }
+
+        // 4. إنشاء Livrables تجريبية
+        async function createTestLivrable(type) {
+            try {
+                displayResult('createResult', `🔄 إنشاء livrable تجريبي (${type})...`);
+
+                const livrableData = {
+                    title: `Livrable Test ${type} - ${Date.now()}`,
+                    description: `Livrable de test pour le type ${type}`,
+                    freelancerId: currentFreelancerId,
+                    projectId: 'TEST-PROJECT-001',
+                    projectTitle: 'Projet de Test',
+                    type: type
+                };
+
+                if (type === 'link') {
+                    livrableData.linkUrl = 'https://docs.google.com/document/d/test-document';
+                }
+
+                const response = await fetch(`${API_BASE}/freelancer-deliverables`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(livrableData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    testLivrableId = data.data._id;
+                    displayJSON('createResult', data.data, `✅ تم إنشاء livrable ${type} بنجاح:`);
+                } else {
+                    displayResult('createResult', `❌ خطأ في إنشاء livrable: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('createResult', `❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        async function createMultipleLivrables() {
+            try {
+                displayResult('createResult', '🔄 إنشاء عدة livrables تجريبية...');
+
+                const livrables = [
+                    { title: 'Maquettes UI/UX', type: 'design', status: 'pending' },
+                    { title: 'Code Frontend', type: 'code', status: 'approved' },
+                    { title: 'Documentation API', type: 'documentation', status: 'revision_needed' },
+                    { title: 'Prototype Mobile', type: 'prototype', status: 'rejected' }
+                ];
+
+                const results = [];
+
+                for (const livrable of livrables) {
+                    const livrableData = {
+                        title: `${livrable.title} - ${currentFreelancerId}`,
+                        description: `Description pour ${livrable.title}`,
+                        freelancerId: currentFreelancerId,
+                        projectId: 'TEST-PROJECT-001',
+                        projectTitle: 'Projet de Test',
+                        type: livrable.type,
+                        linkUrl: 'https://example.com/test-document'
+                    };
+
+                    try {
+                        const response = await fetch(`${API_BASE}/freelancer-deliverables`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(livrableData)
+                        });
+
+                        const data = await response.json();
+                        results.push({
+                            title: livrable.title,
+                            success: data.success,
+                            id: data.success ? data.data._id : null,
+                            error: data.success ? null : data.message
+                        });
+                    } catch (error) {
+                        results.push({
+                            title: livrable.title,
+                            success: false,
+                            error: error.message
+                        });
+                    }
+                }
+
+                displayJSON('createResult', results, '📊 نتائج إنشاء عدة livrables:');
+            } catch (error) {
+                displayResult('createResult', `❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        // 5. عرض وإدارة Livrables
+        async function getAllLivrables() {
+            try {
+                displayResult('displayResult', '🔄 جلب جميع الـ Livrables...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-deliverables/freelancer/${currentFreelancerId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `<div class="info">✅ تم جلب ${data.data.length} livrable للفريلانسر ${currentFreelancerId}</div>`;
+                    
+                    data.data.forEach((livrable, index) => {
+                        const statusClass = `status-${livrable.status.replace('_', '-')}`;
+                        html += `
+                            <div class="livrable-card">
+                                <h4>${livrable.title}</h4>
+                                <p><strong>Type:</strong> ${livrable.type}</p>
+                                <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${livrable.status}</span></p>
+                                <p><strong>Date:</strong> ${new Date(livrable.submittedDate).toLocaleDateString()}</p>
+                                <p><strong>Description:</strong> ${livrable.description}</p>
+                                ${livrable.fileUrl ? `<p><strong>Fichier:</strong> ${livrable.fileName || livrable.fileUrl}</p>` : ''}
+                                ${livrable.feedback ? `<p><strong>Feedback:</strong> ${livrable.feedback}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('displayResult').innerHTML = html;
+                } else {
+                    displayResult('displayResult', `❌ خطأ: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('displayResult', `❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        async function filterLivrables(status) {
+            try {
+                displayResult('displayResult', `🔄 فلترة الـ Livrables - ${status}...`);
+                
+                const response = await fetch(`${API_BASE}/freelancer-deliverables/freelancer/${currentFreelancerId}?status=${status}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJSON('displayResult', data.data, `✅ Livrables بحالة ${status} (${data.data.length}):`);
+                } else {
+                    displayResult('displayResult', `❌ خطأ: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('displayResult', `❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        // 6. اختبار CRUD Operations
+        async function testCRUDOperations() {
+            try {
+                displayResult('crudResult', '🔄 اختبار العمليات الكاملة (CRUD)...');
+                
+                // Create
+                const createData = {
+                    title: 'Test CRUD Livrable',
+                    description: 'Livrable pour tester les opérations CRUD',
+                    freelancerId: currentFreelancerId,
+                    projectId: 'TEST-CRUD-001',
+                    projectTitle: 'Test CRUD Project',
+                    type: 'documentation',
+                    linkUrl: 'https://example.com/crud-test'
+                };
+
+                const createResponse = await fetch(`${API_BASE}/freelancer-deliverables`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(createData)
+                });
+
+                const createResult = await createResponse.json();
+                
+                if (!createResult.success) {
+                    displayResult('crudResult', `❌ خطأ في Create: ${createResult.message}`, 'error');
+                    return;
+                }
+
+                const livrableId = createResult.data._id;
+
+                // Read
+                const readResponse = await fetch(`${API_BASE}/freelancer-deliverables/freelancer/${currentFreelancerId}`);
+                const readResult = await readResponse.json();
+
+                // Update Status (simulate admin review)
+                const updateResponse = await fetch(`${API_BASE}/freelancer-deliverables/${livrableId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'approved',
+                        feedback: 'Excellent travail!',
+                        rating: 5,
+                        reviewedBy: 'Admin Test'
+                    })
+                });
+
+                const updateResult = await updateResponse.json();
+
+                // Delete
+                const deleteResponse = await fetch(`${API_BASE}/freelancer-deliverables/${livrableId}?freelancerId=${currentFreelancerId}`, {
+                    method: 'DELETE'
+                });
+
+                const deleteResult = await deleteResponse.json();
+
+                const results = {
+                    create: { success: createResult.success, id: livrableId },
+                    read: { success: readResult.success, count: readResult.data?.length },
+                    update: { success: updateResult.success },
+                    delete: { success: deleteResult.success }
+                };
+
+                displayJSON('crudResult', results, '✅ نتائج اختبار CRUD Operations:');
+            } catch (error) {
+                displayResult('crudResult', `❌ خطأ في CRUD: ${error.message}`, 'error');
+            }
+        }
+
+        // 7. اختبار الإحصائيات
+        async function getStats() {
+            try {
+                displayResult('statsResult', '🔄 جلب إحصائيات الفريلانسر...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-deliverables/stats/${currentFreelancerId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayJSON('statsResult', data.data, `📊 إحصائيات الفريلانسر ${currentFreelancerId}:`);
+                } else {
+                    displayResult('statsResult', `❌ خطأ: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                displayResult('statsResult', `❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        async function generateReport() {
+            try {
+                displayResult('statsResult', '🔄 إنشاء تقرير شامل...');
+                
+                // جلب البيانات والإحصائيات
+                const [livrables, stats] = await Promise.all([
+                    fetch(`${API_BASE}/freelancer-deliverables/freelancer/${currentFreelancerId}`).then(r => r.json()),
+                    fetch(`${API_BASE}/freelancer-deliverables/stats/${currentFreelancerId}`).then(r => r.json())
+                ]);
+
+                const report = {
+                    freelancerId: currentFreelancerId,
+                    generatedAt: new Date().toISOString(),
+                    summary: {
+                        totalLivrables: stats.success ? stats.data.total : 0,
+                        pending: stats.success ? stats.data.pending : 0,
+                        approved: stats.success ? stats.data.approved : 0,
+                        rejected: stats.success ? stats.data.rejected : 0,
+                        averageRating: stats.success ? stats.data.averageRating : 0
+                    },
+                    recentLivrables: livrables.success ? livrables.data.slice(0, 5) : []
+                };
+
+                displayJSON('statsResult', report, '📋 التقرير الشامل:');
+            } catch (error) {
+                displayResult('statsResult', `❌ خطأ في إنشاء التقرير: ${error.message}`, 'error');
+            }
+        }
+
+        // تشغيل تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            console.log('🚀 بدء اختبار نظام Livrables...');
+            testBackendConnection();
+        };
+    </script>
+</body>
+</html>

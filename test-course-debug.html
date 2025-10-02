@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐛 تشخيص مشكلة Course لا يحفظ</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .debug { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .step { background: #e7f3ff; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; margin: 10px 0; }
+        .console { background: #1a1a1a; color: #00ff00; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; margin: 10px 0; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 تشخيص مشكلة Course لا يحفظ</h1>
+        
+        <div class="debug">
+            <h3>🔍 تم إضافة Console Logs للتشخيص</h3>
+            <p>الآن يمكنك رؤية ما يحدث بالضبط عند إضافة الكورسات</p>
+        </div>
+
+        <div class="step">
+            <h3>📋 خطوات التشخيص:</h3>
+            <ol>
+                <li><strong>افتح Admin Panel</strong> → Participants</li>
+                <li><strong>افتح Developer Tools</strong> (F12) → Console</li>
+                <li><strong>اضغط "Ajouter"</strong> أو عدل مشارك موجود</li>
+                <li><strong>اذهب لتبويب "Formations & Projets"</strong></li>
+                <li><strong>أضف Formation جديد</strong> (مثل "تكوين تجريبي")</li>
+                <li><strong>اضغط "Cours"</strong> → راقب Console</li>
+                <li><strong>أضف كورس "جلل"</strong> → راقب Console</li>
+                <li><strong>اضغط "Fermer"</strong> ثم افتح "Cours" مرة أخرى → راقب Console</li>
+            </ol>
+        </div>
+
+        <div class="info">
+            <h3>📊 Console Messages المتوقعة:</h3>
+            
+            <h4>عند فتح Course Modal:</h4>
+            <div class="console">
+🔍 Opening course modal for formation: تكوين تجريبي
+📚 Found formation: {id: "form-...", title: "تكوين تجريبي", courses: [...]}
+📖 Existing courses: ["جلل"]  // إذا كان الكورس محفوظ
+⚠️ No courses found for this formation  // إذا لم يكن محفوظ
+            </div>
+
+            <h4>عند إضافة Course:</h4>
+            <div class="console">
+🔄 Adding course: جلل to formation: تكوين تجريبي
+📊 Updated formationCourses: {"تكوين تجريبي": ["جلل"]}
+📚 Updated formation: {id: "form-...", title: "تكوين تجريبي", courses: [{title: "جلل", ...}]}
+🎯 All formations: [{...}, {...}]
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🎯 ما نبحث عنه:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">الحالة</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">Console Message</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">المعنى</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">الكورس يضاف</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">🔄 Adding course: جلل</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ Function تعمل</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">البيانات تحفظ</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">📚 Updated formation</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ Data يحفظ في formations</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">الكورس يظهر</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">📖 Existing courses: ["جلل"]</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ Data يسترجع صح</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">الكورس لا يظهر</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">⚠️ No courses found</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">❌ Data مفقود</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="debug">
+            <h3>🔧 الإصلاحات المطبقة:</h3>
+            <ul>
+                <li><strong>Sync formationCourses:</strong> عند فتح Modal، يتم مزامنة البيانات</li>
+                <li><strong>Double Save:</strong> الكورس يحفظ في مكانين (UI + Data)</li>
+                <li><strong>Console Logging:</strong> لمراقبة تدفق البيانات</li>
+                <li><strong>Error Detection:</strong> لاكتشاف نقاط الفشل</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h3>📋 السيناريوهات المحتملة:</h3>
+            
+            <h4>السيناريو 1: البيانات تحفظ لكن لا تظهر</h4>
+            <div class="code">
+// ستظهر في Console:
+🔄 Adding course: جلل  ✅
+📚 Updated formation: {...}  ✅
+⚠️ No courses found  ❌ <- المشكلة هنا
+
+// الحل: مشكلة في العرض
+            </div>
+
+            <h4>السيناريو 2: البيانات لا تحفظ أصلاً</h4>
+            <div class="code">
+// ستظهر في Console:
+🔄 Adding course: جلل  ✅
+// لا شيء بعدها ❌ <- المشكلة هنا
+
+// الحل: مشكلة في الحفظ
+            </div>
+
+            <h4>السيناريو 3: البيانات تحفظ وتظهر</h4>
+            <div class="code">
+// ستظهر في Console:
+🔄 Adding course: جلل  ✅
+📚 Updated formation: {...}  ✅
+📖 Existing courses: ["جلل"]  ✅
+
+// النتيجة: كل شيء يعمل!
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>📤 أرسل النتائج:</h3>
+            <p><strong>بعد تجربة الخطوات أعلاه، أرسل لي:</strong></p>
+            <ol>
+                <li>Screenshot من Console Messages</li>
+                <li>وصف ما حدث بالضبط</li>
+                <li>هل ظهر الكورس أم لا؟</li>
+            </ol>
+            <p>بناءً على النتائج، سأحدد السبب الدقيق وأصلحه!</p>
+        </div>
+
+        <div class="debug">
+            <h3>🎯 الهدف:</h3>
+            <p><strong>تحديد السبب الدقيق</strong> لعدم ظهور الكورس "جلل" في القائمة</p>
+            <p>هل المشكلة في الحفظ أم في العرض أم في الاسترجاع؟</p>
+        </div>
+    </div>
+</body>
+</html>

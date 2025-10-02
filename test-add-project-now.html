@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 اختبار إضافة مشروع فوري</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f0f2f5; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; color: #333; }
+        .test-button { background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; margin: 10px; transition: all 0.3s ease; }
+        .test-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(40,167,69,0.3); }
+        .log { background: #1a1a1a; color: #00ff00; padding: 20px; margin: 20px 0; border-radius: 10px; font-family: 'Courier New', monospace; white-space: pre-wrap; max-height: 500px; overflow-y: auto; font-size: 14px; direction: ltr; border: 2px solid #333; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .info { color: #17a2b8; font-weight: bold; }
+        .result-box { background: #f8f9fa; border: 2px solid #dee2e6; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .project-card { background: linear-gradient(135deg, #e3f2fd, #f8f9ff); border: 2px solid #2196f3; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 اختبار إضافة مشروع فوري</h1>
+            <p>سنضيف مشروع تجريبي ونتحقق من حفظه في قاعدة البيانات</p>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="test-button" onclick="runTest()">🚀 إضافة مشروع تجريبي الآن</button>
+            <button class="test-button" onclick="checkExistingProjects()" style="background: linear-gradient(135deg, #007bff, #0056b3);">📊 فحص المشاريع الموجودة</button>
+            <button class="test-button" onclick="clearLog()" style="background: linear-gradient(135deg, #6c757d, #495057);">🧹 مسح السجل</button>
+        </div>
+
+        <div id="results" class="log">🚀 جاهز للاختبار...\n</div>
+        
+        <div id="projectsDisplay" class="result-box" style="display: none;">
+            <h3>📋 المشاريع المحفوظة:</h3>
+            <div id="projectsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const log = document.getElementById('results');
+        
+        function logMessage(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            let color = '#00ff00';
+            let emoji = 'ℹ️';
+            
+            switch(type) {
+                case 'success': color = '#28a745'; emoji = '✅'; break;
+                case 'error': color = '#dc3545'; emoji = '❌'; break;
+                case 'warning': color = '#ffc107'; emoji = '⚠️'; break;
+                case 'info': color = '#17a2b8'; emoji = 'ℹ️'; break;
+            }
+            
+            const logEntry = `[${timestamp}] ${emoji} ${message}\n`;
+            log.innerHTML += `<span style="color: ${color}">${logEntry}</span>`;
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            log.innerHTML = '🚀 السجل تم مسحه...\n';
+        }
+
+        async function apiCall(url, options = {}) {
+            try {
+                logMessage(`🔄 استدعاء API: ${url}`, 'info');
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: { 'Content-Type': 'application/json', ...options.headers },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'خطأ في API'}`);
+                }
+
+                const data = await response.json();
+                logMessage(`✅ نجح الاستدعاء: ${response.status}`, 'success');
+                return data;
+            } catch (error) {
+                logMessage(`❌ خطأ في API: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function findEnterprisePartner() {
+            logMessage('🔍 البحث عن شريك Enterprise...', 'info');
+            
+            try {
+                const response = await apiCall('/partners?type=entreprise');
+                
+                if (!response.success || !response.data || response.data.length === 0) {
+                    logMessage('❌ لا توجد شركاء Enterprise', 'error');
+                    return null;
+                }
+                
+                const partner = response.data[0];
+                logMessage(`✅ تم العثور على الشريك: ${partner.partnerId} - ${partner.fullName}`, 'success');
+                return partner;
+            } catch (error) {
+                logMessage(`❌ خطأ في البحث عن الشريك: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function addTestProject(partner) {
+            logMessage('📝 إنشاء مشروع تجريبي...', 'info');
+            
+            const projectData = {
+                title: `مشروع تجريبي - ${new Date().toLocaleTimeString()}`,
+                description: 'مشروع لاختبار النظام - تطوير موقع إلكتروني متكامل',
+                status: 'planning',
+                startDate: '2024-01-15',
+                endDate: '2024-07-15',
+                budget: 85000,
+                progress: 20,
+                objectives: ['تصميم الواجهة', 'تطوير Backend', 'اختبار النظام'],
+                deliverables: ['موقع إلكتروني', 'لوحة تحكم', 'وثائق فنية']
+            };
+            
+            logMessage(`📋 تفاصيل المشروع:`, 'info');
+            logMessage(`   العنوان: ${projectData.title}`, 'info');
+            logMessage(`   الميزانية: ${projectData.budget} دينار`, 'info');
+            logMessage(`   التقدم: ${projectData.progress}%`, 'info');
+            
+            try {
+                const response = await apiCall(`/enterprise/${partner.partnerId}/projects`, {
+                    method: 'POST',
+                    body: JSON.stringify(projectData)
+                });
+                
+                if (response.success && response.data) {
+                    logMessage(`✅ مشروع تم إنشاؤه بنجاح!`, 'success');
+                    logMessage(`📊 معرف المشروع: ${response.data.projectId || response.data._id || 'غير محدد'}`, 'success');
+                    return response.data;
+                } else {
+                    logMessage(`❌ فشل في إنشاء المشروع: ${response.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                logMessage(`❌ خطأ في إنشاء المشروع: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function verifyProjectSaved(partner) {
+            logMessage('🔍 التحقق من حفظ المشروع في قاعدة البيانات...', 'info');
+            
+            try {
+                const response = await apiCall(`/enterprise/${partner.partnerId}/projects`);
+                
+                if (response.success && response.data) {
+                    const projectCount = response.data.length;
+                    logMessage(`📊 عدد المشاريع المحفوظة: ${projectCount}`, 'success');
+                    
+                    if (projectCount > 0) {
+                        logMessage(`✅ المشاريع محفوظة بنجاح في قاعدة البيانات!`, 'success');
+                        
+                        // عرض المشاريع
+                        displayProjects(response.data, partner);
+                        
+                        return response.data;
+                    } else {
+                        logMessage(`❌ لا توجد مشاريع محفوظة!`, 'error');
+                        return [];
+                    }
+                } else {
+                    logMessage(`❌ خطأ في استرجاع المشاريع: ${response.message}`, 'error');
+                    return [];
+                }
+            } catch (error) {
+                logMessage(`❌ خطأ في التحقق: ${error.message}`, 'error');
+                return [];
+            }
+        }
+
+        function displayProjects(projects, partner) {
+            const display = document.getElementById('projectsDisplay');
+            const list = document.getElementById('projectsList');
+            
+            display.style.display = 'block';
+            
+            let html = `<h4>🏢 مشاريع الشريك: ${partner.partnerId} - ${partner.fullName}</h4>`;
+            
+            projects.forEach((project, index) => {
+                html += `
+                    <div class="project-card">
+                        <h5>${index + 1}. ${project.title}</h5>
+                        <p><strong>الوصف:</strong> ${project.description || 'غير محدد'}</p>
+                        <p><strong>الحالة:</strong> ${project.status}</p>
+                        <p><strong>الميزانية:</strong> ${project.budget || 'غير محدد'} دينار</p>
+                        <p><strong>التقدم:</strong> ${project.progress || 0}%</p>
+                        <p><strong>تاريخ الإنشاء:</strong> ${new Date(project.createdAt).toLocaleString('ar')}</p>
+                        <p><strong>Partner ID:</strong> ${project.partnerId}</p>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        async function checkExistingProjects() {
+            logMessage('🔍 فحص المشاريع الموجودة...', 'info');
+            
+            const partner = await findEnterprisePartner();
+            if (!partner) return;
+            
+            await verifyProjectSaved(partner);
+        }
+
+        async function runTest() {
+            logMessage('🚀 بدء اختبار إضافة المشروع...', 'info');
+            logMessage('=' .repeat(50), 'info');
+            
+            try {
+                // 1. البحث عن شريك Enterprise
+                const partner = await findEnterprisePartner();
+                if (!partner) {
+                    logMessage('❌ لا يمكن المتابعة بدون شريك Enterprise', 'error');
+                    return;
+                }
+                
+                // 2. إضافة مشروع تجريبي
+                const project = await addTestProject(partner);
+                if (!project) {
+                    logMessage('❌ فشل في إضافة المشروع', 'error');
+                    return;
+                }
+                
+                // 3. التحقق من الحفظ
+                await new Promise(resolve => setTimeout(resolve, 1000)); // انتظار ثانية
+                const savedProjects = await verifyProjectSaved(partner);
+                
+                // 4. النتيجة النهائية
+                if (savedProjects.length > 0) {
+                    logMessage('🎉 الاختبار نجح بالكامل!', 'success');
+                    logMessage('✅ المشروع تم إنشاؤه وحفظه بنجاح', 'success');
+                    logMessage('✅ Backend يعمل بشكل صحيح', 'success');
+                    logMessage('💡 إذا لم تظهر المشاريع في Espace Partenariat، المشكلة في Frontend', 'warning');
+                } else {
+                    logMessage('❌ الاختبار فشل - المشروع لم يُحفظ', 'error');
+                }
+                
+            } catch (error) {
+                logMessage(`❌ خطأ في الاختبار: ${error.message}`, 'error');
+            }
+        }
+
+        // تشغيل تلقائي عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            logMessage('🧪 نظام اختبار إضافة المشاريع - MATC', 'info');
+            logMessage('ℹ️ اضغط "إضافة مشروع تجريبي الآن" لبدء الاختبار', 'info');
+        });
+    </script>
+</body>
+</html>

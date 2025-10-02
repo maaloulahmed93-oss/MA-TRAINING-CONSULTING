@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Commercial COM-451764 - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #f59e0b;
+            border-bottom: 3px solid #fef3c7;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        button {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Test Commercial COM-451764</h1>
+            <p>Diagnostic complet pour le commercial COM-451764</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div>
+                <button onclick="testCommercialExists()">👤 Test Commercial Exists</button>
+                <div id="commercial-result" class="result"></div>
+            </div>
+            
+            <div>
+                <button onclick="testCommercialServices()">📋 Test Services</button>
+                <div id="services-result" class="result"></div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div>
+                <button onclick="assignServiceToCommercial()">🔗 Assign Service</button>
+                <div id="assign-result" class="result"></div>
+            </div>
+            
+            <div>
+                <button onclick="testDatabaseQuery()">🗄️ Database Query</button>
+                <div id="database-result" class="result"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button onclick="runCompleteTest()" style="padding: 20px 40px; font-size: 18px; width: 100%;">
+                🚀 TEST COMPLET COM-451764
+            </button>
+            <div id="complete-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const PARTNER_ID = 'COM-451764';
+        const API_BASE = 'http://localhost:3001';
+
+        async function testCommercialExists() {
+            const resultDiv = document.getElementById('commercial-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '👤 Test Commercial Exists...\n\n';
+
+            try {
+                // Test 1: Check in commercial-new API
+                resultDiv.textContent += 'TEST 1: Commercial-New API\n';
+                const commercialResponse = await fetch(`${API_BASE}/api/commercial-new/${PARTNER_ID}`);
+                const commercialResult = await commercialResponse.json();
+                
+                resultDiv.textContent += `Status: ${commercialResponse.status}\n`;
+                resultDiv.textContent += `Success: ${commercialResult.success}\n`;
+                
+                if (commercialResult.success && commercialResult.data) {
+                    resultDiv.textContent += `Nom: ${commercialResult.data.fullName || commercialResult.data.nom}\n`;
+                    resultDiv.textContent += `Niveau: ${commercialResult.data.niveau}\n`;
+                    resultDiv.textContent += `Points: ${commercialResult.data.points}\n`;
+                    resultDiv.textContent += `Active: ${commercialResult.data.isActive}\n\n`;
+                } else {
+                    resultDiv.textContent += `Message: ${commercialResult.message}\n\n`;
+                }
+
+                // Test 2: Check in admin commercials list
+                resultDiv.textContent += 'TEST 2: Admin Commercials List\n';
+                const adminResponse = await fetch(`${API_BASE}/api/commercial-new/admin/commercials`);
+                const adminResult = await adminResponse.json();
+                
+                if (adminResult.success && adminResult.data) {
+                    const foundCommercial = adminResult.data.find(c => c.partnerId === PARTNER_ID);
+                    if (foundCommercial) {
+                        resultDiv.textContent += `✅ Trouvé dans la liste admin\n`;
+                        resultDiv.textContent += `Nom: ${foundCommercial.fullName || foundCommercial.nom}\n`;
+                        resultDiv.textContent += `ID MongoDB: ${foundCommercial._id}\n`;
+                    } else {
+                        resultDiv.textContent += `❌ Non trouvé dans la liste admin\n`;
+                    }
+                }
+
+                if (commercialResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n✅ Commercial existe!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ Commercial non trouvé!';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCommercialServices() {
+            const resultDiv = document.getElementById('services-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test Services...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/commercial-new/${PARTNER_ID}/services`);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Services Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.success && result.data) {
+                    if (result.data.length > 0) {
+                        resultDiv.textContent += 'SERVICES ASSIGNÉS:\n';
+                        result.data.forEach((service, index) => {
+                            resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                            resultDiv.textContent += `   Commission: ${service.commission}€\n`;
+                            resultDiv.textContent += `   Prix Commercial: ${service.prixCommercial}€\n`;
+                            resultDiv.textContent += `   Active: ${service.isActive}\n\n`;
+                        });
+                        
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '✅ Services trouvés!';
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.textContent += '⚠️ Aucun service assigné à ce commercial';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Erreur: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function assignServiceToCommercial() {
+            const resultDiv = document.getElementById('assign-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Assign Service...\n\n';
+
+            try {
+                // Get a service to assign
+                const servicesResponse = await fetch(`${API_BASE}/api/commercial-services`);
+                const servicesResult = await servicesResponse.json();
+                
+                if (!servicesResult.data || servicesResult.data.length === 0) {
+                    throw new Error('Aucun service disponible');
+                }
+
+                const service = servicesResult.data[0];
+                resultDiv.textContent += `Service à assigner: ${service.titre}\n`;
+                resultDiv.textContent += `Service ID: ${service._id}\n\n`;
+
+                // Assign service
+                const assignResponse = await fetch(`${API_BASE}/api/commercial-new/admin/assign-service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        serviceId: service._id,
+                        partnerId: PARTNER_ID
+                    })
+                });
+
+                const assignResult = await assignResponse.json();
+                
+                resultDiv.textContent += `Assignment Status: ${assignResponse.status}\n`;
+                resultDiv.textContent += `Assignment Success: ${assignResult.success}\n`;
+                resultDiv.textContent += `Assignment Message: ${assignResult.message}\n\n`;
+
+                if (assignResult.success) {
+                    // Verify assignment worked
+                    resultDiv.textContent += 'VÉRIFICATION POST-ASSIGNMENT:\n';
+                    const verifyResponse = await fetch(`${API_BASE}/api/commercial-new/${PARTNER_ID}/services`);
+                    const verifyResult = await verifyResponse.json();
+                    
+                    resultDiv.textContent += `Services après assignment: ${verifyResult.data?.length || 0}\n`;
+                    
+                    if (verifyResult.data && verifyResult.data.length > 0) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n✅ Assignment réussi et vérifié!';
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.textContent += '\n⚠️ Assignment dit réussi mais services non visibles';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `\n❌ Assignment échoué: ${assignResult.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testDatabaseQuery() {
+            const resultDiv = document.getElementById('database-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🗄️ Database Query Test...\n\n';
+
+            try {
+                // Test direct database query simulation
+                resultDiv.textContent += 'SIMULATION REQUÊTE DATABASE:\n';
+                resultDiv.textContent += `Query: CommercialService.find({\n`;
+                resultDiv.textContent += `  'commerciauxAutorises.partnerId': '${PARTNER_ID}',\n`;
+                resultDiv.textContent += `  isActive: true\n`;
+                resultDiv.textContent += `})\n\n`;
+
+                // Get all services and check which ones should match
+                const allServicesResponse = await fetch(`${API_BASE}/api/commercial-new/admin/services`);
+                const allServicesResult = await allServicesResponse.json();
+                
+                if (allServicesResult.success && allServicesResult.data) {
+                    resultDiv.textContent += `TOUS LES SERVICES (${allServicesResult.data.length}):\n`;
+                    
+                    let matchingServices = 0;
+                    allServicesResult.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                        resultDiv.textContent += `   Active: ${service.isActive}\n`;
+                        
+                        if (service.commerciauxAutorises && service.commerciauxAutorises.length > 0) {
+                            const hasPartner = service.commerciauxAutorises.some(c => c.partnerId === PARTNER_ID);
+                            resultDiv.textContent += `   Contient ${PARTNER_ID}: ${hasPartner ? 'OUI' : 'NON'}\n`;
+                            if (hasPartner && service.isActive) {
+                                matchingServices++;
+                            }
+                        } else {
+                            resultDiv.textContent += `   Aucun commercial autorisé\n`;
+                        }
+                        resultDiv.textContent += '\n';
+                    });
+                    
+                    resultDiv.textContent += `SERVICES CORRESPONDANTS: ${matchingServices}\n`;
+                    
+                    if (matchingServices > 0) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n✅ Services trouvés dans la base!';
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.textContent += '\n⚠️ Aucun service assigné dans la base';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ Impossible de récupérer les services';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function runCompleteTest() {
+            const resultDiv = document.getElementById('complete-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 TEST COMPLET COM-451764...\n\n';
+
+            try {
+                // Step 1: Check commercial exists
+                resultDiv.textContent += 'ÉTAPE 1: Vérification existence commercial...\n';
+                const commercialResponse = await fetch(`${API_BASE}/api/commercial-new/${PARTNER_ID}`);
+                const commercialResult = await commercialResponse.json();
+                
+                if (!commercialResult.success) {
+                    throw new Error(`Commercial ${PARTNER_ID} non trouvé`);
+                }
+                
+                resultDiv.textContent += `✅ Commercial trouvé: ${commercialResult.data.fullName || commercialResult.data.nom}\n\n`;
+
+                // Step 2: Check current services
+                resultDiv.textContent += 'ÉTAPE 2: Vérification services actuels...\n';
+                const currentServicesResponse = await fetch(`${API_BASE}/api/commercial-new/${PARTNER_ID}/services`);
+                const currentServicesResult = await currentServicesResponse.json();
+                
+                resultDiv.textContent += `Services actuels: ${currentServicesResult.data?.length || 0}\n\n`;
+
+                // Step 3: Assign a service if none
+                if (!currentServicesResult.data || currentServicesResult.data.length === 0) {
+                    resultDiv.textContent += 'ÉTAPE 3: Assignment d\'un service...\n';
+                    
+                    const servicesResponse = await fetch(`${API_BASE}/api/commercial-services`);
+                    const servicesResult = await servicesResponse.json();
+                    
+                    if (servicesResult.data && servicesResult.data.length > 0) {
+                        const service = servicesResult.data[0];
+                        
+                        const assignResponse = await fetch(`${API_BASE}/api/commercial-new/admin/assign-service`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                serviceId: service._id,
+                                partnerId: PARTNER_ID
+                            })
+                        });
+
+                        const assignResult = await assignResponse.json();
+                        
+                        if (assignResult.success) {
+                            resultDiv.textContent += `✅ Service "${service.titre}" assigné\n\n`;
+                        } else {
+                            resultDiv.textContent += `❌ Échec assignment: ${assignResult.message}\n\n`;
+                        }
+                    }
+                } else {
+                    resultDiv.textContent += 'ÉTAPE 3: Services déjà assignés, pas besoin d\'assignment\n\n';
+                }
+
+                // Step 4: Final verification
+                resultDiv.textContent += 'ÉTAPE 4: Vérification finale...\n';
+                const finalServicesResponse = await fetch(`${API_BASE}/api/commercial-new/${PARTNER_ID}/services`);
+                const finalServicesResult = await finalServicesResponse.json();
+                
+                resultDiv.textContent += `Services finaux: ${finalServicesResult.data?.length || 0}\n`;
+                
+                if (finalServicesResult.data && finalServicesResult.data.length > 0) {
+                    resultDiv.textContent += '\nSERVICES DISPONIBLES:\n';
+                    finalServicesResult.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre} - ${service.commission}€\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n🎉 TEST COMPLET RÉUSSI!';
+                    resultDiv.textContent += '\nLe commercial peut maintenant voir ses services.';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '\n⚠️ Aucun service visible après toutes les étapes';
+                    resultDiv.textContent += '\nVérifier la logique d\'assignment ou de récupération.';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ TEST ÉCHOUÉ: ${error.message}`;
+            }
+        }
+
+        window.onload = function() {
+            console.log('🔍 Test Commercial COM-451764 chargé');
+        };
+    </script>
+</body>
+</html>

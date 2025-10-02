@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Bout en Bout - ProjectUrl MATC</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .test-step { margin-bottom: 25px; padding: 20px; border: 2px solid #e0e0e0; border-radius: 10px; background: #f9f9f9; position: relative; }
+        .test-step h2 { color: #4a90e2; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        .step-status { position: absolute; top: 15px; right: 15px; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #6c757d; color: white; }
+        .status-running { background: #ffc107; color: black; }
+        .status-success { background: #28a745; color: white; }
+        .status-error { background: #dc3545; color: white; }
+        .btn { background: linear-gradient(45deg, #4a90e2, #357abd); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin: 5px; transition: all 0.3s; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { background: #6c757d; cursor: not-allowed; transform: none; }
+        .btn.success { background: linear-gradient(45deg, #28a745, #20c997); }
+        .btn.danger { background: linear-gradient(45deg, #dc3545, #c82333); }
+        .result { margin-top: 15px; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .input-group { margin: 10px 0; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .progress-bar { width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 20px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(45deg, #28a745, #20c997); transition: width 0.5s ease; }
+        .test-summary { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 10px; padding: 20px; margin-top: 30px; }
+        .summary-item { display: flex; justify-content: space-between; margin: 10px 0; }
+        .summary-label { font-weight: bold; }
+        .summary-value { padding: 3px 8px; border-radius: 12px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Bout en Bout - ProjectUrl</h1>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+
+        <!-- Configuration -->
+        <div class="test-step">
+            <div class="step-status status-pending" id="configStatus">En attente</div>
+            <h2>⚙️ Configuration du Test</h2>
+            <div class="input-group">
+                <label>ID Participant:</label>
+                <input type="text" id="participantId" value="PART-177037">
+            </div>
+            <div class="input-group">
+                <label>Titre du Projet Test:</label>
+                <input type="text" id="testProjectTitle" value="Test ProjectUrl E2E">
+            </div>
+            <div class="input-group">
+                <label>URL du Projet Test:</label>
+                <input type="url" id="testProjectUrl" value="https://example.com/test-project-url">
+            </div>
+            <button class="btn" onclick="startEndToEndTest()">🚀 Démarrer Test Complet</button>
+        </div>
+
+        <!-- Étape 1: Admin Panel Save -->
+        <div class="test-step">
+            <div class="step-status status-pending" id="step1Status">En attente</div>
+            <h2>1️⃣ Test Admin Panel - Sauvegarde Projet</h2>
+            <button class="btn" onclick="testAdminPanelSave()" id="step1Btn">Tester Sauvegarde Admin Panel</button>
+            <div id="step1Result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 2: MongoDB Verification -->
+        <div class="test-step">
+            <div class="step-status status-pending" id="step2Status">En attente</div>
+            <h2>2️⃣ Vérification MongoDB - ProjectUrl Persisté</h2>
+            <button class="btn" onclick="testMongoDBPersistence()" id="step2Btn" disabled>Vérifier MongoDB</button>
+            <div id="step2Result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 3: API GET Test -->
+        <div class="test-step">
+            <div class="step-status status-pending" id="step3Status">En attente</div>
+            <h2>3️⃣ Test API GET - Récupération ProjectUrl</h2>
+            <button class="btn" onclick="testAPIGet()" id="step3Btn" disabled>Tester API GET</button>
+            <div id="step3Result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 4: Frontend Simulation -->
+        <div class="test-step">
+            <div class="step-status status-pending" id="step4Status">En attente</div>
+            <h2>4️⃣ Simulation Frontend - Bouton "Accéder"</h2>
+            <button class="btn" onclick="testFrontendDisplay()" id="step4Btn" disabled>Simuler Frontend</button>
+            <div id="step4Result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Résumé -->
+        <div class="test-summary" id="testSummary" style="display: none;">
+            <h3>📊 Résumé du Test</h3>
+            <div class="summary-item">
+                <span class="summary-label">Admin Panel → API:</span>
+                <span class="summary-value" id="summaryStep1">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">API → MongoDB:</span>
+                <span class="summary-value" id="summaryStep2">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">MongoDB → API GET:</span>
+                <span class="summary-value" id="summaryStep3">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">API GET → Frontend:</span>
+                <span class="summary-value" id="summaryStep4">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Flux Complet:</span>
+                <span class="summary-value" id="summaryOverall">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let testResults = {
+            step1: false,
+            step2: false,
+            step3: false,
+            step4: false
+        };
+        let testProjectData = null;
+
+        function updateProgress() {
+            const completedSteps = Object.values(testResults).filter(Boolean).length;
+            const totalSteps = Object.keys(testResults).length;
+            const percentage = (completedSteps / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+        }
+
+        function updateStepStatus(stepId, status, message = '') {
+            const statusElement = document.getElementById(`${stepId}Status`);
+            const btnElement = document.getElementById(`${stepId}Btn`);
+            
+            statusElement.className = `step-status status-${status}`;
+            statusElement.textContent = message || status.charAt(0).toUpperCase() + status.slice(1);
+            
+            if (status === 'success') {
+                btnElement.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+            } else if (status === 'error') {
+                btnElement.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
+            }
+        }
+
+        function updateSummary() {
+            const summaryElements = {
+                summaryStep1: testResults.step1 ? 'success' : 'error',
+                summaryStep2: testResults.step2 ? 'success' : 'error',
+                summaryStep3: testResults.step3 ? 'success' : 'error',
+                summaryStep4: testResults.step4 ? 'success' : 'error'
+            };
+
+            Object.entries(summaryElements).forEach(([id, status]) => {
+                const element = document.getElementById(id);
+                element.textContent = status === 'success' ? '✅ OK' : '❌ ÉCHEC';
+                element.className = `summary-value ${status === 'success' ? 'success' : 'error'}`;
+                element.style.background = status === 'success' ? '#d4edda' : '#f8d7da';
+                element.style.color = status === 'success' ? '#155724' : '#721c24';
+            });
+
+            const allSuccess = Object.values(testResults).every(Boolean);
+            const overallElement = document.getElementById('summaryOverall');
+            overallElement.textContent = allSuccess ? '✅ SUCCÈS' : '❌ ÉCHEC';
+            overallElement.className = `summary-value ${allSuccess ? 'success' : 'error'}`;
+            overallElement.style.background = allSuccess ? '#d4edda' : '#f8d7da';
+            overallElement.style.color = allSuccess ? '#155724' : '#721c24';
+
+            document.getElementById('testSummary').style.display = 'block';
+        }
+
+        async function testAdminPanelSave() {
+            const participantId = document.getElementById('participantId').value.trim();
+            const projectTitle = document.getElementById('testProjectTitle').value.trim();
+            const projectUrl = document.getElementById('testProjectUrl').value.trim();
+
+            if (!participantId || !projectTitle || !projectUrl) {
+                alert('Veuillez remplir tous les champs de configuration');
+                return;
+            }
+
+            updateStepStatus('step1', 'running', 'En cours...');
+            const resultDiv = document.getElementById('step1Result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Test sauvegarde Admin Panel...';
+
+            try {
+                // Simuler le comportement de l'Admin Panel
+                const getResponse = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (!getResponse.ok) throw new Error(`Participant non trouvé: ${getResponse.status}`);
+                
+                const participantData = await getResponse.json();
+                const participant = participantData.data;
+                
+                // Ajouter le projet test
+                const projects = participant.projects || [];
+                const testProject = {
+                    title: projectTitle,
+                    description: `Projet test pour vérifier persistance projectUrl`,
+                    projectUrl: projectUrl,
+                    status: 'not_started',
+                    dueDate: new Date().toISOString(),
+                    isVisible: true,
+                    isActive: true,
+                    createdAt: new Date().toISOString()
+                };
+
+                // Remplacer ou ajouter le projet test
+                const existingIndex = projects.findIndex(p => p.title === projectTitle);
+                if (existingIndex >= 0) {
+                    projects[existingIndex] = { ...projects[existingIndex], ...testProject };
+                } else {
+                    projects.push(testProject);
+                }
+
+                testProjectData = testProject;
+
+                // Sauvegarder via PUT (comme le fait l'Admin Panel)
+                const putResponse = await fetch(`${API_BASE}/participants/${participantId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...participant,
+                        projects: projects
+                    })
+                });
+
+                if (putResponse.ok) {
+                    const result = await putResponse.json();
+                    testResults.step1 = true;
+                    updateStepStatus('step1', 'success', 'Sauvegardé');
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Admin Panel sauvegarde réussie!\n` +
+                        `Participant: ${participantId}\n` +
+                        `Projet: ${projectTitle}\n` +
+                        `ProjectUrl: ${projectUrl}\n` +
+                        `Timestamp: ${new Date().toLocaleString()}\n\n` +
+                        `Response: ${JSON.stringify(result, null, 2)}`;
+                    
+                    // Activer étape suivante
+                    document.getElementById('step2Btn').disabled = false;
+                } else {
+                    throw new Error(`Erreur PUT: ${putResponse.status} - ${await putResponse.text()}`);
+                }
+            } catch (error) {
+                testResults.step1 = false;
+                updateStepStatus('step1', 'error', 'Échec');
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur Admin Panel: ${error.message}`;
+            }
+            
+            updateProgress();
+            updateSummary();
+        }
+
+        async function testMongoDBPersistence() {
+            const participantId = document.getElementById('participantId').value.trim();
+            const projectTitle = document.getElementById('testProjectTitle').value.trim();
+
+            updateStepStatus('step2', 'running', 'Vérification...');
+            const resultDiv = document.getElementById('step2Result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Vérification persistance MongoDB...';
+
+            try {
+                // Attendre un peu pour s'assurer de la persistance
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Vérifier via API directe projets
+                const response = await fetch(`${API_BASE}/participants/${participantId}/projects`);
+                if (!response.ok) throw new Error(`Erreur API projets: ${response.status}`);
+
+                const data = await response.json();
+                const projects = data.data || [];
+                
+                // Chercher notre projet test
+                const testProject = projects.find(p => p.title === projectTitle);
+                
+                if (testProject && testProject.projectUrl && testProject.projectUrl.trim()) {
+                    testResults.step2 = true;
+                    updateStepStatus('step2', 'success', 'Persisté');
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ ProjectUrl persisté dans MongoDB!\n` +
+                        `Projet trouvé: ${testProject.title}\n` +
+                        `ProjectUrl en DB: ${testProject.projectUrl}\n` +
+                        `Document ID: ${testProject._id}\n` +
+                        `Créé: ${testProject.createdAt}\n` +
+                        `Modifié: ${testProject.updatedAt}\n\n` +
+                        `Tous les projets en DB:\n${JSON.stringify(projects.map(p => ({
+                            title: p.title,
+                            projectUrl: p.projectUrl || 'VIDE'
+                        })), null, 2)}`;
+                    
+                    // Activer étape suivante
+                    document.getElementById('step3Btn').disabled = false;
+                } else {
+                    throw new Error(`Projet "${projectTitle}" non trouvé ou projectUrl vide dans MongoDB`);
+                }
+            } catch (error) {
+                testResults.step2 = false;
+                updateStepStatus('step2', 'error', 'Non persisté');
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur MongoDB: ${error.message}`;
+            }
+            
+            updateProgress();
+            updateSummary();
+        }
+
+        async function testAPIGet() {
+            const participantId = document.getElementById('participantId').value.trim();
+            const projectTitle = document.getElementById('testProjectTitle').value.trim();
+
+            updateStepStatus('step3', 'running', 'Test API...');
+            const resultDiv = document.getElementById('step3Result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Test API GET...';
+
+            try {
+                // Test GET participant (comme le fait le frontend)
+                const response = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (!response.ok) throw new Error(`Erreur GET participant: ${response.status}`);
+
+                const data = await response.json();
+                const participant = data.data;
+                const projects = participant.projects || [];
+                
+                // Chercher notre projet test
+                const testProject = projects.find(p => p.title === projectTitle);
+                
+                if (testProject && testProject.projectUrl && testProject.projectUrl.trim()) {
+                    testResults.step3 = true;
+                    updateStepStatus('step3', 'success', 'API OK');
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ API GET retourne projectUrl!\n` +
+                        `Participant: ${participant.fullName}\n` +
+                        `Projet: ${testProject.title}\n` +
+                        `ProjectUrl via API: ${testProject.projectUrl}\n` +
+                        `Total projets: ${projects.length}\n\n` +
+                        `Réponse API complète:\n${JSON.stringify(testProject, null, 2)}`;
+                    
+                    // Activer étape suivante
+                    document.getElementById('step4Btn').disabled = false;
+                } else {
+                    throw new Error(`ProjectUrl vide ou manquant dans réponse API GET`);
+                }
+            } catch (error) {
+                testResults.step3 = false;
+                updateStepStatus('step3', 'error', 'API Échec');
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur API GET: ${error.message}`;
+            }
+            
+            updateProgress();
+            updateSummary();
+        }
+
+        async function testFrontendDisplay() {
+            const projectTitle = document.getElementById('testProjectTitle').value.trim();
+            const projectUrl = document.getElementById('testProjectUrl').value.trim();
+
+            updateStepStatus('step4', 'running', 'Simulation...');
+            const resultDiv = document.getElementById('step4Result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Simulation frontend...';
+
+            try {
+                // Simuler la logique frontend (comme dans Projets.tsx)
+                const project = {
+                    title: projectTitle,
+                    projectUrl: projectUrl
+                };
+
+                // Logique du bouton "Accéder" (comme dans le frontend)
+                const hasUrl = !!(project.projectUrl && project.projectUrl.trim());
+                const buttonText = hasUrl ? 'Accéder' : 'Pas de lien';
+                const buttonClass = hasUrl ? 'btn-success' : 'btn-disabled';
+                const canClick = hasUrl;
+
+                if (hasUrl) {
+                    testResults.step4 = true;
+                    updateStepStatus('step4', 'success', 'Bouton OK');
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Frontend afficherait bouton "Accéder"!\n` +
+                        `Projet: ${project.title}\n` +
+                        `URL détectée: ${project.projectUrl}\n` +
+                        `Texte bouton: "${buttonText}"\n` +
+                        `Classe CSS: ${buttonClass}\n` +
+                        `Cliquable: ${canClick ? 'OUI' : 'NON'}\n` +
+                        `Action clic: window.open('${project.projectUrl}', '_blank')\n\n` +
+                        `🎉 FLUX COMPLET FONCTIONNEL!`;
+                } else {
+                    throw new Error(`Frontend afficherait "Pas de lien" - projectUrl manquant`);
+                }
+            } catch (error) {
+                testResults.step4 = false;
+                updateStepStatus('step4', 'error', 'Bouton Échec');
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur Frontend: ${error.message}`;
+            }
+            
+            updateProgress();
+            updateSummary();
+        }
+
+        async function startEndToEndTest() {
+            // Reset
+            testResults = { step1: false, step2: false, step3: false, step4: false };
+            updateProgress();
+            
+            // Désactiver tous les boutons sauf le premier
+            document.getElementById('step2Btn').disabled = true;
+            document.getElementById('step3Btn').disabled = true;
+            document.getElementById('step4Btn').disabled = true;
+            
+            // Reset status
+            ['step1', 'step2', 'step3', 'step4'].forEach(step => {
+                updateStepStatus(step, 'pending', 'En attente');
+            });
+
+            updateStepStatus('config', 'success', 'Configuré');
+            
+            // Lancer automatiquement les tests
+            try {
+                await testAdminPanelSave();
+                if (testResults.step1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await testMongoDBPersistence();
+                    
+                    if (testResults.step2) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await testAPIGet();
+                        
+                        if (testResults.step3) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            await testFrontendDisplay();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur test automatique:', error);
+            }
+        }
+    </script>
+</body>
+</html>

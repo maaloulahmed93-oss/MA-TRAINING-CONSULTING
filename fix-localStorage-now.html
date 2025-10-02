@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إصلاح فوري لـ localStorage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        button {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button.success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: right;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .big-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .countdown {
+            font-size: 48px;
+            font-weight: bold;
+            color: #dc3545;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 إصلاح فوري للفورماسيون المشتركة</h1>
+        <div class="big-text">المشكلة: تظهر 5 فورماسيون لجميع الشركاء</div>
+        <div class="big-text">السبب: بيانات محفوظة في localStorage</div>
+        
+        <div class="countdown" id="countdown">⚡</div>
+        
+        <button onclick="fixNow()" id="fix-btn">🔥 إصلاح فوري - احذف البيانات المشتركة</button>
+        <button onclick="checkStatus()" class="success">🔍 فحص الحالة</button>
+        
+        <div id="results"></div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #e9ecef; border-radius: 8px;">
+            <h3>📋 خطوات الإصلاح:</h3>
+            <ol style="text-align: right;">
+                <li>اضغط "إصلاح فوري"</li>
+                <li>أعد تحميل صفحة الفورماسيون</li>
+                <li>يجب أن تظهر "0 formations" أو فورماسيون خاصة بكل شريك</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            results.appendChild(div);
+        }
+
+        function fixNow() {
+            addResult('🚨 بدء الإصلاح الفوري...', 'warning');
+            const btn = document.getElementById('fix-btn');
+            btn.disabled = true;
+            
+            let deletedCount = 0;
+            let totalKeys = 0;
+            
+            // فحص جميع مفاتيح localStorage
+            const allKeys = Object.keys(localStorage);
+            totalKeys = allKeys.length;
+            
+            addResult(`📊 تم العثور على ${totalKeys} مفتاح في localStorage`, 'info');
+            
+            // البحث عن المفاتيح المتعلقة بالفورماسيون
+            const formationKeys = allKeys.filter(key => 
+                key.includes('formation') || 
+                key.includes('Formation') || 
+                key === 'formationsCoAnimees' ||
+                key.includes('CoAnimees')
+            );
+            
+            if (formationKeys.length > 0) {
+                addResult(`🎯 تم العثور على ${formationKeys.length} مفتاح متعلق بالفورماسيون:`, 'warning');
+                
+                formationKeys.forEach(key => {
+                    try {
+                        const data = localStorage.getItem(key);
+                        if (data) {
+                            // محاولة تحليل البيانات لعرض المحتوى
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (Array.isArray(parsed)) {
+                                    addResult(`   🗑️ حذف ${key}: ${parsed.length} عنصر`, 'warning');
+                                } else {
+                                    addResult(`   🗑️ حذف ${key}: بيانات`, 'warning');
+                                }
+                            } catch (e) {
+                                addResult(`   🗑️ حذف ${key}: ${data.length} حرف`, 'warning');
+                            }
+                        }
+                        
+                        localStorage.removeItem(key);
+                        deletedCount++;
+                        
+                    } catch (error) {
+                        addResult(`   ❌ فشل في حذف ${key}: ${error.message}`, 'error');
+                    }
+                });
+                
+                addResult(`✅ تم حذف ${deletedCount} مفتاح بنجاح!`, 'success');
+                addResult('🎉 تم إصلاح المشكلة!', 'success');
+                addResult('🔄 الآن أعد تحميل صفحة الفورماسيون لرؤية النتيجة', 'success');
+                
+                // عد تنازلي للإعادة التحميل
+                let countdown = 5;
+                const countdownElement = document.getElementById('countdown');
+                
+                const timer = setInterval(() => {
+                    countdownElement.textContent = countdown;
+                    countdown--;
+                    
+                    if (countdown < 0) {
+                        clearInterval(timer);
+                        addResult('🔄 إعادة تحميل تلقائية...', 'success');
+                        window.location.reload();
+                    }
+                }, 1000);
+                
+            } else {
+                addResult('ℹ️ لا توجد بيانات فورماسيون في localStorage', 'info');
+                addResult('🤔 المشكلة قد تكون في مكان آخر', 'warning');
+            }
+            
+            btn.disabled = false;
+        }
+
+        function checkStatus() {
+            addResult('🔍 فحص حالة localStorage...', 'info');
+            
+            const allKeys = Object.keys(localStorage);
+            addResult(`📊 إجمالي المفاتيح: ${allKeys.length}`, 'info');
+            
+            if (allKeys.length === 0) {
+                addResult('✅ localStorage فارغ تماماً', 'success');
+                return;
+            }
+            
+            // فحص المفاتيح المتعلقة بالفورماسيون
+            const formationKeys = allKeys.filter(key => 
+                key.includes('formation') || 
+                key.includes('Formation') || 
+                key === 'formationsCoAnimees'
+            );
+            
+            if (formationKeys.length > 0) {
+                addResult(`⚠️ لا تزال هناك ${formationKeys.length} مفتاح متعلق بالفورماسيون:`, 'warning');
+                formationKeys.forEach(key => {
+                    const data = localStorage.getItem(key);
+                    addResult(`   • ${key}: ${data ? data.length : 0} حرف`, 'warning');
+                });
+            } else {
+                addResult('✅ لا توجد مفاتيح فورماسيون في localStorage', 'success');
+            }
+            
+            // عرض جميع المفاتيح الموجودة
+            if (allKeys.length > 0) {
+                addResult('📋 المفاتيح الموجودة:', 'info');
+                allKeys.forEach(key => {
+                    const size = localStorage.getItem(key)?.length || 0;
+                    addResult(`   • ${key}: ${size} حرف`, 'info');
+                });
+            }
+        }
+
+        // فحص تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            addResult('🚀 أداة الإصلاح الفوري جاهزة', 'success');
+            
+            // فحص سريع
+            const keys = Object.keys(localStorage);
+            const formationKeys = keys.filter(key => 
+                key.includes('formation') || 
+                key.includes('Formation') || 
+                key === 'formationsCoAnimees'
+            );
+            
+            if (formationKeys.length > 0) {
+                addResult(`🚨 تم العثور على ${formationKeys.length} مفتاح فورماسيون - يحتاج إصلاح!`, 'error');
+                document.getElementById('countdown').textContent = '🚨';
+            } else {
+                addResult('✅ لا توجد مشكلة في localStorage', 'success');
+                document.getElementById('countdown').textContent = '✅';
+            }
+        };
+    </script>
+</body>
+</html>

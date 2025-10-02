@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer Partenaire Test ENT-752810</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Créer Partenaire Test ENT-752810</h1>
+        
+        <div class="result info">
+            <h3>Objectif</h3>
+            <p>Créer le partenaire <strong>ENT-752810</strong> dans la base de données pour permettre le login dans l'Espace Entreprise.</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="createTestPartner()" class="success">🚀 Créer Partenaire ENT-752810</button>
+            <button onclick="testLogin()">🔐 Tester Login</button>
+            <button onclick="checkPartnerExists()">🔍 Vérifier Existence</button>
+            <button onclick="clearLog()">🗑️ Effacer Log</button>
+        </div>
+
+        <div id="log" class="log">Prêt à créer le partenaire test...\n</div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const TEST_PARTNER_ID = 'ENT-752810';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = 'Log effacé...\n';
+        }
+
+        async function checkPartnerExists() {
+            log(`🔍 Vérification de l'existence du partenaire ${TEST_PARTNER_ID}...`);
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: TEST_PARTNER_ID }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Partenaire ${TEST_PARTNER_ID} existe déjà!`, 'success');
+                    log(`   Nom: ${data.data.fullName}`, 'success');
+                    log(`   Email: ${data.data.email}`, 'success');
+                    log(`   Type: ${data.data.type}`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Partenaire ${TEST_PARTNER_ID} n'existe pas: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur lors de la vérification: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function createTestPartner() {
+            log(`🚀 Création du partenaire ${TEST_PARTNER_ID}...`);
+            
+            // Vérifier d'abord s'il existe
+            const exists = await checkPartnerExists();
+            if (exists) {
+                log(`⚠️ Le partenaire existe déjà, pas besoin de le créer`, 'warning');
+                return;
+            }
+
+            try {
+                const partnerData = {
+                    partnerId: TEST_PARTNER_ID,
+                    fullName: 'Entreprise Test MATC',
+                    email: 'test@entreprise-matc.com',
+                    type: 'Entreprise',
+                    contactPerson: 'Ahmed Maaloul',
+                    phone: '+33 1 23 45 67 89',
+                    address: '123 Rue de la Formation, 75001 Paris',
+                    website: 'https://test-entreprise.com',
+                    description: 'Entreprise de test pour valider la migration de l\'Espace Entreprise',
+                    isActive: true
+                };
+
+                log('📤 Envoi des données au backend...');
+                
+                const response = await fetch(`${BACKEND_URL}/api/partners`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(partnerData),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Partenaire ${TEST_PARTNER_ID} créé avec succès!`, 'success');
+                    log(`   ID: ${result.data.partnerId}`, 'success');
+                    log(`   Nom: ${result.data.fullName}`, 'success');
+                    log(`   Email: ${result.data.email}`, 'success');
+                    log(`   Type: ${result.data.type}`, 'success');
+                    
+                    // Test automatique du login
+                    log('🔄 Test automatique du login...');
+                    setTimeout(() => testLogin(), 1000);
+                    
+                } else {
+                    log(`❌ Erreur lors de la création: ${result.message}`, 'error');
+                    if (result.error) {
+                        log(`   Détails: ${JSON.stringify(result.error)}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            log(`🔐 Test de login pour ${TEST_PARTNER_ID}...`);
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ partnerId: TEST_PARTNER_ID }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login réussi pour ${TEST_PARTNER_ID}!`, 'success');
+                    log(`   Nom: ${data.data.fullName}`, 'success');
+                    log(`   Email: ${data.data.email}`, 'success');
+                    log(`   Type: ${data.data.type}`, 'success');
+                    log(`   Dernière connexion: ${new Date(data.data.lastLogin).toLocaleString()}`, 'success');
+                    
+                    log('🎉 Le partenaire peut maintenant se connecter à l\'Espace Entreprise!', 'success');
+                    log('🔗 Allez sur http://localhost:5174/espace-partenariat', 'success');
+                    
+                } else {
+                    log(`❌ Login échoué: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur login: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-vérification au chargement
+        window.addEventListener('load', async () => {
+            log('🔄 Vérification automatique au chargement...');
+            await checkPartnerExists();
+            log('📋 Utilisez les boutons ci-dessus pour créer ou tester le partenaire');
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,9 @@
 import { FreelancerMeeting } from '../types/freelancers';
 
+const API_BASE_URL = 'http://localhost:3001/api';
 const STORAGE_KEY = 'freelancer_meetings';
 
+// Fallback functions for localStorage
 const readAll = (): FreelancerMeeting[] => {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
@@ -12,33 +14,161 @@ const writeAll = (items: FreelancerMeeting[]) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 };
 
-export const listMeetings = (): FreelancerMeeting[] => readAll().sort((a,b)=> (b.updatedAt>a.updatedAt?1:-1));
-export const getMeeting = (id: string): FreelancerMeeting | undefined => readAll().find(m => m.id === id);
+// API functions
+export const listMeetings = async (): Promise<FreelancerMeeting[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/freelancer-meetings`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-export const createMeeting = (input: Omit<FreelancerMeeting,'id'|'createdAt'|'updatedAt'>): FreelancerMeeting => {
-  const now = new Date().toISOString();
-  const meeting: FreelancerMeeting = { id: `MEET-${Date.now()}`, createdAt: now, updatedAt: now, ...input };
-  const all = readAll();
-  all.push(meeting);
-  writeAll(all);
-  return meeting;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.success && Array.isArray(data.data)) {
+      console.log(`📅 تم جلب ${data.data.length} اجتماع من API`);
+      return data.data;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('خطأ في جلب الاجتماعات من API، استخدام localStorage:', error);
+    return readAll().sort((a,b)=> (b.updatedAt>a.updatedAt?1:-1));
+  }
 };
 
-export const updateMeeting = (id: string, patch: Partial<FreelancerMeeting>): FreelancerMeeting | undefined => {
-  const all = readAll();
-  const idx = all.findIndex(m => m.id === id);
-  if (idx === -1) return undefined;
-  const updated: FreelancerMeeting = { ...all[idx], ...patch, updatedAt: new Date().toISOString() };
-  all[idx] = updated;
-  writeAll(all);
-  return updated;
+export const getMeeting = async (id: string): Promise<FreelancerMeeting | undefined> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/freelancer-meetings/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.data) {
+      return data.data;
+    }
+
+    return undefined;
+  } catch (error) {
+    console.error('خطأ في جلب تفاصيل الاجتماع من API، استخدام localStorage:', error);
+    return readAll().find(m => m.id === id);
+  }
 };
 
-export const deleteMeeting = (id: string): boolean => {
-  const all = readAll();
-  const next = all.filter(m => m.id !== id);
-  writeAll(next);
-  return next.length !== all.length;
+export const createMeeting = async (input: Omit<FreelancerMeeting,'id'|'createdAt'|'updatedAt'>): Promise<FreelancerMeeting> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/freelancer-meetings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.data) {
+      console.log(`✅ تم إنشاء اجتماع جديد: ${data.data.subject}`);
+      return data.data;
+    }
+
+    throw new Error('فشل في إنشاء الاجتماع');
+  } catch (error) {
+    console.error('خطأ في إنشاء الاجتماع عبر API، استخدام localStorage:', error);
+    // Fallback to localStorage
+    const now = new Date().toISOString();
+    const meeting: FreelancerMeeting = { id: `MEET-${Date.now()}`, createdAt: now, updatedAt: now, ...input };
+    const all = readAll();
+    all.push(meeting);
+    writeAll(all);
+    return meeting;
+  }
+};
+
+export const updateMeeting = async (id: string, patch: Partial<FreelancerMeeting>): Promise<FreelancerMeeting | undefined> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/freelancer-meetings/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(patch),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.data) {
+      console.log(`📝 تم تحديث الاجتماع: ${data.data.subject}`);
+      return data.data;
+    }
+
+    return undefined;
+  } catch (error) {
+    console.error('خطأ في تحديث الاجتماع عبر API، استخدام localStorage:', error);
+    // Fallback to localStorage
+    const all = readAll();
+    const idx = all.findIndex(m => m.id === id);
+    if (idx === -1) return undefined;
+    const updated: FreelancerMeeting = { ...all[idx], ...patch, updatedAt: new Date().toISOString() };
+    all[idx] = updated;
+    writeAll(all);
+    return updated;
+  }
+};
+
+export const deleteMeeting = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/freelancer-meetings/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.success) {
+      console.log('🗑️ تم حذف الاجتماع بنجاح');
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('خطأ في حذف الاجتماع عبر API، استخدام localStorage:', error);
+    // Fallback to localStorage
+    const all = readAll();
+    const next = all.filter(m => m.id !== id);
+    writeAll(next);
+    return next.length !== all.length;
+  }
 };
 
 export const seedMeetingsIfEmpty = () => {

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Notification Data - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.urgent { background: #ff6b6b; color: white; font-weight: bold; }
+        button.success { background: #28a745; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 400px; }
+        .field-check { margin: 5px 0; padding: 5px; border-radius: 3px; }
+        .field-present { background: #d4edda; color: #155724; }
+        .field-missing { background: #f8d7da; color: #721c24; }
+        .field-empty { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Notification Data - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ المشكلة المحددة</h3>
+            <p>الإشعار "frfr" يظهر لكن قسم "Détails de l'offre d'emploi" فارغ</p>
+            <p><strong>السبب المحتمل:</strong> البيانات التفصيلية مفقودة أو فارغة</p>
+        </div>
+
+        <button onclick="analyzeNotificationData()" class="urgent">🔍 Analyze Current Data</button>
+        <button onclick="addCompleteTestNotification()" class="success">➕ Add Complete Test</button>
+        <button onclick="checkDisplayLogic()">🎨 Check Display Logic</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function analyzeNotificationData() {
+            log('🔍 تحليل دقيق لبيانات الإشعارات...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.length > 0) {
+                        log(`✅ ${data.data.length} إشعارات موجودة`, 'success');
+                        
+                        // Find the "frfr" notification
+                        const frfrNotification = data.data.find(n => n.title === 'frfr' || n.message === 'frfr');
+                        
+                        if (frfrNotification) {
+                            log('🎯 تحليل إشعار "frfr":', 'info');
+                            log(`📋 Type: ${frfrNotification.type}`, 'info');
+                            
+                            // Check all offre_emploi fields
+                            const fields = [
+                                { name: 'title', value: frfrNotification.title },
+                                { name: 'company', value: frfrNotification.company },
+                                { name: 'jobTitle', value: frfrNotification.jobTitle },
+                                { name: 'salary', value: frfrNotification.salary },
+                                { name: 'contractType', value: frfrNotification.contractType },
+                                { name: 'contact', value: frfrNotification.contact },
+                                { name: 'phone', value: frfrNotification.phone },
+                                { name: 'email', value: frfrNotification.email },
+                                { name: 'description', value: frfrNotification.description },
+                                { name: 'environment', value: frfrNotification.environment },
+                                { name: 'benefits', value: frfrNotification.benefits }
+                            ];
+                            
+                            let presentCount = 0;
+                            let emptyCount = 0;
+                            let missingCount = 0;
+                            
+                            fields.forEach(field => {
+                                if (field.value === undefined || field.value === null) {
+                                    log(`❌ ${field.name}: MANQUANT (undefined/null)`, 'error');
+                                    missingCount++;
+                                } else if (field.value === '' || field.value === ' ') {
+                                    log(`⚠️ ${field.name}: VIDE ("${field.value}")`, 'warning');
+                                    emptyCount++;
+                                } else {
+                                    log(`✅ ${field.name}: "${field.value}"`, 'success');
+                                    presentCount++;
+                                }
+                            });
+                            
+                            log(`📊 RÉSUMÉ: ${presentCount} présents, ${emptyCount} vides, ${missingCount} manquants`, 
+                                presentCount > 5 ? 'success' : 'error');
+                            
+                            // Show raw data
+                            log(`<pre>Données brutes de "frfr":
+${JSON.stringify(frfrNotification, null, 2)}</pre>`, 'info');
+                            
+                            // Check why display is empty
+                            if (presentCount <= 2) {
+                                log('🎯 CAUSE: Trop peu de champs remplis - le composant affiche "Aucun détail"', 'error');
+                                log('💡 SOLUTION: Ajouter plus de données aux champs', 'warning');
+                            }
+                            
+                        } else {
+                            log('❌ Notification "frfr" non trouvée', 'error');
+                            
+                            // Show all notifications
+                            log('📋 Toutes les notifications:', 'info');
+                            data.data.forEach((notif, index) => {
+                                log(`${index + 1}. "${notif.title}" (${notif.type})`, 'info');
+                            });
+                        }
+                        
+                    } else {
+                        log('❌ Aucune notification trouvée', 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function addCompleteTestNotification() {
+            log('➕ Ajout d\'un test complet avec TOUS les champs...', 'info');
+            
+            const completeNotification = {
+                title: 'Test Complet - Développeur Senior',
+                message: 'Offre d\'emploi complète avec tous les détails',
+                type: 'offre_emploi',
+                company: 'MATC Technologies Avancées',
+                jobTitle: 'Développeur Full Stack Senior',
+                salary: '50000-65000 EUR/an',
+                contractType: 'CDI',
+                contact: 'Ahmed Ben Ali - Directeur Technique',
+                phone: '+33987654321',
+                email: 'careers@matc-tech.com',
+                description: 'Nous recherchons un développeur Full Stack expérimenté pour rejoindre notre équipe technique innovante. Vous travaillerez sur des projets passionnants utilisant les dernières technologies.',
+                environment: 'Bureaux modernes à Paris 15ème, télétravail hybride 3j/semaine',
+                benefits: 'Mutuelle premium, tickets restaurant 12€, formation continue, prime de performance, stock-options',
+                date: new Date().toISOString(),
+                isRead: false,
+                priority: 'high'
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(completeNotification)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        log('✅ Test notification ajoutée avec TOUS les champs!', 'success');
+                        log('🎯 Maintenant testez dans espace participant', 'info');
+                        log('📋 Cette notification devrait afficher TOUS les détails', 'success');
+                    } else {
+                        log(`❌ Échec: ${data.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Erreur HTTP: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkDisplayLogic() {
+            log('🎨 Vérification de la logique d\'affichage...', 'info');
+            
+            log('📋 Logique actuelle dans Notifications.tsx:', 'info');
+            log('1. Le composant vérifie si notification.type === "offre_emploi"', 'info');
+            log('2. Il affiche une section verte avec grille 2 colonnes', 'info');
+            log('3. Chaque champ s\'affiche SEULEMENT s\'il existe ET n\'est pas vide', 'info');
+            
+            log('🔍 Conditions d\'affichage:', 'warning');
+            log('- company: affiché si notification.company existe', 'info');
+            log('- jobTitle: affiché si notification.jobTitle existe', 'info');
+            log('- salary: affiché si notification.salary existe', 'info');
+            log('- contractType: affiché si notification.contractType existe', 'info');
+            log('- contact: affiché si notification.contact existe', 'info');
+            log('- phone: affiché si notification.phone existe (cliquable)', 'info');
+            log('- email: affiché si notification.email existe (cliquable)', 'info');
+            
+            log('💡 DIAGNOSTIC:', 'warning');
+            log('Si AUCUN champ n\'est rempli → Section vide', 'error');
+            log('Si QUELQUES champs remplis → Seuls ces champs s\'affichent', 'warning');
+            log('Si TOUS les champs remplis → Affichage complet', 'success');
+            
+            log('🎯 SOLUTION:', 'success');
+            log('1. Utilisez "Add Complete Test" pour tester', 'info');
+            log('2. Ou remplissez TOUS les champs dans Admin Panel', 'info');
+            log('3. Vérifiez que les données sont bien sauvegardées', 'info');
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement du diagnostic...', 'info');
+                log('🎯 Prêt à analyser les données des notifications', 'success');
+                log('⚡ Cliquez sur "Analyze Current Data" pour commencer', 'info');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

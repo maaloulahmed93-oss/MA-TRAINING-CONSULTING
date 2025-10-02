@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 إصلاح localStorage للقرارات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .btn:hover { background: #3730a3; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 إصلاح localStorage للقرارات</h1>
+        <p>حل سريع لمشكلة عدم ظهور القرارات في Espace Freelancer</p>
+        
+        <button class="btn btn-success" onclick="createDecisionsDirectly()">
+            ✅ إنشاء قرارات مباشرة
+        </button>
+        
+        <button class="btn" onclick="checkLocalStorage()">
+            🔍 فحص localStorage
+        </button>
+        
+        <button class="btn" onclick="clearAndRecreate()">
+            🔄 مسح وإعادة إنشاء
+        </button>
+        
+        <div class="results" id="results">جاهز لإصلاح المشكلة...</div>
+    </div>
+
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            results.textContent += `[${timestamp}] ${message}\n`;
+        }
+
+        function createDecisionsDirectly() {
+            log('🔧 إنشاء قرارات مباشرة في localStorage...');
+            
+            const freelancerId = 'FRE-340255';
+            const decisions = [
+                {
+                    _id: `decision-direct-1-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Design Interface Utilisateur',
+                    decision: 'approved',
+                    observation: 'عمل ممتاز! التصميم يلبي جميع المتطلبات المطلوبة.',
+                    adminId: 'admin',
+                    status: 'sent',
+                    readAt: null,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    _id: `decision-direct-2-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Documentation Technique',
+                    decision: 'rejected',
+                    observation: 'يرجى إعادة العمل على الوثائق. هناك بعض النقاط التي تحتاج إلى تحسين.',
+                    adminId: 'admin',
+                    status: 'sent',
+                    readAt: null,
+                    createdAt: new Date(Date.now() - 60000).toISOString(),
+                    updatedAt: new Date(Date.now() - 60000).toISOString()
+                }
+            ];
+            
+            try {
+                const key = `freelancerDecisions_${freelancerId}`;
+                localStorage.setItem(key, JSON.stringify(decisions));
+                
+                // تأكيد الحفظ
+                const saved = localStorage.getItem(key);
+                const parsed = JSON.parse(saved);
+                
+                log(`✅ تم حفظ ${parsed.length} قرار بنجاح!`);
+                log(`📋 القرار الأول: ${parsed[0].deliverableTitle} - ${parsed[0].decision}`);
+                log(`📋 القرار الثاني: ${parsed[1].deliverableTitle} - ${parsed[1].decision}`);
+                log('🎯 اذهب الآن إلى Espace Freelancer → Notifications');
+                log('🔄 اضغط F5 لإعادة تحميل الصفحة');
+                
+            } catch (error) {
+                log(`❌ خطأ في الحفظ: ${error.message}`);
+            }
+        }
+
+        function checkLocalStorage() {
+            log('🔍 فحص localStorage...');
+            
+            const freelancerId = 'FRE-340255';
+            const key = `freelancerDecisions_${freelancerId}`;
+            
+            try {
+                const data = localStorage.getItem(key);
+                
+                if (!data) {
+                    log('❌ لا توجد قرارات في localStorage');
+                    log('💡 استخدم "إنشاء قرارات مباشرة"');
+                } else {
+                    const decisions = JSON.parse(data);
+                    log(`✅ تم العثور على ${decisions.length} قرار`);
+                    
+                    decisions.forEach((decision, index) => {
+                        log(`${index + 1}. ${decision.deliverableTitle} - ${decision.decision}`);
+                    });
+                }
+                
+                // فحص جميع المفاتيح
+                const allKeys = Object.keys(localStorage);
+                const decisionKeys = allKeys.filter(k => k.includes('Decision') || k.includes('decision'));
+                log(`🔑 مفاتيح القرارات الموجودة: ${decisionKeys.length}`);
+                decisionKeys.forEach(k => log(`  - ${k}`));
+                
+            } catch (error) {
+                log(`❌ خطأ في الفحص: ${error.message}`);
+            }
+        }
+
+        function clearAndRecreate() {
+            log('🔄 مسح وإعادة إنشاء...');
+            
+            const freelancerId = 'FRE-340255';
+            
+            // مسح البيانات القديمة
+            localStorage.removeItem(`freelancerDecisions_${freelancerId}`);
+            localStorage.removeItem(`freelancerNotifications_${freelancerId}`);
+            
+            log('🗑️ تم مسح البيانات القديمة');
+            
+            // إعادة إنشاء
+            setTimeout(() => {
+                createDecisionsDirectly();
+            }, 500);
+        }
+
+        // تحميل أولي
+        log('🚀 أداة إصلاح localStorage جاهزة');
+        log('📋 المشكلة: FreelancerDecisionsService لا يجد القرارات');
+        log('🔧 الحل: إنشاء قرارات مباشرة في localStorage');
+    </script>
+</body>
+</html>

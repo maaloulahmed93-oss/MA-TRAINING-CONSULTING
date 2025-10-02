@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Inscriptions Complètes - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Système d'Inscriptions Complet</h1>
+        <p>Test des inscriptions programmes et packs vers l'API backend</p>
+    </div>
+
+    <div class="container">
+        <h2>📝 Créer Inscription Programme</h2>
+        <form id="programForm">
+            <div class="form-group">
+                <label for="progFirstName">Prénom:</label>
+                <input type="text" id="progFirstName" value="Ahmed" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="progLastName">Nom:</label>
+                <input type="text" id="progLastName" value="Ben Ali" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="progEmail">Email:</label>
+                <input type="email" id="progEmail" value="ahmed.benali@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="progWhatsapp">WhatsApp:</label>
+                <input type="text" id="progWhatsapp" value="+216 12 345 678">
+            </div>
+            
+            <button type="button" onclick="createProgramRegistration()">📚 Créer Inscription Programme</button>
+        </form>
+        <div id="programResult" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>📦 Créer Inscription Pack</h2>
+        <form id="packForm">
+            <div class="form-group">
+                <label for="packFirstName">Prénom:</label>
+                <input type="text" id="packFirstName" value="Fatma" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="packLastName">Nom:</label>
+                <input type="text" id="packLastName" value="Trabelsi" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="packEmail">Email:</label>
+                <input type="email" id="packEmail" value="fatma.trabelsi@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="packPhone">Téléphone:</label>
+                <input type="text" id="packPhone" value="+216 98 765 432" required>
+            </div>
+            
+            <button type="button" onclick="createPackRegistration()">📦 Créer Inscription Pack</button>
+        </form>
+        <div id="packResult" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Vérifier Inscriptions dans Admin Panel</h2>
+        <button onclick="fetchAllRegistrations()">📋 Récupérer Toutes les Inscriptions</button>
+        <button onclick="fetchRegistrationStats()">📊 Statistiques</button>
+        <div id="listResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Créer inscription programme
+        async function createProgramRegistration() {
+            const resultEl = document.getElementById('programResult');
+            resultEl.textContent = '🔄 Création inscription programme...\n';
+            
+            const registrationData = {
+                type: 'program',
+                itemId: 'prog-marketing-digital',
+                itemName: 'Marketing Digital Avancé',
+                price: 299,
+                currency: '€',
+                sessionId: 'session-2024-01',
+                user: {
+                    firstName: document.getElementById('progFirstName').value,
+                    lastName: document.getElementById('progLastName').value,
+                    email: document.getElementById('progEmail').value,
+                    whatsapp: document.getElementById('progWhatsapp').value || undefined,
+                }
+            };
+            
+            try {
+                console.log('📤 Envoi inscription programme:', registrationData);
+                
+                const response = await fetch(`${API_BASE}/registrations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(registrationData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultEl.textContent = `✅ SUCCÈS Programme!\n\nID: ${data.data._id}\nNom: ${data.data.user.firstName} ${data.data.user.lastName}\nEmail: ${data.data.user.email}\nType: ${data.data.type}\nProgramme: ${data.data.itemName}\n\nRéponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    resultEl.className = 'result success';
+                } else {
+                    resultEl.textContent = `❌ ERREUR Programme\n\nStatus: ${response.status}\nMessage: ${data.message}\n\nErreurs:\n${JSON.stringify(data.errors || data, null, 2)}`;
+                    resultEl.className = 'result error';
+                }
+            } catch (error) {
+                resultEl.textContent = `💥 ERREUR RÉSEAU Programme\n\n${error.message}`;
+                resultEl.className = 'result error';
+            }
+        }
+
+        // Créer inscription pack
+        async function createPackRegistration() {
+            const resultEl = document.getElementById('packResult');
+            resultEl.textContent = '🔄 Création inscription pack...\n';
+            
+            const registrationData = {
+                type: 'pack',
+                itemId: 'pack-marketing-complete',
+                itemName: 'Pack Marketing Complet',
+                price: 599,
+                currency: '€',
+                user: {
+                    firstName: document.getElementById('packFirstName').value,
+                    lastName: document.getElementById('packLastName').value,
+                    email: document.getElementById('packEmail').value,
+                    phone: document.getElementById('packPhone').value,
+                    message: 'Inscription via test automatique'
+                }
+            };
+            
+            try {
+                console.log('📤 Envoi inscription pack:', registrationData);
+                
+                const response = await fetch(`${API_BASE}/registrations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(registrationData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultEl.textContent = `✅ SUCCÈS Pack!\n\nID: ${data.data._id}\nNom: ${data.data.user.firstName} ${data.data.user.lastName}\nEmail: ${data.data.user.email}\nType: ${data.data.type}\nPack: ${data.data.itemName}\n\nRéponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    resultEl.className = 'result success';
+                } else {
+                    resultEl.textContent = `❌ ERREUR Pack\n\nStatus: ${response.status}\nMessage: ${data.message}\n\nErreurs:\n${JSON.stringify(data.errors || data, null, 2)}`;
+                    resultEl.className = 'result error';
+                }
+            } catch (error) {
+                resultEl.textContent = `💥 ERREUR RÉSEAU Pack\n\n${error.message}`;
+                resultEl.className = 'result error';
+            }
+        }
+
+        // Récupérer toutes les inscriptions
+        async function fetchAllRegistrations() {
+            const resultEl = document.getElementById('listResult');
+            resultEl.textContent = '🔄 Récupération des inscriptions...\n';
+            
+            try {
+                const response = await fetch(`${API_BASE}/registrations`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const registrations = data.data || [];
+                    let output = `📋 INSCRIPTIONS TROUVÉES (${registrations.length})\n\n`;
+                    
+                    registrations.forEach((reg, index) => {
+                        output += `${index + 1}. ${reg.type.toUpperCase()}: ${reg.itemName}\n`;
+                        output += `   👤 ${reg.user.firstName} ${reg.user.lastName}\n`;
+                        output += `   📧 ${reg.user.email}\n`;
+                        output += `   💰 ${reg.price || 'N/A'} ${reg.currency || ''}\n`;
+                        output += `   📅 ${new Date(reg.submittedAt).toLocaleString('fr-FR')}\n`;
+                        output += `   🔄 Statut: ${reg.status}\n\n`;
+                    });
+                    
+                    output += `\nRéponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    resultEl.textContent = output;
+                    resultEl.className = 'result success';
+                } else {
+                    resultEl.textContent = `❌ Erreur récupération: ${data.message}`;
+                    resultEl.className = 'result error';
+                }
+            } catch (error) {
+                resultEl.textContent = `💥 Erreur réseau: ${error.message}`;
+                resultEl.className = 'result error';
+            }
+        }
+
+        // Récupérer statistiques
+        async function fetchRegistrationStats() {
+            const resultEl = document.getElementById('listResult');
+            resultEl.textContent = '🔄 Récupération des statistiques...\n';
+            
+            try {
+                const response = await fetch(`${API_BASE}/registrations/stats/summary`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const stats = data.data;
+                    let output = `📊 STATISTIQUES DES INSCRIPTIONS\n\n`;
+                    output += `📋 Total: ${stats.total}\n`;
+                    output += `⏳ En attente: ${stats.pending}\n`;
+                    output += `✅ Confirmées: ${stats.confirmed}\n`;
+                    output += `❌ Annulées: ${stats.cancelled}\n\n`;
+                    output += `📚 Programmes: ${stats.programs}\n`;
+                    output += `📦 Packs: ${stats.packs}\n\n`;
+                    output += `Réponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    
+                    resultEl.textContent = output;
+                    resultEl.className = 'result success';
+                } else {
+                    resultEl.textContent = `❌ Erreur statistiques: ${data.message}`;
+                    resultEl.className = 'result error';
+                }
+            } catch (error) {
+                resultEl.textContent = `💥 Erreur réseau: ${error.message}`;
+                resultEl.className = 'result error';
+            }
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', () => {
+            console.log('🚀 Page de test des inscriptions chargée');
+            setTimeout(() => {
+                fetchAllRegistrations();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

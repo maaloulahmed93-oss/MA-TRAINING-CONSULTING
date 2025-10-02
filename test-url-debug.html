@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص URL المفقود</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f8ff; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .step { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #2196f3; }
+        .console { background: #1a1a1a; color: #00ff00; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; margin: 10px 0; }
+        .alert { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص URL المفقود</h1>
+        
+        <div class="alert">
+            <h3>⚠️ المشكلة المرصودة</h3>
+            <p>الأيقونات تظهر الآن ✅ لكن الـ URL لا يظهر تحت الاسم ❌</p>
+        </div>
+
+        <div class="step">
+            <h3>📋 خطوات التشخيص المحدثة:</h3>
+            <ol>
+                <li><strong>افتح Admin Panel</strong> → Participants</li>
+                <li><strong>افتح Developer Tools</strong> (F12) → Console</li>
+                <li><strong>اضغط "Modifier"</strong> على المشارك</li>
+                <li><strong>راقب Backend Console</strong> للرسائل الجديدة</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>📊 Backend Console Messages المتوقعة:</h3>
+            
+            <h4>عند تحميل المشارك:</h4>
+            <div class="console">
+🔄 Transforming single participant resource: {
+  title: "d",
+  icon: "",
+  url: "",
+  hasUrl: false,
+  urlLength: 0
+}
+✅ Transformed single participant resource: {
+  title: "d",
+  icon: "📄",
+  dataLinksCount: 0,
+  firstDataLink: "none"
+}
+
+🔄 Transforming single participant resource: {
+  title: "zs", 
+  icon: "",
+  url: "https://example.com",
+  hasUrl: true,
+  urlLength: 19
+}
+✅ Transformed single participant resource: {
+  title: "zs",
+  icon: "📄", 
+  dataLinksCount: 1,
+  firstDataLink: {url: "https://example.com", ...}
+}
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🎯 ما نبحث عنه:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">السيناريو</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Backend Message</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">المعنى</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">URL موجود في DB</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">hasUrl: true, urlLength: X</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ URL محفوظ في قاعدة البيانات</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">URL فارغ في DB</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">hasUrl: false, urlLength: 0</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">❌ URL لم يحفظ في قاعدة البيانات</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">DataLinks تم إنشاؤها</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">dataLinksCount: 1</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ URL تحول لـ dataLinks</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">DataLinks فارغة</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">dataLinksCount: 0</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">❌ لا توجد روابط للعرض</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <h3>🔧 الحلول المحتملة:</h3>
+            
+            <h4>إذا كان hasUrl: false:</h4>
+            <ul>
+                <li>المشكلة في الحفظ - الـ URL لا يحفظ في قاعدة البيانات</li>
+                <li>تحقق من الـ addResource function في Frontend</li>
+                <li>تحقق من الـ Backend save logic</li>
+            </ul>
+
+            <h4>إذا كان hasUrl: true لكن dataLinksCount: 0:</h4>
+            <ul>
+                <li>المشكلة في التحويل - الـ URL موجود لكن لا يتحول لـ dataLinks</li>
+                <li>تحقق من الـ transformation logic في Backend</li>
+                <li>قد يكون الـ URL فارغ أو يحتوي على spaces</li>
+            </ul>
+
+            <h4>إذا كان dataLinksCount: 1 لكن لا يظهر في Frontend:</h4>
+            <ul>
+                <li>المشكلة في العرض - البيانات صحيحة لكن Frontend لا يعرضها</li>
+                <li>تحقق من الـ resource.dataLinks[0] && condition</li>
+                <li>تحقق من الـ CSS styling</li>
+            </ul>
+        </div>
+
+        <div class="alert">
+            <h3>📤 أرسل النتائج:</h3>
+            <p><strong>بعد فحص Backend Console، أرسل لي:</strong></p>
+            <ol>
+                <li>Screenshot من Backend Console Messages</li>
+                <li>نسخ من الرسائل النصية</li>
+                <li>هل hasUrl: true أم false للموارد؟</li>
+                <li>هل dataLinksCount: 0 أم 1؟</li>
+            </ol>
+            <p>بناءً على النتيجة، سأحدد السبب الدقيق وأصلحه!</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background: #2196f3; color: white; border-radius: 8px;">
+            <h3>🎯 الهدف: معرفة أين تختفي الـ URLs</h3>
+            <p>في قاعدة البيانات؟ في التحويل؟ في العرض؟</p>
+        </div>
+    </div>
+</body>
+</html>

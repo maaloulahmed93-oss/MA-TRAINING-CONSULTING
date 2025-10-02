@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Assignment Fix - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #f59e0b;
+            border-bottom: 3px solid #fef3c7;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #f59e0b;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .test-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test Assignment Fix</h1>
+            <p>Test du fix pour l'erreur ObjectId dans assignment</p>
+        </div>
+
+        <!-- Fix Appliqué -->
+        <div class="fix-section">
+            <h3>🔧 FIX APPLIQUÉ:</h3>
+            <ul>
+                <li>✅ <strong>Backend Fix:</strong> Try/catch pour ObjectId + fallback sur partnerId</li>
+                <li>✅ <strong>Debug Enhanced:</strong> Logs détaillés pour tracer le problème</li>
+                <li>✅ <strong>Flexible Search:</strong> Recherche par _id puis par partnerId</li>
+            </ul>
+            <div style="background: #1f2937; color: #f3f4f6; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <strong>Erreur Avant:</strong> CastError: Cast to ObjectId failed for value "COM-451764"<br>
+                <strong>Fix:</strong> Recherche automatique par partnerId si _id échoue
+            </div>
+        </div>
+
+        <!-- Test Assignment -->
+        <div style="text-align: center;">
+            <button class="test-button" onclick="testAssignmentFix()">
+                🔗 TEST ASSIGNMENT FIX
+            </button>
+            <div id="assignment-result" class="result"></div>
+        </div>
+
+        <!-- Test Data -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>📋 Test Services</h3>
+                <button onclick="testGetServices()">📋 GET Services</button>
+                <div id="services-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>👥 Test Commercials</h3>
+                <button onclick="testGetCommercials()">👥 GET Commercials</button>
+                <div id="commercials-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Expected Result -->
+        <div style="margin-top: 30px; padding: 25px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 10px;">
+            <h3>✅ Résultat Attendu:</h3>
+            <pre style="background: #1f2937; color: #f3f4f6; padding: 15px; border-radius: 8px; font-size: 12px;">
+🔗 POST /api/commercial-services/assign - Assignment service...
+📋 Data reçue: { serviceId: "...", commercialId: "COM-451764" }
+🔍 Recherche commercial avec ID/PartnerID: COM-451764
+⚠️ Cast error pour _id, recherche par partnerId: COM-451764
+✅ Commercial trouvé par partnerId: COM-451764
+✅ Service "programme" assigné au commercial COM-451764
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-services';
+        const PARTNERS_API = 'http://localhost:3001/api/partners';
+
+        async function testAssignmentFix() {
+            const resultDiv = document.getElementById('assignment-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Test Assignment Fix...\n\n';
+
+            try {
+                // 1. Get services
+                resultDiv.textContent += 'STEP 1: Récupération services...\n';
+                const servicesResponse = await fetch(API_BASE);
+                const servicesResult = await servicesResponse.json();
+                
+                if (!servicesResult.data || servicesResult.data.length === 0) {
+                    throw new Error('Aucun service disponible pour test');
+                }
+                
+                const service = servicesResult.data[0];
+                resultDiv.textContent += `✅ Service sélectionné: ${service.titre} (ID: ${service._id})\n\n`;
+
+                // 2. Get commercials from partners
+                resultDiv.textContent += 'STEP 2: Récupération commercials...\n';
+                const commercialsResponse = await fetch(`${PARTNERS_API}?type=commercial`);
+                const commercialsResult = await commercialsResponse.json();
+                
+                if (!commercialsResult.data || commercialsResult.data.length === 0) {
+                    throw new Error('Aucun commercial disponible pour test');
+                }
+                
+                const commercial = commercialsResult.data[0];
+                resultDiv.textContent += `✅ Commercial sélectionné: ${commercial.fullName} (${commercial.partnerId})\n\n`;
+
+                // 3. Test assignment avec partnerId (comme le fait le frontend)
+                resultDiv.textContent += 'STEP 3: Test assignment avec partnerId...\n';
+                resultDiv.textContent += `Envoi: serviceId=${service._id}, commercialId=${commercial.partnerId}\n\n`;
+                
+                const assignResponse = await fetch(`${API_BASE}/assign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        serviceId: service._id,
+                        commercialId: commercial.partnerId // 🔥 C'est ça qui causait l'erreur avant
+                    })
+                });
+
+                const assignResult = await assignResponse.json();
+                
+                resultDiv.textContent += `Response Status: ${assignResponse.status}\n`;
+                resultDiv.textContent += `Response Success: ${assignResult.success}\n`;
+                resultDiv.textContent += `Response Message: ${assignResult.message}\n\n`;
+
+                if (assignResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '🎉 ASSIGNMENT FIX RÉUSSI!\n';
+                    resultDiv.textContent += 'Le problème ObjectId est résolu.\n';
+                    resultDiv.textContent += 'Backend accepte maintenant les partnerIds.';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Assignment échoué mais pas d\'erreur ObjectId\n';
+                    resultDiv.textContent += 'Vérifier les logs backend pour plus de détails.';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR: ${error.message}`;
+            }
+        }
+
+        async function testGetServices() {
+            const resultDiv = document.getElementById('services-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test GET Services...\n\n';
+
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                        resultDiv.textContent += `   ID: ${service._id}\n`;
+                        resultDiv.textContent += `   Commission: ${service.commission}€\n\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Aucun service trouvé';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testGetCommercials() {
+            const resultDiv = document.getElementById('commercials-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '👥 Test GET Commercials...\n\n';
+
+            try {
+                const response = await fetch(`${PARTNERS_API}?type=commercial`);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach((commercial, index) => {
+                        resultDiv.textContent += `${index + 1}. ${commercial.fullName}\n`;
+                        resultDiv.textContent += `   PartnerID: ${commercial.partnerId}\n`;
+                        resultDiv.textContent += `   MongoDB _id: ${commercial._id}\n\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Aucun commercial trouvé';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🔧 Test Assignment Fix chargé');
+        };
+    </script>
+</body>
+</html>

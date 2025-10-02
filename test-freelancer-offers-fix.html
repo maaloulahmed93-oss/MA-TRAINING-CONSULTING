@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Fix Freelancer Offers Compétences</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .output {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test - Fix Freelancer Offers Compétences</h1>
+        <p>Test des améliorations apportées au système de saisie des compétences séparées par virgules</p>
+
+        <!-- Test de parsing des compétences -->
+        <div class="test-section">
+            <h3>1. Test de Parsing des Compétences</h3>
+            <div class="form-group">
+                <label>Saisissez des compétences séparées par des virgules:</label>
+                <input 
+                    type="text" 
+                    id="skills-input" 
+                    placeholder="JavaScript, React, Node.js, TypeScript"
+                    oninput="testSkillsParsing()"
+                >
+            </div>
+            <div class="output" id="skills-output">
+                Tapez des compétences pour voir le résultat...
+            </div>
+        </div>
+
+        <!-- Test de parsing des tags -->
+        <div class="test-section">
+            <h3>2. Test de Parsing des Tags</h3>
+            <div class="form-group">
+                <label>Saisissez des tags séparés par des virgules:</label>
+                <input 
+                    type="text" 
+                    id="tags-input" 
+                    placeholder="remote, frontend, senior, urgent"
+                    oninput="testTagsParsing()"
+                >
+            </div>
+            <div class="output" id="tags-output">
+                Tapez des tags pour voir le résultat...
+            </div>
+        </div>
+
+        <!-- Test de parsing des IDs -->
+        <div class="test-section">
+            <h3>3. Test de Parsing des IDs Freelancer</h3>
+            <div class="form-group">
+                <label>Saisissez des IDs séparés par des virgules:</label>
+                <input 
+                    type="text" 
+                    id="ids-input" 
+                    placeholder="FRE-123456, FRE-789012, FRE-345678"
+                    oninput="testIdsParsing()"
+                >
+            </div>
+            <div class="output" id="ids-output">
+                Tapez des IDs pour voir le résultat...
+            </div>
+        </div>
+
+        <!-- Test de cas edge -->
+        <div class="test-section">
+            <h3>4. Test de Cas Edge</h3>
+            <div class="form-group">
+                <label>Test avec espaces, virgules multiples, etc.:</label>
+                <input 
+                    type="text" 
+                    id="edge-input" 
+                    placeholder="  JavaScript  ,, React,   , Node.js  ,"
+                    oninput="testEdgeCases()"
+                >
+            </div>
+            <div class="output" id="edge-output">
+                Tapez du texte avec des espaces et virgules pour tester...
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h3>5. Instructions de Test</h3>
+            <ol>
+                <li>Testez la saisie de compétences avec des virgules</li>
+                <li>Vérifiez que les espaces sont supprimés automatiquement</li>
+                <li>Testez avec des virgules multiples ou des espaces en trop</li>
+                <li>Allez sur <a href="http://localhost:8536/partners/freelancer-offers" target="_blank">Admin Panel - Freelancer Offers</a></li>
+                <li>Créez une nouvelle offre et testez le champ "Compétences"</li>
+                <li>Vérifiez que les compétences s'affichent correctement après sauvegarde</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Fonction de parsing améliorée (comme dans le code)
+        function parseCSVList(value) {
+            return value.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
+        // Test parsing des compétences
+        function testSkillsParsing() {
+            const input = document.getElementById('skills-input').value;
+            const output = document.getElementById('skills-output');
+            
+            try {
+                const skillsArray = parseCSVList(input);
+                const result = {
+                    input: input,
+                    parsed: skillsArray,
+                    count: skillsArray.length,
+                    joined: skillsArray.join(', ')
+                };
+                
+                output.className = 'output success';
+                output.innerHTML = `
+✅ Parsing réussi:
+Input: "${input}"
+Array: [${skillsArray.map(s => `"${s}"`).join(', ')}]
+Count: ${skillsArray.length}
+Rejoined: "${skillsArray.join(', ')}"
+                `;
+            } catch (error) {
+                output.className = 'output error';
+                output.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test parsing des tags
+        function testTagsParsing() {
+            const input = document.getElementById('tags-input').value;
+            const output = document.getElementById('tags-output');
+            
+            try {
+                const tagsArray = parseCSVList(input);
+                
+                output.className = 'output success';
+                output.innerHTML = `
+✅ Tags parsing réussi:
+Input: "${input}"
+Array: [${tagsArray.map(s => `"${s}"`).join(', ')}]
+Count: ${tagsArray.length}
+Rejoined: "${tagsArray.join(', ')}"
+                `;
+            } catch (error) {
+                output.className = 'output error';
+                output.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test parsing des IDs
+        function testIdsParsing() {
+            const input = document.getElementById('ids-input').value;
+            const output = document.getElementById('ids-output');
+            
+            try {
+                const idsArray = parseCSVList(input);
+                const validIds = idsArray.filter(id => id.match(/^FRE-\d+$/));
+                
+                output.className = 'output success';
+                output.innerHTML = `
+✅ IDs parsing réussi:
+Input: "${input}"
+Array: [${idsArray.map(s => `"${s}"`).join(', ')}]
+Valid IDs: [${validIds.map(s => `"${s}"`).join(', ')}]
+Count: ${idsArray.length} (${validIds.length} valid)
+                `;
+            } catch (error) {
+                output.className = 'output error';
+                output.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test cas edge
+        function testEdgeCases() {
+            const input = document.getElementById('edge-input').value;
+            const output = document.getElementById('edge-output');
+            
+            try {
+                const parsed = parseCSVList(input);
+                
+                output.className = 'output success';
+                output.innerHTML = `
+✅ Edge cases handling:
+Input: "${input}"
+Raw split: [${input.split(',').map(s => `"${s}"`).join(', ')}]
+After trim: [${input.split(',').map(s => `"${s.trim()}"`).join(', ')}]
+After filter: [${parsed.map(s => `"${s}"`).join(', ')}]
+Final count: ${parsed.length}
+
+Problèmes détectés:
+- Espaces en début/fin: ${input.split(',').some(s => s !== s.trim()) ? '⚠️ Oui' : '✅ Non'}
+- Virgules multiples: ${input.includes(',,') ? '⚠️ Oui' : '✅ Non'}
+- Éléments vides: ${input.split(',').some(s => s.trim() === '') ? '⚠️ Oui' : '✅ Non'}
+                `;
+            } catch (error) {
+                output.className = 'output error';
+                output.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test automatique au chargement
+        window.onload = function() {
+            console.log('🔧 Test Freelancer Offers Fix loaded');
+            console.log('📝 Instructions:');
+            console.log('1. Testez les champs de saisie ci-dessus');
+            console.log('2. Allez sur Admin Panel pour tester en réel');
+            console.log('3. Vérifiez que les compétences se sauvegardent correctement');
+        };
+    </script>
+</body>
+</html>

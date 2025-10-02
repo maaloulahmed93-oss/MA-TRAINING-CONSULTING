@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Users, BookOpen } from 'lucide-react';
 import { Program } from '../data/trainingPrograms';
+import { convertPrice } from '../utils/currencyConverter';
 
 interface ProgramCardProps {
   program: Program;
@@ -14,18 +15,10 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   selectedCurrency,
   onRegisterClick
 }) => {
-  // Fonction pour formater le prix selon la devise
+  // Fonction pour formater le prix selon la devise avec conversion
   const formatPrice = (price?: number) => {
     if (!price) return "Prix sur demande";
-    
-    const currencySymbols = {
-      "€": "€",
-      "$": "$",
-      "DTN": "DTN"
-    };
-    
-    const symbol = currencySymbols[selectedCurrency as keyof typeof currencySymbols] || "€";
-    return `${price} ${symbol}`;
+    return convertPrice(price, selectedCurrency);
   };
 
   // Couleurs pour les badges de niveau
@@ -65,9 +58,19 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
               {program.level}
             </span>
             <span className={`px-4 py-2 rounded-full text-xs font-semibold border ${
-              categoryColors[program.category as keyof typeof categoryColors] || "bg-gray-100 text-gray-800"
+              categoryColors[
+                (typeof program.category === 'object' && program.category?.name 
+                  ? program.category.name 
+                  : typeof program.category === 'string' 
+                    ? program.category 
+                    : 'Autre') as keyof typeof categoryColors
+              ] || "bg-gray-100 text-gray-800"
             } border-current/20`}>
-              {program.category}
+              {typeof program.category === 'object' && program.category?.name 
+                ? program.category.name 
+                : typeof program.category === 'string' 
+                  ? program.category 
+                  : 'Non défini'}
             </span>
           </div>
           {program.price && (

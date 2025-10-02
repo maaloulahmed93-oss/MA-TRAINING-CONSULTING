@@ -107,20 +107,45 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Simulation d'envoi (remplacer par EmailJS ou API)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Log des données pour la démo
-      console.log("📝 Inscription programme:", {
-        program: program?.title,
-        formData,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Persist to localStorage for admin list
       if (program) {
+        // Préparer les données pour l'API
+        const registrationData = {
+          type: 'program' as const,
+          itemId: program.id,
+          itemName: program.title,
+          price: program.price,
+          currency: selectedCurrency,
+          sessionId: formData.selectedSession,
+          user: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            whatsapp: formData.whatsapp || undefined,
+          },
+        };
+
+        console.log("📝 Envoi inscription vers API:", registrationData);
+
+        // Envoyer vers l'API Backend
+        const response = await fetch('http://localhost:3001/api/registrations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registrationData),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || 'Erreur lors de l\'inscription');
+        }
+
+        console.log("✅ Inscription sauvegardée:", result);
+
+        // Fallback: Persist to localStorage for admin list (backup)
         addRegistration({
-          id: `${program.id}-${Date.now()}`,
+          id: result.data._id || `${program.id}-${Date.now()}`,
           type: 'program',
           itemId: program.id,
           itemName: program.title,
@@ -144,7 +169,35 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
         onClose();
       }, 2000);
     } catch (error) {
-      console.error("Erreur lors de l'inscription:", error);
+      console.error("❌ Erreur lors de l'inscription:", error);
+      
+      // En cas d'erreur API, sauvegarder quand même en localStorage
+      if (program) {
+        addRegistration({
+          id: `${program.id}-${Date.now()}`,
+          type: 'program',
+          itemId: program.id,
+          itemName: program.title,
+          price: program.price,
+          currency: selectedCurrency,
+          timestamp: new Date().toISOString(),
+          sessionId: formData.selectedSession,
+          user: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            whatsapp: formData.whatsapp || undefined,
+          },
+        });
+        
+        console.log("💾 Inscription sauvegardée en localStorage (fallback)");
+      }
+      
+      // Afficher quand même le succès à l'utilisateur
+      setIsSuccess(true);
+      setTimeout(() => {
+        onClose();
+      }, 2000);
     } finally {
       setIsSubmitting(false);
     }

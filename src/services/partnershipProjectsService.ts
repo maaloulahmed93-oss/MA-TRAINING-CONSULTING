@@ -223,23 +223,19 @@ const generateMockProjects = (partnerId: string): ExtendedProject[] => {
 };
 
 // Fonction pour obtenir les projets depuis localStorage ou créer mock data
-export const getProjects = (partnerId: string): ExtendedProject[] => {
+export const getProjects = (partnerId: string): PartnershipProject[] => {
   try {
-    const storageKey = `${PROJECTS_STORAGE_KEY}${partnerId}`;
-    const savedProjects = localStorage.getItem(storageKey);
-    
+    const savedProjects = localStorage.getItem(`partnershipProjects_${partnerId}`);
     if (savedProjects) {
-      console.log(`📁 Projets chargés depuis localStorage pour ${partnerId}`);
       return JSON.parse(savedProjects);
     } else {
-      console.log(`🔄 Génération de données mock pour ${partnerId}`);
-      const mockProjects = generateMockProjects(partnerId);
-      saveProjects(partnerId, mockProjects);
-      return mockProjects;
+      // Plus de données mock par défaut - retourner tableau vide
+      console.log(`📋 Aucun projet trouvé pour ${partnerId}`);
+      return [];
     }
   } catch (error) {
     console.error('Erreur lors du chargement des projets:', error);
-    return generateMockProjects(partnerId);
+    return [];
   }
 };
 

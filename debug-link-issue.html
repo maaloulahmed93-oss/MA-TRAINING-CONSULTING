@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug Link Issue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .notification-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .has-link {
+            border-left: 4px solid #28a745;
+        }
+        .no-link {
+            border-left: 4px solid #dc3545;
+        }
+        .link-value {
+            color: #007bff;
+            word-break: break-all;
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Link Issue</h1>
+        
+        <p><strong>هذه الأداة تشخص مشكلة اختفاء الروابط عند التحديث</strong></p>
+
+        <h2>🛠️ Debug Actions:</h2>
+        <button onclick="analyzeNotifications()">🔍 Analyze All Notifications</button>
+        <button onclick="simulateEdit()" class="warning">✏️ Simulate Edit Process</button>
+        <button onclick="checkFormData()" class="success">📝 Check Form Data</button>
+        <button onclick="fixMissingLinks()" class="danger">🔧 Fix Missing Links</button>
+
+        <h2>📋 Current Notifications Analysis:</h2>
+        <div id="notifications-analysis"></div>
+
+        <h2>📋 Debug Log:</h2>
+        <pre id="debug-log"></pre>
+    </div>
+
+    <script>
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('debug-log').textContent = '';
+        }
+
+        function getNotificationKey() {
+            const keys = Object.keys(localStorage);
+            return keys.find(key => 
+                key.includes('notification') || key.includes('PART-')
+            ) || 'PART-550776-notifications';
+        }
+
+        function getNotifications() {
+            const key = getNotificationKey();
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error('Error parsing notifications:', e);
+                return [];
+            }
+        }
+
+        function saveNotifications(notifications) {
+            const key = getNotificationKey();
+            localStorage.setItem(key, JSON.stringify(notifications));
+        }
+
+        function analyzeNotifications() {
+            clearLog();
+            log('🔍 Starting comprehensive notification analysis...');
+            
+            const notifications = getNotifications();
+            const analysisDiv = document.getElementById('notifications-analysis');
+            
+            if (notifications.length === 0) {
+                analysisDiv.innerHTML = '<p><em>No notifications found</em></p>';
+                log('❌ No notifications found in localStorage');
+                return;
+            }
+
+            log(`📊 Found ${notifications.length} notifications`);
+            
+            let html = '';
+            let withLinks = 0;
+            let withoutLinks = 0;
+
+            notifications.forEach((notif, index) => {
+                const hasLink = !!(notif.link && notif.link.trim());
+                if (hasLink) withLinks++;
+                else withoutLinks++;
+
+                html += `
+                    <div class="notification-item ${hasLink ? 'has-link' : 'no-link'}">
+                        <h4>${hasLink ? '✅' : '❌'} Notification ${index + 1}: ${notif.title || 'No Title'}</h4>
+                        <p><strong>ID:</strong> ${notif.id}</p>
+                        <p><strong>Description:</strong> ${notif.description || notif.message || 'No description'}</p>
+                        <p><strong>Link:</strong> ${hasLink ? `<span class="link-value">${notif.link}</span>` : '<em style="color: red;">NO LINK</em>'}</p>
+                        <p><strong>Contact:</strong> ${notif.contact || '<em>No contact</em>'}</p>
+                        <p><strong>Date:</strong> ${notif.date ? new Date(notif.date).toLocaleString() : 'No date'}</p>
+                        <p><strong>Raw Link Value:</strong> <code>${JSON.stringify(notif.link)}</code></p>
+                    </div>
+                `;
+
+                log(`📝 Notification ${index + 1}: "${notif.title}" - Link: ${hasLink ? 'YES' : 'NO'} (${JSON.stringify(notif.link)})`);
+            });
+
+            html = `
+                <div style="background: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                    <strong>Summary:</strong> ${withLinks} with links, ${withoutLinks} without links
+                </div>
+            ` + html;
+
+            analysisDiv.innerHTML = html;
+            log(`📊 Analysis complete: ${withLinks} with links, ${withoutLinks} without links`);
+        }
+
+        function simulateEdit() {
+            clearLog();
+            log('✏️ Simulating edit process...');
+            
+            const notifications = getNotifications();
+            if (notifications.length === 0) {
+                log('❌ No notifications to edit');
+                return;
+            }
+
+            // Simulate editing the first notification
+            const originalNotif = notifications[0];
+            log(`🔄 Original notification:`, JSON.stringify(originalNotif, null, 2));
+            
+            // Simulate the edit form data
+            const formData = {
+                title: originalNotif.title || "",
+                description: originalNotif.description || "",
+                link: originalNotif.link || "",
+                contact: originalNotif.contact || "",
+                message: originalNotif.message || ""
+            };
+            
+            log(`📝 Form data after loading:`, JSON.stringify(formData, null, 2));
+            
+            // Simulate adding a new link
+            formData.link = "https://new-test-link.com/updated";
+            log(`🔗 Updated form data with new link:`, JSON.stringify(formData, null, 2));
+            
+            // Simulate creating the updated notification
+            const updatedNotif = {
+                id: originalNotif.id,
+                title: formData.title,
+                message: formData.description,
+                type: "information",
+                date: originalNotif.date,
+                isRead: originalNotif.isRead,
+                description: formData.description,
+                link: formData.link,
+                contact: formData.contact
+            };
+            
+            log(`✅ Updated notification object:`, JSON.stringify(updatedNotif, null, 2));
+            
+            // Update the notifications array
+            const updatedNotifications = [...notifications];
+            updatedNotifications[0] = updatedNotif;
+            
+            saveNotifications(updatedNotifications);
+            log('💾 Saved updated notifications to localStorage');
+            
+            // Re-analyze
+            setTimeout(() => analyzeNotifications(), 500);
+        }
+
+        function checkFormData() {
+            clearLog();
+            log('📝 Checking form data handling...');
+            
+            // Test different link values
+            const testCases = [
+                "",
+                "https://example.com",
+                "http://test.com",
+                "windsurf.com/editor",
+                "https://windsurf.com/editor",
+                null,
+                undefined
+            ];
+            
+            testCases.forEach((testLink, index) => {
+                const formData = {
+                    title: `Test ${index + 1}`,
+                    description: `Test description ${index + 1}`,
+                    link: testLink,
+                    contact: `test${index + 1}@example.com`
+                };
+                
+                const notificationObject = {
+                    id: `test-${index + 1}`,
+                    title: formData.title,
+                    message: formData.description,
+                    type: "information",
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    description: formData.description,
+                    link: formData.link,
+                    contact: formData.contact
+                };
+                
+                const hasLink = !!(notificationObject.link && notificationObject.link.trim());
+                log(`Test ${index + 1}: Input="${JSON.stringify(testLink)}" → Output="${JSON.stringify(notificationObject.link)}" → HasLink=${hasLink}`);
+            });
+        }
+
+        function fixMissingLinks() {
+            clearLog();
+            log('🔧 Attempting to fix missing links...');
+            
+            const notifications = getNotifications();
+            let fixed = 0;
+            
+            const updatedNotifications = notifications.map((notif, index) => {
+                if (!notif.link || !notif.link.trim()) {
+                    const fixedNotif = {
+                        ...notif,
+                        link: `https://fixed-link-${index + 1}.com`
+                    };
+                    fixed++;
+                    log(`🔧 Fixed notification ${index + 1}: Added link "${fixedNotif.link}"`);
+                    return fixedNotif;
+                }
+                return notif;
+            });
+            
+            if (fixed > 0) {
+                saveNotifications(updatedNotifications);
+                log(`✅ Fixed ${fixed} notifications with missing links`);
+                setTimeout(() => analyzeNotifications(), 500);
+            } else {
+                log('ℹ️ No notifications needed fixing');
+            }
+        }
+
+        // Auto-run analysis on load
+        window.onload = () => {
+            analyzeNotifications();
+        };
+    </script>
+</body>
+</html>

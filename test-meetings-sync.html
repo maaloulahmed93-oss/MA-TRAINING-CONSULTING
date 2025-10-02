@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Meetings Sync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        
+        .workflow-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .workflow-box h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .data-column {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .data-column h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .meeting-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 12px;
+            border-left: 4px solid #007bff;
+            background-color: #e3f2fd;
+        }
+        .meeting-new {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        .meeting-missing {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Meetings Synchronization</h1>
+        <p>Test de synchronisation des réunions entre Admin Panel et Freelancer Space</p>
+
+        <!-- Workflow attendu -->
+        <div class="section">
+            <h3>📋 Workflow de Synchronisation</h3>
+            <div class="workflow-box">
+                <h4>🎯 Processus Attendu:</h4>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span>Admin crée une réunion dans Admin Panel</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span>Réunion sauvegardée dans API (localhost:8336)</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span>Freelancer Space charge les réunions via API</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span>Réunions transformées au format Freelancer</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span>Réunions affichées dans l'espace Freelancer</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test API Connection -->
+        <div class="section">
+            <h3>1. Test de Connexion API</h3>
+            <button class="btn-primary" onclick="testAPIConnection()">Tester Connexion API</button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test Meetings Loading -->
+        <div class="section">
+            <h3>2. Test de Chargement des Réunions</h3>
+            <button class="btn-success" onclick="testMeetingsLoading()">Charger Réunions</button>
+            <button class="btn-warning" onclick="testWithFreelancerId()">Tester avec FRE-340255</button>
+            <div id="meetings-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Comparaison Admin vs Freelancer -->
+        <div class="section">
+            <h3>3. Comparaison Admin Panel vs Freelancer Space</h3>
+            <button class="btn-warning" onclick="compareMeetings()">Comparer Réunions</button>
+            <div id="comparison-result" style="display: none;"></div>
+        </div>
+
+        <!-- Test localStorage -->
+        <div class="section">
+            <h3>4. Test localStorage</h3>
+            <button class="btn-primary" onclick="checkLocalStorage()">Vérifier localStorage</button>
+            <button class="btn-danger" onclick="clearMeetingsCache()">Vider Cache</button>
+            <div id="storage-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions de test -->
+        <div class="section">
+            <h3>5. Instructions de Test Complet</h3>
+            <div class="workflow-box">
+                <h4>🧪 Pour tester la synchronisation:</h4>
+                <ol>
+                    <li><strong>Ouvrez Admin Panel:</strong> <a href="http://localhost:8336/partners/freelancer-meetings" target="_blank">Admin Panel</a></li>
+                    <li><strong>Créez une nouvelle réunion</strong> avec freelancerId = "FRE-340255"</li>
+                    <li><strong>Notez les détails</strong> (sujet, date, heure)</li>
+                    <li><strong>Ouvrez Freelancer Space:</strong> <a href="http://localhost:5173/espace-freelancer" target="_blank">Freelancer Space</a></li>
+                    <li><strong>Connectez-vous</strong> avec FRE-340255</li>
+                    <li><strong>Allez dans "Réunions"</strong></li>
+                    <li><strong>Vérifiez</strong> que la nouvelle réunion apparaît</li>
+                    <li><strong>Actualisez</strong> si nécessaire (F5)</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test de connexion API
+        async function testAPIConnection() {
+            const resultDiv = document.getElementById('api-result');
+            
+            try {
+                let result = `🔍 TEST DE CONNEXION API:\n\n`;
+                
+                // Test de l'endpoint principal
+                const response = await fetch('http://localhost:8336/partners/freelancer-meetings');
+                
+                result += `📡 URL: http://localhost:8336/partners/freelancer-meetings\n`;
+                result += `📊 Status: ${response.status} ${response.statusText}\n`;
+                result += `🔗 OK: ${response.ok}\n\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result += `📋 Données reçues:\n`;
+                    result += `   Type: ${Array.isArray(data) ? 'Array' : typeof data}\n`;
+                    result += `   Longueur: ${Array.isArray(data) ? data.length : 'N/A'}\n\n`;
+                    
+                    if (Array.isArray(data) && data.length > 0) {
+                        result += `📄 Premier élément:\n`;
+                        const first = data[0];
+                        result += `   ID: ${first._id || first.id}\n`;
+                        result += `   Subject: ${first.subject}\n`;
+                        result += `   Date: ${first.date}\n`;
+                        result += `   FreelancerId: ${first.freelancerId}\n`;
+                    }
+                } else {
+                    result += `❌ Erreur HTTP: ${response.status}\n`;
+                    const text = await response.text();
+                    result += `📄 Réponse: ${text.substring(0, 200)}...\n`;
+                }
+                
+                showResult(resultDiv, response.ok ? 'success' : 'error', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        // Test de chargement des réunions
+        async function testMeetingsLoading() {
+            const resultDiv = document.getElementById('meetings-result');
+            
+            try {
+                let result = `🔍 TEST DE CHARGEMENT DES RÉUNIONS:\n\n`;
+                
+                // Test sans freelancerId
+                result += `1️⃣ Test sans freelancerId:\n`;
+                const response1 = await fetch('http://localhost:8336/partners/freelancer-meetings');
+                result += `   Status: ${response1.status}\n`;
+                
+                if (response1.ok) {
+                    const data1 = await response1.json();
+                    result += `   Réunions trouvées: ${data1.length}\n`;
+                } else {
+                    result += `   Erreur: ${response1.statusText}\n`;
+                }
+                
+                result += `\n2️⃣ Test avec freelancerId FRE-340255:\n`;
+                const response2 = await fetch('http://localhost:8336/partners/freelancer-meetings?freelancerId=FRE-340255');
+                result += `   Status: ${response2.status}\n`;
+                
+                if (response2.ok) {
+                    const data2 = await response2.json();
+                    result += `   Réunions pour FRE-340255: ${data2.length}\n\n`;
+                    
+                    if (data2.length > 0) {
+                        result += `📋 RÉUNIONS TROUVÉES:\n`;
+                        data2.forEach((meeting, index) => {
+                            result += `   ${index + 1}. ${meeting.subject}\n`;
+                            result += `      Date: ${meeting.date} à ${meeting.startTime}\n`;
+                            result += `      Avec: ${meeting.withWhom}\n`;
+                            result += `      Type: ${meeting.type}\n\n`;
+                        });
+                    }
+                } else {
+                    result += `   Erreur: ${response2.statusText}\n`;
+                }
+                
+                showResult(resultDiv, 'info', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Test avec freelancerId spécifique
+        async function testWithFreelancerId() {
+            const resultDiv = document.getElementById('meetings-result');
+            
+            try {
+                let result = `🎯 TEST AVEC FREELANCER ID:\n\n`;
+                
+                const freelancerId = 'FRE-340255';
+                result += `👤 FreelancerId: ${freelancerId}\n\n`;
+                
+                // Simuler le processus de getMeetings
+                result += `🔄 Simulation getMeetings():\n`;
+                
+                const response = await fetch(`http://localhost:8336/partners/freelancer-meetings?freelancerId=${freelancerId}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result += `✅ API Response: ${data.length} réunions\n\n`;
+                    
+                    // Transformation des données
+                    const transformedMeetings = data.map(meeting => ({
+                        id: meeting._id || meeting.id,
+                        title: meeting.subject || meeting.title,
+                        client: meeting.withWhom || 'Client',
+                        date: meeting.date,
+                        time: meeting.startTime || meeting.time,
+                        duration: meeting.durationMinutes || 60,
+                        type: meeting.type === 'visio' ? 'video_call' : 'client_meeting',
+                        status: meeting.status || 'scheduled',
+                        meetingLink: meeting.meetingLink || '',
+                        platform: detectPlatform(meeting.meetingLink),
+                        participants: meeting.participants || [],
+                        agenda: meeting.agenda || '',
+                        notes: meeting.notes || ''
+                    }));
+                    
+                    result += `🔄 Données transformées:\n`;
+                    transformedMeetings.forEach((meeting, index) => {
+                        result += `   ${index + 1}. ${meeting.title}\n`;
+                        result += `      Client: ${meeting.client}\n`;
+                        result += `      Date: ${meeting.date} à ${meeting.time}\n`;
+                        result += `      Platform: ${meeting.platform}\n`;
+                        result += `      Status: ${meeting.status}\n\n`;
+                    });
+                    
+                    // Test localStorage
+                    localStorage.setItem('freelancerMeetings', JSON.stringify(transformedMeetings));
+                    result += `💾 Sauvegardé dans localStorage\n`;
+                    
+                } else {
+                    result += `❌ Erreur API: ${response.status} ${response.statusText}\n`;
+                }
+                
+                showResult(resultDiv, 'success', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Fonction utilitaire pour détecter la plateforme
+        function detectPlatform(meetingLink) {
+            if (!meetingLink) return 'Unknown';
+            
+            if (meetingLink.includes('meet.google.com')) return 'Google Meet';
+            if (meetingLink.includes('zoom.us')) return 'Zoom';
+            if (meetingLink.includes('teams.microsoft.com')) return 'Teams';
+            if (meetingLink.includes('webex.com')) return 'Webex';
+            
+            return 'Other';
+        }
+
+        // Comparaison des réunions
+        async function compareMeetings() {
+            const resultDiv = document.getElementById('comparison-result');
+            resultDiv.style.display = 'block';
+            
+            try {
+                // Récupérer les données de l'API
+                const apiResponse = await fetch('http://localhost:8336/partners/freelancer-meetings?freelancerId=FRE-340255');
+                const apiMeetings = apiResponse.ok ? await apiResponse.json() : [];
+                
+                // Récupérer les données du localStorage
+                const localMeetings = JSON.parse(localStorage.getItem('freelancerMeetings') || '[]');
+                
+                let html = '<div class="comparison">';
+                
+                // Colonne Admin Panel
+                html += '<div class="data-column">';
+                html += '<h4>📋 Admin Panel (API)</h4>';
+                if (apiMeetings.length > 0) {
+                    apiMeetings.forEach(meeting => {
+                        html += `<div class="meeting-item">
+                            <strong>${meeting.subject}</strong><br>
+                            📅 ${meeting.date} à ${meeting.startTime}<br>
+                            👤 ${meeting.withWhom}<br>
+                            🔗 ${meeting.type}
+                        </div>`;
+                    });
+                } else {
+                    html += '<div class="meeting-item">Aucune réunion trouvée</div>';
+                }
+                html += '</div>';
+                
+                // Colonne Freelancer Space
+                html += '<div class="data-column">';
+                html += '<h4>👤 Freelancer Space (localStorage)</h4>';
+                if (localMeetings.length > 0) {
+                    localMeetings.forEach(meeting => {
+                        html += `<div class="meeting-item">
+                            <strong>${meeting.title}</strong><br>
+                            📅 ${meeting.date} à ${meeting.time}<br>
+                            👤 ${meeting.client}<br>
+                            🎥 ${meeting.platform}
+                        </div>`;
+                    });
+                } else {
+                    html += '<div class="meeting-item">Aucune réunion en cache</div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+                
+                // Analyse
+                html += '<div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border-radius: 8px;">';
+                html += '<h4>📊 Analyse:</h4>';
+                html += `<p>Réunions dans Admin Panel: ${apiMeetings.length}</p>`;
+                html += `<p>Réunions dans Freelancer Cache: ${localMeetings.length}</p>`;
+                
+                const isSync = apiMeetings.length === localMeetings.length;
+                html += `<p><strong>Synchronisation: ${isSync ? '✅ OK' : '❌ PROBLÈME'}</strong></p>`;
+                
+                if (!isSync) {
+                    html += '<p style="color: red;">⚠️ Les données ne sont pas synchronisées!</p>';
+                    html += '<p>Essayez d\'actualiser Freelancer Space ou attendez la synchronisation automatique (30s).</p>';
+                }
+                
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        // Vérifier localStorage
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('storage-result');
+            
+            try {
+                let result = `🔍 VÉRIFICATION LOCALSTORAGE:\n\n`;
+                
+                // Vérifier freelancerMeetings
+                const meetings = JSON.parse(localStorage.getItem('freelancerMeetings') || '[]');
+                result += `📅 freelancerMeetings: ${meetings.length} réunions\n`;
+                meetings.forEach((meeting, index) => {
+                    result += `   ${index + 1}. ${meeting.title} (${meeting.date})\n`;
+                });
+                
+                result += `\n`;
+                
+                // Vérifier session
+                const session = localStorage.getItem('freelancer_session');
+                result += `👤 freelancer_session: ${session ? 'Présente' : 'Absente'}\n`;
+                
+                if (session) {
+                    try {
+                        const sessionData = JSON.parse(session);
+                        result += `   FreelancerId: ${sessionData.freelancerId || 'Non défini'}\n`;
+                    } catch (e) {
+                        result += `   Erreur de parsing session\n`;
+                    }
+                }
+                
+                result += `\n💾 TAILLE TOTALE:\n`;
+                let totalSize = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key) && key.includes('freelancer')) {
+                        totalSize += localStorage[key].length;
+                        result += `   ${key}: ${localStorage[key].length} caractères\n`;
+                    }
+                }
+                result += `   TOTAL: ${totalSize} caractères\n`;
+                
+                showResult(resultDiv, 'info', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Vider le cache des réunions
+        function clearMeetingsCache() {
+            if (confirm('Êtes-vous sûr de vouloir vider le cache des réunions ?')) {
+                localStorage.removeItem('freelancerMeetings');
+                
+                const resultDiv = document.getElementById('storage-result');
+                showResult(resultDiv, 'warning', '🗑️ Cache des réunions vidé.\n\nLes réunions seront rechargées depuis l\'API au prochain accès.');
+            }
+        }
+
+        // Fonction utilitaire
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-load
+        window.onload = function() {
+            console.log('🧪 Meetings Sync Test loaded');
+            console.log('🔄 Testing synchronization between Admin Panel and Freelancer Space');
+        };
+    </script>
+</body>
+</html>

@@ -13,6 +13,10 @@ export interface Participant {
   enrollmentDate: string;
   lastActivity: string;
   totalProgress: number;
+  completedCourses?: number;
+  studyTime?: number;
+  achievedGoals?: number;
+  totalGoals?: number;
   formations: Formation[];
   projects: Project[];
   coachingResources: CoachingResource[];
@@ -68,7 +72,7 @@ export interface Session {
 
 export interface SessionLink {
   id: string;
-  type: "video" | "article" | "quiz" | "file" | "external";
+  type: "Résumé" | "Support" | "Vidéo" | "Exercice";
   title: string;
   url: string;
 }
@@ -117,6 +121,7 @@ export interface Project {
   // Admin-only note and visibility
   note?: string;
   isVisible?: boolean;
+  projectUrl?: string; // Lien vers le projet
   files: ProjectFile[];
   createdAt: string;
   updatedAt: string;
@@ -184,7 +189,7 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'job' | 'info';
+  type: 'job' | 'info' | 'success' | 'warning' | 'error' | 'information' | 'offre_emploi';
   date: string;
   isRead: boolean;
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -200,6 +205,10 @@ export interface Notification {
   // Additional data for info notifications
   description?: string;
   uploadLink?: string;
+  // New fields for specific notification types
+  link?: string;      // For "information" type - clickable link
+  phone?: string;     // For "offre_emploi" type - phone number
+  email?: string;     // For "offre_emploi" type - email address
   // Data links for notifications
   dataLinks?: NotificationDataLink[];
 }

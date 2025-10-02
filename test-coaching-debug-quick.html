@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص سريع - Coaching Resources</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f8ff; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .step { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #2196f3; }
+        .console { background: #1a1a1a; color: #00ff00; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; margin: 10px 0; }
+        .alert { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص سريع - Coaching Resources</h1>
+        
+        <div class="alert">
+            <h3>⚠️ تم إضافة Console Logs للتشخيص</h3>
+            <p>تم إضافة console logs في Frontend لمراقبة البيانات. الآن:</p>
+        </div>
+
+        <div class="step">
+            <h3>📋 خطوات التشخيص:</h3>
+            <ol>
+                <li><strong>افتح Admin Panel</strong> → Participants</li>
+                <li><strong>افتح Developer Tools</strong> (F12) → Console</li>
+                <li><strong>اضغط "Modifier"</strong> على المشارك الذي يحتوي على "zs" و "df"</li>
+                <li><strong>راقب Console Messages</strong> عند فتح الصفحة</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>📊 Console Messages المتوقعة:</h3>
+            
+            <h4>عند تحميل البيانات:</h4>
+            <div class="console">
+🔍 Loading participant data: {fullName: "...", coachingResources: [...]}
+📚 Coaching resources from API: [{title: "zs", icon: "...", dataLinks: [...]}, {title: "df", ...}]
+✅ Set coaching resources to state: [...]
+            </div>
+
+            <h4>عند عرض الموارد:</h4>
+            <div class="console">
+📋 Resource 0: {title: "zs", icon: "...", dataLinks: [...]}
+📋 Resource 1: {title: "df", icon: "...", dataLinks: [...]}
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🎯 ما نبحث عنه:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">السيناريو</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Console Message</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">المعنى</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">البيانات محملة صحيح</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">📚 Coaching resources from API: [...]</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ Backend يرسل البيانات</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">البيانات فارغة</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">📚 Coaching resources from API: []</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">❌ Backend لا يرسل البيانات</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">البيانات ناقصة</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">📋 Resource 0: {title: "zs", icon: undefined}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">❌ الأيقونة مفقودة</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">البيانات كاملة</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">📋 Resource 0: {title: "zs", icon: "💬", dataLinks: [...]}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">✅ البيانات كاملة</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <h3>🔧 بناءً على النتيجة:</h3>
+            
+            <h4>إذا كانت البيانات فارغة:</h4>
+            <ul>
+                <li>المشكلة في Backend - البيانات لا تسترجع من قاعدة البيانات</li>
+                <li>تحقق من Backend console للأخطاء</li>
+                <li>أعد تشغيل Backend Server</li>
+            </ul>
+
+            <h4>إذا كانت البيانات ناقصة:</h4>
+            <ul>
+                <li>المشكلة في Backend transformation</li>
+                <li>البيانات تحفظ لكن لا تسترجع بشكل صحيح</li>
+                <li>تحقق من الـ transformedResources في Backend</li>
+            </ul>
+
+            <h4>إذا كانت البيانات كاملة:</h4>
+            <ul>
+                <li>المشكلة في Frontend rendering</li>
+                <li>تحقق من الـ resource.icon && condition</li>
+                <li>تحقق من الـ CSS styling</li>
+            </ul>
+        </div>
+
+        <div class="alert">
+            <h3>📤 أرسل النتائج:</h3>
+            <p><strong>بعد فحص Console، أرسل لي:</strong></p>
+            <ol>
+                <li>Screenshot من Console Messages</li>
+                <li>نسخ من الرسائل النصية</li>
+                <li>هل البيانات فارغة أم ناقصة أم كاملة؟</li>
+            </ol>
+            <p>بناءً على النتيجة، سأحدد الحل الدقيق!</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background: #2196f3; color: white; border-radius: 8px;">
+            <h3>🎯 الهدف: تحديد مكان المشكلة بالضبط</h3>
+            <p>Frontend أم Backend أم Database؟</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système Formateur Complet</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; }
+        button:hover { background: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        input, textarea, select { padding: 8px; margin: 5px; width: 200px; border: 1px solid #ddd; border-radius: 3px; }
+        .form-group { margin: 10px 0; }
+        .form-row { display: flex; gap: 10px; align-items: center; }
+        h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        h3 { color: #555; }
+        .data-display { background: white; border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 3px; }
+        .programme-item, .seance-item, .participant-item, .event-item { 
+            background: #f8f9fa; 
+            border-left: 4px solid #007bff; 
+            padding: 10px; 
+            margin: 5px 0; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Test Système Formateur Complet - MATC</h1>
+    
+    <div class="section">
+        <h2>🔧 Configuration</h2>
+        <div class="form-group">
+            <label>ID Formateur:</label>
+            <input type="text" id="formateurId" value="FOR-189821" placeholder="FOR-123456">
+            <button onclick="testFormateurLogin()">Vérifier Formateur</button>
+        </div>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>📚 Gestion des Programmes</h2>
+        <h3>Créer un Programme</h3>
+        <div class="form-row">
+            <input type="text" id="progTitre" placeholder="Titre du programme" value="Marketing Digital Avancé">
+            <textarea id="progDescription" placeholder="Description">Formation complète en marketing digital</textarea>
+        </div>
+        <div class="form-row">
+            <input type="date" id="progDateDebut" value="2024-02-01">
+            <input type="date" id="progDateFin" value="2024-02-28">
+            <input type="number" id="progPrix" placeholder="Prix" value="1500">
+        </div>
+        <div class="form-row">
+            <input type="number" id="progMaxParticipants" placeholder="Max participants" value="15">
+            <input type="text" id="progLieu" placeholder="Lieu" value="En ligne">
+        </div>
+        <button onclick="creerProgramme()">Créer Programme</button>
+        <button onclick="listerProgrammes()">Lister Programmes</button>
+        
+        <div id="programmeResult" class="result"></div>
+        <div id="programmesList" class="data-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>🎓 Gestion des Séances</h2>
+        <h3>Créer une Séance</h3>
+        <div class="form-row">
+            <select id="seanceProgrammeId">
+                <option value="">Sélectionner un programme</option>
+            </select>
+            <input type="text" id="seanceNumero" placeholder="Numéro (S1, S2...)" value="S1">
+        </div>
+        <div class="form-row">
+            <input type="text" id="seanceModule" placeholder="Module" value="SEO et Référencement">
+            <input type="text" id="seanceTitre" placeholder="Titre" value="Introduction au SEO">
+        </div>
+        <div class="form-row">
+            <input type="date" id="seanceDate" value="2024-02-05">
+            <input type="time" id="seanceHeureDebut" value="09:00">
+            <input type="time" id="seanceHeureFin" value="12:00">
+        </div>
+        <button onclick="creerSeance()">Créer Séance</button>
+        <button onclick="listerSeances()">Lister Séances</button>
+        
+        <div id="seanceResult" class="result"></div>
+        <div id="seancesList" class="data-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>👥 Gestion des Participants</h2>
+        <h3>Ajouter un Participant</h3>
+        <div class="form-row">
+            <select id="participantProgrammeId">
+                <option value="">Sélectionner un programme</option>
+            </select>
+            <input type="text" id="participantNom" placeholder="Nom" value="Dupont">
+        </div>
+        <div class="form-row">
+            <input type="text" id="participantPrenom" placeholder="Prénom" value="Jean">
+            <input type="email" id="participantEmail" placeholder="Email" value="jean.dupont@email.com">
+            <input type="tel" id="participantTel" placeholder="Téléphone" value="0123456789">
+        </div>
+        <button onclick="ajouterParticipant()">Ajouter Participant</button>
+        <button onclick="listerParticipants()">Lister Participants</button>
+        
+        <div id="participantResult" class="result"></div>
+        <div id="participantsList" class="data-display"></div>
+    </div>
+
+    <div class="section">
+        <h2>📅 Gestion des Événements</h2>
+        <h3>Créer un Événement</h3>
+        <div class="form-row">
+            <input type="text" id="eventSujet" placeholder="Sujet" value="Réunion de suivi">
+            <select id="eventType">
+                <option value="reunion">Réunion</option>
+                <option value="formation">Formation</option>
+                <option value="conference">Conférence</option>
+                <option value="webinaire">Webinaire</option>
+                <option value="entretien">Entretien</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <input type="date" id="eventDate" value="2024-02-10">
+            <input type="time" id="eventHeureDebut" value="14:00">
+            <input type="time" id="eventHeureFin" value="15:30">
+        </div>
+        <div class="form-row">
+            <select id="eventPriorite">
+                <option value="normale">Normale</option>
+                <option value="basse">Basse</option>
+                <option value="haute">Haute</option>
+                <option value="urgente">Urgente</option>
+            </select>
+            <input type="text" id="eventLieu" placeholder="Lieu" value="Salle de réunion">
+        </div>
+        <button onclick="creerEvenement()">Créer Événement</button>
+        <button onclick="listerEvenements()">Lister Événements</button>
+        
+        <div id="eventResult" class="result"></div>
+        <div id="eventsList" class="data-display"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let currentFormateurId = 'FOR-189821';
+
+        // Test de connexion du formateur
+        async function testFormateurLogin() {
+            const formateurId = document.getElementById('formateurId').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ partnerId: formateurId })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    currentFormateurId = formateurId;
+                    resultDiv.innerHTML = `<span class="success">✅ Formateur connecté: ${data.data.fullName}</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        // Gestion des Programmes
+        async function creerProgramme() {
+            const resultDiv = document.getElementById('programmeResult');
+            
+            const programmeData = {
+                formateurId: currentFormateurId,
+                titre: document.getElementById('progTitre').value,
+                description: document.getElementById('progDescription').value,
+                dateDebut: document.getElementById('progDateDebut').value,
+                dateFin: document.getElementById('progDateFin').value,
+                prix: parseInt(document.getElementById('progPrix').value) || 0,
+                maxParticipants: parseInt(document.getElementById('progMaxParticipants').value) || 20,
+                lieu: document.getElementById('progLieu').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-programmes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(programmeData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Programme créé: ${data.data.titre}</span>`;
+                    listerProgrammes();
+                    updateProgrammeSelects();
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function listerProgrammes() {
+            const listDiv = document.getElementById('programmesList');
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-programmes/${currentFormateurId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let html = `<h4>📚 Programmes (${data.data.length})</h4>`;
+                    data.data.forEach(prog => {
+                        html += `
+                            <div class="programme-item">
+                                <strong>${prog.titre}</strong> - ${prog.statut}<br>
+                                📅 ${new Date(prog.dateDebut).toLocaleDateString()} → ${new Date(prog.dateFin).toLocaleDateString()}<br>
+                                💰 ${prog.prix}€ | 👥 Max: ${prog.maxParticipants} | 📍 ${prog.lieu}<br>
+                                📊 ${prog.statistiques.totalSeances} séances, ${prog.statistiques.totalParticipants} participants
+                            </div>
+                        `;
+                    });
+                    listDiv.innerHTML = html;
+                } else {
+                    listDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                listDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function updateProgrammeSelects() {
+            try {
+                const response = await fetch(`${API_BASE}/formateur-programmes/${currentFormateurId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const selects = ['seanceProgrammeId', 'participantProgrammeId'];
+                    selects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        select.innerHTML = '<option value="">Sélectionner un programme</option>';
+                        data.data.forEach(prog => {
+                            select.innerHTML += `<option value="${prog._id}">${prog.titre}</option>`;
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour des selects:', error);
+            }
+        }
+
+        // Gestion des Séances
+        async function creerSeance() {
+            const resultDiv = document.getElementById('seanceResult');
+            
+            const seanceData = {
+                programmeId: document.getElementById('seanceProgrammeId').value,
+                formateurId: currentFormateurId,
+                numero: document.getElementById('seanceNumero').value,
+                module: document.getElementById('seanceModule').value,
+                titre: document.getElementById('seanceTitre').value,
+                date: document.getElementById('seanceDate').value,
+                heureDebut: document.getElementById('seanceHeureDebut').value,
+                heureFin: document.getElementById('seanceHeureFin').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-seances`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(seanceData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Séance créée: ${data.data.numero} - ${data.data.module}</span>`;
+                    listerSeances();
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function listerSeances() {
+            const listDiv = document.getElementById('seancesList');
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-seances/${currentFormateurId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let html = `<h4>🎓 Séances (${data.data.length})</h4>`;
+                    data.data.forEach(seance => {
+                        html += `
+                            <div class="seance-item">
+                                <strong>${seance.numero} - ${seance.module}</strong> (${seance.statut})<br>
+                                📚 Programme: ${seance.programmeId?.titre || 'N/A'}<br>
+                                📅 ${new Date(seance.date).toLocaleDateString()} | ⏰ ${seance.heureDebut} - ${seance.heureFin}<br>
+                                ⏱️ Durée: ${seance.dureeMinutes} minutes
+                            </div>
+                        `;
+                    });
+                    listDiv.innerHTML = html;
+                } else {
+                    listDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                listDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        // Gestion des Participants
+        async function ajouterParticipant() {
+            const resultDiv = document.getElementById('participantResult');
+            
+            const participantData = {
+                programmeId: document.getElementById('participantProgrammeId').value,
+                formateurId: currentFormateurId,
+                nom: document.getElementById('participantNom').value,
+                prenom: document.getElementById('participantPrenom').value,
+                email: document.getElementById('participantEmail').value,
+                telephone: document.getElementById('participantTel').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-participants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(participantData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Participant ajouté: ${data.data.prenom} ${data.data.nom}</span>`;
+                    listerParticipants();
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function listerParticipants() {
+            const listDiv = document.getElementById('participantsList');
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-participants/${currentFormateurId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let html = `<h4>👥 Participants (${data.data.length})</h4>`;
+                    data.data.forEach(participant => {
+                        html += `
+                            <div class="participant-item">
+                                <strong>${participant.prenom} ${participant.nom}</strong> (${participant.statut})<br>
+                                📧 ${participant.email} | 📞 ${participant.telephone || 'N/A'}<br>
+                                📚 Programme: ${participant.programmeId?.titre || 'N/A'}<br>
+                                📅 Inscrit le: ${new Date(participant.dateInscription).toLocaleDateString()}
+                            </div>
+                        `;
+                    });
+                    listDiv.innerHTML = html;
+                } else {
+                    listDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                listDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        // Gestion des Événements
+        async function creerEvenement() {
+            const resultDiv = document.getElementById('eventResult');
+            
+            const eventData = {
+                formateurId: currentFormateurId,
+                sujet: document.getElementById('eventSujet').value,
+                type: document.getElementById('eventType').value,
+                date: document.getElementById('eventDate').value,
+                heureDebut: document.getElementById('eventHeureDebut').value,
+                heureFin: document.getElementById('eventHeureFin').value,
+                priorite: document.getElementById('eventPriorite').value,
+                lieu: document.getElementById('eventLieu').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-evenements`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Événement créé: ${data.data.sujet}</span>`;
+                    listerEvenements();
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function listerEvenements() {
+            const listDiv = document.getElementById('eventsList');
+            
+            try {
+                const response = await fetch(`${API_BASE}/formateur-evenements/${currentFormateurId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let html = `<h4>📅 Événements (${data.data.length})</h4>`;
+                    data.data.forEach(event => {
+                        html += `
+                            <div class="event-item">
+                                <strong>${event.sujet}</strong> (${event.type} - ${event.priorite})<br>
+                                📅 ${new Date(event.date).toLocaleDateString()} | ⏰ ${event.heureDebut} - ${event.heureFin}<br>
+                                📍 ${event.lieu} | 🔄 ${event.statut}<br>
+                                ⏱️ Durée: ${event.dureeMinutes} minutes
+                            </div>
+                        `;
+                    });
+                    listDiv.innerHTML = html;
+                } else {
+                    listDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                listDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        // Initialisation
+        window.onload = function() {
+            testFormateurLogin();
+            setTimeout(() => {
+                listerProgrammes();
+                updateProgrammeSelects();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

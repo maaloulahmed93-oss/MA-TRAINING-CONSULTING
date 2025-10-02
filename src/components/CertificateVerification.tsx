@@ -131,17 +131,53 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
     setIsLoading(true);
     setError("");
 
-    // Simulate delay then lookup from localStorage
-    setTimeout(() => {
+    try {
+      // Call the real API instead of localStorage
+      const response = await fetch(`http://localhost:3001/api/attestations/verify/${certificateId.trim()}`);
+      const data = await response.json();
+      
+      if (response.ok && data.valid && data.data) {
+        // Transform API data to match Certificate interface
+        const transformedCertificate: Certificate = {
+          id: data.data.attestationId,
+          firstName: data.data.fullName.split(' ')[0] || data.data.fullName,
+          lastName: data.data.fullName.split(' ').slice(1).join(' ') || '',
+          program: data.data.program?.title || 'Programme non spécifié',
+          skills: data.data.skills || [],
+          techniques: data.data.techniques || [],
+          grade: data.data.note || 0,
+          level: data.data.niveau || 'Non spécifié',
+          certificateUrl: `http://localhost:3001/api/attestations/${data.data.attestationId}/download/attestation`,
+          recommendationUrl: `http://localhost:3001/api/attestations/${data.data.attestationId}/download/recommandation`,
+          evaluationUrl: `http://localhost:3001/api/attestations/${data.data.attestationId}/download/evaluation`,
+          completionDate: new Date(data.data.dateObtention).toLocaleDateString('fr-FR')
+        };
+        
+        setCertificate(transformedCertificate);
+        setShowResult(true);
+      } else {
+        // Fallback to localStorage for backward compatibility
+        const foundCertificate = getCertificateById(certificateId.trim());
+        if (foundCertificate) {
+          setCertificate(foundCertificate);
+          setShowResult(true);
+        } else {
+          setError("Attestation non trouvée. Vérifiez l'ID saisi.");
+        }
+      }
+    } catch (error) {
+      console.error('Error verifying attestation:', error);
+      // Fallback to localStorage on network error
       const foundCertificate = getCertificateById(certificateId.trim());
       if (foundCertificate) {
         setCertificate(foundCertificate);
         setShowResult(true);
       } else {
-        setError("Attestation non trouvée. Vérifiez l'ID saisi.");
+        setError("Erreur de connexion. Vérifiez votre connexion internet.");
       }
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   const handleNewSearch = () => {
@@ -151,11 +187,34 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
     setShowResult(false);
   };
 
-  const handleDownload = (url: string, type: string) => {
-    // Simulation du téléchargement
-    console.log(`Téléchargement ${type}: ${url}`);
-    // Dans un vrai projet, ceci ouvrirait le PDF
-    alert(`Téléchargement de ${type} en cours...`);
+  const handleDownload = async (url: string, type: string) => {
+    try {
+      if (url.startsWith('http://localhost:3001/api/attestations/')) {
+        // Real API download
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error('Erreur lors du téléchargement');
+        }
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `${type}-${certificate?.id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(a);
+      } else {
+        // Simulation du téléchargement pour les données mockées
+        console.log(`Téléchargement ${type}: ${url}`);
+        alert(`Téléchargement de ${type} en cours...`);
+      }
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      alert(`Erreur lors du téléchargement du document ${type}`);
+    }
   };
 
   const getGradeColor = (grade: number) => {

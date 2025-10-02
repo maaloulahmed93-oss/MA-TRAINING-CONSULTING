@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تحليل دقيق لمشكلة القرارات</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #ef4444;
+        }
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .warning { color: #f59e0b; font-weight: bold; }
+        .info { color: #3b82f6; }
+        .highlight { background: #fef3c7; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 تحليل دقيق لمشكلة القرارات</h1>
+            <p>تشخيص سبب عدم ظهور القرارات في Espace Freelancer رغم وجودها في Admin Panel</p>
+            <div class="highlight">
+                <strong>🎯 المشكلة:</strong> Admin Panel يظهر 2 قرارات مرسلة، لكن Espace Freelancer يظهر "Aucune décision"
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- تحليل localStorage -->
+            <div class="section">
+                <h3>💾 تحليل localStorage</h3>
+                <button class="btn" onclick="analyzeLocalStorage()">🔍 فحص localStorage</button>
+                <button class="btn btn-success" onclick="createTestDecisions()">➕ إنشاء قرارات تجريبية</button>
+                <button class="btn btn-danger" onclick="clearAllDecisions()">🗑️ مسح جميع القرارات</button>
+                <button class="btn btn-warning" onclick="fixDataStructure()">🔧 إصلاح بنية البيانات</button>
+            </div>
+            
+            <!-- تحليل API -->
+            <div class="section">
+                <h3>🌐 تحليل API</h3>
+                <button class="btn" onclick="testBackendAPI()">🔍 فحص Backend API</button>
+                <button class="btn" onclick="testFreelancerService()">🔍 فحص FreelancerService</button>
+                <button class="btn" onclick="simulateAPICall()">📡 محاكاة API Call</button>
+                <button class="btn" onclick="checkNetworkRequests()">🌐 فحص Network Requests</button>
+            </div>
+            
+            <!-- النتائج والتحليل -->
+            <div class="results" id="results">🚀 بدء التحليل الدقيق لمشكلة القرارات...\n\n📋 المشكلة المبلغ عنها:\n- Admin Panel: 2 قرارات مرسلة ✅\n- Espace Freelancer: "Aucune décision" ❌\n\n🔍 سيتم فحص:\n1. localStorage للنظام الجديد والقديم\n2. Backend API connectivity\n3. FreelancerDecisionsService\n4. بنية البيانات والتوافق\n\n</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            results.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function analyzeLocalStorage() {
+            log('🔍 بدء تحليل localStorage شامل...', 'info');
+            
+            const freelancerId = 'FRE-340255';
+            
+            // فحص النظام الجديد
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            const newDecisions = JSON.parse(localStorage.getItem(newKey) || '[]');
+            
+            // فحص النظام القديم
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const oldNotifications = JSON.parse(localStorage.getItem(oldKey) || '[]');
+            
+            // فحص جميع المفاتيح المتعلقة بالقرارات
+            const allKeys = Object.keys(localStorage);
+            const decisionKeys = allKeys.filter(key => key.includes('Decision') || key.includes('decision') || key.includes('Notification') || key.includes('notification'));
+            
+            log('📊 نتائج التحليل:', 'info');
+            log(`📋 النظام الجديد (${newKey}): ${newDecisions.length} قرار`, newDecisions.length > 0 ? 'success' : 'error');
+            log(`📋 النظام القديم (${oldKey}): ${oldNotifications.length} إشعار`, oldNotifications.length > 0 ? 'success' : 'warning');
+            log(`🔑 إجمالي المفاتيح المتعلقة بالقرارات: ${decisionKeys.length}`, 'info');
+            
+            if (decisionKeys.length > 0) {
+                log('🔑 المفاتيح الموجودة:', 'info');
+                decisionKeys.forEach(key => {
+                    const data = JSON.parse(localStorage.getItem(key) || '[]');
+                    log(`  - ${key}: ${Array.isArray(data) ? data.length : 'غير صالح'} عنصر`, 'info');
+                });
+            }
+            
+            if (newDecisions.length > 0) {
+                log('📝 تفاصيل القرارات الجديدة:', 'success');
+                newDecisions.forEach((decision, index) => {
+                    log(`  ${index + 1}. ${decision.deliverableTitle} - ${decision.decision} (${decision.status})`, 'success');
+                });
+            }
+            
+            if (oldNotifications.length > 0) {
+                log('📝 تفاصيل الإشعارات القديمة:', 'warning');
+                oldNotifications.forEach((notif, index) => {
+                    log(`  ${index + 1}. ${notif.title} - ${notif.deliverableName}`, 'warning');
+                });
+            }
+            
+            // تشخيص المشكلة
+            if (newDecisions.length === 0 && oldNotifications.length === 0) {
+                log('❌ المشكلة المكتشفة: لا توجد قرارات في localStorage', 'error');
+                log('💡 السبب المحتمل: Admin Panel لم يحفظ القرارات بشكل صحيح', 'warning');
+                log('🔧 الحل المقترح: استخدام "إنشاء قرارات تجريبية"', 'warning');
+            } else if (newDecisions.length === 0 && oldNotifications.length > 0) {
+                log('⚠️ المشكلة المكتشفة: القرارات في النظام القديم فقط', 'warning');
+                log('💡 السبب: NotificationsTab يقرأ من النظام الجديد', 'warning');
+                log('🔧 الحل المقترح: استخدام "إصلاح بنية البيانات"', 'warning');
+            } else if (newDecisions.length > 0) {
+                log('✅ القرارات موجودة في النظام الجديد', 'success');
+                log('🔍 يجب فحص FreelancerDecisionsService', 'info');
+            }
+        }
+
+        function createTestDecisions() {
+            log('➕ إنشاء قرارات تجريبية للفريلانسر FRE-340255...', 'info');
+            
+            const freelancerId = 'FRE-340255';
+            
+            const testDecisions = [
+                {
+                    _id: `decision-test-1-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Design Interface Utilisateur',
+                    decision: 'approved',
+                    observation: 'عمل ممتاز! التصميم يلبي جميع المتطلبات المطلوبة.',
+                    adminId: 'admin',
+                    status: 'sent',
+                    readAt: null,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    _id: `decision-test-2-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Documentation Technique',
+                    decision: 'rejected',
+                    observation: 'يرجى إعادة العمل على الوثائق. هناك بعض النقاط التي تحتاج إلى تحسين.',
+                    adminId: 'admin',
+                    status: 'sent',
+                    readAt: null,
+                    createdAt: new Date(Date.now() - 60000).toISOString(),
+                    updatedAt: new Date(Date.now() - 60000).toISOString()
+                }
+            ];
+            
+            // حفظ في النظام الجديد
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            localStorage.setItem(newKey, JSON.stringify(testDecisions));
+            
+            // حفظ في النظام القديم للتوافق
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const oldNotifications = testDecisions.map(decision => ({
+                id: `notif-${decision._id}`,
+                freelancerId: decision.freelancerId,
+                freelancerName: decision.freelancerName,
+                type: decision.decision === 'approved' ? 'success' : 'error',
+                title: decision.decision === 'approved' ? '✅ Livrable Accepté' : '❌ Livrable Refusé',
+                message: `Titre: ${decision.deliverableTitle}\nStatut: ${decision.decision === 'approved' ? 'Accepté' : 'Refusé'}\nObservation: ${decision.observation}`,
+                deliverableName: decision.deliverableTitle,
+                decision: decision.decision,
+                observation: decision.observation,
+                timestamp: decision.createdAt,
+                read: false,
+                from: 'admin'
+            }));
+            localStorage.setItem(oldKey, JSON.stringify(oldNotifications));
+            
+            log('✅ تم إنشاء قرارين تجريبيين بنجاح!', 'success');
+            log('📋 القرار الأول: Design Interface Utilisateur - مقبول ✅', 'success');
+            log('📋 القرار الثاني: Documentation Technique - مرفوض ❌', 'success');
+            log('💾 تم الحفظ في كلا النظامين (الجديد والقديم)', 'success');
+            log('📱 اذهب الآن إلى Espace Freelancer → Notifications → Actualiser', 'warning');
+        }
+
+        function clearAllDecisions() {
+            if (!confirm('هل أنت متأكد من حذف جميع القرارات؟')) return;
+            
+            log('🗑️ حذف جميع القرارات...', 'warning');
+            
+            const freelancerId = 'FRE-340255';
+            
+            // حذف من النظام الجديد
+            localStorage.removeItem(`freelancerDecisions_${freelancerId}`);
+            // حذف من النظام القديم
+            localStorage.removeItem(`freelancerNotifications_${freelancerId}`);
+            
+            // حذف أي مفاتيح أخرى متعلقة بالقرارات
+            const allKeys = Object.keys(localStorage);
+            const decisionKeys = allKeys.filter(key => 
+                key.includes('Decision') || key.includes('decision') || 
+                key.includes('Notification') || key.includes('notification')
+            );
+            
+            decisionKeys.forEach(key => {
+                localStorage.removeItem(key);
+                log(`🗑️ تم حذف: ${key}`, 'warning');
+            });
+            
+            log('✅ تم حذف جميع القرارات والإشعارات', 'success');
+            log('📱 الآن Espace Freelancer سيعرض "Aucune décision"', 'info');
+        }
+
+        function fixDataStructure() {
+            log('🔧 إصلاح بنية البيانات...', 'info');
+            
+            const freelancerId = 'FRE-340255';
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            
+            const oldNotifications = JSON.parse(localStorage.getItem(oldKey) || '[]');
+            const existingDecisions = JSON.parse(localStorage.getItem(newKey) || '[]');
+            
+            if (oldNotifications.length > 0 && existingDecisions.length === 0) {
+                log('🔄 تحويل الإشعارات القديمة إلى قرارات جديدة...', 'info');
+                
+                const convertedDecisions = oldNotifications.map(notif => ({
+                    _id: `converted-${notif.id}`,
+                    freelancerId: notif.freelancerId,
+                    freelancerName: notif.freelancerName,
+                    deliverableTitle: notif.deliverableName || notif.title,
+                    decision: notif.decision || (notif.type === 'success' ? 'approved' : 'rejected'),
+                    observation: notif.observation || notif.message,
+                    adminId: notif.from || 'admin',
+                    status: notif.read ? 'read' : 'sent',
+                    readAt: notif.read ? notif.timestamp : null,
+                    createdAt: notif.timestamp,
+                    updatedAt: notif.timestamp
+                }));
+                
+                localStorage.setItem(newKey, JSON.stringify(convertedDecisions));
+                
+                log(`✅ تم تحويل ${convertedDecisions.length} إشعار إلى قرارات جديدة`, 'success');
+                log('📱 اذهب إلى Espace Freelancer → Notifications → Actualiser', 'warning');
+            } else if (existingDecisions.length > 0) {
+                log('✅ القرارات موجودة بالفعل في النظام الجديد', 'success');
+                log('🔍 المشكلة قد تكون في FreelancerDecisionsService', 'warning');
+            } else {
+                log('❌ لا توجد بيانات للتحويل', 'error');
+                log('💡 استخدم "إنشاء قرارات تجريبية" أولاً', 'warning');
+            }
+        }
+
+        async function testBackendAPI() {
+            log('🌐 فحص Backend API...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions/FRE-340255');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend API متاح ويعمل', 'success');
+                    log(`📊 عدد القرارات من API: ${data.data?.length || 0}`, 'success');
+                } else {
+                    log(`❌ Backend API غير متاح: ${response.status}`, 'error');
+                    log('💡 هذا طبيعي - النظام يستخدم localStorage fallback', 'info');
+                }
+            } catch (error) {
+                log(`❌ خطأ في الاتصال بـ Backend: ${error.message}`, 'error');
+                log('💡 هذا طبيعي - النظام يستخدم localStorage fallback', 'info');
+            }
+        }
+
+        async function testFreelancerService() {
+            log('🔍 فحص FreelancerDecisionsService...', 'info');
+            
+            // محاكاة استدعاء الخدمة
+            const freelancerId = 'FRE-340255';
+            
+            try {
+                // فحص localStorage مباشرة (كما يفعل الـ service)
+                const key = `freelancerDecisions_${freelancerId}`;
+                const decisions = JSON.parse(localStorage.getItem(key) || '[]');
+                
+                log(`📊 FreelancerDecisionsService سيجد: ${decisions.length} قرار`, decisions.length > 0 ? 'success' : 'error');
+                
+                if (decisions.length > 0) {
+                    log('✅ الخدمة ستعمل بشكل صحيح', 'success');
+                    decisions.forEach((decision, index) => {
+                        log(`  ${index + 1}. ${decision.deliverableTitle} - ${decision.decision}`, 'success');
+                    });
+                } else {
+                    log('❌ الخدمة ستعيد مصفوفة فارغة', 'error');
+                    log('💡 هذا يفسر ظهور "Aucune décision"', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ في محاكاة الخدمة: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateAPICall() {
+            log('📡 محاكاة API Call كما يحدث في NotificationsTab...', 'info');
+            
+            // محاكاة التسلسل الفعلي
+            log('1️⃣ محاولة الاتصال بـ Backend API...', 'info');
+            
+            setTimeout(() => {
+                log('❌ Backend API فشل (404) - هذا طبيعي', 'warning');
+                log('2️⃣ التحول إلى localStorage fallback...', 'info');
+                
+                const freelancerId = 'FRE-340255';
+                const key = `freelancerDecisions_${freelancerId}`;
+                const decisions = JSON.parse(localStorage.getItem(key) || '[]');
+                
+                log(`3️⃣ localStorage يحتوي على: ${decisions.length} قرار`, decisions.length > 0 ? 'success' : 'error');
+                
+                if (decisions.length > 0) {
+                    log('4️⃣ ✅ NotificationsTab سيعرض القرارات', 'success');
+                } else {
+                    log('4️⃣ ❌ NotificationsTab سيعرض "Aucune décision"', 'error');
+                }
+            }, 1000);
+        }
+
+        function checkNetworkRequests() {
+            log('🌐 فحص Network Requests في المتصفح...', 'info');
+            log('📋 تعليمات الفحص:', 'info');
+            log('1. افتح Developer Tools (F12)', 'info');
+            log('2. اذهب إلى Network tab', 'info');
+            log('3. اذهب إلى Espace Freelancer → Notifications', 'info');
+            log('4. اضغط Actualiser', 'info');
+            log('5. ابحث عن طلب: GET /api/freelancer-decisions/FRE-340255', 'info');
+            log('6. يجب أن ترى 404 error - هذا طبيعي', 'warning');
+            log('7. تأكد من أن localStorage fallback يعمل', 'info');
+        }
+
+        // تحميل أولي
+        window.addEventListener('load', function() {
+            log('🚀 بدء التحليل الدقيق لمشكلة القرارات', 'info');
+            log('📋 المشكلة: Admin Panel يظهر 2 قرارات، Espace Freelancer يظهر "Aucune décision"', 'warning');
+            
+            // فحص فوري
+            setTimeout(analyzeLocalStorage, 1000);
+        });
+    </script>
+</body>
+</html>

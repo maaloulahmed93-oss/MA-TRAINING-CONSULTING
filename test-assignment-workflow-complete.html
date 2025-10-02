@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Assignment Workflow Complete - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #dc2626;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .test-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+        
+        .workflow-step {
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #dc2626;
+            background: #f9fafb;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Test Assignment Workflow Complete</h1>
+            <p>Test complet du workflow d'assignation des services</p>
+        </div>
+
+        <!-- Problème Identifié -->
+        <div class="fix-section">
+            <h3>🚨 PROBLÈME IDENTIFIÉ ET RÉSOLU:</h3>
+            <ul>
+                <li>❌ <strong>Avant:</strong> Admin Panel → /api/commercial-services/assign</li>
+                <li>✅ <strong>Après:</strong> Admin Panel → /api/commercial-new/admin/assign-service</li>
+                <li>✅ <strong>Backend:</strong> Accepte partnerId (COM-451764) correctement</li>
+                <li>✅ <strong>Database:</strong> Ajoute dans commerciauxAutorises array</li>
+                <li>✅ <strong>Frontend:</strong> Commercial Dashboard récupère services</li>
+            </ul>
+        </div>
+
+        <!-- Workflow Diagram -->
+        <div style="margin-bottom: 30px;">
+            <h3>📊 Workflow Corrigé:</h3>
+            <div class="workflow-step">
+                <strong>1. Admin Panel:</strong> Sélectionne Service + Commercial (partnerId)
+            </div>
+            <div class="workflow-step">
+                <strong>2. POST:</strong> /api/commercial-new/admin/assign-service
+            </div>
+            <div class="workflow-step">
+                <strong>3. Backend:</strong> service.ajouterCommercial(partnerId, 'ADMIN')
+            </div>
+            <div class="workflow-step">
+                <strong>4. Database:</strong> Ajoute partnerId dans commerciauxAutorises[]
+            </div>
+            <div class="workflow-step">
+                <strong>5. Commercial Login:</strong> GET /api/commercial-new/:partnerId/services
+            </div>
+            <div class="workflow-step">
+                <strong>6. Query:</strong> find({ 'commerciauxAutorises.partnerId': partnerId })
+            </div>
+            <div class="workflow-step">
+                <strong>7. Result:</strong> Services apparaissent dans Dashboard Commercial
+            </div>
+        </div>
+
+        <!-- Test Complet -->
+        <div style="text-align: center;">
+            <button class="test-button" onclick="testCompleteWorkflow()">
+                🚀 TEST WORKFLOW COMPLET
+            </button>
+            <div id="complete-result" class="result"></div>
+        </div>
+
+        <!-- Tests Individuels -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>📋 Test Services</h3>
+                <button onclick="testServices()">📋 GET Services</button>
+                <div id="services-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>🔗 Test Assignment</h3>
+                <button onclick="testAssignment()">🔗 Assignment</button>
+                <div id="assignment-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>👤 Test Commercial</h3>
+                <button onclick="testCommercialServices()">👤 Services</button>
+                <div id="commercial-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Expected Results -->
+        <div style="margin-top: 30px; padding: 25px; background: #fef2f2; border: 2px solid #dc2626; border-radius: 10px;">
+            <h3>📊 Résultats Attendus:</h3>
+            <pre style="background: #1f2937; color: #f3f4f6; padding: 15px; border-radius: 8px; font-size: 12px;">
+ADMIN PANEL:
+POST /api/commercial-new/admin/assign-service
+Body: { serviceId: "...", partnerId: "COM-451764" }
+Response: { success: true, message: "Service attribué à Mohamed" }
+
+COMMERCIAL DASHBOARD:
+GET /api/commercial-new/COM-451764/services
+Response: { success: true, data: [{ titre: "Formation Leadership", commission: 300 }] }
+
+CONSOLE LOGS:
+🔗 Attribution d'un service à un commercial...
+✅ Service Formation Leadership attribué à COM-451764
+🔍 GET services pour commercial: COM-451764
+📊 1 services trouvés pour COM-451764
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_API = 'http://localhost:3001/api/commercial-new/admin';
+        const COMMERCIAL_API = 'http://localhost:3001/api/commercial-new';
+        const SERVICES_API = 'http://localhost:3001/api/commercial-services';
+
+        async function testCompleteWorkflow() {
+            const resultDiv = document.getElementById('complete-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 Test Workflow Complet...\n\n';
+
+            try {
+                // Step 1: Get services disponibles
+                resultDiv.textContent += 'STEP 1: Récupération services disponibles...\n';
+                const servicesResponse = await fetch(`${SERVICES_API}`);
+                const servicesResult = await servicesResponse.json();
+                
+                if (!servicesResult.data || servicesResult.data.length === 0) {
+                    throw new Error('Aucun service disponible pour test');
+                }
+                
+                const service = servicesResult.data[0];
+                resultDiv.textContent += `✅ Service sélectionné: ${service.titre}\n`;
+                resultDiv.textContent += `   ID: ${service._id}\n\n`;
+
+                // Step 2: Get commercials
+                resultDiv.textContent += 'STEP 2: Récupération commercials...\n';
+                const commercialsResponse = await fetch(`${ADMIN_API}/commercials`);
+                const commercialsResult = await commercialsResponse.json();
+                
+                if (!commercialsResult.data || commercialsResult.data.length === 0) {
+                    throw new Error('Aucun commercial disponible pour test');
+                }
+                
+                const commercial = commercialsResult.data[0];
+                resultDiv.textContent += `✅ Commercial sélectionné: ${commercial.fullName || commercial.nom}\n`;
+                resultDiv.textContent += `   PartnerID: ${commercial.partnerId}\n\n`;
+
+                // Step 3: Test assignment avec le nouveau endpoint
+                resultDiv.textContent += 'STEP 3: Assignment avec nouveau endpoint...\n';
+                resultDiv.textContent += `POST: ${ADMIN_API}/assign-service\n`;
+                resultDiv.textContent += `Body: { serviceId: "${service._id}", partnerId: "${commercial.partnerId}" }\n\n`;
+                
+                const assignResponse = await fetch(`${ADMIN_API}/assign-service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        serviceId: service._id,
+                        partnerId: commercial.partnerId
+                    })
+                });
+
+                const assignResult = await assignResponse.json();
+                
+                resultDiv.textContent += `Assignment Status: ${assignResponse.status}\n`;
+                resultDiv.textContent += `Assignment Success: ${assignResult.success}\n`;
+                resultDiv.textContent += `Assignment Message: ${assignResult.message}\n\n`;
+
+                if (!assignResult.success) {
+                    throw new Error(`Assignment échoué: ${assignResult.message}`);
+                }
+
+                // Step 4: Vérifier que le service apparaît dans commercial dashboard
+                resultDiv.textContent += 'STEP 4: Vérification Commercial Dashboard...\n';
+                resultDiv.textContent += `GET: ${COMMERCIAL_API}/${commercial.partnerId}/services\n\n`;
+                
+                const commercialServicesResponse = await fetch(`${COMMERCIAL_API}/${commercial.partnerId}/services`);
+                const commercialServicesResult = await commercialServicesResponse.json();
+                
+                resultDiv.textContent += `Commercial Services Status: ${commercialServicesResponse.status}\n`;
+                resultDiv.textContent += `Commercial Services Success: ${commercialServicesResult.success}\n`;
+                resultDiv.textContent += `Services Count: ${commercialServicesResult.data?.length || 0}\n\n`;
+
+                if (commercialServicesResult.success && commercialServicesResult.data && commercialServicesResult.data.length > 0) {
+                    resultDiv.textContent += 'Services dans Commercial Dashboard:\n';
+                    commercialServicesResult.data.forEach((svc, index) => {
+                        resultDiv.textContent += `${index + 1}. ${svc.titre} - ${svc.commission}€\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n🎉 WORKFLOW COMPLET RÉUSSI!\n';
+                    resultDiv.textContent += 'Assignment fonctionne parfaitement:\n';
+                    resultDiv.textContent += '✅ Admin Panel → Backend Assignment\n';
+                    resultDiv.textContent += '✅ Backend → Database Update\n';
+                    resultDiv.textContent += '✅ Commercial Dashboard → Services Visibles\n';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Assignment réussi mais services non visibles\n';
+                    resultDiv.textContent += 'Vérifier la logique de récupération des services.';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ WORKFLOW ÉCHOUÉ: ${error.message}`;
+            }
+        }
+
+        async function testServices() {
+            const resultDiv = document.getElementById('services-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test Services...\n\n';
+
+            try {
+                const response = await fetch(SERVICES_API);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                        resultDiv.textContent += `   Commission: ${service.commission}€\n\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Aucun service trouvé';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testAssignment() {
+            const resultDiv = document.getElementById('assignment-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Test Assignment...\n\n';
+
+            try {
+                // Get test data
+                const servicesResponse = await fetch(SERVICES_API);
+                const servicesResult = await servicesResponse.json();
+                
+                const commercialsResponse = await fetch(`${ADMIN_API}/commercials`);
+                const commercialsResult = await commercialsResponse.json();
+                
+                if (servicesResult.data?.length > 0 && commercialsResult.data?.length > 0) {
+                    const service = servicesResult.data[0];
+                    const commercial = commercialsResult.data[0];
+                    
+                    resultDiv.textContent += `Service: ${service.titre}\n`;
+                    resultDiv.textContent += `Commercial: ${commercial.partnerId}\n\n`;
+                    
+                    // Test assignment
+                    const assignResponse = await fetch(`${ADMIN_API}/assign-service`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            serviceId: service._id,
+                            partnerId: commercial.partnerId
+                        })
+                    });
+
+                    const assignResult = await assignResponse.json();
+                    
+                    resultDiv.textContent += `Status: ${assignResponse.status}\n`;
+                    resultDiv.textContent += `Success: ${assignResult.success}\n`;
+                    resultDiv.textContent += `Message: ${assignResult.message}\n`;
+
+                    if (assignResult.success) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n✅ Assignment réussi!';
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.textContent += '\n❌ Assignment échoué';
+                    }
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Données insuffisantes pour test';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCommercialServices() {
+            const resultDiv = document.getElementById('commercial-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '👤 Test Commercial Services...\n\n';
+
+            const partnerId = 'COM-451764'; // Test avec un partnerId connu
+
+            try {
+                const response = await fetch(`${COMMERCIAL_API}/${partnerId}/services`);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.success && result.data && result.data.length > 0) {
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                        resultDiv.textContent += `   Commission: ${service.commission}€\n`;
+                        resultDiv.textContent += `   Prix: ${service.prixCommercial}€\n\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ Services commercial chargés!';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Aucun service assigné à ce commercial';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🎯 Test Assignment Workflow Complete chargé');
+        };
+    </script>
+</body>
+</html>

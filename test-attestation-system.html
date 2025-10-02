@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système Attestations MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .result {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .skills-container, .techniques-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .skill-item, .technique-item {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .skill-item input, .technique-item input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .add-btn {
+            background-color: #28a745;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Test Système Attestations MATC</h1>
+        <p>Interface de test pour le système complet d'attestations avec vérification en ligne.</p>
+    </div>
+
+    <!-- Test 1: Créer une attestation -->
+    <div class="container">
+        <h2>1. Créer une Attestation</h2>
+        <div class="test-section">
+            <form id="createAttestationForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="fullName">Nom complet:</label>
+                    <input type="text" id="fullName" name="fullName" value="Ahmed Ben Ali" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="programId">Programme (ID):</label>
+                    <select id="programId" name="programId" required>
+                        <option value="">Chargement des programmes...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dateObtention">Date d'obtention:</label>
+                    <input type="date" id="dateObtention" name="dateObtention" value="2024-09-16">
+                </div>
+                
+                <div class="form-group">
+                    <label for="note">Note (/20):</label>
+                    <input type="number" id="note" name="note" value="18.5" min="0" max="20" step="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="niveau">Niveau:</label>
+                    <select id="niveau" name="niveau" required>
+                        <option value="Débutant">Débutant</option>
+                        <option value="Intermédiaire" selected>Intermédiaire</option>
+                        <option value="Avancé">Avancé</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Compétences acquises:</label>
+                    <div class="skills-container" id="skillsContainer">
+                        <div class="skill-item">
+                            <input type="text" placeholder="Compétence 1" value="React">
+                            <button type="button" class="remove-btn" onclick="removeSkill(this)">Supprimer</button>
+                        </div>
+                        <div class="skill-item">
+                            <input type="text" placeholder="Compétence 2" value="Node.js">
+                            <button type="button" class="remove-btn" onclick="removeSkill(this)">Supprimer</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addSkill()">Ajouter Compétence</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Techniques maîtrisées:</label>
+                    <div class="techniques-container" id="techniquesContainer">
+                        <div class="technique-item">
+                            <input type="text" placeholder="Technique 1" value="API REST">
+                            <button type="button" class="remove-btn" onclick="removeTechnique(this)">Supprimer</button>
+                        </div>
+                        <div class="technique-item">
+                            <input type="text" placeholder="Technique 2" value="MongoDB">
+                            <button type="button" class="remove-btn" onclick="removeTechnique(this)">Supprimer</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addTechnique()">Ajouter Technique</button>
+                </div>
+                
+                <div class="form-group">
+                <h4>📄 Documents PDF</h4>
+                <div class="file-uploads">
+                    <div class="file-upload-item">
+                        <label for="attestationFile">Attestation (requis):</label>
+                        <input type="file" id="attestationFile" accept=".pdf" required>
+                    </div>
+                    <div class="file-upload-item">
+                        <label for="recommandationFile">Recommandation (optionnel):</label>
+                        <input type="file" id="recommandationFile" accept=".pdf">
+                    </div>
+                    <div class="file-upload-item">
+                        <label for="evaluationFile">Évaluation (optionnel):</label>
+                        <input type="file" id="evaluationFile" accept=".pdf">
+                    </div>
+                </div>
+            </div>
+                
+                <button type="submit">Créer l'Attestation</button>
+            </form>
+            <div id="createResult"></div>
+        </div>
+    </div>
+
+    <!-- Test 2: Lister les attestations -->
+    <div class="container">
+        <h2>2. Lister les Attestations</h2>
+        <div class="test-section">
+            <button onclick="listAttestations()">Récupérer toutes les attestations</button>
+            <div id="listResult"></div>
+        </div>
+    </div>
+
+    <!-- Test 3: Vérifier une attestation -->
+    <div class="container">
+        <h2>3. Vérifier une Attestation</h2>
+        <div class="test-section">
+            <div class="form-group">
+                <label for="verifyId">ID de l'attestation:</label>
+                <input type="text" id="verifyId" placeholder="Ex: CERT-2024-001">
+            </div>
+            <button onclick="verifyAttestation()">Vérifier l'Attestation</button>
+            <div id="verifyResult"></div>
+        </div>
+    </div>
+
+    <!-- Test 4: Télécharger une attestation -->
+    <div class="container">
+        <h2>4. Télécharger une Attestation</h2>
+        <div class="test-section">
+            <div class="form-group">
+                <label for="downloadId">ID de l'attestation:</label>
+                <input type="text" id="downloadId" placeholder="Ex: CERT-2024-001">
+            </div>
+            <button onclick="downloadAttestation()">Télécharger le PDF</button>
+            <div id="downloadResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Load programs on page load
+        window.onload = function() {
+            loadPrograms();
+        };
+        
+        async function loadPrograms() {
+            try {
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+                
+                const select = document.getElementById('programId');
+                select.innerHTML = '<option value="">Sélectionner un programme...</option>';
+                
+                if (data.success && data.data) {
+                    data.data.forEach(program => {
+                        const option = document.createElement('option');
+                        option.value = program._id;
+                        option.textContent = `${program.title} (${program.level})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading programs:', error);
+                document.getElementById('programId').innerHTML = '<option value="">Erreur de chargement</option>';
+            }
+        }
+        
+        // Skills management
+        function addSkill() {
+            const container = document.getElementById('skillsContainer');
+            const div = document.createElement('div');
+            div.className = 'skill-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Nouvelle compétence">
+                <button type="button" class="remove-btn" onclick="removeSkill(this)">Supprimer</button>
+            `;
+            container.appendChild(div);
+        }
+        
+        function removeSkill(button) {
+            const container = document.getElementById('skillsContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+        
+        // Techniques management
+        function addTechnique() {
+            const container = document.getElementById('techniquesContainer');
+            const div = document.createElement('div');
+            div.className = 'technique-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Nouvelle technique">
+                <button type="button" class="remove-btn" onclick="removeTechnique(this)">Supprimer</button>
+            `;
+            container.appendChild(div);
+        }
+        
+        function removeTechnique(button) {
+            const container = document.getElementById('techniquesContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+        
+        // Create attestation
+        document.getElementById('createAttestationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.innerHTML = '<p>Création en cours...</p>';
+            
+            try {
+                const formData = new FormData();
+                
+                // Basic fields
+                formData.append('fullName', document.getElementById('fullName').value);
+                formData.append('programId', document.getElementById('programId').value);
+                formData.append('dateObtention', document.getElementById('dateObtention').value);
+                formData.append('note', document.getElementById('note').value);
+                formData.append('niveau', document.getElementById('niveau').value);
+                
+                // Skills
+                const skills = [];
+                document.querySelectorAll('#skillsContainer input').forEach(input => {
+                    if (input.value.trim()) skills.push(input.value.trim());
+                });
+                formData.append('skills', JSON.stringify(skills));
+                
+                // Techniques
+                const techniques = [];
+                document.querySelectorAll('#techniquesContainer input').forEach(input => {
+                    if (input.value.trim()) techniques.push(input.value.trim());
+                });
+                formData.append('techniques', JSON.stringify(techniques));
+                
+                // Files
+                const attestationFile = document.getElementById('attestationFile');
+                if (attestationFile.files[0]) {
+                    formData.append('attestation', attestationFile.files[0]);
+                }
+                
+                const recommandationFile = document.getElementById('recommandationFile');
+                if (recommandationFile.files[0]) {
+                    formData.append('recommandation', recommandationFile.files[0]);
+                }
+                
+                const evaluationFile = document.getElementById('evaluationFile');
+                if (evaluationFile.files[0]) {
+                    formData.append('evaluation', evaluationFile.files[0]);
+                }
+                
+                const response = await fetch(`${API_BASE}/attestations`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Attestation créée avec succès!</h3>
+                            <p><strong>ID:</strong> ${data.data.attestationId}</p>
+                            <p><strong>Nom:</strong> ${data.data.fullName}</p>
+                            <p><strong>Programme:</strong> ${data.data.programId.title}</p>
+                            <p><strong>Note:</strong> ${data.data.note}/20</p>
+                        </div>
+                    `;
+                    
+                    // Auto-fill verify and download fields
+                    document.getElementById('verifyId').value = data.data.attestationId;
+                    document.getElementById('downloadId').value = data.data.attestationId;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        });
+        
+        // List attestations
+        async function listAttestations() {
+            const resultDiv = document.getElementById('listResult');
+            resultDiv.innerHTML = '<p>Chargement...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/attestations`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.data.length === 0) {
+                        resultDiv.innerHTML = '<div class="result">Aucune attestation trouvée.</div>';
+                    } else {
+                        let html = `<div class="success">✅ ${data.data.length} attestation(s) trouvée(s):</div>`;
+                        html += '<div class="result">';
+                        
+                        data.data.forEach(att => {
+                            html += `
+                                <div style="border-bottom: 1px solid #ddd; padding: 10px 0;">
+                                    <strong>ID:</strong> ${att.attestationId}<br>
+                                    <strong>Nom:</strong> ${att.fullName}<br>
+                                    <strong>Programme:</strong> ${att.program?.title || 'N/A'}<br>
+                                    <strong>Note:</strong> ${att.note}/20<br>
+                                    <strong>Niveau:</strong> ${att.niveau}<br>
+                                    <strong>Date:</strong> ${new Date(att.dateObtention).toLocaleDateString('fr-FR')}<br>
+                                    <strong>Compétences:</strong> ${att.skills.join(', ')}<br>
+                                    <strong>Techniques:</strong> ${att.techniques.join(', ')}
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                        resultDiv.innerHTML = html;
+                    }
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+        
+        // Verify attestation
+        async function verifyAttestation() {
+            const id = document.getElementById('verifyId').value.trim();
+            const resultDiv = document.getElementById('verifyResult');
+            
+            if (!id) {
+                resultDiv.innerHTML = '<div class="error">❌ Veuillez entrer un ID d\'attestation</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Vérification...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/attestations/verify/${id}`);
+                const data = await response.json();
+                
+                if (data.valid) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Attestation Valide</h3>
+                            <div class="result">
+                                <strong>ID:</strong> ${data.data.attestationId}<br>
+                                <strong>Nom:</strong> ${data.data.fullName}<br>
+                                <strong>Programme:</strong> ${data.data.program.title}<br>
+                                <strong>Note:</strong> ${data.data.note}/20<br>
+                                <strong>Niveau:</strong> ${data.data.niveau}<br>
+                                <strong>Date:</strong> ${new Date(data.data.dateObtention).toLocaleDateString('fr-FR')}<br>
+                                <strong>Compétences:</strong> ${data.data.skills.join(', ')}<br>
+                                <strong>Techniques:</strong> ${data.data.techniques.join(', ')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ ${data.message || 'Attestation non trouvée'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+        
+        // Download attestation
+        async function downloadAttestation() {
+            const id = document.getElementById('downloadId').value.trim();
+            const resultDiv = document.getElementById('downloadResult');
+            
+            if (!id) {
+                resultDiv.innerHTML = '<div class="error">❌ Veuillez entrer un ID d\'attestation</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Téléchargement...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/attestations/${id}/download`);
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `attestation-${id}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    resultDiv.innerHTML = '<div class="success">✅ Téléchargement réussi!</div>';
+                } else {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<div class="error">❌ Erreur: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

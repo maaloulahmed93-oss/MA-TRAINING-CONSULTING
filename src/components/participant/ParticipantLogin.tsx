@@ -17,8 +17,30 @@ const ParticipantLogin = ({ onLogin }: ParticipantLoginProps) => {
     setError('');
     setIsLoading(true);
 
-    // Simulation d'une vérification API
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Try to authenticate with backend API first
+      const response = await fetch(`http://localhost:3001/api/participants/${accessId}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ participantId: accessId })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          onLogin(accessId);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('API authentication failed, trying fallback:', error);
+    }
+
+    // Fallback to mock data validation
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     if (validAccessIds.includes(accessId)) {
       onLogin(accessId);

@@ -8,6 +8,9 @@ export interface Participant {
   totalProgress: number;
   completedCourses: number;
   totalCourses: number;
+  studyTime?: number;
+  achievedGoals?: number;
+  totalGoals?: number;
 }
 
 export interface Formation {
@@ -24,11 +27,29 @@ export interface Formation {
   duration: string;
 }
 
+export interface SessionLink {
+  id: string;
+  title: string;
+  url: string;
+  type: string;
+}
+
+export interface Session {
+  id: string;
+  title: string;
+  description?: string;
+  duration: string;
+  isCompleted: boolean;
+  order?: number;
+  links: SessionLink[];
+}
+
 export interface Course {
   id: string;
   title: string;
   description: string;
   modules: Module[];
+  sessions?: Session[];
   progress: number;
   isCompleted: boolean;
   duration: string;
@@ -56,6 +77,7 @@ export interface Project {
   dueDate: string;
   feedback?: string;
   grade?: number;
+  projectUrl?: string; // Lien vers le projet
   files: ProjectFile[];
 }
 
@@ -84,16 +106,23 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'job';
+  type: 'info' | 'success' | 'warning' | 'error' | 'job' | 'information' | 'offre_emploi';
   date: string;
   isRead: boolean;
   actionUrl?: string;
+  // Legacy job notification fields
   company?: string;
   position?: string;
   salary?: string;
   contract?: string;
   environment?: string;
   benefits?: string;
+  // New notification type fields
+  description?: string;
+  link?: string;      // For "information" type - clickable link
+  phone?: string;     // For "offre_emploi" type - phone number
+  email?: string;     // For "offre_emploi" type - email address
+  uploadLink?: string; // For legacy "info" type
 }
 
 export interface FAQ {

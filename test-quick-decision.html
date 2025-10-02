@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ اختبار سريع للقرارات</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content { padding: 20px; }
+        .section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            margin: 5px 0;
+        }
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ اختبار سريع للقرارات</h1>
+            <p>إرسال قرار من Admin Panel واستقباله في Espace Freelancer</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h3>📤 إرسال قرار سريع</h3>
+                <select id="freelancerId">
+                    <option value="FRE-340255">FRE-340255 (ismail)</option>
+                    <option value="FRE-269251">FRE-269251 (azmd)</option>
+                </select>
+                <input type="text" id="deliverableTitle" value="Test Livrable" placeholder="عنوان الـ Livrable">
+                <select id="decision">
+                    <option value="approved">✅ مقبول</option>
+                    <option value="rejected">❌ مرفوض</option>
+                </select>
+                <textarea id="observation" rows="2" placeholder="ملاحظات...">تم اختبار النظام بنجاح!</textarea>
+                <button class="btn" onclick="sendQuickDecision()">📤 إرسال القرار</button>
+                <button class="btn btn-success" onclick="checkDecisions()">📬 فحص القرارات</button>
+                <button class="btn btn-danger" onclick="clearData()">🗑️ مسح البيانات</button>
+            </div>
+            
+            <div class="section">
+                <h3>📊 النتائج</h3>
+                <div class="results" id="results">🚀 جاهز للاختبار...\n</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function sendQuickDecision() {
+            const freelancerId = document.getElementById('freelancerId').value;
+            const deliverableTitle = document.getElementById('deliverableTitle').value;
+            const decision = document.getElementById('decision').value;
+            const observation = document.getElementById('observation').value;
+
+            log(`📤 إرسال قرار "${decision}" للفريلانسر ${freelancerId}...`);
+
+            // إنشاء قرار للنظام الجديد
+            const newDecision = {
+                _id: `decision-${Date.now()}`,
+                freelancerId,
+                freelancerName: freelancerId === 'FRE-340255' ? 'ismail' : 'azmd',
+                deliverableTitle,
+                decision,
+                observation,
+                adminId: 'admin',
+                status: 'sent',
+                readAt: null,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            // حفظ في localStorage للنظام الجديد
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            const existingDecisions = JSON.parse(localStorage.getItem(newKey) || '[]');
+            existingDecisions.unshift(newDecision);
+            localStorage.setItem(newKey, JSON.stringify(existingDecisions));
+
+            // حفظ في localStorage للنظام القديم (للتوافق)
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const oldNotifications = JSON.parse(localStorage.getItem(oldKey) || '[]');
+            const oldNotification = {
+                id: `notif-${Date.now()}`,
+                freelancerId,
+                freelancerName: freelancerId === 'FRE-340255' ? 'ismail' : 'azmd',
+                type: decision === 'approved' ? 'success' : 'error',
+                title: decision === 'approved' ? '✅ Livrable Accepté' : '❌ Livrable Refusé',
+                message: `Titre: ${deliverableTitle}\nStatut: ${decision === 'approved' ? 'Accepté' : 'Refusé'}\nObservation: ${observation}`,
+                deliverableName: deliverableTitle,
+                decision: decision,
+                observation: observation,
+                timestamp: new Date().toISOString(),
+                read: false,
+                from: 'admin'
+            };
+            oldNotifications.unshift(oldNotification);
+            localStorage.setItem(oldKey, JSON.stringify(oldNotifications));
+
+            log(`✅ تم حفظ القرار بنجاح للفريلانسر ${freelancerId}`);
+            log(`🎯 القرار جاهز للعرض في Espace Freelancer`);
+        }
+
+        async function checkDecisions() {
+            const freelancerId = document.getElementById('freelancerId').value;
+            
+            log(`📬 فحص القرارات للفريلانسر ${freelancerId}...`);
+
+            // فحص النظام الجديد
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            const newDecisions = JSON.parse(localStorage.getItem(newKey) || '[]');
+            
+            // فحص النظام القديم
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const oldNotifications = JSON.parse(localStorage.getItem(oldKey) || '[]');
+
+            log(`📋 النظام الجديد: ${newDecisions.length} قرار`);
+            log(`📋 النظام القديم: ${oldNotifications.length} إشعار`);
+
+            if (newDecisions.length > 0) {
+                log(`✅ آخر قرار: ${newDecisions[0].deliverableTitle} - ${newDecisions[0].decision}`);
+            }
+
+            if (oldNotifications.length > 0) {
+                log(`✅ آخر إشعار: ${oldNotifications[0].title}`);
+            }
+
+            if (newDecisions.length === 0 && oldNotifications.length === 0) {
+                log(`📭 لا توجد قرارات للفريلانسر ${freelancerId}`);
+            }
+        }
+
+        function clearData() {
+            const freelancerId = document.getElementById('freelancerId').value;
+            
+            localStorage.removeItem(`freelancerDecisions_${freelancerId}`);
+            localStorage.removeItem(`freelancerNotifications_${freelancerId}`);
+            
+            log(`🗑️ تم حذف جميع البيانات للفريلانسر ${freelancerId}`);
+        }
+
+        // تحميل أولي
+        log('✅ النظام جاهز للاختبار');
+        log('📋 الخطوات:');
+        log('1. اختر الفريلانسر');
+        log('2. أدخل تفاصيل القرار');
+        log('3. اضغط "إرسال القرار"');
+        log('4. اضغط "فحص القرارات" للتأكد');
+        log('5. اذهب إلى Espace Freelancer وافتح tab الإشعارات');
+    </script>
+</body>
+</html>

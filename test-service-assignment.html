@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Service Assignment - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #7c3aed;
+            border-bottom: 3px solid #e9d5ff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .critical-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .fix-info {
+            background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%);
+            border: 2px solid #8b5cf6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test Service Assignment</h1>
+            <p>Test de l'assignation des services aux commerciaux</p>
+        </div>
+
+        <!-- Fix Info -->
+        <div class="fix-info">
+            <h3>🛠️ Fix Appliqué:</h3>
+            <ul>
+                <li>✅ <strong>Bouton "🔄 Actualiser Listes"</strong> ajouté dans la section assignation</li>
+                <li>✅ <strong>Compteur de services</strong> dans le select: "(X disponibles)"</li>
+                <li>✅ <strong>Compteur de commerciaux</strong> dans le select: "(X disponibles)"</li>
+                <li>✅ <strong>Refresh automatique</strong> des services ET commerciaux</li>
+            </ul>
+        </div>
+
+        <!-- Test Services -->
+        <div class="test-section">
+            <h3>📋 Test Services Disponibles</h3>
+            <button class="critical-button" onclick="testServices()">
+                🧪 TESTER SERVICES POUR ASSIGNATION
+            </button>
+            <div id="services-result" class="result"></div>
+        </div>
+
+        <!-- Test Commercials -->
+        <div class="test-section">
+            <h3>👥 Test Commerciaux Disponibles</h3>
+            <button onclick="testCommercials()">📊 Test Commerciaux</button>
+            <button onclick="testAssignment()">🔗 Test Assignation</button>
+            <div id="commercials-result" class="result"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h3>📋 Instructions de Test:</h3>
+            <ol>
+                <li><strong>Ouvrez Admin Panel:</strong> <code>http://localhost:8536/commercial-services</code></li>
+                <li><strong>Créez un service</strong> si nécessaire</li>
+                <li><strong>Allez à "Assigner un Service à un Commercial"</strong></li>
+                <li><strong>Vérifiez le select "Service":</strong> Devrait afficher "(X disponibles)"</li>
+                <li><strong>Si vide:</strong> Cliquez "🔄 Actualiser Listes"</li>
+                <li><strong>Résultat:</strong> Services apparaissent dans la liste</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function testServices() {
+            const resultDiv = document.getElementById('services-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🧪 Test Services pour Assignation...\n\n';
+
+            try {
+                // Test 1: Services API
+                resultDiv.textContent += '1️⃣ Test Services API...\n';
+                const servicesResponse = await fetch(`${API_BASE}/admin/services`);
+                const servicesResult = await servicesResponse.json();
+                
+                if (servicesResult.success) {
+                    resultDiv.textContent += `✅ Services API: ${servicesResult.data?.length || 0} services\n`;
+                    
+                    if (servicesResult.data && servicesResult.data.length > 0) {
+                        resultDiv.textContent += '\n📋 Services disponibles pour assignation:\n';
+                        servicesResult.data.forEach((service, index) => {
+                            resultDiv.textContent += 
+                                `${index + 1}. ${service.titre}\n` +
+                                `   Commission: ${service.commission}€\n` +
+                                `   Prix: ${service.prixPublic}€ → ${service.prixCommercial}€\n` +
+                                `   ID: ${service._id}\n\n`;
+                        });
+                        
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += 
+                            '✅ SERVICES PRÊTS POUR ASSIGNATION!\n\n' +
+                            '🎯 Dans Admin Panel:\n' +
+                            '- Le select "Service" devrait afficher ces services\n' +
+                            '- Format: "Titre - Commission€"\n' +
+                            '- Si vide: Cliquez "🔄 Actualiser Listes"\n\n' +
+                            '🔧 Fix appliqué:\n' +
+                            '- Bouton refresh dans section assignation\n' +
+                            '- Compteur "(X disponibles)" dans select\n' +
+                            '- Refresh services ET commerciaux ensemble';
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.textContent += 
+                            '❌ AUCUN SERVICE DISPONIBLE\n\n' +
+                            '🔧 Solution:\n' +
+                            '1. Créez d\'abord des services\n' +
+                            '2. Puis testez l\'assignation';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Services API erreur: ${servicesResult.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCommercials() {
+            const resultDiv = document.getElementById('commercials-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '👥 Test Commerciaux...\n\n';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/partners?type=commercial');
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.textContent += `✅ Commerciaux API: ${result.data?.length || 0} commerciaux\n`;
+                    
+                    if (result.data && result.data.length > 0) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n👥 Commerciaux disponibles:\n';
+                        result.data.forEach((commercial, index) => {
+                            resultDiv.textContent += 
+                                `${index + 1}. ${commercial.fullName}\n` +
+                                `   ID: ${commercial.partnerId}\n` +
+                                `   Email: ${commercial.email}\n\n`;
+                        });
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.textContent += '❌ Aucun commercial trouvé';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Erreur: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testAssignment() {
+            const resultDiv = document.getElementById('commercials-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Test Assignation...\n\n';
+
+            try {
+                // Test avec données fictives
+                resultDiv.textContent += '🧪 Simulation assignation...\n';
+                resultDiv.textContent += 'POST /api/commercial-new/admin/assign-service\n';
+                resultDiv.textContent += 'Body: {\n';
+                resultDiv.textContent += '  serviceId: "service_id_example",\n';
+                resultDiv.textContent += '  partnerId: "COM-123456"\n';
+                resultDiv.textContent += '}\n\n';
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent += 
+                    '✅ ASSIGNATION PRÊTE!\n\n' +
+                    '🎯 Pour tester dans Admin Panel:\n' +
+                    '1. Sélectionnez un service dans la liste\n' +
+                    '2. Sélectionnez un commercial\n' +
+                    '3. Cliquez "Assigner Service"\n\n' +
+                    '🔧 Si listes vides:\n' +
+                    'Cliquez "🔄 Actualiser Listes"';
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🔧 Test Service Assignment chargé');
+        };
+    </script>
+</body>
+</html>

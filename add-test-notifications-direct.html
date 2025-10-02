@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Test Notifications Direct - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>➕ Add Test Notifications Direct - MATC</h1>
+        
+        <div class="warning">
+            <h3>🎯 Solution directe</h3>
+            <p><strong>Objectif:</strong> Ajouter des notifications directement via API pour contourner le problème Admin Panel</p>
+            <p><strong>Méthode:</strong> POST direct vers /api/participants/PART-550776/notifications</p>
+        </div>
+
+        <div class="info">
+            <h4>📋 Plan d'action:</h4>
+            <ol>
+                <li>Ajouter notifications test via API POST</li>
+                <li>Vérifier qu'elles sont sauvegardées</li>
+                <li>Tester dans espace participant</li>
+                <li>Si ça marche, le problème est dans Admin Panel</li>
+            </ol>
+        </div>
+
+        <button onclick="addTestNotifications()" class="success">➕ Ajouter notifications test</button>
+        <button onclick="checkNotifications()">🔍 Vérifier notifications</button>
+        <button onclick="clearNotifications()" class="danger">🗑️ Effacer notifications</button>
+        <button onclick="runFullTest()">🚀 Test complet</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function addTestNotifications() {
+            log('➕ Ajout de notifications test via API directe...', 'info');
+            
+            const testNotifications = [
+                {
+                    title: 'Test Direct API - Information',
+                    message: 'Cette notification a été ajoutée directement via API pour tester le système.',
+                    type: 'information',
+                    description: 'Test pour vérifier que les notifications fonctionnent',
+                    link: 'https://example.com/test-info'
+                },
+                {
+                    title: 'Test Direct API - Offre Emploi',
+                    message: 'Offre d\'emploi test ajoutée directement via API.',
+                    type: 'offre_emploi',
+                    description: 'Développeur Web recherché pour mission test',
+                    company: 'MATC Test',
+                    phone: '+33123456789',
+                    email: 'test@matc.com'
+                },
+                {
+                    title: 'Test Direct API - Success',
+                    message: 'Notification de succès ajoutée directement via API.',
+                    type: 'success',
+                    description: 'Test de notification de type succès'
+                }
+            ];
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < testNotifications.length; i++) {
+                const notification = testNotifications[i];
+                log(`📤 Ajout notification ${i + 1}: ${notification.title}`, 'info');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            log(`✅ Notification ${i + 1} ajoutée: ${data.data._id}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`❌ Notification ${i + 1} échec: ${data.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ Notification ${i + 1} erreur HTTP: ${response.status}`, 'error');
+                        const errorText = await response.text();
+                        log(`Détails: ${errorText}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Notification ${i + 1} erreur: ${error.message}`, 'error');
+                }
+                
+                // Small delay between requests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            log(`📊 Résumé: ${successCount}/${testNotifications.length} notifications ajoutées`, 
+                successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                log('🎉 Notifications ajoutées! Vérification dans 2 secondes...', 'success');
+                setTimeout(() => checkNotifications(), 2000);
+            }
+        }
+
+        async function checkNotifications() {
+            log('🔍 Vérification des notifications...', 'info');
+            
+            try {
+                // Check via dedicated API
+                log('📋 Vérification via API notifications...', 'info');
+                const apiResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                
+                if (apiResponse.ok) {
+                    const apiData = await apiResponse.json();
+                    if (apiData.success) {
+                        log(`✅ API notifications: ${apiData.data.length} trouvées`, 
+                            apiData.data.length > 0 ? 'success' : 'warning');
+                        
+                        if (apiData.data.length > 0) {
+                            log('📋 Notifications trouvées:', 'success');
+                            apiData.data.forEach((notif, index) => {
+                                log(`${index + 1}. ${notif.title} (${notif.type}) - ${notif.isRead ? 'Lu' : 'Non lu'}`, 'info');
+                            });
+                            
+                            log(`<pre>Détails notifications:
+${JSON.stringify(apiData.data, null, 2)}</pre>`, 'info');
+                        }
+                    }
+                } else {
+                    log(`❌ API notifications erreur: ${apiResponse.status}`, 'error');
+                }
+                
+                // Check via participant API
+                log('📋 Vérification via API participant...', 'info');
+                const participantResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                
+                if (participantResponse.ok) {
+                    const participantData = await participantResponse.json();
+                    if (participantData.success && participantData.data) {
+                        const notifications = participantData.data.notifications;
+                        log(`✅ API participant: ${notifications?.length || 0} notifications`, 
+                            notifications?.length > 0 ? 'success' : 'warning');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearNotifications() {
+            log('🗑️ Suppression des notifications test...', 'warning');
+            
+            try {
+                // Get current participant data
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        // Update with empty notifications array
+                        const updateData = {
+                            ...data.data,
+                            notifications: [],
+                            updatedAt: new Date().toISOString()
+                        };
+                        
+                        const updateResponse = await fetch('http://localhost:3001/api/participants/PART-550776', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+                        
+                        if (updateResponse.ok) {
+                            log('✅ Notifications supprimées', 'success');
+                            setTimeout(() => checkNotifications(), 1000);
+                        } else {
+                            log(`❌ Erreur suppression: ${updateResponse.status}`, 'error');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullTest() {
+            log('🚀 Test complet en cours...', 'info');
+            
+            // Step 1: Clear existing
+            log('📋 Étape 1: Nettoyage...', 'info');
+            await clearNotifications();
+            
+            // Step 2: Add test notifications
+            setTimeout(async () => {
+                log('📋 Étape 2: Ajout notifications test...', 'info');
+                await addTestNotifications();
+                
+                // Step 3: Final verification
+                setTimeout(async () => {
+                    log('📋 Étape 3: Vérification finale...', 'info');
+                    await checkNotifications();
+                    
+                    log('🎯 Test complet terminé!', 'success');
+                    log('📋 Instructions finales:', 'warning');
+                    log('1. Si les notifications apparaissent dans les vérifications ci-dessus:', 'info');
+                    log('   → Allez dans espace participant pour voir si elles s\'affichent', 'info');
+                    log('   → Si oui: le problème est dans Admin Panel', 'info');
+                    log('   → Si non: le problème est dans le frontend', 'info');
+                    log('2. Si les notifications n\'apparaissent pas dans les vérifications:', 'info');
+                    log('   → Le problème est dans le backend/MongoDB', 'info');
+                    log('   → Vérifiez que le serveur backend est redémarré', 'info');
+                }, 3000);
+            }, 2000);
+        }
+
+        // Auto-run initial check
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🎯 Solution directe pour tester les notifications', 'info');
+                log('📋 Cet outil va ajouter des notifications directement via API', 'warning');
+                log('💡 Cliquez sur "Test complet" pour commencer', 'info');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

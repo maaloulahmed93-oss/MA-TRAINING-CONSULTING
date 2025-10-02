@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Accept/Reject Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        
+        .flow-step {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .flow-step h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Accept/Reject Flow</h1>
+        <p>Test du flux complet: Accepter → Projet, Refuser → Suppression</p>
+
+        <!-- Instructions du workflow -->
+        <div class="section">
+            <h3>📋 Workflow Attendu</h3>
+            <div class="flow-step">
+                <h4><span class="step-number">1</span>Accepter une Offre</h4>
+                <p>✅ L'offre disparaît de la liste "Offres de Mission"</p>
+                <p>✅ Un nouveau projet apparaît dans "Projets"</p>
+                <p>✅ Le projet contient toutes les informations de l'offre</p>
+            </div>
+            
+            <div class="flow-step">
+                <h4><span class="step-number">2</span>Refuser une Offre</h4>
+                <p>❌ L'offre disparaît de la liste "Offres de Mission"</p>
+                <p>❌ Aucun projet n'est créé</p>
+                <p>📝 La raison du refus est enregistrée</p>
+            </div>
+        </div>
+
+        <!-- Test des données actuelles -->
+        <div class="section">
+            <h3>1. État Actuel des Données</h3>
+            <button class="btn-primary" onclick="checkCurrentState()">Vérifier État Actuel</button>
+            <div id="current-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Simulation Accept -->
+        <div class="section">
+            <h3>2. Simulation - Accepter une Offre</h3>
+            <button class="btn-success" onclick="simulateAccept()">Simuler Acceptation</button>
+            <div id="accept-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Simulation Reject -->
+        <div class="section">
+            <h3>3. Simulation - Refuser une Offre</h3>
+            <button class="btn-danger" onclick="simulateReject()">Simuler Refus</button>
+            <div id="reject-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test complet -->
+        <div class="section">
+            <h3>4. Test Complet du Workflow</h3>
+            <button class="btn-warning" onclick="fullWorkflowTest()">Test Complet</button>
+            <div id="full-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions pour test réel -->
+        <div class="section">
+            <h3>5. Test Réel dans l'Application</h3>
+            <div class="flow-step">
+                <h4>🎯 Instructions de Test:</h4>
+                <ol>
+                    <li>Allez sur <a href="http://localhost:5173/espace-freelancer" target="_blank">Freelancer Space</a></li>
+                    <li>Connectez-vous avec FRE-340255</li>
+                    <li>Notez le nombre d'offres dans "Offres de Mission"</li>
+                    <li>Notez le nombre de projets dans "Projets"</li>
+                    <li><strong>Acceptez une offre</strong> et vérifiez:
+                        <ul>
+                            <li>✅ L'offre disparaît de "Offres de Mission"</li>
+                            <li>✅ Un nouveau projet apparaît dans "Projets"</li>
+                        </ul>
+                    </li>
+                    <li><strong>Refusez une offre</strong> et vérifiez:
+                        <ul>
+                            <li>❌ L'offre disparaît de "Offres de Mission"</li>
+                            <li>❌ Aucun nouveau projet n'est créé</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/freelancer-offers';
+        const FREELANCER_ID = 'FRE-340255';
+
+        // Vérifier l'état actuel
+        async function checkCurrentState() {
+            const resultDiv = document.getElementById('current-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Vérification de l\'état actuel...');
+                
+                let result = `📊 ÉTAT ACTUEL DES DONNÉES:\n\n`;
+                
+                // Vérifier les offres
+                try {
+                    const offersResponse = await fetch(`${API_BASE}/for-freelancer/${FREELANCER_ID}`);
+                    const offersData = await offersResponse.json();
+                    
+                    if (offersResponse.ok && offersData.success) {
+                        result += `📋 Offres de Mission: ${offersData.count} offres\n`;
+                        offersData.data.forEach((offer, index) => {
+                            result += `   ${index + 1}. ${offer.title} (${offer.status})\n`;
+                        });
+                    } else {
+                        result += `📋 Offres de Mission: Erreur - ${offersData.message}\n`;
+                    }
+                } catch (e) {
+                    result += `📋 Offres de Mission: Erreur de connexion\n`;
+                }
+                
+                result += `\n`;
+                
+                // Note: Les projets sont gérés localement, pas via API
+                result += `📁 Projets: Gérés localement (voir dans l'application)\n`;
+                
+                result += `\n🎯 WORKFLOW ATTENDU:\n`;
+                result += `✅ Accept → Offre supprimée + Projet créé\n`;
+                result += `❌ Reject → Offre supprimée seulement\n`;
+                
+                showResult(resultDiv, 'info', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Simuler acceptation
+        async function simulateAccept() {
+            const resultDiv = document.getElementById('accept-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Simulation d\'acceptation...');
+                
+                let result = `🎯 SIMULATION - ACCEPTER UNE OFFRE:\n\n`;
+                
+                // Récupérer une offre pour simulation
+                const offersResponse = await fetch(`${API_BASE}/for-freelancer/${FREELANCER_ID}`);
+                const offersData = await offersResponse.json();
+                
+                if (offersResponse.ok && offersData.success && offersData.data.length > 0) {
+                    const testOffer = offersData.data[0];
+                    
+                    result += `📋 Offre à accepter: "${testOffer.title}"\n`;
+                    result += `🏢 Entreprise: ${testOffer.company}\n`;
+                    result += `💰 Budget: ${testOffer.salaryMin || 0} - ${testOffer.salaryMax || 0} ${testOffer.currency}\n\n`;
+                    
+                    result += `🔄 ÉTAPES D'ACCEPTATION:\n`;
+                    result += `1️⃣ Clic sur "Accepter"\n`;
+                    result += `2️⃣ Confirmation dans le modal\n`;
+                    result += `3️⃣ Appel API acceptJobOffer()\n`;
+                    result += `4️⃣ Création d'un nouveau projet\n`;
+                    result += `5️⃣ Suppression de l'offre\n`;
+                    result += `6️⃣ Rechargement des listes\n\n`;
+                    
+                    result += `✅ RÉSULTAT ATTENDU:\n`;
+                    result += `- Offre disparaît de "Offres de Mission"\n`;
+                    result += `- Nouveau projet dans "Projets"\n`;
+                    result += `- Projet avec status "in_progress"\n`;
+                    result += `- Toutes les infos de l'offre copiées\n`;
+                    
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    result += `❌ Aucune offre disponible pour simulation\n`;
+                    showResult(resultDiv, 'warning', result);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Simuler refus
+        async function simulateReject() {
+            const resultDiv = document.getElementById('reject-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Simulation de refus...');
+                
+                let result = `🎯 SIMULATION - REFUSER UNE OFFRE:\n\n`;
+                
+                // Récupérer une offre pour simulation
+                const offersResponse = await fetch(`${API_BASE}/for-freelancer/${FREELANCER_ID}`);
+                const offersData = await offersResponse.json();
+                
+                if (offersResponse.ok && offersData.success && offersData.data.length > 0) {
+                    const testOffer = offersData.data[0];
+                    
+                    result += `📋 Offre à refuser: "${testOffer.title}"\n`;
+                    result += `🏢 Entreprise: ${testOffer.company}\n`;
+                    result += `📝 Raison exemple: "Pas disponible actuellement"\n\n`;
+                    
+                    result += `🔄 ÉTAPES DE REFUS:\n`;
+                    result += `1️⃣ Clic sur "Refuser"\n`;
+                    result += `2️⃣ Saisie de la raison dans le modal\n`;
+                    result += `3️⃣ Confirmation du refus\n`;
+                    result += `4️⃣ Appel API refuseJobOffer()\n`;
+                    result += `5️⃣ Suppression de l'offre\n`;
+                    result += `6️⃣ Rechargement des listes\n\n`;
+                    
+                    result += `❌ RÉSULTAT ATTENDU:\n`;
+                    result += `- Offre disparaît de "Offres de Mission"\n`;
+                    result += `- AUCUN nouveau projet créé\n`;
+                    result += `- Raison du refus enregistrée\n`;
+                    result += `- Log dans la console\n`;
+                    
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    result += `❌ Aucune offre disponible pour simulation\n`;
+                    showResult(resultDiv, 'warning', result);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Test complet du workflow
+        async function fullWorkflowTest() {
+            const resultDiv = document.getElementById('full-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Test complet du workflow...');
+                
+                let result = `🧪 TEST COMPLET DU WORKFLOW:\n\n`;
+                
+                // Vérifier les offres disponibles
+                const offersResponse = await fetch(`${API_BASE}/for-freelancer/${FREELANCER_ID}`);
+                const offersData = await offersResponse.json();
+                
+                if (offersResponse.ok && offersData.success) {
+                    result += `📊 État initial: ${offersData.count} offres disponibles\n\n`;
+                    
+                    if (offersData.count >= 2) {
+                        result += `✅ SCÉNARIO DE TEST POSSIBLE:\n`;
+                        result += `1️⃣ Accepter: "${offersData.data[0].title}"\n`;
+                        result += `   → Doit créer un projet\n`;
+                        result += `   → Doit supprimer l'offre\n\n`;
+                        
+                        result += `2️⃣ Refuser: "${offersData.data[1].title}"\n`;
+                        result += `   → Doit supprimer l'offre\n`;
+                        result += `   → Ne doit PAS créer de projet\n\n`;
+                        
+                        result += `📈 RÉSULTAT FINAL ATTENDU:\n`;
+                        result += `- Offres: ${offersData.count} → ${offersData.count - 2}\n`;
+                        result += `- Projets: +1 nouveau projet\n`;
+                        result += `- Logs dans console pour les deux actions\n\n`;
+                        
+                        result += `🎯 POUR TESTER:\n`;
+                        result += `1. Allez sur Freelancer Space\n`;
+                        result += `2. Notez le nombre d'offres et projets\n`;
+                        result += `3. Acceptez une offre\n`;
+                        result += `4. Vérifiez: offre supprimée + projet créé\n`;
+                        result += `5. Refusez une offre\n`;
+                        result += `6. Vérifiez: offre supprimée seulement\n`;
+                        
+                        showResult(resultDiv, 'success', result);
+                    } else {
+                        result += `⚠️ SCÉNARIO LIMITÉ:\n`;
+                        result += `Seulement ${offersData.count} offre(s) disponible(s)\n`;
+                        result += `Recommandation: Créez plus d'offres dans Admin Panel\n`;
+                        
+                        showResult(resultDiv, 'warning', result);
+                    }
+                } else {
+                    result += `❌ Impossible de récupérer les offres\n`;
+                    result += `Erreur: ${offersData.message}\n`;
+                    
+                    showResult(resultDiv, 'error', result);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Fonction utilitaire
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-load
+        window.onload = function() {
+            console.log('🧪 Accept/Reject Flow Test loaded');
+            console.log('🎯 Workflow: Accept → Project, Reject → Delete');
+        };
+    </script>
+</body>
+</html>

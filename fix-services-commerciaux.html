@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Services Commerciaux - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .urgent-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        input, select, textarea {
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            width: 200px;
+            font-size: 14px;
+        }
+        
+        textarea {
+            width: 400px;
+            height: 80px;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .problem {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Fix Services Commerciaux</h1>
+            <p>Résoudre le problème "Aucun service créé"</p>
+        </div>
+
+        <!-- Problème identifié -->
+        <div class="problem">
+            <h3>🚨 Problème Identifié:</h3>
+            <ul>
+                <li><strong>Page Admin:</strong> "Gestion des Services Commerciaux"</li>
+                <li><strong>Erreur:</strong> "Aucun service créé"</li>
+                <li><strong>Console:</strong> Erreurs 404 sur /api/commercial-new/admin/services</li>
+                <li><strong>Cause:</strong> Base de données vide, pas de services créés</li>
+            </ul>
+        </div>
+
+        <!-- Fix Immédiat -->
+        <div class="fix-section">
+            <h3>🚀 Fix Immédiat</h3>
+            <button class="urgent-button" onclick="fixImmediate()">
+                🔧 CRÉER SERVICES PAR DÉFAUT
+            </button>
+            <div id="fix-result" class="result"></div>
+        </div>
+
+        <!-- Test Services -->
+        <div class="fix-section">
+            <h3>📋 Test Services</h3>
+            <button onclick="loadServices()">🔍 Charger Services</button>
+            <button onclick="testEndpoint()">🧪 Test Endpoint</button>
+            <div id="services-result" class="result"></div>
+        </div>
+
+        <!-- Créer Nouveau Service -->
+        <div class="fix-section">
+            <h3>➕ Créer Nouveau Service</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="titre" placeholder="Titre du service" value="Formation Excel">
+                <input type="text" id="categorie" placeholder="Catégorie" value="Bureautique">
+                <input type="number" id="prixPublic" placeholder="Prix Public (€)" value="500">
+                <input type="number" id="prixCommercial" placeholder="Prix Commercial (€)" value="400">
+                <input type="number" id="commission" placeholder="Commission (€)" value="100">
+                <input type="text" id="duree" placeholder="Durée" value="1 jour">
+            </div>
+            <textarea id="description" placeholder="Description du service">Formation complète sur Microsoft Excel pour améliorer la productivité</textarea>
+            <br>
+            <button onclick="createService()">🚀 Créer Service</button>
+            <div id="create-result" class="result"></div>
+        </div>
+
+        <!-- Assigner Service -->
+        <div class="fix-section">
+            <h3>🔗 Assigner Service à Commercial</h3>
+            <select id="serviceSelect">
+                <option value="">Sélectionner un service</option>
+            </select>
+            <select id="commercialSelect">
+                <option value="">Sélectionner un commercial</option>
+            </select>
+            <br>
+            <button onclick="loadSelectOptions()">🔄 Charger Options</button>
+            <button onclick="assignService()">🔗 Assigner</button>
+            <div id="assign-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function fixImmediate() {
+            const resultDiv = document.getElementById('fix-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 Fix immédiat en cours...\n\n';
+
+            try {
+                // Appeler l'endpoint qui va créer les services par défaut
+                const response = await fetch(`${API_BASE}/admin/services`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ FIX RÉUSSI!\n\n` +
+                        `Message: ${result.message}\n` +
+                        `Services créés: ${result.data.length}\n\n` +
+                        `📋 Services disponibles:\n`;
+                    
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += 
+                            `${index + 1}. ${service.titre}\n` +
+                            `   Catégorie: ${service.categorie}\n` +
+                            `   Prix: ${service.prixPublic}€ (Commission: ${service.commission}€)\n` +
+                            `   Durée: ${service.duree}\n\n`;
+                    });
+                    
+                    resultDiv.textContent += 
+                        `🎯 TESTEZ MAINTENANT:\n` +
+                        `1. Rechargez la page Admin Panel\n` +
+                        `2. Allez sur "Gestion des Services Commerciaux"\n` +
+                        `3. Les services devraient maintenant apparaître!`;
+                        
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Erreur: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function loadServices() {
+            const resultDiv = document.getElementById('services-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔍 Chargement des services...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ ${result.data.length} services trouvés:\n\n`;
+                    
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += 
+                            `${index + 1}. ${service.titre}\n` +
+                            `   ID: ${service._id}\n` +
+                            `   Catégorie: ${service.categorie}\n` +
+                            `   Prix Public: ${service.prixPublic}€\n` +
+                            `   Prix Commercial: ${service.prixCommercial}€\n` +
+                            `   Commission: ${service.commission}€\n` +
+                            `   Durée: ${service.duree}\n` +
+                            `   Commerciaux autorisés: ${service.commerciauxAutorises.length}\n\n`;
+                    });
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Erreur: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testEndpoint() {
+            const resultDiv = document.getElementById('services-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🧪 Test endpoint...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`);
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Headers: ${JSON.stringify([...response.headers.entries()], null, 2)}\n\n`;
+                
+                const result = await response.json();
+                resultDiv.textContent += `Response: ${JSON.stringify(result, null, 2)}`;
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function createService() {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📝 Création du service...\n\n';
+
+            const serviceData = {
+                titre: document.getElementById('titre').value,
+                description: document.getElementById('description').value,
+                categorie: document.getElementById('categorie').value,
+                prixPublic: document.getElementById('prixPublic').value,
+                prixCommercial: document.getElementById('prixCommercial').value,
+                commission: document.getElementById('commission').value,
+                duree: document.getElementById('duree').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(serviceData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ Service créé avec succès!\n\n` +
+                        `Titre: ${result.data.titre}\n` +
+                        `Catégorie: ${result.data.categorie}\n` +
+                        `Prix: ${result.data.prixPublic}€\n` +
+                        `Commission: ${result.data.commission}€\n` +
+                        `ID: ${result.data._id}`;
+                    
+                    // Clear form
+                    document.getElementById('titre').value = '';
+                    document.getElementById('description').value = '';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Erreur: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function loadSelectOptions() {
+            // Charger les services
+            try {
+                const servicesResponse = await fetch(`${API_BASE}/admin/services`);
+                const servicesResult = await servicesResponse.json();
+                
+                const serviceSelect = document.getElementById('serviceSelect');
+                serviceSelect.innerHTML = '<option value="">Sélectionner un service</option>';
+                
+                if (servicesResult.success) {
+                    servicesResult.data.forEach(service => {
+                        const option = document.createElement('option');
+                        option.value = service._id;
+                        option.textContent = `${service.titre} (${service.commission}€)`;
+                        serviceSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur chargement services:', error);
+            }
+
+            // Charger les commerciaux
+            try {
+                const commerciauxResponse = await fetch('http://localhost:3001/api/partners?type=commercial');
+                const commerciauxResult = await commerciauxResponse.json();
+                
+                const commercialSelect = document.getElementById('commercialSelect');
+                commercialSelect.innerHTML = '<option value="">Sélectionner un commercial</option>';
+                
+                if (commerciauxResult.success) {
+                    commerciauxResult.data.forEach(commercial => {
+                        const option = document.createElement('option');
+                        option.value = commercial.partnerId;
+                        option.textContent = `${commercial.fullName} (${commercial.partnerId})`;
+                        commercialSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur chargement commerciaux:', error);
+            }
+        }
+
+        async function assignService() {
+            const resultDiv = document.getElementById('assign-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Attribution en cours...\n\n';
+
+            const assignData = {
+                serviceId: document.getElementById('serviceSelect').value,
+                partnerId: document.getElementById('commercialSelect').value
+            };
+
+            if (!assignData.serviceId || !assignData.partnerId) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Veuillez sélectionner un service et un commercial';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/assign-service`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(assignData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ Attribution réussie!\n\n` +
+                        `Service: ${result.data.service}\n` +
+                        `Commercial: ${result.data.commercial}\n` +
+                        `Partner ID: ${result.data.partnerId}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Erreur: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-load au chargement
+        window.onload = function() {
+            loadSelectOptions();
+        };
+    </script>
+</body>
+</html>

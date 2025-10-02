@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحقق من تنظيف البيانات</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .error { background: #fee; border-color: #fcc; color: #c33; }
+        .success { background: #efe; border-color: #cfc; color: #363; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #e3f2fd; border-color: #bbdefb; color: #0d47a1; }
+        button { padding: 12px 24px; margin: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th { background: #f5f5f5; font-weight: bold; }
+        .partner-card { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 6px; background: #fafafa; }
+        .type-formateur { border-left: 4px solid #007bff; }
+        .type-freelancer { border-left: 4px solid #28a745; }
+        .type-commercial { border-left: 4px solid #ffc107; }
+        .type-entreprise { border-left: 4px solid #6f42c1; }
+        .type-participant { border-left: 4px solid #dc3545; background: #fff5f5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ التحقق من تنظيف البيانات التجريبية</h1>
+        
+        <div class="section success">
+            <h3>🎉 تم تنفيذ الإجراءات التالية:</h3>
+            <ul>
+                <li>✅ تعطيل البيانات التجريبية في <code>participantData.ts</code></li>
+                <li>✅ إزالة "aziz ben ameur" من قائمة الـ IDs الصالحة</li>
+                <li>✅ تعطيل Auto-Seeding في <code>ParticipantsPage.tsx</code></li>
+                <li>✅ تشغيل سكريبت تنظيف قاعدة البيانات</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>🔧 أدوات التحقق:</h3>
+            <button class="btn-primary" onclick="checkDatabase()">
+                <span id="checkIcon">🔍</span> فحص قاعدة البيانات
+            </button>
+            <button class="btn-success" onclick="checkAdminPanel()">
+                <span id="adminIcon">👥</span> فحص Admin Panel
+            </button>
+            <button class="btn-danger" onclick="searchForAziz()">
+                <span id="searchIcon">🔎</span> البحث عن aziz ben ameur
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function setButtonLoading(buttonId, loading) {
+            const btn = document.querySelector(`button[onclick="${buttonId}()"]`);
+            if (btn) {
+                btn.disabled = loading;
+                const icon = btn.querySelector('span');
+                if (loading) {
+                    icon.innerHTML = '<div class="loading"></div>';
+                } else {
+                    // Reset icon based on button type
+                    if (buttonId === 'checkDatabase') icon.innerHTML = '🔍';
+                    else if (buttonId === 'checkAdminPanel') icon.innerHTML = '👥';
+                    else if (buttonId === 'searchForAziz') icon.innerHTML = '🔎';
+                }
+            }
+        }
+
+        async function checkDatabase() {
+            setButtonLoading('checkDatabase', true);
+            log('🔍 فحص قاعدة البيانات...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const partners = data.data;
+                    
+                    // تجميع حسب النوع
+                    const typeStats = {};
+                    let participantFound = false;
+                    let azizFound = false;
+                    
+                    partners.forEach(partner => {
+                        typeStats[partner.type] = (typeStats[partner.type] || 0) + 1;
+                        
+                        if (partner.type === 'participant') {
+                            participantFound = true;
+                        }
+                        
+                        if (partner.fullName && partner.fullName.toLowerCase().includes('aziz')) {
+                            azizFound = true;
+                        }
+                    });
+                    
+                    let statsHtml = '<h4>📊 إحصائيات قاعدة البيانات:</h4>';
+                    statsHtml += '<table><tr><th>النوع</th><th>العدد</th></tr>';
+                    
+                    Object.entries(typeStats).forEach(([type, count]) => {
+                        const isParticipant = type === 'participant';
+                        statsHtml += `<tr ${isParticipant ? 'style="background: #fff5f5; color: #dc3545;"' : ''}><td>${type}</td><td>${count}</td></tr>`;
+                    });
+                    
+                    statsHtml += '</table>';
+                    
+                    if (participantFound) {
+                        statsHtml += '<div class="warning"><strong>⚠️ لا يزال هناك شركاء من نوع "participant"!</strong></div>';
+                    } else {
+                        statsHtml += '<div class="success"><strong>✅ لا يوجد شركاء من نوع "participant"</strong></div>';
+                    }
+                    
+                    if (azizFound) {
+                        statsHtml += '<div class="error"><strong>❌ لا يزال "aziz" موجود في قاعدة البيانات!</strong></div>';
+                    } else {
+                        statsHtml += '<div class="success"><strong>✅ تم حذف "aziz ben ameur" بنجاح</strong></div>';
+                    }
+                    
+                    log(statsHtml, participantFound || azizFound ? 'warning' : 'success');
+                } else {
+                    log(`❌ خطأ في API: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في الاتصال: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading('checkDatabase', false);
+            }
+        }
+
+        async function checkAdminPanel() {
+            setButtonLoading('checkAdminPanel', true);
+            log('👥 فحص Admin Panel...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners/stats/overview`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.data;
+                    
+                    let statsHtml = '<h4>📊 إحصائيات Admin Panel:</h4>';
+                    statsHtml += '<table>';
+                    statsHtml += '<tr><th>النوع</th><th>العدد</th></tr>';
+                    statsHtml += `<tr><td>إجمالي الشركاء</td><td>${stats.total}</td></tr>`;
+                    statsHtml += `<tr><td>Formateurs</td><td>${stats.formateurs}</td></tr>`;
+                    statsHtml += `<tr><td>Freelancers</td><td>${stats.freelancers}</td></tr>`;
+                    statsHtml += `<tr><td>Commerciaux</td><td>${stats.commerciaux}</td></tr>`;
+                    statsHtml += `<tr><td>Entreprises</td><td>${stats.entreprises}</td></tr>`;
+                    statsHtml += '</table>';
+                    
+                    const expectedTotal = stats.formateurs + stats.freelancers + stats.commerciaux + stats.entreprises;
+                    if (stats.total === expectedTotal) {
+                        statsHtml += '<div class="success"><strong>✅ جميع الشركاء من الأنواع الصحيحة (4 أنواع فقط)</strong></div>';
+                    } else {
+                        statsHtml += '<div class="warning"><strong>⚠️ قد يوجد شركاء من أنواع أخرى</strong></div>';
+                    }
+                    
+                    log(statsHtml, stats.total === expectedTotal ? 'success' : 'warning');
+                } else {
+                    log(`❌ خطأ في جلب الإحصائيات: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في فحص Admin Panel: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading('checkAdminPanel', false);
+            }
+        }
+
+        async function searchForAziz() {
+            setButtonLoading('searchForAziz', true);
+            log('🔎 البحث عن aziz ben ameur...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const partners = data.data;
+                    
+                    // البحث عن aziz
+                    const azizPartners = partners.filter(p => 
+                        (p.fullName && p.fullName.toLowerCase().includes('aziz')) ||
+                        (p.email && p.email.includes('ameur@gmail.com')) ||
+                        (p.partnerId && p.partnerId.includes('834809'))
+                    );
+                    
+                    if (azizPartners.length > 0) {
+                        let azizHtml = `<h4>❌ تم العثور على ${azizPartners.length} نتيجة لـ "aziz":</h4>`;
+                        azizPartners.forEach(partner => {
+                            azizHtml += `
+                                <div class="partner-card type-${partner.type}">
+                                    <strong>${partner.partnerId}</strong> - ${partner.fullName}<br>
+                                    <small>📧 ${partner.email} | النوع: ${partner.type}</small><br>
+                                    <small>📅 تاريخ الإنشاء: ${new Date(partner.createdAt).toLocaleDateString('ar')}</small>
+                                </div>
+                            `;
+                        });
+                        azizHtml += '<div class="error"><strong>❌ يجب حذف هذه البيانات يدوياً!</strong></div>';
+                        log(azizHtml, 'error');
+                    } else {
+                        log('<h4>✅ لم يتم العثور على "aziz ben ameur"</h4><p>تم حذف البيانات التجريبية بنجاح!</p>', 'success');
+                    }
+                } else {
+                    log(`❌ خطأ في البحث: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في البحث: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading('searchForAziz', false);
+            }
+        }
+
+        // فحص تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            log('🚀 بدء التحقق من تنظيف البيانات...', 'info');
+            setTimeout(() => {
+                checkDatabase();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

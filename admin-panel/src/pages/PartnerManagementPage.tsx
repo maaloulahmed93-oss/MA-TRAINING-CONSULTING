@@ -1,17 +1,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-import type { Partner, PartnerType } from '../services/partnersService';
-import { listPartners, createPartner, deletePartner, seedPartnersIfEmpty } from '../services/partnersService';
+import type { PartnerType } from '../services/partnersService';
+import partnersApiService, { type ApiPartner } from '../services/partnersApiService';
 
-// Using Partner and PartnerType from service for single source of truth
+// Using ApiPartner and PartnerType from service for single source of truth
 
 const PartnerManagementPage: React.FC = () => {
-  const [partners, setPartners] = useState<Partner[]>([]);
-
+  const [partners, setPartners] = useState<ApiPartner[]>([]);
   const [activeTab, setActiveTab] = useState<PartnerType | 'all'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPartner, setNewPartner] = useState({ fullName: '', email: '', type: 'formateur' as PartnerType });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const filteredPartners = useMemo(() => {
     if (activeTab === 'all') return partners;
@@ -19,24 +21,100 @@ const PartnerManagementPage: React.FC = () => {
   }, [partners, activeTab]);
 
   useEffect(() => {
-    seedPartnersIfEmpty();
-    setPartners(listPartners());
-  }, []);
+    loadPartners();
+  }, [activeTab]);
 
-  const refresh = () => setPartners(listPartners());
-
-  const handleAddPartner = (e: React.FormEvent) => {
-    e.preventDefault();
-    createPartner({ fullName: newPartner.fullName, email: newPartner.email, type: newPartner.type });
-    refresh();
-    setIsModalOpen(false);
-    setNewPartner({ fullName: '', email: '', type: 'formateur' as PartnerType });
+  const loadPartners = async () => {
+    try {
+      const partnersData = await partnersApiService.getAllPartners(activeTab === 'all' ? undefined : activeTab);
+      setPartners(partnersData);
+    } catch (error) {
+      console.error('Erreur lors du chargement des partenaires:', error);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleAddPartner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setIsLoading(true);
+    
+    // Validation côté client
+    if (!newPartner.fullName.trim()) {
+      setError('Le nom complet est requis');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!newPartner.email.trim()) {
+      setError('L\'email est requis');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Validation format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newPartner.email.trim())) {
+      setError('Format d\'email invalide');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Vérifier si l'email existe déjà côté client
+    const existingPartner = partners.find(p => p.email.toLowerCase() === newPartner.email.toLowerCase());
+    if (existingPartner) {
+      setError(`Un partenaire avec cet email existe déjà: ${existingPartner.fullName} (${existingPartner.partnerId})`);
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      await partnersApiService.createPartner({ 
+        fullName: newPartner.fullName.trim(), 
+        email: newPartner.email.toLowerCase().trim(), 
+        type: newPartner.type,
+        isActive: true
+      });
+      await loadPartners();
+      setIsModalOpen(false);
+      setNewPartner({ fullName: '', email: '', type: 'formateur' as PartnerType });
+      setSuccess(`Partenaire ${newPartner.type} créé avec succès!`);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error: any) {
+      console.error('Erreur lors de la création du partenaire:', error);
+      
+      // Messages d'erreur plus spécifiques
+      let errorMessage = 'Erreur lors de la création du partenaire';
+      
+      if (error.message) {
+        if (error.message.includes('email existe déjà')) {
+          errorMessage = 'Un partenaire avec cet email existe déjà dans la base de données';
+        } else if (error.message.includes('validation')) {
+          errorMessage = 'Données invalides. Vérifiez les champs requis';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Erreur de connexion au serveur. Vérifiez votre connexion';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (confirm('Supprimer ce partenaire ?')) {
-      deletePartner(id);
-      refresh();
+      try {
+        await partnersApiService.deletePartner(id);
+        await loadPartners();
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        alert('Erreur lors de la suppression du partenaire');
+      }
     }
   };
 
@@ -71,6 +149,57 @@ const PartnerManagementPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Messages d'erreur et de succès */}
+      {error && (
+        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setError(null)}
+                className="inline-flex text-red-400 hover:text-red-600"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {success && (
+        <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium">{success}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setSuccess(null)}
+                className="inline-flex text-green-400 hover:text-green-600"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tabs for filtering */}
       <div className="mb-4 border-b border-gray-200">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
@@ -104,16 +233,16 @@ const PartnerManagementPage: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredPartners.map(partner => (
-              <tr key={partner.id}>
+              <tr key={partner.partnerId}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700">
                   <div className="flex items-center gap-2">
-                    <span>{partner.id}</span>
+                    <span>{partner.partnerId}</span>
                     <button
                       type="button"
                       onClick={async () => {
                         try {
-                          await navigator.clipboard.writeText(partner.id);
-                          setCopiedId(partner.id);
+                          await navigator.clipboard.writeText(partner.partnerId);
+                          setCopiedId(partner.partnerId);
                           setTimeout(() => setCopiedId(null), 1200);
                         } catch (err) {
                           // Clipboard API may be unavailable in some contexts
@@ -125,7 +254,7 @@ const PartnerManagementPage: React.FC = () => {
                     >
                       <DocumentDuplicateIcon className="h-4 w-4" />
                     </button>
-                    {copiedId === partner.id && (
+                    {copiedId === partner.partnerId && (
                       <span className="text-xs text-green-600">Copié</span>
                     )}
                   </div>
@@ -139,7 +268,7 @@ const PartnerManagementPage: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button className="text-indigo-600 hover:text-indigo-900"><PencilIcon className="h-5 w-5" /></button>
-                  <button onClick={() => handleDelete(partner.id)} className="text-red-600 hover:text-red-900 ml-4"><TrashIcon className="h-5 w-5" /></button>
+                  <button onClick={() => handleDelete(partner.partnerId)} className="text-red-600 hover:text-red-900 ml-4"><TrashIcon className="h-5 w-5" /></button>
                 </td>
               </tr>
             ))}
@@ -170,9 +299,43 @@ const PartnerManagementPage: React.FC = () => {
                   <option value="entreprise">Entreprise</option>
                 </select>
               </div>
+              {/* Messages d'erreur dans le modal */}
+              {error && (
+                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+                  {error}
+                </div>
+              )}
+              
               <div className="flex items-center justify-end space-x-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Annuler</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Ajouter</button>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setError(null);
+                    setNewPartner({ fullName: '', email: '', type: 'formateur' as PartnerType });
+                  }} 
+                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300"
+                  disabled={isLoading}
+                >
+                  Annuler
+                </button>
+                <button 
+                  type="submit" 
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Création...
+                    </>
+                  ) : (
+                    'Ajouter'
+                  )}
+                </button>
               </div>
             </form>
           </div>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 اختبار إصلاح الإشعارات</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f0f2f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .critical { background: #ff4757; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .success { background: #2ed573; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .error { background: #ff4757; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .info { background: #3742fa; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #3742fa; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #2f3542; }
+        button.urgent { background: #ff4757; }
+        .result { margin: 10px 0; padding: 12px; border-radius: 6px; background: #f8f9fa; border-left: 4px solid #3742fa; }
+        h1 { color: #2f3542; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 اختبار إصلاح مشكلة تكرار الإشعارات</h1>
+        
+        <div class="critical">
+            <h3>🚨 المشكلة</h3>
+            <p>عند إنشاء إشعار واحد، يتم إنشاء نسختين:</p>
+            <ul>
+                <li>نسخة مع الرابط في Admin Panel</li>
+                <li>نسخة بدون رابط تظهر في Espace Participant</li>
+            </ul>
+        </div>
+
+        <button onclick="checkCurrentData()" class="urgent">🔍 فحص البيانات الحالية</button>
+        <button onclick="cleanLocalStorage()">🧹 تنظيف localStorage</button>
+        <button onclick="testInstructions()">📋 تعليمات الاختبار</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+        }
+
+        async function checkCurrentData() {
+            log('🔍 فحص البيانات الحالية...', 'info');
+            
+            try {
+                // Check API
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        log(`📊 قاعدة البيانات: ${data.data.length} إشعار`, 'success');
+                        
+                        data.data.forEach((notif, index) => {
+                            log(`📋 ${index + 1}. "${notif.title}" - رابط: ${notif.link ? '✅' : '❌'}`, notif.link ? 'success' : 'error');
+                        });
+                    }
+                } else {
+                    log('❌ خطأ في الاتصال بقاعدة البيانات', 'error');
+                }
+                
+                // Check localStorage
+                const backup = localStorage.getItem('matc_notifications_backup');
+                if (backup) {
+                    const notifications = JSON.parse(backup);
+                    log(`💾 localStorage: ${notifications.length} إشعار`, 'info');
+                    
+                    notifications.forEach((notif, index) => {
+                        log(`📋 ${index + 1}. "${notif.title}" - رابط: ${notif.link ? '✅' : '❌'}`, notif.link ? 'success' : 'error');
+                    });
+                } else {
+                    log('📁 localStorage فارغ', 'info');
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        function cleanLocalStorage() {
+            log('🧹 تنظيف localStorage...', 'info');
+            
+            // Remove notifications backup
+            localStorage.removeItem('matc_notifications_backup');
+            log('✅ تم حذف matc_notifications_backup', 'success');
+            
+            // List all MATC related items
+            const matcKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.toLowerCase().includes('matc')) {
+                    matcKeys.push(key);
+                }
+            }
+            
+            if (matcKeys.length > 0) {
+                log(`🔍 عناصر MATC أخرى في localStorage: ${matcKeys.join(', ')}`, 'info');
+                
+                matcKeys.forEach(key => {
+                    localStorage.removeItem(key);
+                    log(`🗑️ تم حذف ${key}`, 'success');
+                });
+            }
+            
+            log('🎉 تم تنظيف localStorage بالكامل', 'success');
+        }
+
+        function testInstructions() {
+            log('📋 تعليمات الاختبار:', 'info');
+            log('1. نظف localStorage بالزر أعلاه', 'info');
+            log('2. اذهب إلى Admin Panel: http://localhost:8536/participants', 'info');
+            log('3. ابحث عن "ismael gharbi"', 'info');
+            log('4. اضغط "Modifier"', 'info');
+            log('5. أضف إشعار جديد مع رابط', 'info');
+            log('6. احفظ التغييرات', 'info');
+            log('7. ارجع هنا واضغط "فحص البيانات الحالية"', 'info');
+            log('8. اذهب إلى Espace Participant: http://localhost:5173/espace-participant', 'info');
+            log('9. سجل دخول: PART-550776 / gharbi@gmail.com', 'info');
+            log('10. اضغط على الإشعارات وتحقق من ظهور الرابط', 'info');
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🎯 أداة اختبار إصلاح الإشعارات', 'success');
+                log('🔧 تم تطبيق الإصلاحات التالية:', 'info');
+                log('   ✅ منع دمج البيانات من localStorage', 'success');
+                log('   ✅ استخدام بيانات الخادم كمصدر أساسي', 'success');
+                log('   ✅ تبسيط منطق إضافة الإشعارات', 'success');
+                
+                checkCurrentData();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

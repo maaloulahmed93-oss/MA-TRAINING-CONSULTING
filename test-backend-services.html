@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Services - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #dc2626;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .critical-button {
+            padding: 25px 50px;
+            font-size: 22px;
+            width: 100%;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Test Backend Services</h1>
+            <p>Test direct du backend pour identifier le problème</p>
+        </div>
+
+        <!-- Problème Identifié -->
+        <div class="test-section">
+            <h3>🚨 PROBLÈME IDENTIFIÉ:</h3>
+            <ul>
+                <li><strong>Frontend:</strong> API retourne Array(0) - aucun service</li>
+                <li><strong>Backend Logs:</strong> "Service créé: programme, ddddddd, etc."</li>
+                <li><strong>Contradiction:</strong> Services créés mais pas récupérés</li>
+                <li><strong>Cause probable:</strong> Problème dans CommercialService model ou query</li>
+            </ul>
+        </div>
+
+        <!-- Test Backend Direct -->
+        <div style="text-align: center;">
+            <button class="critical-button" onclick="testBackendDirect()">
+                🔍 TEST BACKEND DIRECT - VÉRITÉ TERRAIN
+            </button>
+            <div id="backend-result" class="result"></div>
+        </div>
+
+        <!-- Tests Spécifiques -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>📝 Test Création</h3>
+                <button onclick="testCreation()">➕ Créer Service</button>
+                <div id="creation-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>📋 Test Récupération</h3>
+                <button onclick="testRecuperation()">📋 GET Services</button>
+                <div id="get-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Diagnostic -->
+        <div style="margin-top: 30px; padding: 25px; background: #fef2f2; border: 2px solid #dc2626; border-radius: 10px;">
+            <h3>🎯 Diagnostic Probable:</h3>
+            <p><strong>Le problème est dans le query MongoDB:</strong></p>
+            <ul>
+                <li>Services créés avec <code>isActive: true</code> par défaut</li>
+                <li>GET query cherche <code>{ isActive: true }</code></li>
+                <li>Possible: field name mismatch ou validation error</li>
+                <li>Solution: Vérifier les documents MongoDB directement</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function testBackendDirect() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔍 TEST BACKEND DIRECT...\n\n';
+
+            try {
+                // Test 1: GET Services
+                resultDiv.textContent += '1️⃣ TEST GET SERVICES...\n';
+                const getResponse = await fetch(`${API_BASE}/admin/services`);
+                const getResult = await getResponse.json();
+                
+                resultDiv.textContent += `GET Status: ${getResponse.status}\n`;
+                resultDiv.textContent += `GET Success: ${getResult.success}\n`;
+                resultDiv.textContent += `GET Data Length: ${getResult.data?.length || 0}\n`;
+                resultDiv.textContent += `GET Response: ${JSON.stringify(getResult, null, 2)}\n\n`;
+
+                // Test 2: POST Service
+                resultDiv.textContent += '2️⃣ TEST POST SERVICE...\n';
+                const testService = {
+                    titre: `Backend Test ${Date.now()}`,
+                    description: 'Service créé pour test backend direct',
+                    categorie: 'Test Backend',
+                    prixPublic: 500,
+                    prixCommercial: 400,
+                    commission: 100,
+                    duree: '2h'
+                };
+
+                const postResponse = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testService)
+                });
+
+                const postResult = await postResponse.json();
+                
+                resultDiv.textContent += `POST Status: ${postResponse.status}\n`;
+                resultDiv.textContent += `POST Success: ${postResult.success}\n`;
+                resultDiv.textContent += `POST Response: ${JSON.stringify(postResult, null, 2)}\n\n`;
+
+                // Test 3: GET après POST
+                resultDiv.textContent += '3️⃣ TEST GET APRÈS POST...\n';
+                const reGetResponse = await fetch(`${API_BASE}/admin/services`);
+                const reGetResult = await reGetResponse.json();
+                
+                resultDiv.textContent += `Re-GET Status: ${reGetResponse.status}\n`;
+                resultDiv.textContent += `Re-GET Success: ${reGetResult.success}\n`;
+                resultDiv.textContent += `Re-GET Data Length: ${reGetResult.data?.length || 0}\n`;
+
+                // Diagnostic
+                if (postResult.success && reGetResult.data && reGetResult.data.length > 0) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n✅ BACKEND FONCTIONNE!\n';
+                    resultDiv.textContent += 'Services créés et récupérés avec succès.\n';
+                    resultDiv.textContent += 'Le problème était temporaire ou résolu.';
+                } else if (postResult.success && reGetResult.data?.length === 0) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ PROBLÈME CONFIRMÉ!\n';
+                    resultDiv.textContent += 'Service créé mais pas récupéré.\n';
+                    resultDiv.textContent += 'Problème dans le query MongoDB ou model.';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ PROBLÈME CRÉATION!\n';
+                    resultDiv.textContent += 'Service ne peut pas être créé.';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR: ${error.message}`;
+            }
+        }
+
+        async function testCreation() {
+            const resultDiv = document.getElementById('creation-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '➕ Test Création...\n\n';
+
+            const newService = {
+                titre: `Test Création ${new Date().toLocaleTimeString()}`,
+                description: 'Service pour test de création',
+                categorie: 'Test',
+                prixPublic: 300,
+                prixCommercial: 240,
+                commission: 60,
+                duree: '1h30'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newService)
+                });
+
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Response: ${JSON.stringify(result, null, 2)}\n`;
+
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `\n✅ Service créé: ${result.data?.titre}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `\n❌ Création échouée: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testRecuperation() {
+            const resultDiv = document.getElementById('get-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test Récupération...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Data Length: ${result.data?.length || 0}\n\n`;
+                resultDiv.textContent += `Full Response:\n${JSON.stringify(result, null, 2)}\n`;
+
+                if (result.success && result.data && result.data.length > 0) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `\n✅ ${result.data.length} services récupérés`;
+                } else if (result.success && result.data?.length === 0) {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '\n⚠️ Aucun service trouvé en base';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ Erreur de récupération';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🔍 Test Backend Services chargé');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notification Fields Match - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.urgent { background: #ff6b6b; color: white; font-weight: bold; }
+        button.success { background: #28a745; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Test Notification Fields Match - MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Composant Notifications.tsx mis à jour!</h3>
+            <p>Le composant a été modifié pour supporter tous les types d'Admin Panel:</p>
+            <ul>
+                <li><strong>information/info:</strong> title, description, link, uploadLink</li>
+                <li><strong>offre_emploi:</strong> company, jobTitle, salary, contractType, contact, phone, email</li>
+                <li><strong>job (ancien):</strong> jobTitle, company, salary, contractType, contact</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h3>🎯 Correspondance Admin Panel ↔ Espace Participant</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">Admin Panel Field</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Espace Participant Display</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Poste</strong> (job.jobTitle)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Poste: {jobTitle}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Supporté</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Entreprise</strong> (job.company)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Entreprise: {company}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Supporté</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Salaire</strong> (job.salary)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Salaire: {salary}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Supporté</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Contrat</strong> (job.contractType)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Contrat: {contractType}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Supporté</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Contact</strong> (job.contact)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Contact: {contact}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Supporté</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Lien de téléchargement</strong> (info.uploadLink)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Lien de téléchargement: [bouton]</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">✅ Supporté</td>
+                </tr>
+            </table>
+        </div>
+
+        <button onclick="addTestNotificationsWithAllFields()" class="urgent">➕ Add Test Notifications</button>
+        <button onclick="checkFieldsDisplay()">🔍 Check Fields Display</button>
+        <button onclick="testEspaceParticipant()" class="success">🖥️ Test Final Result</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function addTestNotificationsWithAllFields() {
+            log('➕ Ajout de notifications de test avec tous les champs Admin Panel...', 'info');
+            
+            // Clear existing notifications first
+            try {
+                const getResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (getResponse.ok) {
+                    const getData = await getResponse.json();
+                    if (getData.success && getData.data) {
+                        await fetch('http://localhost:3001/api/participants/PART-550776', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...getData.data,
+                                notifications: []
+                            })
+                        });
+                        log('🗑️ Anciennes notifications supprimées', 'success');
+                    }
+                }
+            } catch (error) {
+                log(`⚠️ Erreur suppression: ${error.message}`, 'warning');
+            }
+            
+            const testNotifications = [
+                // Type: job (ancien format Admin Panel)
+                {
+                    title: 'Développeur Frontend',
+                    message: 'Offre d\'emploi - Développeur Frontend React',
+                    type: 'job',
+                    jobTitle: 'Développeur Frontend Senior',
+                    company: 'TechCorp Solutions',
+                    salary: '45000-55000 EUR/an',
+                    contractType: 'CDI',
+                    contact: 'Marie Dupont - Responsable RH (marie.dupont@techcorp.com)',
+                    description: 'Nous recherchons un développeur Frontend expérimenté en React.js pour rejoindre notre équipe technique.',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    priority: 'high'
+                },
+                
+                // Type: info (ancien format Admin Panel)
+                {
+                    title: 'Guide de Formation React',
+                    message: 'Nouveau guide de formation disponible',
+                    type: 'info',
+                    description: 'Guide complet pour apprendre React.js avec des exemples pratiques et des exercices.',
+                    uploadLink: 'https://example.com/download/guide-react.pdf',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    priority: 'medium'
+                },
+                
+                // Type: offre_emploi (nouveau format)
+                {
+                    title: 'Chef de Projet Digital',
+                    message: 'Opportunité exceptionnelle en gestion de projet',
+                    type: 'offre_emploi',
+                    company: 'Digital Innovations',
+                    jobTitle: 'Chef de Projet Digital Senior',
+                    salary: '55000-70000 EUR/an',
+                    contractType: 'CDI',
+                    contact: 'Ahmed Ben Ali - Directeur Technique',
+                    phone: '+33123456789',
+                    email: 'recrutement@digital-innovations.com',
+                    environment: 'Bureaux modernes à Lyon, télétravail 2j/semaine',
+                    benefits: 'Mutuelle, tickets restaurant, formation continue, prime de performance',
+                    description: 'Nous recherchons un chef de projet expérimenté pour piloter nos projets de transformation digitale.',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    priority: 'high'
+                },
+                
+                // Type: information (nouveau format)
+                {
+                    title: 'Certification AWS disponible',
+                    message: 'Nouvelle certification AWS Cloud Practitioner',
+                    type: 'information',
+                    description: 'Formation complète pour obtenir la certification AWS Cloud Practitioner avec support personnalisé.',
+                    link: 'https://matc.com/formations/aws-certification',
+                    uploadLink: 'https://matc.com/download/syllabus-aws.pdf',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    priority: 'medium'
+                }
+            ];
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < testNotifications.length; i++) {
+                const notification = testNotifications[i];
+                log(`📤 Ajout ${i + 1}/4: "${notification.title}" (${notification.type})`, 'info');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            log(`✅ SUCCESS: "${notification.title}" avec champs ${notification.type}`, 'success');
+                            successCount++;
+                        }
+                    }
+                } catch (error) {
+                    log(`❌ Erreur: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            log(`📊 RÉSULTAT: ${successCount}/4 notifications de test ajoutées`, 
+                successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                log('🎉 Notifications de test ajoutées! Testez maintenant dans espace participant', 'success');
+            }
+        }
+
+        async function checkFieldsDisplay() {
+            log('🔍 Vérification de l\'affichage des champs...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.length > 0) {
+                        log(`✅ ${data.data.length} notifications trouvées`, 'success');
+                        
+                        data.data.forEach((notif, index) => {
+                            log(`📋 Notification ${index + 1}: "${notif.title}" (${notif.type})`, 'info');
+                            
+                            if (notif.type === 'job') {
+                                log(`   💼 Champs job (ancien):`, 'info');
+                                log(`   - jobTitle: ${notif.jobTitle ? '✅' : '❌'} "${notif.jobTitle || 'N/A'}"`, 
+                                    notif.jobTitle ? 'success' : 'warning');
+                                log(`   - company: ${notif.company ? '✅' : '❌'} "${notif.company || 'N/A'}"`, 
+                                    notif.company ? 'success' : 'warning');
+                                log(`   - salary: ${notif.salary ? '✅' : '❌'} "${notif.salary || 'N/A'}"`, 
+                                    notif.salary ? 'success' : 'warning');
+                                log(`   - contractType: ${notif.contractType ? '✅' : '❌'} "${notif.contractType || 'N/A'}"`, 
+                                    notif.contractType ? 'success' : 'warning');
+                                log(`   - contact: ${notif.contact ? '✅' : '❌'} "${notif.contact || 'N/A'}"`, 
+                                    notif.contact ? 'success' : 'warning');
+                            }
+                            
+                            if (notif.type === 'info') {
+                                log(`   📄 Champs info (ancien):`, 'info');
+                                log(`   - description: ${notif.description ? '✅' : '❌'} "${notif.description ? notif.description.substring(0, 50) + '...' : 'N/A'}"`, 
+                                    notif.description ? 'success' : 'warning');
+                                log(`   - uploadLink: ${notif.uploadLink ? '✅' : '❌'} "${notif.uploadLink || 'N/A'}"`, 
+                                    notif.uploadLink ? 'success' : 'warning');
+                            }
+                            
+                            if (notif.type === 'offre_emploi') {
+                                log(`   💼 Champs offre_emploi (nouveau):`, 'info');
+                                log(`   - company: ${notif.company ? '✅' : '❌'} "${notif.company || 'N/A'}"`, 
+                                    notif.company ? 'success' : 'warning');
+                                log(`   - phone: ${notif.phone ? '✅' : '❌'} "${notif.phone || 'N/A'}"`, 
+                                    notif.phone ? 'success' : 'warning');
+                                log(`   - email: ${notif.email ? '✅' : '❌'} "${notif.email || 'N/A'}"`, 
+                                    notif.email ? 'success' : 'warning');
+                            }
+                            
+                            if (notif.type === 'information') {
+                                log(`   📄 Champs information (nouveau):`, 'info');
+                                log(`   - link: ${notif.link ? '✅' : '❌'} "${notif.link || 'N/A'}"`, 
+                                    notif.link ? 'success' : 'warning');
+                                log(`   - uploadLink: ${notif.uploadLink ? '✅' : '❌'} "${notif.uploadLink || 'N/A'}"`, 
+                                    notif.uploadLink ? 'success' : 'warning');
+                            }
+                            
+                            log('---', 'info');
+                        });
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEspaceParticipant() {
+            log('🖥️ Test final dans Espace Participant...', 'info');
+            
+            log('📋 Instructions de test:', 'warning');
+            log('1. Allez sur: http://localhost:5173/espace-participant', 'info');
+            log('2. Rechargez la page (Ctrl+F5) pour vider le cache', 'info');
+            log('3. Connectez-vous: PART-550776 / gharbi@gmail.com', 'info');
+            log('4. Cliquez sur Notifications (🔔)', 'info');
+            log('5. Vérifiez que vous voyez maintenant TOUS les détails:', 'info');
+            
+            log('📄 Pour "Guide de Formation React" (info):', 'success');
+            log('   - Section bleue "Détails Information"', 'info');
+            log('   - Description complète affichée', 'info');
+            log('   - Bouton "Télécharger" pour le PDF', 'info');
+            
+            log('💼 Pour "Développeur Frontend" (job ancien):', 'success');
+            log('   - Section grise "Détails de l\'emploi (ancien format)"', 'info');
+            log('   - Poste: Développeur Frontend Senior', 'info');
+            log('   - Entreprise: TechCorp Solutions', 'info');
+            log('   - Salaire: 45000-55000 EUR/an', 'info');
+            log('   - Contrat: CDI', 'info');
+            log('   - Contact: Marie Dupont - Responsable RH', 'info');
+            
+            log('💼 Pour "Chef de Projet Digital" (offre_emploi nouveau):', 'success');
+            log('   - Section verte "Détails de l\'offre d\'emploi"', 'info');
+            log('   - Entreprise: Digital Innovations', 'info');
+            log('   - Téléphone cliquable: +33123456789', 'info');
+            log('   - Email cliquable: recrutement@digital-innovations.com', 'info');
+            log('   - Environnement et avantages complets', 'info');
+            
+            log('📄 Pour "Certification AWS" (information nouveau):', 'success');
+            log('   - Section bleue "Détails Information"', 'info');
+            log('   - Bouton "Accéder au lien" pour la formation', 'info');
+            log('   - Bouton "Télécharger" pour le syllabus', 'info');
+            
+            log('🎯 RÉSULTAT ATTENDU:', 'warning');
+            log('Tous les champs de Admin Panel doivent maintenant être visibles!', 'success');
+            
+            // Auto-check
+            setTimeout(() => {
+                checkFieldsDisplay();
+            }, 2000);
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('✅ Composant Notifications.tsx mis à jour pour correspondre à Admin Panel', 'success');
+                log('🎯 Support complet pour tous les types: job, info, offre_emploi, information', 'success');
+                log('⚡ Ajoutez des notifications de test pour vérifier l\'affichage', 'info');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

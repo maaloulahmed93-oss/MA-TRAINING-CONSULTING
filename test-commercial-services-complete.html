@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Commercial Services Complete - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #3b82f6;
+            border-bottom: 3px solid #dbeafe;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #3b82f6;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .test-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .test-card {
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Test Commercial Services Complete</h1>
+            <p>Test complet du nouveau système /api/commercial-services</p>
+        </div>
+
+        <!-- Fix Appliqué -->
+        <div class="test-section">
+            <h3>🔧 NOUVEAU SYSTÈME APPLIQUÉ:</h3>
+            <ul>
+                <li>✅ <strong>Route Backend:</strong> /api/commercial-services (séparé de commercial-new)</li>
+                <li>✅ <strong>Frontend Update:</strong> CommercialServicesPage.tsx mis à jour</li>
+                <li>✅ <strong>Assignment System:</strong> /api/commercial-services/assign</li>
+                <li>✅ <strong>Commercial Access:</strong> /api/commercial-services/commercial/:partnerId</li>
+            </ul>
+        </div>
+
+        <!-- Testing Plan -->
+        <div class="grid">
+            <div class="test-card">
+                <h3>1️⃣ Test GET Services</h3>
+                <button class="test-button" onclick="testGetServices()">
+                    📋 GET SERVICES
+                </button>
+                <div id="get-result" class="result"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>2️⃣ Test POST Service</h3>
+                <button class="test-button" onclick="testCreateService()">
+                    ➕ CREATE SERVICE
+                </button>
+                <div id="create-result" class="result"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>3️⃣ Test Assignment</h3>
+                <button class="test-button" onclick="testAssignment()">
+                    🔗 ASSIGN SERVICE
+                </button>
+                <div id="assign-result" class="result"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>4️⃣ Test Commercial Access</h3>
+                <button class="test-button" onclick="testCommercialAccess()">
+                    👤 COMMERCIAL SERVICES
+                </button>
+                <div id="commercial-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Complete Test -->
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="test-button" onclick="testCompletWorkflow()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                🚀 TEST COMPLET WORKFLOW
+            </button>
+            <div id="complete-result" class="result"></div>
+        </div>
+
+        <!-- Expected Logs -->
+        <div style="margin-top: 30px; padding: 25px; background: #f8fafc; border: 2px solid #64748b; border-radius: 10px;">
+            <h3>📊 Logs Console Attendus:</h3>
+            <pre style="background: #1f2937; color: #f3f4f6; padding: 15px; border-radius: 8px; font-size: 12px;">
+🔍 GET /api/commercial-services - Récupération des services...
+🔍 Total services in DB: 3
+  - Formation Leadership (isActive: true)
+  - Marketing Digital (isActive: true)  
+  - Service Test SEO (isActive: true)
+📊 3 services actifs trouvés
+🎯 Retour de 3 services au frontend
+
+📝 POST /api/commercial-services - Création d'un nouveau service...
+✅ Service créé avec succès: Service Test SEO
+📊 Service ID: 507f1f77bcf86cd799439011
+🔧 isActive: true
+
+🔗 POST /api/commercial-services/assign - Assignment service...
+✅ Service "Service Test SEO" assigné au commercial COM-451764
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-services';
+        const COMMERCIAL_API = 'http://localhost:3001/api/commercial-new';
+
+        async function testGetServices() {
+            const resultDiv = document.getElementById('get-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test GET Services...\n\n';
+
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Message: ${result.message}\n`;
+                resultDiv.textContent += `Services Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.data && result.data.length > 0) {
+                    resultDiv.textContent += 'Services trouvés:\n';
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                        resultDiv.textContent += `   - Commission: ${service.commission}€\n`;
+                        resultDiv.textContent += `   - isActive: ${service.isActive}\n`;
+                        resultDiv.textContent += `   - ID: ${service._id}\n\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ GET Services réussi!';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Aucun service trouvé';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCreateService() {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '➕ Test CREATE Service...\n\n';
+
+            const newService = {
+                titre: `Service Test SEO ${Date.now()}`,
+                description: 'Formation complète en référencement naturel et payant',
+                categorie: 'Marketing Digital',
+                prixPublic: 2500,
+                prixCommercial: 2000,
+                commission: 500,
+                duree: '5 jours'
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newService)
+                });
+
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Message: ${result.message}\n\n`;
+                
+                if (result.data) {
+                    resultDiv.textContent += 'Service créé:\n';
+                    resultDiv.textContent += `- Titre: ${result.data.titre}\n`;
+                    resultDiv.textContent += `- Commission: ${result.data.commission}€\n`;
+                    resultDiv.textContent += `- isActive: ${result.data.isActive}\n`;
+                    resultDiv.textContent += `- ID: ${result.data._id}\n`;
+                }
+
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n✅ Service créé avec succès!';
+                    
+                    // Store service ID for assignment test
+                    window.testServiceId = result.data._id;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ Création échouée';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testAssignment() {
+            const resultDiv = document.getElementById('assign-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔗 Test Assignment...\n\n';
+
+            try {
+                // 1. Get services
+                const servicesResponse = await fetch(API_BASE);
+                const servicesResult = await servicesResponse.json();
+                
+                // 2. Get commercials
+                const commercialsResponse = await fetch(`${COMMERCIAL_API}/admin/commercials`);
+                const commercialsResult = await commercialsResponse.json();
+                
+                resultDiv.textContent += `Services disponibles: ${servicesResult.data?.length || 0}\n`;
+                resultDiv.textContent += `Commerciaux disponibles: ${commercialsResult.data?.length || 0}\n\n`;
+
+                if (servicesResult.data?.length > 0 && commercialsResult.data?.length > 0) {
+                    const service = servicesResult.data[0];
+                    const commercial = commercialsResult.data[0];
+                    
+                    resultDiv.textContent += `Service sélectionné: ${service.titre}\n`;
+                    resultDiv.textContent += `Commercial sélectionné: ${commercial.partnerId}\n\n`;
+                    
+                    // 3. Test assignment
+                    const assignResponse = await fetch(`${API_BASE}/assign`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            serviceId: service._id,
+                            commercialId: commercial._id
+                        })
+                    });
+
+                    const assignResult = await assignResponse.json();
+                    
+                    resultDiv.textContent += `Assignment Status: ${assignResponse.status}\n`;
+                    resultDiv.textContent += `Assignment Success: ${assignResult.success}\n`;
+                    resultDiv.textContent += `Message: ${assignResult.message}\n`;
+
+                    if (assignResult.success) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n✅ Assignment réussi!';
+                        
+                        // Store for commercial test
+                        window.testPartnerId = commercial.partnerId;
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.textContent += '\n⚠️ Assignment échoué';
+                    }
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Pas assez de données pour tester assignment';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCommercialAccess() {
+            const resultDiv = document.getElementById('commercial-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '👤 Test Commercial Access...\n\n';
+
+            const partnerId = window.testPartnerId || 'COM-451764';
+            resultDiv.textContent += `Test pour commercial: ${partnerId}\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial/${partnerId}`);
+                const result = await response.json();
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Success: ${result.success}\n`;
+                resultDiv.textContent += `Message: ${result.message}\n`;
+                resultDiv.textContent += `Services assignés: ${result.data?.length || 0}\n\n`;
+
+                if (result.data && result.data.length > 0) {
+                    resultDiv.textContent += 'Services du commercial:\n';
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += `${index + 1}. ${service.titre}\n`;
+                        resultDiv.textContent += `   - Commission: ${service.commission}€\n`;
+                        resultDiv.textContent += `   - Prix commercial: ${service.prixCommercial}€\n\n`;
+                    });
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ Commercial access réussi!';
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent += '⚠️ Aucun service assigné à ce commercial';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCompletWorkflow() {
+            const resultDiv = document.getElementById('complete-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 TEST COMPLET WORKFLOW...\n\n';
+
+            try {
+                // Step 1: Create service
+                resultDiv.textContent += 'STEP 1: Création service SEO...\n';
+                const newService = {
+                    titre: `SEO Complete ${Date.now()}`,
+                    description: 'Formation SEO complète avec cas pratiques',
+                    categorie: 'Marketing Digital',
+                    prixPublic: 3000,
+                    prixCommercial: 2400,
+                    commission: 600,
+                    duree: '6 jours'
+                };
+
+                const createResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newService)
+                });
+                const createResult = await createResponse.json();
+                
+                if (!createResult.success) {
+                    throw new Error('Création service échouée');
+                }
+                
+                resultDiv.textContent += `✅ Service créé: ${createResult.data.titre}\n\n`;
+
+                // Step 2: Verify service appears in list
+                resultDiv.textContent += 'STEP 2: Vérification dans liste...\n';
+                const getResponse = await fetch(API_BASE);
+                const getResult = await getResponse.json();
+                
+                const serviceFound = getResult.data?.find(s => s._id === createResult.data._id);
+                if (!serviceFound) {
+                    throw new Error('Service créé non trouvé dans la liste');
+                }
+                
+                resultDiv.textContent += `✅ Service trouvé dans liste: ${serviceFound.titre}\n\n`;
+
+                // Step 3: Get commercial
+                resultDiv.textContent += 'STEP 3: Récupération commercial...\n';
+                const commercialsResponse = await fetch(`${COMMERCIAL_API}/admin/commercials`);
+                const commercialsResult = await commercialsResponse.json();
+                
+                if (!commercialsResult.data?.length) {
+                    throw new Error('Aucun commercial trouvé');
+                }
+                
+                const commercial = commercialsResult.data[0];
+                resultDiv.textContent += `✅ Commercial trouvé: ${commercial.partnerId}\n\n`;
+
+                // Step 4: Assignment
+                resultDiv.textContent += 'STEP 4: Assignment service...\n';
+                const assignResponse = await fetch(`${API_BASE}/assign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        serviceId: createResult.data._id,
+                        commercialId: commercial._id
+                    })
+                });
+                const assignResult = await assignResponse.json();
+                
+                if (!assignResult.success) {
+                    throw new Error('Assignment échoué');
+                }
+                
+                resultDiv.textContent += `✅ Assignment réussi: ${assignResult.message}\n\n`;
+
+                // Step 5: Verify commercial access
+                resultDiv.textContent += 'STEP 5: Vérification espace commercial...\n';
+                const commercialResponse = await fetch(`${API_BASE}/commercial/${commercial.partnerId}`);
+                const commercialResult = await commercialResponse.json();
+                
+                const assignedService = commercialResult.data?.find(s => s._id === createResult.data._id);
+                if (!assignedService) {
+                    throw new Error('Service non trouvé dans espace commercial');
+                }
+                
+                resultDiv.textContent += `✅ Service visible dans espace commercial: ${assignedService.titre}\n\n`;
+
+                // Success
+                resultDiv.className = 'result success';
+                resultDiv.textContent += '🎉 WORKFLOW COMPLET RÉUSSI!\n';
+                resultDiv.textContent += 'Tous les steps fonctionnent parfaitement:\n';
+                resultDiv.textContent += '1. ✅ Création service\n';
+                resultDiv.textContent += '2. ✅ Apparition dans Panel\n';
+                resultDiv.textContent += '3. ✅ Assignment commercial\n';
+                resultDiv.textContent += '4. ✅ Visibilité espace commercial\n';
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ WORKFLOW ÉCHOUÉ: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🎯 Test Commercial Services Complete chargé');
+        };
+    </script>
+</body>
+</html>

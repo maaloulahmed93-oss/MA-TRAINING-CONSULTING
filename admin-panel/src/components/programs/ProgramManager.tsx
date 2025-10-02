@@ -105,7 +105,7 @@ const ProgramManager: React.FC = () => {
           console.log('📊 Programs received:', programs.length);
           console.log('📊 First program:', programs[0]);
           
-          setPrograms([...programs]);
+          setPrograms(programs); // Replace entire state to avoid duplicates
           
           if (programs.length === 0) {
             setError('Aucun programme trouvé dans la base de données');
@@ -145,14 +145,13 @@ const ProgramManager: React.FC = () => {
     fetchCategories();
   }, []);
 
-  // Auto-refresh every 30 seconds to keep data synchronized
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchPrograms();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Auto-refresh disabled to prevent conflicts during form submission
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchPrograms();
+  //   }, 30000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // Handle form submission using axios
   const handleSubmit = async (e: React.FormEvent) => {
@@ -196,28 +195,11 @@ const ProgramManager: React.FC = () => {
 
       if (response.data.success) {
         console.log('✅ Programme sauvegardé avec succès via axios');
-        console.log('🔄 Force refresh des programmes...');
+        console.log('🔄 Refresh des programmes...');
         
-        // Force refresh immédiat + delayed refresh pour s'assurer de la mise à jour
+        // Un seul refresh pour éviter les doublons
         await fetchPrograms();
-        
-        // Deuxième refresh après délai pour s'assurer que la DB est mise à jour
-        setTimeout(async () => {
-          await fetchPrograms();
-          console.log('✅ Programmes rechargés après sauvegarde (delayed)');
-        }, 1000);
-        
-        // Troisième refresh pour être absolument sûr
-        setTimeout(async () => {
-          await fetchPrograms();
-          console.log('✅ Programmes rechargés après sauvegarde (final)');
-        }, 2000);
-        
-        // إضافة البرنامج الجديد مباشرة للـ state لضمان الظهور الفوري
-        if (response.data.data) {
-          setPrograms(prevPrograms => [response.data.data, ...prevPrograms]);
-          console.log('✅ Programme ajouté directement au state');
-        }
+        console.log('✅ Programmes rechargés après sauvegarde');
         
         alert('✅ Programme créé avec succès!');
         resetForm();
@@ -412,9 +394,11 @@ const ProgramManager: React.FC = () => {
                   </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {typeof program.category === 'object' && program.category.name 
+                    {typeof program.category === 'object' && program.category?.name 
                       ? program.category.name 
-                      : program.category}
+                      : typeof program.category === 'string' 
+                        ? program.category 
+                        : 'Non défini'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -486,7 +470,7 @@ const ProgramManager: React.FC = () => {
                       <strong style={{color: '#1f2937', fontSize: '16px'}}>Catégorie</strong>
                     </div>
                     <select
-                      value={formData.category}
+                      value={typeof formData.category === 'string' ? formData.category : ''}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
@@ -512,11 +496,20 @@ const ProgramManager: React.FC = () => {
                   <textarea
                     required
                     rows={3}
-                    placeholder="Décrivez le contenu et les objectifs du programme..."
+                    placeholder="Décrivez le contenu et les objectifs du programme... (minimum 10 caractères)"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className={`block w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                      formData.description && formData.description.length < 10 
+                        ? 'border-red-300 bg-red-50' 
+                        : 'border-gray-300'
+                    }`}
                   />
+                  {formData.description && formData.description.length < 10 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Description doit contenir au moins 10 caractères ({formData.description.length}/10)
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -577,11 +570,20 @@ const ProgramManager: React.FC = () => {
                     <input
                       type="text"
                       required
-                      placeholder="4 semaines"
+                      placeholder="4 semaines (minimum 3 caractères)"
                       value={formData.duration}
                       onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className={`block w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        formData.duration && formData.duration.length < 3 
+                          ? 'border-red-300 bg-red-50' 
+                          : 'border-gray-300'
+                      }`}
                     />
+                    {formData.duration && formData.duration.length < 3 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Durée doit contenir au moins 3 caractères ({formData.duration.length}/3)
+                      </p>
+                    )}
                   </div>
                   
                   <div>
@@ -646,15 +648,24 @@ const ProgramManager: React.FC = () => {
                       <input
                         type="text"
                         required
-                        placeholder="Titre du module"
+                        placeholder="Titre du module (minimum 3 caractères)"
                         value={module.title}
                         onChange={(e) => {
                           const newModules = [...formData.modules];
                           newModules[index].title = e.target.value;
                           setFormData({ ...formData, modules: newModules });
                         }}
-                        className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className={`flex-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          module.title && module.title.length < 3 
+                            ? 'border-red-300 bg-red-50' 
+                            : 'border-gray-300'
+                        }`}
                       />
+                      {module.title && module.title.length < 3 && (
+                        <span className="text-red-500 text-xs self-center ml-1">
+                          {module.title.length}/3
+                        </span>
+                      )}
                       {formData.modules.length > 1 && (
                         <button
                           type="button"
@@ -685,15 +696,24 @@ const ProgramManager: React.FC = () => {
                       <input
                         type="text"
                         required
-                        placeholder="Titre de la session"
+                        placeholder="Titre de la session (minimum 3 caractères)"
                         value={session.title}
                         onChange={(e) => {
                           const newSessions = [...formData.sessions];
                           newSessions[index].title = e.target.value;
                           setFormData({ ...formData, sessions: newSessions });
                         }}
-                        className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className={`flex-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          session.title && session.title.length < 3 
+                            ? 'border-red-300 bg-red-50' 
+                            : 'border-gray-300'
+                        }`}
                       />
+                      {session.title && session.title.length < 3 && (
+                        <span className="text-red-500 text-xs self-center ml-1">
+                          {session.title.length}/3
+                        </span>
+                      )}
                       <input
                         type="text"
                         required

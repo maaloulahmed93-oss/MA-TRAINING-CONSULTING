@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Fix Supprimer - Final</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #059669;
+            border-bottom: 3px solid #d1fae5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .urgent {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 3px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        button {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        button:hover { background: #047857; }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .checklist {
+            background: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .checklist li {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix Supprimer - Solution Finale</h1>
+            <p>إصلاح نهائي لمشكلة أزرار Supprimer في Admin Panel</p>
+        </div>
+
+        <div class="urgent">
+            <h2>🚨 MODIFICATIONS APPLIQUÉES</h2>
+            <p>J'ai ajouté du debug intensif au code CommercialServicesPage.tsx:</p>
+            <ul>
+                <li>✅ <strong>handleDeleteService():</strong> Debug complet avec console.log et alerts</li>
+                <li>✅ <strong>Button onClick:</strong> Debug du clic avec état loading</li>
+                <li>✅ <strong>Visual feedback:</strong> Style conditionnel pour boutons disabled</li>
+                <li>✅ <strong>Error handling:</strong> TypeScript errors corrigés</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>📋 ÉTAPES DE TEST IMMÉDIAT</h2>
+            
+            <h3>1️⃣ Redémarrer Admin Panel:</h3>
+            <div class="code-block">
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Admin Panel  
+cd admin-panel
+npm run dev
+            </div>
+
+            <h3>2️⃣ Ouvrir Admin Panel:</h3>
+            <div class="code-block">
+URL: http://localhost:8536/commercial-services
+            </div>
+
+            <h3>3️⃣ Ouvrir DevTools:</h3>
+            <div class="code-block">
+Appuyer F12 → Onglet Console
+            </div>
+
+            <h3>4️⃣ Cliquer sur bouton Supprimer:</h3>
+            <p>Vous devriez voir:</p>
+            <div class="code-block">
+🧪 DEBUG: handleDeleteService appelée pour "nom_service"
+            </div>
+        </div>
+
+        <div class="checklist">
+            <h2>✅ CHECKLIST DE DIAGNOSTIC</h2>
+            <ol>
+                <li>☐ <strong>Alert apparaît:</strong> "DEBUG: handleDeleteService appelée" → Fonction fonctionne</li>
+                <li>☐ <strong>Pas d'alert:</strong> Bouton disabled ou event handler non attaché</li>
+                <li>☐ <strong>Console logs:</strong> Vérifier messages "🖱️ Bouton Supprimer cliqué!"</li>
+                <li>☐ <strong>Loading state:</strong> Si loading=true, boutons sont disabled</li>
+                <li>☐ <strong>Network tab:</strong> Vérifier requête DELETE envoyée</li>
+            </ol>
+        </div>
+
+        <!-- Tests automatiques -->
+        <div class="step">
+            <h2>🧪 Tests Automatiques</h2>
+            <button onclick="testAdminPanelConnection()">🔗 Test Connexion Admin Panel</button>
+            <button onclick="testBackendAPI()">⚙️ Test Backend API</button>
+            <button onclick="simulateDeleteFlow()">🗑️ Simuler Delete Flow</button>
+            <div id="test-results" class="result">Cliquez sur un test pour commencer...</div>
+        </div>
+
+        <!-- Solutions selon résultats -->
+        <div class="step">
+            <h2>💡 SOLUTIONS SELON RÉSULTATS</h2>
+            
+            <h3>🔴 SI AUCUNE ALERT N'APPARAÎT:</h3>
+            <div class="code-block">
+CAUSE: Event handler non attaché ou bouton disabled
+SOLUTION:
+1. Vérifier loading state dans Console
+2. Inspecter bouton (F12 → Elements)
+3. Chercher disabled="true"
+4. Redémarrer Admin Panel complètement
+            </div>
+
+            <h3>🟡 SI ALERT APPARAÎT MAIS RIEN D'AUTRE:</h3>
+            <div class="code-block">
+CAUSE: Problème dans handleDeleteService()
+SOLUTION:
+1. Vérifier Console pour erreurs
+2. Tester Backend séparément
+3. Vérifier CORS et network
+            </div>
+
+            <h3>🟢 SI TOUT FONCTIONNE:</h3>
+            <div class="code-block">
+SUCCÈS: Supprimer les alerts de debug
+1. Retirer alert() du code
+2. Garder console.log() pour monitoring
+3. Tester en production
+            </div>
+        </div>
+
+        <!-- Code de nettoyage -->
+        <div class="step">
+            <h2>🧹 CODE DE NETTOYAGE (APRÈS TEST)</h2>
+            <p>Une fois que ça marche, remplacer handleDeleteService par cette version propre:</p>
+            <div class="code-block">
+const handleDeleteService = async (serviceId: string, serviceTitle: string) => {
+  console.log('🗑️ Suppression:', serviceTitle);
+  
+  const confirmed = confirm(`Supprimer "${serviceTitle}" ?`);
+  if (!confirmed) return;
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const response = await fetch(`http://localhost:3001/api/commercial-services/${serviceId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      setSuccess(`Service "${serviceTitle}" supprimé!`);
+      await loadServices();
+    } else {
+      setError(result.message || 'Erreur suppression');
+    }
+  } catch (error) {
+    setError('Erreur de connexion');
+  } finally {
+    setLoading(false);
+  }
+};
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testAdminPanelConnection() {
+            const resultDiv = document.getElementById('test-results');
+            resultDiv.textContent = '🔗 Test Connexion Admin Panel...\n\n';
+
+            try {
+                const response = await fetch('http://localhost:8536/commercial-services');
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Accessible: ${response.ok ? '✅ OUI' : '❌ NON'}\n\n`;
+
+                if (response.ok) {
+                    resultDiv.textContent += '✅ Admin Panel accessible\n';
+                    resultDiv.textContent += 'ÉTAPE SUIVANTE: Ouvrir dans navigateur et tester boutons';
+                } else {
+                    resultDiv.textContent += '❌ Admin Panel non accessible\n';
+                    resultDiv.textContent += 'SOLUTION: cd admin-panel && npm run dev';
+                }
+            } catch (error) {
+                resultDiv.textContent += `❌ Erreur: ${error.message}\n`;
+                resultDiv.textContent += 'SOLUTION: Démarrer Admin Panel sur port 8536';
+            }
+        }
+
+        async function testBackendAPI() {
+            const resultDiv = document.getElementById('test-results');
+            resultDiv.textContent = '⚙️ Test Backend API...\n\n';
+
+            try {
+                // Test health
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                resultDiv.textContent += `Backend Health: ${healthResponse.ok ? '✅ OK' : '❌ KO'}\n`;
+
+                // Test services
+                const servicesResponse = await fetch('http://localhost:3001/api/commercial-services');
+                const servicesResult = await servicesResponse.json();
+                resultDiv.textContent += `Services API: ${servicesResult.success ? '✅ OK' : '❌ KO'}\n`;
+                resultDiv.textContent += `Services Count: ${servicesResult.data?.length || 0}\n`;
+
+                // Test DELETE route
+                const deleteResponse = await fetch('http://localhost:3001/api/commercial-services/test', {
+                    method: 'DELETE'
+                });
+                resultDiv.textContent += `DELETE Route: ${deleteResponse.status === 404 ? '✅ Disponible' : '❌ Problème'}\n\n`;
+
+                if (healthResponse.ok && servicesResult.success) {
+                    resultDiv.textContent += '✅ Backend complètement fonctionnel\n';
+                    resultDiv.textContent += 'PROBLÈME: Probablement dans Frontend';
+                } else {
+                    resultDiv.textContent += '❌ Problème Backend détecté\n';
+                    resultDiv.textContent += 'SOLUTION: cd backend && npm run dev';
+                }
+
+            } catch (error) {
+                resultDiv.textContent += `❌ Backend inaccessible: ${error.message}\n`;
+                resultDiv.textContent += 'SOLUTION: Démarrer Backend sur port 3001';
+            }
+        }
+
+        async function simulateDeleteFlow() {
+            const resultDiv = document.getElementById('test-results');
+            resultDiv.textContent = '🗑️ Simulation Delete Flow...\n\n';
+
+            try {
+                // Étape 1: Récupérer services
+                resultDiv.textContent += '1️⃣ Récupération services...\n';
+                const servicesResponse = await fetch('http://localhost:3001/api/commercial-services');
+                const servicesResult = await servicesResponse.json();
+
+                if (!servicesResult.success || !servicesResult.data?.length) {
+                    resultDiv.textContent += '❌ Aucun service disponible pour test\n';
+                    resultDiv.textContent += 'SOLUTION: Créer un service test d\'abord';
+                    return;
+                }
+
+                const testService = servicesResult.data[0];
+                resultDiv.textContent += `✅ Service test: ${testService.titre}\n\n`;
+
+                // Étape 2: Simulation confirmation
+                resultDiv.textContent += '2️⃣ Simulation confirmation utilisateur...\n';
+                const confirmed = confirm(`TEST: Supprimer "${testService.titre}" ?`);
+                
+                if (!confirmed) {
+                    resultDiv.textContent += '❌ Suppression annulée (normal pour test)\n';
+                    return;
+                }
+
+                // Étape 3: Test DELETE
+                resultDiv.textContent += '3️⃣ Test DELETE API...\n';
+                const deleteResponse = await fetch(`http://localhost:3001/api/commercial-services/${testService._id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const deleteResult = await deleteResponse.json();
+                resultDiv.textContent += `DELETE Status: ${deleteResponse.status}\n`;
+                resultDiv.textContent += `DELETE Success: ${deleteResult.success}\n\n`;
+
+                if (deleteResponse.ok && deleteResult.success) {
+                    resultDiv.textContent += '✅ FLOW COMPLET FONCTIONNEL!\n';
+                    resultDiv.textContent += 'Le problème est dans l\'interface Admin Panel.\n';
+                    resultDiv.textContent += 'SOLUTION: Vérifier event handlers et loading state';
+                } else {
+                    resultDiv.textContent += '❌ Problème dans API DELETE\n';
+                    resultDiv.textContent += `Erreur: ${deleteResult.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.textContent += `❌ Erreur simulation: ${error.message}`;
+            }
+        }
+
+        window.onload = function() {
+            console.log('🔧 Fix Supprimer Final chargé');
+        };
+    </script>
+</body>
+</html>

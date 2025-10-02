@@ -33,11 +33,18 @@ const FreelancerMeetingsPage: React.FC = () => {
   const [form, setForm] = useState<Omit<FreelancerMeeting,'id'|'createdAt'|'updatedAt'>>(defaultMeeting());
 
   useEffect(() => {
-    seedMeetingsIfEmpty();
-    setItems(listMeetings());
+    const loadMeetings = async () => {
+      seedMeetingsIfEmpty();
+      const meetings = await listMeetings();
+      setItems(meetings);
+    };
+    loadMeetings();
   }, []);
 
-  const refresh = () => setItems(listMeetings());
+  const refresh = async () => {
+    const meetings = await listMeetings();
+    setItems(meetings);
+  };
 
   const filtered = useMemo(() => {
     return items.filter(m => {
@@ -63,22 +70,33 @@ const FreelancerMeetingsPage: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.subject || !form.date || !form.startTime || (form.type==='visio' && !form.meetingLink) || (form.type==='presentiel' && !form.locationText) || !form.participantFreelancerIds || form.participantFreelancerIds.length===0) return;
-    if (editing) {
-      updateMeeting(editing.id, form);
-    } else {
-      createMeeting(form);
+    
+    try {
+      if (editing) {
+        await updateMeeting(editing.id, form);
+      } else {
+        await createMeeting(form);
+      }
+      setModalOpen(false);
+      await refresh();
+    } catch (error) {
+      console.error('خطأ في حفظ الاجتماع:', error);
+      alert('حدث خطأ في حفظ الاجتماع. يرجى المحاولة مرة أخرى.');
     }
-    setModalOpen(false);
-    refresh();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Supprimer cette réunion ?')) {
-      deleteMeeting(id);
-      refresh();
+      try {
+        await deleteMeeting(id);
+        await refresh();
+      } catch (error) {
+        console.error('خطأ في حذف الاجتماع:', error);
+        alert('حدث خطأ في حذف الاجتماع. يرجى المحاولة مرة أخرى.');
+      }
     }
   };
 
@@ -119,8 +137,8 @@ const FreelancerMeetingsPage: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {filtered.map(item => (
-              <tr key={item.id} className="hover:bg-gray-50">
+            {filtered.map((item, index) => (
+              <tr key={item.id || (item as any)._id || `meeting-${index}`} className="hover:bg-gray-50">
                 <td className="p-3 font-medium">{item.subject}</td>
                 <td className="p-3 text-center">{item.date}</td>
                 <td className="p-3 text-center">{item.startTime}{item.endTime?` - ${item.endTime}`:''}</td>
@@ -128,7 +146,7 @@ const FreelancerMeetingsPage: React.FC = () => {
                 <td className="p-3 text-center"><span className="px-2 py-1 text-xs rounded bg-gray-100">{item.status}</span></td>
                 <td className="p-3 flex gap-2 justify-center">
                   <button onClick={()=>openEdit(item)} className="px-3 py-1 text-sm bg-yellow-500 text-white rounded">Modifier</button>
-                  <button onClick={()=>handleDelete(item.id)} className="px-3 py-1 text-sm bg-red-600 text-white rounded">Supprimer</button>
+                  <button onClick={()=>handleDelete(item.id || (item as any)._id)} className="px-3 py-1 text-sm bg-red-600 text-white rounded">Supprimer</button>
                 </td>
               </tr>
             ))}
@@ -154,8 +172,8 @@ const FreelancerMeetingsPage: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium">Type</label>
                 <select value={form.type} onChange={e=>setForm({...form, type:e.target.value as any})} className="mt-1 w-full border rounded px-3 py-2">
-                  <option value="visio">Visio</option>
-                  <option value="presentiel">Présentiel</option>
+                  <option key="visio" value="visio">Visio</option>
+                  <option key="presentiel" value="presentiel">Présentiel</option>
                 </select>
               </div>
               <div>
@@ -197,18 +215,18 @@ const FreelancerMeetingsPage: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium">Statut</label>
                 <select value={form.status} onChange={e=>setForm({...form, status:e.target.value as any})} className="mt-1 w-full border rounded px-3 py-2">
-                  <option value="scheduled">Planifiée</option>
-                  <option value="completed">Terminée</option>
-                  <option value="cancelled">Annulée</option>
+                  <option key="scheduled" value="scheduled">Planifiée</option>
+                  <option key="completed" value="completed">Terminée</option>
+                  <option key="cancelled" value="cancelled">Annulée</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium">Résultat</label>
                 <select value={form.outcome||'pending'} onChange={e=>setForm({...form, outcome:e.target.value as any})} className="mt-1 w-full border rounded px-3 py-2">
-                  <option value="pending">En attente</option>
-                  <option value="accepted">Accepté</option>
-                  <option value="rejected">Rejeté</option>
-                  <option value="hired">Embauché</option>
+                  <option key="pending" value="pending">En attente</option>
+                  <option key="accepted" value="accepted">Accepté</option>
+                  <option key="rejected" value="rejected">Rejeté</option>
+                  <option key="hired" value="hired">Embauché</option>
                 </select>
               </div>
               <div className="md:col-span-2 flex justify-end gap-3 pt-2">

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔄 Test Update Process</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .step {
+            background: #e9ecef;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .success-step {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Test Update Process</h1>
+        
+        <p><strong>هذه الأداة تحاكي عملية تحديث الإشعارات لتشخيص المشكلة</strong></p>
+
+        <h2>🛠️ Test Actions:</h2>
+        <button onclick="simulateFullProcess()">🎯 Simulate Full Update Process</button>
+        <button onclick="checkCurrentState()" class="success">📊 Check Current State</button>
+        <button onclick="fixDuplicateIssue()" class="warning">🔧 Fix Duplicate Issue</button>
+        <button onclick="clearAndRestart()" class="danger">🗑️ Clear & Restart</button>
+
+        <h2>📋 Process Steps:</h2>
+        <div id="steps"></div>
+
+        <h2>📋 Debug Log:</h2>
+        <pre id="debug-log"></pre>
+    </div>
+
+    <script>
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function addStep(message, type = 'info') {
+            const steps = document.getElementById('steps');
+            const stepDiv = document.createElement('div');
+            stepDiv.className = `step ${type === 'error' ? 'error' : type === 'success' ? 'success-step' : ''}`;
+            stepDiv.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+            steps.appendChild(stepDiv);
+        }
+
+        function clearSteps() {
+            document.getElementById('steps').innerHTML = '';
+            document.getElementById('debug-log').textContent = '';
+        }
+
+        function getNotificationKey() {
+            const keys = Object.keys(localStorage);
+            return keys.find(key => 
+                key.includes('notification') || key.includes('PART-')
+            ) || 'PART-550776-notifications';
+        }
+
+        function getNotifications() {
+            const key = getNotificationKey();
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error('Error parsing notifications:', e);
+                return [];
+            }
+        }
+
+        function saveNotifications(notifications) {
+            const key = getNotificationKey();
+            localStorage.setItem(key, JSON.stringify(notifications));
+        }
+
+        function simulateFullProcess() {
+            clearSteps();
+            log('🎯 Starting full update process simulation...');
+            
+            // Step 1: Check initial state
+            addStep('Step 1: Checking initial state...', 'info');
+            const initialNotifications = getNotifications();
+            log(`📊 Initial notifications count: ${initialNotifications.length}`);
+            
+            if (initialNotifications.length === 0) {
+                addStep('No notifications found. Creating test notifications first.', 'info');
+                createTestNotifications();
+            }
+            
+            // Step 2: Simulate clicking edit on first notification
+            addStep('Step 2: Simulating edit click on first notification...', 'info');
+            const notifications = getNotifications();
+            if (notifications.length > 0) {
+                const firstNotif = notifications[0];
+                log(`🔄 Editing notification: "${firstNotif.title}"`);
+                log(`📝 Original link: ${firstNotif.link || 'NO LINK'}`);
+                
+                // Step 3: Simulate form data loading
+                addStep('Step 3: Loading notification data into form...', 'info');
+                const formData = {
+                    title: firstNotif.title || "",
+                    description: firstNotif.description || "",
+                    link: firstNotif.link || "",
+                    contact: firstNotif.contact || ""
+                };
+                log(`📝 Form data: ${JSON.stringify(formData, null, 2)}`);
+                
+                // Step 4: Simulate adding a link
+                addStep('Step 4: Adding/updating link in form...', 'info');
+                formData.link = 'https://updated-link.com/test';
+                log(`🔗 Updated form link: ${formData.link}`);
+                
+                // Step 5: Simulate update process
+                addStep('Step 5: Simulating update process...', 'info');
+                const editingIndex = 0; // First notification
+                
+                // Create updated notification object
+                const updatedNotification = {
+                    id: firstNotif.id, // Keep same ID
+                    title: formData.title,
+                    message: formData.description,
+                    type: "information",
+                    date: firstNotif.date, // Keep original date
+                    isRead: firstNotif.isRead || false,
+                    description: formData.description,
+                    link: formData.link,
+                    contact: formData.contact
+                };
+                
+                log(`✅ Updated notification object: ${JSON.stringify(updatedNotification, null, 2)}`);
+                
+                // Step 6: Update the notifications array
+                addStep('Step 6: Updating notifications array...', 'info');
+                const updatedNotifications = [...notifications];
+                updatedNotifications[editingIndex] = updatedNotification;
+                
+                // Check for duplicates
+                const duplicateCheck = updatedNotifications.filter(n => n.id === updatedNotification.id);
+                if (duplicateCheck.length > 1) {
+                    addStep(`❌ DUPLICATE DETECTED! Found ${duplicateCheck.length} notifications with same ID`, 'error');
+                    log(`❌ Duplicate IDs found: ${duplicateCheck.map(n => n.id).join(', ')}`);
+                } else {
+                    addStep('✅ No duplicates detected', 'success');
+                }
+                
+                // Step 7: Save updated notifications
+                addStep('Step 7: Saving updated notifications...', 'info');
+                saveNotifications(updatedNotifications);
+                
+                // Step 8: Verify the update
+                addStep('Step 8: Verifying the update...', 'info');
+                const verifyNotifications = getNotifications();
+                const updatedNotif = verifyNotifications.find(n => n.id === updatedNotification.id);
+                
+                if (updatedNotif && updatedNotif.link === formData.link) {
+                    addStep('✅ Update successful! Link preserved.', 'success');
+                    log(`✅ Verification passed. Link: ${updatedNotif.link}`);
+                } else {
+                    addStep('❌ Update failed! Link not preserved.', 'error');
+                    log(`❌ Verification failed. Expected: ${formData.link}, Got: ${updatedNotif?.link || 'NO LINK'}`);
+                }
+                
+            } else {
+                addStep('❌ No notifications available for testing', 'error');
+            }
+        }
+
+        function createTestNotifications() {
+            const testNotifications = [
+                {
+                    id: 'test-notif-1',
+                    title: 'Test Notification 1',
+                    description: 'First test notification',
+                    message: 'First test notification',
+                    type: 'information',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    link: 'https://example.com/original',
+                    contact: 'test1@example.com'
+                },
+                {
+                    id: 'test-notif-2',
+                    title: 'Test Notification 2',
+                    description: 'Second test notification',
+                    message: 'Second test notification',
+                    type: 'information',
+                    date: new Date().toISOString(),
+                    isRead: false,
+                    link: '',
+                    contact: 'test2@example.com'
+                }
+            ];
+            
+            saveNotifications(testNotifications);
+            log('✅ Test notifications created');
+        }
+
+        function checkCurrentState() {
+            clearSteps();
+            log('📊 Checking current state...');
+            
+            const notifications = getNotifications();
+            addStep(`Found ${notifications.length} notifications`, 'info');
+            
+            notifications.forEach((notif, index) => {
+                const hasLink = !!(notif.link && notif.link.trim());
+                const stepType = hasLink ? 'success' : 'error';
+                const linkStatus = hasLink ? `Link: ${notif.link}` : 'NO LINK';
+                
+                addStep(`${index + 1}. "${notif.title}" - ${linkStatus}`, stepType);
+                log(`📝 Notification ${index + 1}: ${JSON.stringify({
+                    id: notif.id,
+                    title: notif.title,
+                    hasLink,
+                    link: notif.link
+                }, null, 2)}`);
+            });
+        }
+
+        function fixDuplicateIssue() {
+            clearSteps();
+            log('🔧 Fixing duplicate issue...');
+            
+            const notifications = getNotifications();
+            const uniqueNotifications = [];
+            const seenIds = new Set();
+            
+            notifications.forEach(notif => {
+                if (!seenIds.has(notif.id)) {
+                    seenIds.add(notif.id);
+                    uniqueNotifications.push(notif);
+                } else {
+                    log(`🗑️ Removing duplicate: ${notif.id} - "${notif.title}"`);
+                }
+            });
+            
+            const removedCount = notifications.length - uniqueNotifications.length;
+            
+            if (removedCount > 0) {
+                saveNotifications(uniqueNotifications);
+                addStep(`✅ Removed ${removedCount} duplicate notifications`, 'success');
+                log(`✅ Fixed duplicates. Before: ${notifications.length}, After: ${uniqueNotifications.length}`);
+            } else {
+                addStep('ℹ️ No duplicates found', 'info');
+                log('ℹ️ No duplicates to fix');
+            }
+        }
+
+        function clearAndRestart() {
+            if (!confirm('⚠️ This will clear all notification data. Continue?')) {
+                return;
+            }
+            
+            clearSteps();
+            log('🗑️ Clearing all data...');
+            
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || key.includes('PART-')
+            );
+            
+            notificationKeys.forEach(key => {
+                localStorage.removeItem(key);
+                log(`✅ Removed ${key}`);
+            });
+            
+            addStep('✅ All notification data cleared', 'success');
+            log('🎉 Ready for fresh start');
+        }
+
+        // Auto-run check on load
+        window.onload = () => {
+            checkCurrentState();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Participant Login - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Participant Login - MATC</h1>
+        
+        <div class="info">
+            <h3>✅ Participant PART-739438 créé avec succès!</h3>
+            <p>Le participant a été créé dans la base de données avec:</p>
+            <ul>
+                <li><strong>ID:</strong> PART-739438</li>
+                <li><strong>Nom:</strong> Ahmed Participant Test</li>
+                <li><strong>Email:</strong> ahmed.participant@matc.com</li>
+                <li><strong>1 Formation:</strong> Formation Développement Web Full Stack</li>
+                <li><strong>1 Projet:</strong> Application E-commerce MATC</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Tests de connexion</h3>
+            <button onclick="testParticipantData()">Tester chargement données participant</button>
+            <button onclick="testFormations()">Tester chargement formations</button>
+            <button onclick="testProjects()">Tester chargement projets</button>
+            <button onclick="testAllData()">Test complet</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Liens directs</h3>
+            <p>Vous pouvez maintenant tester la connexion participant:</p>
+            <a href="http://localhost:5173/espace-participant" target="_blank" style="display: inline-block; padding: 10px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; margin: 5px;">
+                🚀 Ouvrir Espace Participant
+            </a>
+            <p><small>Utilisez l'ID: <strong>PART-739438</strong></small></p>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        const PARTICIPANT_ID = 'PART-739438';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testParticipantData() {
+            log('🔄 Test chargement données participant...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Participant chargé: ${data.data.fullName} (${data.data.email})`, 'success');
+                    log(`<pre>${JSON.stringify(data.data, null, 2)}</pre>`, 'info');
+                } else {
+                    log(`❌ Erreur ${response.status}: ${await response.text()}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFormations() {
+            log('🔄 Test chargement formations...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/formations`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.data.length} formation(s) chargée(s)`, 'success');
+                    data.data.forEach(formation => {
+                        log(`📚 ${formation.title} - Progrès: ${formation.progress}%`, 'info');
+                    });
+                } else {
+                    log(`❌ Erreur formations ${response.status}: ${await response.text()}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur formations: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProjects() {
+            log('🔄 Test chargement projets...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/projects`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.data.length} projet(s) chargé(s)`, 'success');
+                    data.data.forEach(project => {
+                        log(`📋 ${project.title} - Progrès: ${project.progress}%`, 'info');
+                    });
+                } else {
+                    log(`❌ Erreur projets ${response.status}: ${await response.text()}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur projets: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAllData() {
+            log('🚀 Test complet démarré...', 'info');
+            await testParticipantData();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testFormations();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testProjects();
+            log('🎉 Test complet terminé!', 'success');
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Test automatique de connexion...', 'info');
+                testParticipantData();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

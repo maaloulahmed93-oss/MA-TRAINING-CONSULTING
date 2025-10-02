@@ -33,8 +33,8 @@ export interface Meeting {
   date: string;
   time: string;
   duration: number; // en minutes
-  type: 'project_kickoff' | 'progress_review' | 'training' | 'client_meeting';
-  status: 'scheduled' | 'completed' | 'cancelled';
+  type: 'project_kickoff' | 'progress_review' | 'training' | 'client_meeting' | 'video_call';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'accepted' | 'declined';
   meetingLink: string;
   platform?: string;
   participants?: string[];
@@ -46,14 +46,21 @@ export interface Project {
   id: string;
   title: string;
   client: string;
-  status: 'planning' | 'in_progress' | 'review' | 'completed' | 'on_hold';
+  status: 'planning' | 'in_progress' | 'review' | 'completed' | 'on_hold' | 'cancelled';
   progress: number; // pourcentage 0-100
   startDate: string;
   endDate: string;
   budget: number;
   description: string;
   teamMembers: string[];
-  milestones: ProjectMilestone[];
+  milestones?: ProjectMilestone[];
+  // حقول إضافية من JobOffer
+  priority?: 'low' | 'medium' | 'high';
+  skills?: string[];
+  workMode?: 'remote' | 'hybrid' | 'onsite';
+  estimatedHours?: number;
+  deliverables?: Deliverable[];
+  originalOfferId?: string; // ربط بالعرض الأصلي
 }
 
 export interface ProjectMilestone {

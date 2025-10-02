@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Test API Results</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test Health
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                const healthData = await healthResponse.json();
+                results.innerHTML += `<p>✅ Health: ${healthData.message}</p>`;
+                
+                // Test Registrations
+                const regResponse = await fetch('http://localhost:3001/api/registrations');
+                const regData = await regResponse.json();
+                results.innerHTML += `<p>✅ Registrations: ${regData.data.length} found</p>`;
+                
+                // Create Test Registration
+                const testReg = {
+                    type: 'program',
+                    itemId: 'test-123',
+                    itemName: 'Test Program',
+                    price: 100,
+                    currency: '€',
+                    sessionId: 'session-1',
+                    user: {
+                        firstName: 'Test',
+                        lastName: 'User',
+                        email: 'test@example.com'
+                    }
+                };
+                
+                const createResponse = await fetch('http://localhost:3001/api/registrations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testReg)
+                });
+                
+                const createData = await createResponse.json();
+                if (createResponse.ok) {
+                    results.innerHTML += `<p>✅ Registration Created: ${createData.data._id}</p>`;
+                } else {
+                    results.innerHTML += `<p>❌ Registration Failed: ${createData.message}</p>`;
+                }
+                
+            } catch (error) {
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>

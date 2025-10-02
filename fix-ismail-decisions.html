@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 إصلاح قرارات ismail</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content { padding: 20px; }
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .info { color: #3b82f6; }
+        .warning { color: #f59e0b; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 إصلاح قرارات ismail (FRE-340255)</h1>
+            <p>حل مشكلة عدم ظهور القرارات في Espace Freelancer</p>
+        </div>
+        
+        <div class="content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button class="btn btn-success" onclick="createDecisionFromAdminPanel()">
+                    📤 إنشاء قرار من Admin Panel
+                </button>
+                <button class="btn" onclick="checkAllSources()">
+                    🔍 فحص جميع المصادر
+                </button>
+                <button class="btn btn-danger" onclick="clearAllData()">
+                    🗑️ مسح جميع البيانات
+                </button>
+                <button class="btn" onclick="fixDecisionDisplay()">
+                    🔧 إصلاح العرض
+                </button>
+            </div>
+            
+            <div class="results" id="results">🚀 جاهز لإصلاح مشكلة القرارات...\n\n🎯 المشكلة: القرارات موجودة في Admin Panel لكن لا تظهر في Espace Freelancer\n\n📋 الحلول المتاحة:\n1. إنشاء قرار من Admin Panel\n2. فحص جميع المصادر\n3. إصلاح العرض\n\n</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            results.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function createDecisionFromAdminPanel() {
+            const freelancerId = 'FRE-340255';
+            
+            log('📤 محاكاة إرسال قرار من Admin Panel...', 'info');
+            
+            // إنشاء قرار مقبول
+            const approvedDecision = {
+                _id: `decision-approved-${Date.now()}`,
+                freelancerId: freelancerId,
+                freelancerName: 'ismail',
+                deliverableTitle: 'Design Interface Utilisateur',
+                decision: 'approved',
+                observation: 'عمل ممتاز! التصميم يلبي جميع المتطلبات المطلوبة. تم قبول الـ Livrable بنجاح.',
+                adminId: 'admin',
+                status: 'sent',
+                readAt: null,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            // إنشاء قرار مرفوض
+            const rejectedDecision = {
+                _id: `decision-rejected-${Date.now()}`,
+                freelancerId: freelancerId,
+                freelancerName: 'ismail',
+                deliverableTitle: 'Documentation Technique',
+                decision: 'rejected',
+                observation: 'يرجى إعادة العمل على الوثائق. هناك بعض النقاط التي تحتاج إلى تحسين وتوضيح أكثر.',
+                adminId: 'admin',
+                status: 'sent',
+                readAt: null,
+                createdAt: new Date(Date.now() - 60000).toISOString(), // منذ دقيقة
+                updatedAt: new Date(Date.now() - 60000).toISOString()
+            };
+
+            // حفظ في localStorage للنظام الجديد
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            const decisions = [approvedDecision, rejectedDecision];
+            localStorage.setItem(newKey, JSON.stringify(decisions));
+
+            // حفظ في localStorage للنظام القديم (للتوافق)
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const notifications = [
+                {
+                    id: `notif-approved-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: 'ismail',
+                    type: 'success',
+                    title: '✅ Livrable Accepté',
+                    message: `Titre: Design Interface Utilisateur\nStatut: Accepté\nObservation: ${approvedDecision.observation}`,
+                    deliverableName: 'Design Interface Utilisateur',
+                    decision: 'approved',
+                    observation: approvedDecision.observation,
+                    timestamp: new Date().toISOString(),
+                    read: false,
+                    from: 'admin'
+                },
+                {
+                    id: `notif-rejected-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: 'ismail',
+                    type: 'error',
+                    title: '❌ Livrable Refusé',
+                    message: `Titre: Documentation Technique\nStatut: Refusé\nObservation: ${rejectedDecision.observation}`,
+                    deliverableName: 'Documentation Technique',
+                    decision: 'rejected',
+                    observation: rejectedDecision.observation,
+                    timestamp: new Date(Date.now() - 60000).toISOString(),
+                    read: false,
+                    from: 'admin'
+                }
+            ];
+            localStorage.setItem(oldKey, JSON.stringify(notifications));
+
+            log('✅ تم إنشاء قرارين بنجاح!', 'success');
+            log('📋 القرار الأول: Design Interface Utilisateur - مقبول ✅', 'success');
+            log('📋 القرار الثاني: Documentation Technique - مرفوض ❌', 'success');
+            log(`🎯 القرارات محفوظة في localStorage للفريلانسر ${freelancerId}`, 'success');
+            log('📱 اذهب الآن إلى Espace Freelancer → Notifications → Actualiser', 'warning');
+        }
+
+        function checkAllSources() {
+            const freelancerId = 'FRE-340255';
+            
+            log('🔍 فحص جميع مصادر البيانات...', 'info');
+            
+            // فحص النظام الجديد
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            const newDecisions = JSON.parse(localStorage.getItem(newKey) || '[]');
+            
+            // فحص النظام القديم
+            const oldKey = `freelancerNotifications_${freelancerId}`;
+            const oldNotifications = JSON.parse(localStorage.getItem(oldKey) || '[]');
+            
+            log(`📊 النتائج:`, 'info');
+            log(`📋 النظام الجديد (freelancerDecisions): ${newDecisions.length} قرار`, newDecisions.length > 0 ? 'success' : 'warning');
+            log(`📋 النظام القديم (freelancerNotifications): ${oldNotifications.length} إشعار`, oldNotifications.length > 0 ? 'success' : 'warning');
+            
+            if (newDecisions.length > 0) {
+                log(`📝 القرارات الموجودة:`, 'info');
+                newDecisions.forEach((decision, index) => {
+                    const status = decision.decision === 'approved' ? '✅ مقبول' : '❌ مرفوض';
+                    log(`${index + 1}. ${decision.deliverableTitle} - ${status}`, 'info');
+                });
+            }
+            
+            if (oldNotifications.length > 0) {
+                log(`📝 الإشعارات الموجودة:`, 'info');
+                oldNotifications.forEach((notif, index) => {
+                    log(`${index + 1}. ${notif.title} - ${notif.deliverableName}`, 'info');
+                });
+            }
+            
+            if (newDecisions.length === 0 && oldNotifications.length === 0) {
+                log('❌ لا توجد قرارات في localStorage', 'error');
+                log('💡 هذا يفسر سبب ظهور "Aucune décision"', 'warning');
+            }
+        }
+
+        function clearAllData() {
+            const freelancerId = 'FRE-340255';
+            
+            if (confirm('هل أنت متأكد من حذف جميع البيانات؟')) {
+                localStorage.removeItem(`freelancerDecisions_${freelancerId}`);
+                localStorage.removeItem(`freelancerNotifications_${freelancerId}`);
+                log('🗑️ تم حذف جميع البيانات', 'success');
+                log('📱 الآن Espace Freelancer سيعرض "Aucune décision"', 'info');
+            }
+        }
+
+        function fixDecisionDisplay() {
+            log('🔧 تشخيص مشكلة العرض...', 'info');
+            
+            const freelancerId = 'FRE-340255';
+            const newKey = `freelancerDecisions_${freelancerId}`;
+            const decisions = JSON.parse(localStorage.getItem(newKey) || '[]');
+            
+            if (decisions.length === 0) {
+                log('❌ المشكلة: لا توجد قرارات في localStorage', 'error');
+                log('💡 الحل: إنشاء قرارات جديدة', 'warning');
+                log('📱 اضغط "إنشاء قرار من Admin Panel" أولاً', 'warning');
+            } else {
+                log(`✅ تم العثور على ${decisions.length} قرار في localStorage`, 'success');
+                log('🔧 فحص صحة البيانات...', 'info');
+                
+                let validDecisions = 0;
+                decisions.forEach((decision, index) => {
+                    if (decision._id && decision.freelancerId && decision.decision) {
+                        validDecisions++;
+                        log(`✅ القرار ${index + 1}: صحيح - ${decision.deliverableTitle}`, 'success');
+                    } else {
+                        log(`❌ القرار ${index + 1}: بيانات ناقصة`, 'error');
+                    }
+                });
+                
+                if (validDecisions === decisions.length) {
+                    log('✅ جميع القرارات صحيحة', 'success');
+                    log('📱 اذهب إلى Espace Freelancer → Notifications → Actualiser', 'warning');
+                    log('🔄 إذا لم تظهر، اضغط F5 لإعادة تحميل الصفحة', 'warning');
+                } else {
+                    log('⚠️ بعض القرارات بها مشاكل', 'warning');
+                    log('💡 يُنصح بحذف البيانات وإعادة إنشائها', 'warning');
+                }
+            }
+        }
+
+        // تحميل أولي
+        window.addEventListener('load', function() {
+            log('🚀 بدء تشخيص مشكلة القرارات للفريلانسر ismail (FRE-340255)', 'info');
+            log('📋 المشكلة المبلغ عنها: "لا يوجد قرارات" رغم وجودها في Admin Panel', 'warning');
+            
+            // فحص فوري
+            setTimeout(checkAllSources, 1000);
+        });
+    </script>
+</body>
+</html>

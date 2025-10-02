@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 فحص Admin Panel - البيانات الحقيقية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.8);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #7c3aed;
+        }
+        .btn {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+        }
+        .btn:hover { background: #6d28d9; }
+        .btn-success { background: #10b981; }
+        .btn-danger { background: #ef4444; }
+        .results {
+            background: rgba(0,0,0,0.9);
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .warning { color: #f59e0b; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 فحص Admin Panel - لماذا لا تظهر البيانات الحقيقية؟</h1>
+        
+        <button class="btn" onclick="testAdminPanelSend()">
+            📤 اختبار إرسال من Admin Panel
+        </button>
+        
+        <button class="btn" onclick="simulateRealDecision()">
+            🎯 محاكاة قرار حقيقي من Admin Panel
+        </button>
+        
+        <button class="btn btn-success" onclick="sendRealDecisionNow()">
+            🚀 إرسال قرار حقيقي الآن (jenn)
+        </button>
+        
+        <button class="btn btn-danger" onclick="clearTestData()">
+            🗑️ حذف البيانات التجريبية
+        </button>
+        
+        <div class="results" id="results">🔍 جاهز لفحص Admin Panel...\n\n</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+            results.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function testAdminPanelSend() {
+            log('📤 اختبار إرسال من Admin Panel...', 'warning');
+            
+            // محاكاة البيانات التي يرسلها Admin Panel
+            const adminPanelData = {
+                freelancerId: 'FRE-340255',
+                freelancerName: 'ismail',
+                deliverableTitle: 'jenn', // هذا ما يُدخل في Admin Panel
+                decision: 'approved',
+                observation: 'قرار حقيقي من Admin Panel - تم قبول العمل المطلوب',
+                adminId: 'admin'
+            };
+            
+            log('📋 البيانات المُرسلة من Admin Panel:', 'info');
+            log(`  - Freelancer: ${adminPanelData.freelancerName} (${adminPanelData.freelancerId})`, 'info');
+            log(`  - Deliverable: ${adminPanelData.deliverableTitle}`, 'info');
+            log(`  - Decision: ${adminPanelData.decision}`, 'info');
+            log(`  - Observation: ${adminPanelData.observation}`, 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminPanelData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ تم إرسال القرار بنجاح!', 'success');
+                    log(`📋 ID: ${result.data._id}`, 'success');
+                    log(`📅 تاريخ الإنشاء: ${new Date(result.data.createdAt).toLocaleString('ar-SA')}`, 'success');
+                    
+                    // التحقق من الحفظ
+                    setTimeout(async () => {
+                        await checkMongoDBContent();
+                    }, 1000);
+                    
+                } else {
+                    log(`❌ فشل في الإرسال: ${response.status}`, 'error');
+                    const errorText = await response.text();
+                    log(`💬 رسالة الخطأ: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في الاتصال: ${error.message}`, 'error');
+            }
+        }
+
+        async function simulateRealDecision() {
+            log('🎯 محاكاة قرار حقيقي من Admin Panel...', 'warning');
+            
+            // محاكاة دقيقة لما يحدث في Admin Panel
+            const formData = {
+                freelancerId: 'FRE-340255',
+                freelancerName: 'ismail',
+                title: 'jenn', // العنوان المُدخل في النموذج
+                status: 'approved', // الحالة المختارة
+                observation: 'العمل ممتاز ويلبي جميع المتطلبات المطلوبة. تم قبول التسليم.' // الملاحظة المُدخلة
+            };
+            
+            log('📝 بيانات النموذج:', 'info');
+            log(`  - Title: "${formData.title}"`, 'info');
+            log(`  - Status: ${formData.status}`, 'info');
+            log(`  - Observation: ${formData.observation}`, 'info');
+            
+            // تحويل البيانات كما يفعل Admin Panel
+            const apiPayload = {
+                freelancerId: formData.freelancerId,
+                freelancerName: formData.freelancerName,
+                deliverableTitle: formData.title, // هنا التحويل
+                decision: formData.status, // هنا التحويل
+                observation: formData.observation,
+                adminId: 'admin'
+            };
+            
+            log('📡 البيانات المُرسلة للـ API:', 'info');
+            log(JSON.stringify(apiPayload, null, 2), 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(apiPayload)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ المحاكاة نجحت! تم إنشاء قرار حقيقي', 'success');
+                    log(`📋 القرار المُنشأ: ${result.data.deliverableTitle}`, 'success');
+                } else {
+                    log(`❌ فشلت المحاكاة: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في المحاكاة: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendRealDecisionNow() {
+            log('🚀 إرسال قرار حقيقي الآن...', 'success');
+            
+            const realDecisions = [
+                {
+                    freelancerId: 'FRE-340255',
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'jenn',
+                    decision: 'approved',
+                    observation: 'قرار حقيقي - تم قبول العمل. التصميم ممتاز ويلبي جميع المتطلبات.',
+                    adminId: 'admin'
+                },
+                {
+                    freelancerId: 'FRE-340255',
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Documentation Projet jenn',
+                    decision: 'rejected',
+                    observation: 'قرار حقيقي - يرجى إعادة العمل على الوثائق. هناك بعض النقاط التي تحتاج تحسين.',
+                    adminId: 'admin'
+                }
+            ];
+            
+            let successCount = 0;
+            
+            for (const decision of realDecisions) {
+                try {
+                    const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(decision)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        successCount++;
+                        log(`✅ تم إنشاء: ${decision.deliverableTitle}`, 'success');
+                    } else {
+                        log(`❌ فشل: ${decision.deliverableTitle}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ خطأ: ${error.message}`, 'error');
+                }
+            }
+            
+            log(`📊 تم إنشاء ${successCount} من ${realDecisions.length} قرار حقيقي`, 'success');
+            
+            if (successCount > 0) {
+                log('🎉 الآن اذهب إلى Espace Freelancer وستجد القرارات الحقيقية!', 'success');
+                log('🔄 اضغط F5 أو زر "Actualiser" لإعادة التحميل', 'warning');
+            }
+        }
+
+        async function clearTestData() {
+            log('🗑️ حذف البيانات التجريبية...', 'warning');
+            
+            try {
+                // جلب جميع القرارات
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions/FRE-340255');
+                if (response.ok) {
+                    const result = await response.json();
+                    const testDecisions = result.data.filter(d => d.deliverableTitle.includes('Test'));
+                    
+                    log(`🔍 تم العثور على ${testDecisions.length} قرار تجريبي`, 'info');
+                    
+                    // ملاحظة: لا يمكن حذف القرارات عبر API الحالي
+                    // لكن يمكن تمييزها
+                    testDecisions.forEach(decision => {
+                        log(`  - ${decision.deliverableTitle} (${decision._id})`, 'warning');
+                    });
+                    
+                    log('💡 لحذف البيانات التجريبية، يجب إضافة DELETE endpoint', 'warning');
+                } else {
+                    log('❌ فشل في جلب القرارات', 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkMongoDBContent() {
+            log('🔍 فحص محتوى MongoDB...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions/FRE-340255');
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    log(`📊 إجمالي القرارات: ${result.data.length}`, 'info');
+                    
+                    const realDecisions = result.data.filter(d => !d.deliverableTitle.includes('Test'));
+                    const testDecisions = result.data.filter(d => d.deliverableTitle.includes('Test'));
+                    
+                    log(`✅ قرارات حقيقية: ${realDecisions.length}`, 'success');
+                    log(`🧪 قرارات تجريبية: ${testDecisions.length}`, 'warning');
+                    
+                    if (realDecisions.length > 0) {
+                        log('📋 القرارات الحقيقية:', 'success');
+                        realDecisions.forEach((decision, i) => {
+                            log(`  ${i+1}. ${decision.deliverableTitle} - ${decision.decision}`, 'success');
+                        });
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ في فحص MongoDB: ${error.message}`, 'error');
+            }
+        }
+
+        // تحميل أولي
+        window.addEventListener('load', function() {
+            log('🔍 أداة فحص Admin Panel جاهزة', 'success');
+            log('🎯 الهدف: إرسال قرارات حقيقية بدلاً من التجريبية', 'warning');
+            log('📋 المشكلة: Admin Panel يرسل لكن لا تظهر البيانات الحقيقية', 'error');
+            
+            // فحص أولي
+            setTimeout(checkMongoDBContent, 1000);
+        });
+    </script>
+</body>
+</html>

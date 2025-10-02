@@ -34,8 +34,16 @@ export interface EventItem {
   description?: string;
 }
 
-// Clé pour le localStorage
+// Clé pour le localStorage - maintenant avec support partnerId
 const STORAGE_KEY = 'formationsCoAnimees';
+
+// Fonction pour obtenir la clé spécifique au partenaire
+const getPartnerStorageKey = (partnerId?: string): string => {
+  if (partnerId) {
+    return `${STORAGE_KEY}_${partnerId}`;
+  }
+  return STORAGE_KEY;
+};
 
 /**
  * Génère les données mock par défaut
@@ -217,39 +225,41 @@ const generateMockData = (): FormationCoAnimee[] => {
 };
 
 /**
- * Récupère toutes les formations depuis localStorage
+ * Récupère toutes les formations depuis localStorage avec support partnerId
  */
-export const getFormationsCoAnimees = (): FormationCoAnimee[] => {
+export const getFormationsCoAnimees = (partnerId?: string): FormationCoAnimee[] => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const storageKey = getPartnerStorageKey(partnerId);
+    const stored = localStorage.getItem(storageKey);
+    
     if (stored) {
       return JSON.parse(stored);
     }
     
-    // Si aucune donnée, générer et sauvegarder les données mock
-    const mockData = generateMockData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData));
-    return mockData;
+    // Si aucune donnée n'existe pour ce partenaire, retourner un tableau vide
+    // (plus de données mock par défaut pour éviter la confusion)
+    return [];
   } catch (error) {
     console.error('Erreur lors de la récupération des formations:', error);
-    return generateMockData();
+    return [];
   }
 };
 
 /**
  * Récupère une formation par son ID
  */
-export const getFormationById = (id: string): FormationCoAnimee | undefined => {
-  const formations = getFormationsCoAnimees();
+export const getFormationById = (id: string, partnerId?: string): FormationCoAnimee | undefined => {
+  const formations = getFormationsCoAnimees(partnerId);
   return formations.find(formation => formation.id === id);
 };
 
 /**
- * Sauvegarde les formations dans localStorage
+ * Sauvegarde les formations dans localStorage avec support partnerId
  */
-export const saveFormationsCoAnimees = (formations: FormationCoAnimee[]): void => {
+export const saveFormationsCoAnimees = (formations: FormationCoAnimee[], partnerId?: string): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formations));
+    const storageKey = getPartnerStorageKey(partnerId);
+    localStorage.setItem(storageKey, JSON.stringify(formations));
   } catch (error) {
     console.error('Erreur lors de la sauvegarde des formations:', error);
   }

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Freelancer Offers Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 12px;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .status-draft { background-color: #fff3cd; }
+        .status-published { background-color: #d4edda; }
+        .status-archived { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Freelancer Offers Data</h1>
+        <p>Diagnostic des données des offres entre Admin Panel et Freelancer Space</p>
+
+        <!-- Admin Panel Data -->
+        <div class="section">
+            <h3>1. Données Admin Panel (localStorage)</h3>
+            <button class="btn-primary" onclick="checkAdminPanelData()">Vérifier Admin Panel Data</button>
+            <div id="admin-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Backend API Data -->
+        <div class="section">
+            <h3>2. Données Backend API</h3>
+            <button class="btn-success" onclick="checkBackendData()">Vérifier Backend API</button>
+            <button class="btn-warning" onclick="checkFreelancerOffers()">Vérifier Offres pour FRE-340255</button>
+            <div id="backend-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Data Comparison -->
+        <div class="section">
+            <h3>3. Comparaison des Données</h3>
+            <button class="btn-primary" onclick="compareData()">Comparer Admin vs Backend</button>
+            <div id="compare-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Fix Actions -->
+        <div class="section">
+            <h3>4. Actions de Correction</h3>
+            <button class="btn-success" onclick="publishDraftOffers()">Publier les Offres Draft</button>
+            <button class="btn-warning" onclick="syncAdminToBackend()">Synchroniser Admin → Backend</button>
+            <div id="fix-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Server Status -->
+        <div class="section">
+            <h3>5. Status du Serveur</h3>
+            <button class="btn-primary" onclick="checkServerStatus()">Vérifier Status</button>
+            <div id="server-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Vérifier les données dans Admin Panel (localStorage)
+        function checkAdminPanelData() {
+            const resultDiv = document.getElementById('admin-result');
+            
+            try {
+                const adminData = localStorage.getItem('freelancer_offers');
+                
+                if (!adminData) {
+                    showResult(resultDiv, 'warning', '⚠️ Aucune donnée Admin Panel trouvée dans localStorage');
+                    return;
+                }
+                
+                const offers = JSON.parse(adminData);
+                let result = `📊 Données Admin Panel:\n\n`;
+                result += `Total: ${offers.length} offres\n\n`;
+                
+                if (offers.length > 0) {
+                    result += `Détails des offres:\n`;
+                    offers.forEach((offer, index) => {
+                        result += `\n${index + 1}. ${offer.title}\n`;
+                        result += `   Entreprise: ${offer.company}\n`;
+                        result += `   Status: ${offer.status}\n`;
+                        result += `   Visibilité: ${offer.visibility}\n`;
+                        result += `   Description: ${offer.description.substring(0, 50)}...\n`;
+                        result += `   Compétences: ${(offer.skills || []).join(', ')}\n`;
+                        result += `   Créé: ${offer.createdAt}\n`;
+                    });
+                }
+                
+                showResult(resultDiv, 'info', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Vérifier les données Backend
+        async function checkBackendData() {
+            const resultDiv = document.getElementById('backend-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Vérification Backend...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-offers`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let result = `📊 Données Backend API:\n\n`;
+                    result += `Total: ${data.count} offres\n\n`;
+                    
+                    if (data.data.length > 0) {
+                        result += `Détails des offres:\n`;
+                        data.data.forEach((offer, index) => {
+                            result += `\n${index + 1}. ${offer.title}\n`;
+                            result += `   Entreprise: ${offer.company}\n`;
+                            result += `   Status: ${offer.status}\n`;
+                            result += `   Visibilité: ${offer.visibility}\n`;
+                            result += `   Description: ${offer.description.substring(0, 50)}...\n`;
+                            result += `   Compétences: ${(offer.skills || []).join(', ')}\n`;
+                            result += `   ID: ${offer._id}\n`;
+                            result += `   Créé: ${new Date(offer.createdAt).toLocaleString()}\n`;
+                        });
+                    }
+                    
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur Backend: ${data.message}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        // Vérifier les offres pour un freelancer spécifique
+        async function checkFreelancerOffers() {
+            const resultDiv = document.getElementById('backend-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Vérification offres pour FRE-340255...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-offers/for-freelancer/FRE-340255`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let result = `📊 Offres pour FRE-340255:\n\n`;
+                    result += `Total: ${data.count} offres visibles\n`;
+                    result += `Freelancer: ${data.freelancer.name} (${data.freelancer.id})\n\n`;
+                    
+                    if (data.data.length > 0) {
+                        result += `Détails des offres visibles:\n`;
+                        data.data.forEach((offer, index) => {
+                            result += `\n${index + 1}. ${offer.title}\n`;
+                            result += `   Entreprise: ${offer.company}\n`;
+                            result += `   Status: ${offer.status}\n`;
+                            result += `   Visibilité: ${offer.visibility}\n`;
+                            result += `   Budget: ${offer.salaryMin || 0} - ${offer.salaryMax || 0} ${offer.currency}\n`;
+                            result += `   Deadline: ${offer.deadline || 'Non défini'}\n`;
+                        });
+                    } else {
+                        result += `❌ Aucune offre visible pour ce freelancer\n\n`;
+                        result += `Raisons possibles:\n`;
+                        result += `- Les offres sont en status 'draft' au lieu de 'published'\n`;
+                        result += `- Les offres ne sont pas assignées à ce freelancer\n`;
+                        result += `- Aucune offre avec visibility 'all'\n`;
+                    }
+                    
+                    showResult(resultDiv, data.data.length > 0 ? 'success' : 'warning', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur: ${data.message}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        // Comparer les données
+        async function compareData() {
+            const resultDiv = document.getElementById('compare-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Comparaison en cours...');
+                
+                // Données Admin Panel
+                const adminData = localStorage.getItem('freelancer_offers');
+                const adminOffers = adminData ? JSON.parse(adminData) : [];
+                
+                // Données Backend
+                const backendResponse = await fetch(`${API_BASE}/freelancer-offers`);
+                const backendData = await backendResponse.json();
+                const backendOffers = backendData.success ? backendData.data : [];
+                
+                let result = `📊 Comparaison Admin Panel vs Backend:\n\n`;
+                result += `Admin Panel: ${adminOffers.length} offres\n`;
+                result += `Backend API: ${backendOffers.length} offres\n\n`;
+                
+                if (adminOffers.length > 0 && backendOffers.length === 0) {
+                    result += `❌ PROBLÈME DÉTECTÉ:\n`;
+                    result += `- Admin Panel a des offres mais Backend n'en a aucune\n`;
+                    result += `- Les offres ne sont pas synchronisées avec la base de données\n\n`;
+                    result += `SOLUTION: Utiliser "Synchroniser Admin → Backend"\n`;
+                } else if (adminOffers.length === 0 && backendOffers.length > 0) {
+                    result += `⚠️ Incohérence:\n`;
+                    result += `- Backend a des offres mais Admin Panel est vide\n`;
+                    result += `- Possible problème de localStorage\n`;
+                } else if (adminOffers.length > 0 && backendOffers.length > 0) {
+                    result += `✅ Les deux systèmes ont des données\n\n`;
+                    
+                    // Vérifier les status
+                    const adminStatuses = adminOffers.map(o => o.status);
+                    const backendStatuses = backendOffers.map(o => o.status);
+                    
+                    result += `Status Admin: ${[...new Set(adminStatuses)].join(', ')}\n`;
+                    result += `Status Backend: ${[...new Set(backendStatuses)].join(', ')}\n\n`;
+                    
+                    const publishedCount = backendOffers.filter(o => o.status === 'published').length;
+                    if (publishedCount === 0) {
+                        result += `❌ PROBLÈME: Aucune offre 'published' dans Backend\n`;
+                        result += `SOLUTION: Utiliser "Publier les Offres Draft"\n`;
+                    } else {
+                        result += `✅ ${publishedCount} offres publiées dans Backend\n`;
+                    }
+                }
+                
+                showResult(resultDiv, 'info', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Publier les offres draft
+        async function publishDraftOffers() {
+            const resultDiv = document.getElementById('fix-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Publication des offres draft...');
+                
+                // D'abord, récupérer toutes les offres
+                const response = await fetch(`${API_BASE}/freelancer-offers`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showResult(resultDiv, 'error', `❌ Erreur: ${data.message}`);
+                    return;
+                }
+                
+                const draftOffers = data.data.filter(offer => offer.status === 'draft');
+                
+                if (draftOffers.length === 0) {
+                    showResult(resultDiv, 'info', '✅ Aucune offre draft à publier');
+                    return;
+                }
+                
+                let result = `📝 Publication de ${draftOffers.length} offres draft...\n\n`;
+                let successCount = 0;
+                
+                for (const offer of draftOffers) {
+                    try {
+                        const updateResponse = await fetch(`${API_BASE}/freelancer-offers/${offer._id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                ...offer,
+                                status: 'published'
+                            })
+                        });
+                        
+                        const updateData = await updateResponse.json();
+                        
+                        if (updateData.success) {
+                            result += `✅ ${offer.title} - Publié\n`;
+                            successCount++;
+                        } else {
+                            result += `❌ ${offer.title} - Erreur: ${updateData.message}\n`;
+                        }
+                        
+                    } catch (error) {
+                        result += `❌ ${offer.title} - Erreur: ${error.message}\n`;
+                    }
+                }
+                
+                result += `\n📊 Résultat: ${successCount}/${draftOffers.length} offres publiées\n`;
+                
+                if (successCount > 0) {
+                    result += `\n✅ Maintenant, vérifiez les offres dans Freelancer Space!`;
+                }
+                
+                showResult(resultDiv, successCount > 0 ? 'success' : 'error', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Synchroniser Admin vers Backend
+        async function syncAdminToBackend() {
+            const resultDiv = document.getElementById('fix-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Synchronisation Admin → Backend...');
+                
+                const adminData = localStorage.getItem('freelancer_offers');
+                
+                if (!adminData) {
+                    showResult(resultDiv, 'warning', '⚠️ Aucune donnée Admin Panel à synchroniser');
+                    return;
+                }
+                
+                const adminOffers = JSON.parse(adminData);
+                
+                let result = `📤 Synchronisation de ${adminOffers.length} offres...\n\n`;
+                let successCount = 0;
+                
+                for (const offer of adminOffers) {
+                    try {
+                        const createResponse = await fetch(`${API_BASE}/freelancer-offers`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                ...offer,
+                                status: 'published' // Publier directement
+                            })
+                        });
+                        
+                        const createData = await createResponse.json();
+                        
+                        if (createData.success) {
+                            result += `✅ ${offer.title} - Synchronisé et publié\n`;
+                            successCount++;
+                        } else {
+                            result += `❌ ${offer.title} - Erreur: ${createData.message}\n`;
+                        }
+                        
+                    } catch (error) {
+                        result += `❌ ${offer.title} - Erreur: ${error.message}\n`;
+                    }
+                }
+                
+                result += `\n📊 Résultat: ${successCount}/${adminOffers.length} offres synchronisées\n`;
+                
+                if (successCount > 0) {
+                    result += `\n✅ Synchronisation terminée! Vérifiez Freelancer Space.`;
+                }
+                
+                showResult(resultDiv, successCount > 0 ? 'success' : 'error', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Vérifier le status du serveur
+        async function checkServerStatus() {
+            const resultDiv = document.getElementById('server-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Vérification du serveur...');
+                
+                const response = await fetch(`${API_BASE}/health`);
+                
+                if (response.ok) {
+                    showResult(resultDiv, 'success', `✅ Serveur backend accessible sur ${API_BASE}`);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Serveur backend non accessible (${response.status})`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Serveur backend non accessible:\n${error.message}`);
+            }
+        }
+
+        // Fonction utilitaire pour afficher les résultats
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-check au chargement
+        window.onload = function() {
+            checkServerStatus();
+            console.log('🔍 Debug Freelancer Offers Data loaded');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notifications Fix - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Test Notifications Fix - MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Correction appliquée!</h3>
+            <p><strong>Problème identifié:</strong> Backend retournait notifications: [] au lieu des vraies données</p>
+            <p><strong>Solution:</strong> Correction du code pour retourner les notifications chargées de MongoDB</p>
+        </div>
+
+        <div class="info">
+            <h4>🎯 Test rapide</h4>
+            <p>Ce test va vérifier si les notifications apparaissent maintenant dans l'API</p>
+        </div>
+
+        <button onclick="testQuickFix()">🚀 Test rapide de la correction</button>
+        <button onclick="testParticipantAPI()">👤 Test API Participant</button>
+        <button onclick="testNotificationsAPI()">🔔 Test API Notifications</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testQuickFix() {
+            log('🚀 Test rapide de la correction...', 'info');
+            
+            // Test 1: API Participant
+            log('📋 Test 1: API Participant...', 'info');
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        const notifications = data.data.notifications;
+                        log(`✅ Participant API: ${notifications?.length || 0} notifications`, notifications?.length > 0 ? 'success' : 'warning');
+                        
+                        if (notifications && notifications.length > 0) {
+                            log('🎉 CORRECTION RÉUSSIE! Les notifications apparaissent maintenant!', 'success');
+                            notifications.forEach((notif, index) => {
+                                log(`${index + 1}. ${notif.title || notif.message} (${notif.type})`, 'info');
+                            });
+                        } else {
+                            log('⚠️ Toujours aucune notification - problème persiste', 'warning');
+                        }
+                    }
+                } else {
+                    log(`❌ Erreur API: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+            
+            // Test 2: API Notifications dédiée
+            log('📋 Test 2: API Notifications dédiée...', 'info');
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const notifications = data.data;
+                        log(`✅ API Notifications: ${notifications.length} trouvées`, notifications.length > 0 ? 'success' : 'warning');
+                        
+                        if (notifications.length > 0) {
+                            log('🎉 API dédiée fonctionne aussi!', 'success');
+                        }
+                    }
+                } else {
+                    log(`❌ Erreur API notifications: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur API notifications: ${error.message}`, 'error');
+            }
+            
+            // Instructions finales
+            setTimeout(() => {
+                log('📋 Instructions de test final:', 'warning');
+                log('1. Rechargez espace participant: http://localhost:5173/espace-participant', 'info');
+                log('2. Connectez-vous: PART-550776 / gharbi@gmail.com', 'info');
+                log('3. Cliquez sur bouton Notifications (🔔)', 'info');
+                log('4. Les notifications devraient maintenant apparaître!', 'info');
+            }, 2000);
+        }
+
+        async function testParticipantAPI() {
+            log('👤 Test détaillé API Participant...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        log('✅ Participant trouvé', 'success');
+                        log(`📊 Données participant:`, 'info');
+                        log(`- Nom: ${data.data.fullName}`, 'info');
+                        log(`- Email: ${data.data.email}`, 'info');
+                        log(`- Formations: ${data.data.formations?.length || 0}`, 'info');
+                        log(`- Projets: ${data.data.projects?.length || 0}`, 'info');
+                        log(`- Ressources: ${data.data.coachingResources?.length || 0}`, 'info');
+                        log(`- Notifications: ${data.data.notifications?.length || 0}`, 'info');
+                        
+                        if (data.data.notifications && data.data.notifications.length > 0) {
+                            log(`<pre>Notifications détaillées:
+${JSON.stringify(data.data.notifications, null, 2)}</pre>`, 'info');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNotificationsAPI() {
+            log('🔔 Test API Notifications dédiée...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        log(`✅ ${data.data.length} notifications trouvées`, 'success');
+                        
+                        if (data.data.length > 0) {
+                            log(`<pre>API Notifications:
+${JSON.stringify(data.data, null, 2)}</pre>`, 'info');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run test on load
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🎯 Correction appliquée au Backend - test de vérification', 'info');
+                log('📋 Cliquez sur "Test rapide" pour vérifier la correction', 'warning');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Notifications Sync - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        button.urgent { background: #ff6b6b; color: white; font-weight: bold; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 300px; }
+        .step { background: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix Notifications Sync - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ Problème confirmé</h3>
+            <p><strong>Admin Panel:</strong> Notifications visibles et enregistrées</p>
+            <p><strong>Espace Participant:</strong> "Aucune notification" + Console "No notifications found"</p>
+            <p><strong>Cause:</strong> Les notifications ne sont pas synchronisées entre Admin Panel et Backend</p>
+        </div>
+
+        <div class="warning">
+            <h4>🎯 Plan de résolution:</h4>
+            <ol>
+                <li><strong>Extraire les notifications</strong> depuis Admin Panel</li>
+                <li><strong>Les synchroniser</strong> avec Backend/MongoDB</li>
+                <li><strong>Vérifier</strong> qu'elles apparaissent dans espace participant</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h4>📋 Étape 1: Diagnostic complet</h4>
+            <button onclick="runDiagnostic()">🔍 Diagnostic</button>
+            <button onclick="checkAdminPanelData()">📊 Check Admin Panel Data</button>
+        </div>
+
+        <div class="step">
+            <h4>⚡ Étape 2: Synchronisation forcée</h4>
+            <button onclick="syncNotificationsFromAdminPanel()" class="urgent">🔄 SYNC NOTIFICATIONS</button>
+            <button onclick="addTestNotifications()" class="success">➕ Add Test Notifications</button>
+        </div>
+
+        <div class="step">
+            <h4>✅ Étape 3: Vérification</h4>
+            <button onclick="verifySync()">✅ Verify Sync</button>
+            <button onclick="testEspaceParticipant()">🖥️ Test Espace Participant</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function runDiagnostic() {
+            log('🔍 Diagnostic complet en cours...', 'info');
+            
+            // Test 1: Backend API
+            log('📋 Test 1: API Backend...', 'info');
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        const notifications = data.data.notifications;
+                        log(`✅ Backend API: ${notifications?.length || 0} notifications`, 
+                            notifications?.length > 0 ? 'success' : 'error');
+                        
+                        if (notifications && notifications.length > 0) {
+                            log('🎉 Backend a des notifications!', 'success');
+                            notifications.forEach((notif, index) => {
+                                log(`${index + 1}. ${notif.title || notif.message} (${notif.type})`, 'info');
+                            });
+                        } else {
+                            log('❌ Backend: Aucune notification trouvée', 'error');
+                            log('💡 Cela confirme que le problème est la synchronisation Admin Panel → Backend', 'warning');
+                        }
+                    }
+                } else {
+                    log(`❌ Backend API error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Backend error: ${error.message}`, 'error');
+            }
+            
+            // Test 2: Notifications API
+            log('📋 Test 2: API Notifications dédiée...', 'info');
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        log(`✅ Notifications API: ${data.data.length} trouvées`, 
+                            data.data.length > 0 ? 'success' : 'error');
+                    }
+                } else {
+                    log(`❌ Notifications API error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Notifications API error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkAdminPanelData() {
+            log('📊 Analyse des données Admin Panel...', 'info');
+            
+            log('📋 D\'après les images:', 'warning');
+            log('1. Admin Panel contient 2 notifications:', 'info');
+            log('   - Type: Information (تست)', 'info');
+            log('   - Type: Offre d\'emploi (تست)', 'info');
+            log('2. Ces notifications sont visibles dans l\'interface Admin Panel', 'info');
+            log('3. Mais elles n\'apparaissent pas dans espace participant', 'info');
+            
+            log('💡 Cela indique que:', 'warning');
+            log('- Les notifications sont stockées dans Admin Panel (frontend state)', 'info');
+            log('- Mais elles ne sont PAS sauvegardées dans Backend/MongoDB', 'info');
+            log('- Le problème est dans le processus de sauvegarde Admin Panel → Backend', 'info');
+        }
+
+        async function syncNotificationsFromAdminPanel() {
+            log('🔄 SYNCHRONISATION FORCÉE DES NOTIFICATIONS...', 'error');
+            
+            log('📋 Simulation des notifications vues dans Admin Panel:', 'warning');
+            
+            // Recreate the notifications seen in Admin Panel based on the images
+            const adminPanelNotifications = [
+                {
+                    title: 'تست - Information',
+                    message: 'تست - Notification de type Information ajoutée dans Admin Panel',
+                    type: 'information',
+                    description: 'تست',
+                    link: 'https://example.com/test-info',
+                    date: new Date().toISOString(),
+                    isRead: false
+                },
+                {
+                    title: 'تست - Offre d\'emploi',
+                    message: 'تست - Offre d\'emploi ajoutée dans Admin Panel',
+                    type: 'offre_emploi',
+                    description: 'تست',
+                    company: 'شركة تست',
+                    phone: '+33123456789',
+                    email: 'test@example.com',
+                    date: new Date().toISOString(),
+                    isRead: false
+                }
+            ];
+            
+            log(`📤 Synchronisation de ${adminPanelNotifications.length} notifications...`, 'info');
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < adminPanelNotifications.length; i++) {
+                const notification = adminPanelNotifications[i];
+                log(`📤 Sync notification ${i + 1}: ${notification.title}`, 'info');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            log(`✅ SYNC SUCCESS ${i + 1}: ${data.data._id}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`❌ Sync failed ${i + 1}: ${data.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ HTTP Error ${i + 1}: ${response.status}`, 'error');
+                        const errorText = await response.text();
+                        log(`Details: ${errorText}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Network Error ${i + 1}: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            log(`📊 SYNC RESULT: ${successCount}/${adminPanelNotifications.length} notifications synchronized`, 
+                successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                log('🎉 SYNCHRONISATION RÉUSSIE! Vérification dans 3 secondes...', 'success');
+                setTimeout(() => verifySync(), 3000);
+            } else {
+                log('❌ ÉCHEC SYNCHRONISATION - Problème dans le backend!', 'error');
+            }
+        }
+
+        async function addTestNotifications() {
+            log('➕ Ajout de notifications de test...', 'info');
+            
+            const testNotifications = [
+                {
+                    title: 'Test Sync - Information',
+                    message: 'Notification de test pour vérifier la synchronisation',
+                    type: 'information',
+                    description: 'Test de synchronisation Admin Panel → Espace Participant'
+                },
+                {
+                    title: 'Test Sync - Success',
+                    message: 'Notification de succès pour test',
+                    type: 'success',
+                    description: 'Test notification de type succès'
+                }
+            ];
+            
+            for (const notification of testNotifications) {
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        log(`✅ Test notification added: ${notification.title}`, 'success');
+                    }
+                } catch (error) {
+                    log(`❌ Error adding test notification: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function verifySync() {
+            log('✅ Vérification de la synchronisation...', 'info');
+            
+            try {
+                // Check both APIs
+                const [participantResponse, notificationsResponse] = await Promise.all([
+                    fetch('http://localhost:3001/api/participants/PART-550776'),
+                    fetch('http://localhost:3001/api/participants/PART-550776/notifications')
+                ]);
+                
+                if (participantResponse.ok) {
+                    const participantData = await participantResponse.json();
+                    const notifications = participantData.data?.notifications;
+                    log(`✅ Participant API: ${notifications?.length || 0} notifications`, 
+                        notifications?.length > 0 ? 'success' : 'error');
+                }
+                
+                if (notificationsResponse.ok) {
+                    const notificationsData = await notificationsResponse.json();
+                    log(`✅ Notifications API: ${notificationsData.data?.length || 0} notifications`, 
+                        notificationsData.data?.length > 0 ? 'success' : 'error');
+                    
+                    if (notificationsData.data?.length > 0) {
+                        log('📋 Notifications synchronisées:', 'success');
+                        notificationsData.data.forEach((notif, index) => {
+                            log(`${index + 1}. ${notif.title} (${notif.type})`, 'info');
+                        });
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Verification error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEspaceParticipant() {
+            log('🖥️ Test Espace Participant...', 'info');
+            
+            log('📋 Instructions de test:', 'warning');
+            log('1. Allez sur: http://localhost:5173/espace-participant', 'info');
+            log('2. Connectez-vous: PART-550776 / gharbi@gmail.com', 'info');
+            log('3. Cliquez sur bouton Notifications (🔔)', 'info');
+            log('4. Vérifiez si les notifications synchronisées apparaissent', 'info');
+            log('5. Ouvrez Console (F12) pour voir les logs', 'info');
+            
+            log('🔍 Logs à chercher:', 'warning');
+            log('- "✅ Loaded X notifications from API" (succès)', 'info');
+            log('- "ℹ️ No notifications found" (échec)', 'info');
+            
+            // Auto-verify after a moment
+            setTimeout(async () => {
+                log('🔄 Vérification automatique...', 'info');
+                await verifySync();
+            }, 2000);
+        }
+
+        // Auto-run diagnostic
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🎯 PROBLÈME IDENTIFIÉ: Notifications Admin Panel ne se synchronisent pas', 'error');
+                log('📋 Solution: Synchronisation forcée des notifications', 'warning');
+                log('⚡ Cliquez sur "SYNC NOTIFICATIONS" pour résoudre le problème', 'warning');
+                
+                // Auto-run diagnostic
+                runDiagnostic();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

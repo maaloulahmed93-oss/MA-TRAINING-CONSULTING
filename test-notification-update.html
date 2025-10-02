@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Notification Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Notification Update System</h1>
+        
+        <div id="status" class="status success">
+            <strong>✅ System Ready</strong><br>
+            Ready to test notification update functionality.
+        </div>
+
+        <h2>🛠️ Test Actions:</h2>
+        <button onclick="testClipboard()" class="warning">📋 Test Clipboard Fix</button>
+        <button onclick="checkNotifications()">🔍 Check Current Notifications</button>
+        <button onclick="simulateUpdate()" class="success">🔄 Simulate Update</button>
+        <button onclick="forceRefresh()">🔃 Force Refresh</button>
+
+        <h2>📋 Test Results:</h2>
+        <pre id="results"></pre>
+    </div>
+
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function clearResults() {
+            document.getElementById('results').textContent = '';
+        }
+
+        function updateStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.innerHTML = `<strong>${type === 'success' ? '✅' : '❌'} ${message}</strong>`;
+        }
+
+        function testClipboard() {
+            clearResults();
+            log('🧪 Testing clipboard functionality...');
+            
+            const testText = 'PART-550776';
+            
+            async function tryClipboard() {
+                try {
+                    // Focus the window first
+                    window.focus();
+                    log('✅ Window focused');
+                    
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(testText);
+                        log('✅ Modern clipboard API successful');
+                        return true;
+                    } else {
+                        // Fallback method
+                        const textArea = document.createElement('textarea');
+                        textArea.value = testText;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        const success = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        if (success) {
+                            log('✅ Fallback clipboard method successful');
+                            return true;
+                        } else {
+                            log('❌ Fallback clipboard method failed');
+                            return false;
+                        }
+                    }
+                } catch (err) {
+                    log(`❌ Clipboard error: ${err.message}`);
+                    return false;
+                }
+            }
+            
+            tryClipboard().then(success => {
+                if (success) {
+                    updateStatus('Clipboard Test Passed', 'success');
+                    log('🎉 Clipboard functionality working correctly');
+                } else {
+                    updateStatus('Clipboard Test Failed', 'error');
+                    log('⚠️ Clipboard functionality needs attention');
+                }
+            });
+        }
+
+        function checkNotifications() {
+            clearResults();
+            log('🔍 Checking current notifications...');
+            
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || key.includes('PART-')
+            );
+            
+            log(`📊 Found ${notificationKeys.length} notification-related keys:`);
+            
+            notificationKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(data)) {
+                        log(`\n🔑 Key: ${key}`);
+                        log(`📝 Count: ${data.length} notifications`);
+                        
+                        data.forEach((notif, index) => {
+                            log(`   ${index + 1}. "${notif.title}" - ${notif.description || 'No description'}`);
+                            if (notif.link) {
+                                log(`      🔗 Link: ${notif.link}`);
+                            }
+                            if (notif.contact) {
+                                log(`      👤 Contact: ${notif.contact}`);
+                            }
+                        });
+                    }
+                } catch (e) {
+                    log(`❌ Error parsing ${key}: ${e.message}`);
+                }
+            });
+            
+            updateStatus('Notification Check Complete', 'success');
+        }
+
+        function simulateUpdate() {
+            clearResults();
+            log('🔄 Simulating notification update...');
+            
+            // Find the first notification to update
+            const keys = Object.keys(localStorage);
+            const notificationKey = keys.find(key => 
+                key.includes('notification') || key.includes('PART-')
+            );
+            
+            if (!notificationKey) {
+                log('❌ No notifications found to update');
+                updateStatus('No Notifications Found', 'error');
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(localStorage.getItem(notificationKey));
+                if (Array.isArray(data) && data.length > 0) {
+                    // Update the first notification
+                    const updated = [...data];
+                    updated[0] = {
+                        ...updated[0],
+                        title: updated[0].title + ' (Updated)',
+                        link: updated[0].link || 'https://example.com/updated-link',
+                        contact: updated[0].contact || 'Updated Contact',
+                        description: updated[0].description + ' - Updated at ' + new Date().toLocaleTimeString()
+                    };
+                    
+                    localStorage.setItem(notificationKey, JSON.stringify(updated));
+                    
+                    log('✅ Notification updated successfully');
+                    log(`📝 Updated: "${updated[0].title}"`);
+                    log(`🔗 Link: ${updated[0].link}`);
+                    log(`👤 Contact: ${updated[0].contact}`);
+                    
+                    updateStatus('Update Simulation Complete', 'success');
+                } else {
+                    log('❌ No valid notifications found');
+                    updateStatus('No Valid Notifications', 'error');
+                }
+            } catch (e) {
+                log(`❌ Error updating notification: ${e.message}`);
+                updateStatus('Update Failed', 'error');
+            }
+        }
+
+        function forceRefresh() {
+            clearResults();
+            log('🔃 Force refreshing the admin panel...');
+            
+            // Try to refresh the parent window if this is opened from admin panel
+            if (window.opener) {
+                try {
+                    window.opener.location.reload();
+                    log('✅ Parent window refreshed');
+                    updateStatus('Parent Window Refreshed', 'success');
+                } catch (e) {
+                    log(`❌ Could not refresh parent window: ${e.message}`);
+                }
+            } else {
+                log('ℹ️ No parent window found');
+            }
+            
+            // Also provide manual refresh option
+            log('💡 Manual refresh: Go back to admin panel and press F5 or Ctrl+R');
+            
+            setTimeout(() => {
+                if (window.opener) {
+                    window.close();
+                }
+            }, 3000);
+        }
+
+        // Auto-run initial check
+        window.onload = () => {
+            checkNotifications();
+        };
+    </script>
+</body>
+</html>

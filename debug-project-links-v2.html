@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug Project Links V2 - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        .section h2 {
+            color: #4a90e2;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn.success { background: linear-gradient(45deg, #28a745, #20c997); }
+        .btn.warning { background: linear-gradient(45deg, #ffc107, #fd7e14); }
+        .btn.danger { background: linear-gradient(45deg, #dc3545, #c82333); }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .project-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .project-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .project-url {
+            background: #f0f8ff;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 4px solid #4a90e2;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        .empty-url {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Project Links V2 - MATC</h1>
+        
+        <!-- Section 1: Test de connectivité -->
+        <div class="section">
+            <h2>🌐 1. Test de Connectivité Backend</h2>
+            <button class="btn" onclick="testBackendConnection()">Tester Connexion Backend</button>
+            <div id="connectionResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Section 2: Récupération des projets -->
+        <div class="section">
+            <h2>📋 2. Récupération des Projets</h2>
+            <div class="input-group">
+                <label for="participantId">ID Participant:</label>
+                <input type="text" id="participantId" placeholder="Ex: PART-177037" value="PART-177037">
+            </div>
+            <button class="btn" onclick="getParticipantProjects()">Récupérer Projets</button>
+            <button class="btn warning" onclick="getParticipantData()">Récupérer Données Participant</button>
+            <div id="projectsResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Section 3: Analyse des liens -->
+        <div class="section">
+            <h2>🔗 3. Analyse des Liens de Projets</h2>
+            <div id="projectsAnalysis" style="display: none;">
+                <div class="stats" id="projectStats"></div>
+                <div id="projectsList"></div>
+            </div>
+        </div>
+
+        <!-- Section 4: Correction des liens -->
+        <div class="section">
+            <h2>🛠️ 4. Correction des Liens</h2>
+            <div class="input-group">
+                <label for="fixParticipantId">ID Participant à corriger:</label>
+                <input type="text" id="fixParticipantId" placeholder="Ex: PART-177037" value="PART-177037">
+            </div>
+            <div class="input-group">
+                <label for="projectTitle">Titre du projet:</label>
+                <input type="text" id="projectTitle" placeholder="Ex: nde">
+            </div>
+            <div class="input-group">
+                <label for="projectUrl">URL du projet:</label>
+                <input type="url" id="projectUrl" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <button class="btn success" onclick="fixProjectUrl()">Corriger URL du Projet</button>
+            <div id="fixResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Section 5: Test Frontend -->
+        <div class="section">
+            <h2>🖥️ 5. Test Frontend Transformation</h2>
+            <button class="btn" onclick="testFrontendTransformation()">Tester Transformation Frontend</button>
+            <div id="frontendResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let currentProjects = [];
+
+        // Test de connectivité backend
+        async function testBackendConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Test de connexion en cours...';
+
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Backend connecté avec succès!\n` +
+                        `Status: ${response.status}\n` +
+                        `Participants trouvés: ${data.data?.length || 0}\n` +
+                        `Timestamp: ${new Date().toLocaleString()}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur de connexion:\n${error.message}\n\n` +
+                    `Vérifiez que le backend est démarré sur le port 3001`;
+            }
+        }
+
+        // Récupération des projets via API directe
+        async function getParticipantProjects() {
+            const participantId = document.getElementById('participantId').value.trim();
+            if (!participantId) {
+                alert('Veuillez saisir un ID participant');
+                return;
+            }
+
+            const resultDiv = document.getElementById('projectsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = `🔄 Récupération des projets pour ${participantId}...`;
+
+            try {
+                const response = await fetch(`${API_BASE}/participants/${participantId}/projects`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentProjects = data.data || [];
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Projets récupérés avec succès!\n` +
+                        `Nombre de projets: ${currentProjects.length}\n` +
+                        `Données brutes:\n${JSON.stringify(data, null, 2)}`;
+                    
+                    analyzeProjects(currentProjects);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur lors de la récupération:\n${error.message}`;
+            }
+        }
+
+        // Récupération via données participant
+        async function getParticipantData() {
+            const participantId = document.getElementById('participantId').value.trim();
+            if (!participantId) {
+                alert('Veuillez saisir un ID participant');
+                return;
+            }
+
+            const resultDiv = document.getElementById('projectsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = `🔄 Récupération des données participant ${participantId}...`;
+
+            try {
+                const response = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const projects = data.data?.projects || [];
+                    currentProjects = projects;
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Données participant récupérées!\n` +
+                        `Projets dans participant.projects: ${projects.length}\n` +
+                        `Données brutes:\n${JSON.stringify(data.data, null, 2)}`;
+                    
+                    analyzeProjects(projects);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur lors de la récupération:\n${error.message}`;
+            }
+        }
+
+        // Analyse des projets
+        function analyzeProjects(projects) {
+            const analysisDiv = document.getElementById('projectsAnalysis');
+            const statsDiv = document.getElementById('projectStats');
+            const listDiv = document.getElementById('projectsList');
+
+            if (!projects || projects.length === 0) {
+                analysisDiv.style.display = 'block';
+                statsDiv.innerHTML = '<div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Aucun projet trouvé</div></div>';
+                listDiv.innerHTML = '<p>Aucun projet à analyser.</p>';
+                return;
+            }
+
+            analysisDiv.style.display = 'block';
+
+            // Statistiques
+            const totalProjects = projects.length;
+            const projectsWithUrl = projects.filter(p => p.projectUrl && p.projectUrl.trim()).length;
+            const projectsWithoutUrl = totalProjects - projectsWithUrl;
+
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalProjects}</div>
+                    <div class="stat-label">Total Projets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #28a745;">${projectsWithUrl}</div>
+                    <div class="stat-label">Avec URL</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #dc3545;">${projectsWithoutUrl}</div>
+                    <div class="stat-label">Sans URL</div>
+                </div>
+            `;
+
+            // Liste des projets
+            listDiv.innerHTML = projects.map(project => `
+                <div class="project-card">
+                    <div class="project-title">📋 ${project.title}</div>
+                    <div><strong>Description:</strong> ${project.description || 'N/A'}</div>
+                    <div><strong>Formation:</strong> ${project.formationTitle || 'N/A'}</div>
+                    <div><strong>Status:</strong> ${project.status || 'N/A'}</div>
+                    <div><strong>Date d'échéance:</strong> ${project.dueDate ? new Date(project.dueDate).toLocaleDateString('fr-FR') : 'N/A'}</div>
+                    <div class="project-url ${project.projectUrl && project.projectUrl.trim() ? '' : 'empty-url'}">
+                        <strong>URL du projet:</strong> ${project.projectUrl && project.projectUrl.trim() ? project.projectUrl : '❌ VIDE ou MANQUANT'}
+                    </div>
+                    ${project.projectUrl && project.projectUrl.trim() ? `
+                        <button class="btn" onclick="window.open('${project.projectUrl}', '_blank')">🔗 Tester le lien</button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Correction d'URL de projet
+        async function fixProjectUrl() {
+            const participantId = document.getElementById('fixParticipantId').value.trim();
+            const projectTitle = document.getElementById('projectTitle').value.trim();
+            const projectUrl = document.getElementById('projectUrl').value.trim();
+
+            if (!participantId || !projectTitle || !projectUrl) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            const resultDiv = document.getElementById('fixResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = `🔄 Correction en cours...`;
+
+            try {
+                // Récupérer les données actuelles du participant
+                const getResponse = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (!getResponse.ok) {
+                    throw new Error(`Participant non trouvé: ${getResponse.status}`);
+                }
+
+                const participantData = await getResponse.json();
+                const participant = participantData.data;
+
+                // Trouver et mettre à jour le projet
+                const projects = participant.projects || [];
+                const projectIndex = projects.findIndex(p => p.title.toLowerCase().includes(projectTitle.toLowerCase()));
+
+                if (projectIndex === -1) {
+                    throw new Error(`Projet "${projectTitle}" non trouvé`);
+                }
+
+                // Mettre à jour l'URL du projet
+                projects[projectIndex].projectUrl = projectUrl;
+
+                // Sauvegarder via PUT
+                const putResponse = await fetch(`${API_BASE}/participants/${participantId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...participant,
+                        projects: projects
+                    })
+                });
+
+                if (putResponse.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ URL du projet corrigée avec succès!\n` +
+                        `Participant: ${participantId}\n` +
+                        `Projet: ${projectTitle}\n` +
+                        `Nouvelle URL: ${projectUrl}\n` +
+                        `Timestamp: ${new Date().toLocaleString()}`;
+                } else {
+                    throw new Error(`Erreur lors de la sauvegarde: ${putResponse.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur lors de la correction:\n${error.message}`;
+            }
+        }
+
+        // Test de transformation frontend
+        function testFrontendTransformation() {
+            const resultDiv = document.getElementById('frontendResult');
+            resultDiv.style.display = 'block';
+
+            if (currentProjects.length === 0) {
+                resultDiv.className = 'result warning';
+                resultDiv.textContent = '⚠️ Aucun projet chargé. Récupérez d\'abord des projets.';
+                return;
+            }
+
+            // Simuler la transformation frontend
+            const transformApiProject = (apiProject) => {
+                const statusMapping = {
+                    'not_started': 'En attente',
+                    'in_progress': 'En attente', 
+                    'submitted': 'En attente',
+                    'accepted': 'Accepté',
+                    'rejected': 'Refusé',
+                    'revision_needed': 'En révision'
+                };
+
+                return {
+                    id: apiProject._id,
+                    title: apiProject.title,
+                    description: apiProject.description,
+                    formationId: apiProject.formationId || '',
+                    formationTitle: apiProject.formationTitle || 'Formation non spécifiée',
+                    status: statusMapping[apiProject.status] || 'En attente',
+                    submittedDate: apiProject.submittedDate,
+                    dueDate: apiProject.dueDate || new Date().toISOString(),
+                    feedback: apiProject.feedback,
+                    grade: apiProject.grade,
+                    projectUrl: apiProject.projectUrl,
+                    files: (apiProject.files || []).map(file => ({
+                        id: file.id,
+                        name: file.name,
+                        size: file.size || '0 KB',
+                        type: file.type || 'unknown',
+                        uploadDate: file.uploadDate || new Date().toISOString()
+                    }))
+                };
+            };
+
+            const transformedProjects = currentProjects.map(transformApiProject);
+
+            resultDiv.className = 'result info';
+            resultDiv.textContent = `🔄 Transformation frontend simulée:\n\n` +
+                `Projets originaux: ${currentProjects.length}\n` +
+                `Projets transformés: ${transformedProjects.length}\n\n` +
+                `Détails de la transformation:\n${JSON.stringify(transformedProjects, null, 2)}`;
+        }
+
+        // Auto-test au chargement de la page
+        window.onload = function() {
+            setTimeout(testBackendConnection, 1000);
+        };
+    </script>
+</body>
+</html>

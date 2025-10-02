@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧹 تنظيف ذاكرة الإشعارات</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .urgent { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; }
+        .success { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        .info { background: linear-gradient(135deg, #2196F3, #1976D2); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        button { 
+            padding: 18px 30px; margin: 12px 8px; background: linear-gradient(135deg, #ff6b6b, #ee5a52); 
+            color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 18px; 
+            transition: all 0.3s ease; font-weight: bold; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        h1 { color: #495057; text-align: center; margin-bottom: 30px; font-size: 28px; }
+        .result { margin: 15px 0; padding: 18px; border-radius: 10px; background: #f8f9fa; border-left: 6px solid #667eea; }
+        .step { background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 تنظيف ذاكرة الإشعارات</h1>
+        
+        <div class="urgent">
+            <h3>⚠️ تحذير مهم</h3>
+            <p>هذه الأداة ستحذف جميع البيانات المحفوظة محلياً</p>
+            <p>تأكد من حفظ أي بيانات مهمة قبل المتابعة</p>
+        </div>
+
+        <button onclick="clearAllCache()">🗑️ تنظيف شامل للذاكرة</button>
+
+        <div id="results"></div>
+
+        <div class="info">
+            <h3>📋 خطوات ما بعد التنظيف</h3>
+            <div class="step">1. اذهب إلى Admin Panel وأعد تحميل الصفحة (Ctrl+F5)</div>
+            <div class="step">2. أضف إشعار جديد مع رابط</div>
+            <div class="step">3. احفظ التغييرات</div>
+            <div class="step">4. اذهب إلى Espace Participant وتحقق من ظهور الرابط</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+        }
+
+        function clearAllCache() {
+            log('🧹 بدء عملية التنظيف الشاملة...', 'info');
+            
+            // Clear localStorage
+            const beforeCount = localStorage.length;
+            localStorage.clear();
+            log(`✅ تم تنظيف localStorage (${beforeCount} عنصر محذوف)`, 'success');
+            
+            // Clear sessionStorage
+            const sessionCount = sessionStorage.length;
+            sessionStorage.clear();
+            log(`✅ تم تنظيف sessionStorage (${sessionCount} عنصر محذوف)`, 'success');
+            
+            // Clear cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            log('✅ تم تنظيف Cookies', 'success');
+            
+            // Clear cache (if supported)
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    names.forEach(function(name) {
+                        caches.delete(name);
+                    });
+                    log('✅ تم تنظيف Cache API', 'success');
+                });
+            }
+            
+            log('🎉 تم التنظيف الشامل بنجاح!', 'success');
+            log('⚠️ أعد تحميل جميع صفحات MATC (Ctrl+F5)', 'info');
+            
+            // Auto-reload after 3 seconds
+            setTimeout(() => {
+                log('🔄 إعادة تحميل الصفحة...', 'info');
+                window.location.reload(true);
+            }, 3000);
+        }
+
+        // Auto-run warning
+        window.onload = function() {
+            log('⚠️ جاهز لتنظيف ذاكرة الإشعارات', 'info');
+            log('هذا سيحل مشكلة التكرار نهائياً', 'success');
+        };
+    </script>
+</body>
+</html>

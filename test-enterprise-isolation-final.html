@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 Test Final - Isolation des Données Enterprise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .success { 
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+            color: #155724;
+        }
+        .error { 
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .warning { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .info { 
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        button {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log {
+            background: #2d3748;
+            color: #e2e8f0;
+            border: 1px solid #4a5568;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .partner-card {
+            border: 2px solid #007bff;
+            padding: 20px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f8f9ff, #e3f2fd);
+        }
+        .partner-card h4 {
+            margin: 0 0 15px 0;
+            color: #007bff;
+            font-size: 18px;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 5px;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+        .isolation-status {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .isolation-ok {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        .isolation-fail {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Test Final - Isolation des Données Enterprise</h1>
+            <p><strong>Objectif :</strong> Vérifier que chaque partenaire ne voit que ses propres données</p>
+        </div>
+        
+        <div class="test-section info">
+            <h3>📋 Scénario de Test</h3>
+            <ol>
+                <li><strong>Créer 2 partenaires entreprise</strong> avec des IDs uniques</li>
+                <li><strong>Ajouter des données spécifiques</strong> à chaque partenaire</li>
+                <li><strong>Vérifier l'isolation</strong> - aucun croisement de données</li>
+                <li><strong>Tester les statistiques</strong> - chiffres corrects par partenaire</li>
+                <li><strong>Valider la sécurité</strong> - accès refusé aux données d'autrui</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 Contrôles de Test</h3>
+            <button onclick="runFullTest()" id="runTestBtn">🧪 Lancer Test Complet</button>
+            <button onclick="testBackendHealth()">💓 Test Backend</button>
+            <button onclick="createTestPartners()">👥 Créer Partenaires</button>
+            <button onclick="createTestData()">📊 Créer Données</button>
+            <button onclick="verifyIsolation()">🔒 Vérifier Isolation</button>
+            <button onclick="cleanupData()">🧹 Nettoyer</button>
+        </div>
+
+        <div id="isolationStatus" class="isolation-status" style="display: none;">
+            <div id="isolationResult"></div>
+        </div>
+
+        <div id="results" class="log">🚀 Prêt pour les tests...\n</div>
+
+        <div class="partner-grid" id="partnerGrid" style="display: none;">
+            <div class="partner-card">
+                <h4>🏢 Entreprise Alpha (ENT-ALPHA001)</h4>
+                <div class="stat-item">
+                    <span>Projets:</span>
+                    <span class="stat-value" id="alpha-projects">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Formations:</span>
+                    <span class="stat-value" id="alpha-formations">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Événements:</span>
+                    <span class="stat-value" id="alpha-events">0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="alpha-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="partner-card">
+                <h4>🏢 Entreprise Beta (ENT-BETA002)</h4>
+                <div class="stat-item">
+                    <span>Projets:</span>
+                    <span class="stat-value" id="beta-projects">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Formations:</span>
+                    <span class="stat-value" id="beta-formations">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Événements:</span>
+                    <span class="stat-value" id="beta-events">0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="beta-progress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const log = document.getElementById('results');
+        let testProgress = 0;
+        
+        function logMessage(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            const logEntry = `[${timestamp}] ${emoji} ${message}\n`;
+            log.textContent += logEntry;
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+
+        async function apiCall(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'Erreur API'}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                logMessage(`Erreur API: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function testBackendHealth() {
+            logMessage('🔍 Test de santé du backend...');
+            try {
+                const response = await apiCall('/health');
+                logMessage(`Backend opérationnel: ${response.message}`, 'success');
+                return true;
+            } catch (error) {
+                logMessage(`Backend inaccessible: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function createTestPartners() {
+            logMessage('👥 Création des partenaires de test...');
+            
+            const partners = [
+                {
+                    fullName: 'Entreprise Alpha Technologies',
+                    email: 'alpha@enterprise-test.com',
+                    type: 'entreprise',
+                    contactPerson: 'Manager Alpha',
+                    isActive: true
+                },
+                {
+                    fullName: 'Entreprise Beta Solutions',
+                    email: 'beta@enterprise-test.com',
+                    type: 'entreprise',
+                    contactPerson: 'Manager Beta',
+                    isActive: true
+                }
+            ];
+
+            const createdPartners = [];
+            
+            for (const partner of partners) {
+                try {
+                    const response = await apiCall('/partners', {
+                        method: 'POST',
+                        body: JSON.stringify(partner)
+                    });
+                    
+                    if (response.success && response.data) {
+                        createdPartners.push(response.data);
+                        logMessage(`Partenaire créé: ${response.data.partnerId} (${response.data.fullName})`, 'success');
+                    }
+                } catch (error) {
+                    if (error.message.includes('E11000') || error.message.includes('duplicate')) {
+                        logMessage(`Partenaire existe déjà: ${partner.fullName}`, 'warning');
+                    } else {
+                        logMessage(`Erreur création: ${error.message}`, 'error');
+                    }
+                }
+            }
+            
+            return createdPartners;
+        }
+
+        async function createTestData() {
+            logMessage('📊 Création des données de test...');
+            
+            // Récupérer les partenaires existants
+            const partnersResponse = await apiCall('/partners?type=entreprise');
+            const partners = partnersResponse.data || [];
+            
+            const alphaPartner = partners.find(p => p.fullName.includes('Alpha'));
+            const betaPartner = partners.find(p => p.fullName.includes('Beta'));
+            
+            if (!alphaPartner || !betaPartner) {
+                logMessage('Partenaires Alpha/Beta non trouvés. Créez-les d\'abord.', 'error');
+                return;
+            }
+
+            // Données pour Alpha
+            const alphaData = {
+                projects: [
+                    {
+                        title: 'Projet Alpha - IA Marketing',
+                        description: 'Développement IA pour marketing digital',
+                        status: 'in_progress',
+                        startDate: '2024-01-15',
+                        endDate: '2024-07-15',
+                        budget: 85000,
+                        progress: 65
+                    },
+                    {
+                        title: 'Projet Alpha - Cloud Migration',
+                        description: 'Migration infrastructure vers le cloud',
+                        status: 'planning',
+                        startDate: '2024-03-01',
+                        endDate: '2024-09-01',
+                        budget: 120000,
+                        progress: 15
+                    }
+                ],
+                formations: [
+                    {
+                        title: 'Formation Alpha - React Avancé',
+                        description: 'Formation React pour équipe Alpha',
+                        date: '2024-04-15',
+                        duration: 40,
+                        location: 'online',
+                        participants: 12,
+                        maxParticipants: 15,
+                        status: 'scheduled'
+                    }
+                ],
+                events: [
+                    {
+                        title: 'Séminaire Alpha - Innovation 2024',
+                        description: 'Séminaire innovation pour Alpha',
+                        type: 'seminar',
+                        date: '2024-05-20',
+                        time: '09:00',
+                        duration: 8,
+                        location: 'Tunis Centre',
+                        maxParticipants: 50,
+                        currentParticipants: 0,
+                        status: 'upcoming'
+                    }
+                ]
+            };
+
+            // Données pour Beta
+            const betaData = {
+                projects: [
+                    {
+                        title: 'Projet Beta - E-commerce Platform',
+                        description: 'Plateforme e-commerce sur mesure',
+                        status: 'in_progress',
+                        startDate: '2024-02-01',
+                        endDate: '2024-08-01',
+                        budget: 95000,
+                        progress: 45
+                    }
+                ],
+                formations: [
+                    {
+                        title: 'Formation Beta - DevOps',
+                        description: 'Formation DevOps pour équipe Beta',
+                        date: '2024-04-22',
+                        duration: 32,
+                        location: 'hybrid',
+                        participants: 8,
+                        maxParticipants: 10,
+                        status: 'scheduled'
+                    },
+                    {
+                        title: 'Formation Beta - Cybersécurité',
+                        description: 'Formation sécurité informatique',
+                        date: '2024-05-10',
+                        duration: 24,
+                        location: 'onsite',
+                        participants: 15,
+                        maxParticipants: 20,
+                        status: 'scheduled'
+                    }
+                ],
+                events: [
+                    {
+                        title: 'Workshop Beta - Agile Methodology',
+                        description: 'Workshop méthodologie Agile',
+                        type: 'workshop',
+                        date: '2024-04-30',
+                        time: '14:00',
+                        duration: 4,
+                        location: 'Sfax',
+                        maxParticipants: 25,
+                        currentParticipants: 0,
+                        status: 'upcoming'
+                    },
+                    {
+                        title: 'Conférence Beta - Future Tech',
+                        description: 'Conférence technologies futures',
+                        type: 'conference',
+                        date: '2024-06-15',
+                        time: '10:00',
+                        duration: 6,
+                        location: 'Sousse',
+                        maxParticipants: 100,
+                        currentParticipants: 0,
+                        status: 'upcoming'
+                    }
+                ]
+            };
+
+            // Créer les données pour chaque partenaire
+            const dataCreation = [
+                { partner: alphaPartner, data: alphaData, name: 'Alpha' },
+                { partner: betaPartner, data: betaData, name: 'Beta' }
+            ];
+
+            for (const { partner, data, name } of dataCreation) {
+                try {
+                    // Créer projets
+                    for (const project of data.projects) {
+                        await apiCall(`/enterprise/${partner.partnerId}/projects`, {
+                            method: 'POST',
+                            body: JSON.stringify(project)
+                        });
+                    }
+                    logMessage(`${data.projects.length} projet(s) créé(s) pour ${name}`, 'success');
+
+                    // Créer formations
+                    for (const formation of data.formations) {
+                        await apiCall(`/enterprise/${partner.partnerId}/formations`, {
+                            method: 'POST',
+                            body: JSON.stringify(formation)
+                        });
+                    }
+                    logMessage(`${data.formations.length} formation(s) créée(s) pour ${name}`, 'success');
+
+                    // Créer événements
+                    for (const event of data.events) {
+                        await apiCall(`/enterprise/${partner.partnerId}/events`, {
+                            method: 'POST',
+                            body: JSON.stringify(event)
+                        });
+                    }
+                    logMessage(`${data.events.length} événement(s) créé(s) pour ${name}`, 'success');
+
+                } catch (error) {
+                    logMessage(`Erreur création données ${name}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function verifyIsolation() {
+            logMessage('🔒 Vérification de l\'isolation des données...');
+            document.getElementById('partnerGrid').style.display = 'grid';
+            
+            // Récupérer les partenaires
+            const partnersResponse = await apiCall('/partners?type=entreprise');
+            const partners = partnersResponse.data || [];
+            
+            const alphaPartner = partners.find(p => p.fullName.includes('Alpha'));
+            const betaPartner = partners.find(p => p.fullName.includes('Beta'));
+            
+            if (!alphaPartner || !betaPartner) {
+                logMessage('Partenaires Alpha/Beta non trouvés', 'error');
+                return;
+            }
+
+            const results = {};
+            let isolationPassed = true;
+
+            // Tester chaque partenaire
+            for (const partner of [alphaPartner, betaPartner]) {
+                const name = partner.fullName.includes('Alpha') ? 'Alpha' : 'Beta';
+                
+                try {
+                    logMessage(`Test données pour ${name} (${partner.partnerId})...`);
+                    
+                    const [projects, formations, events, stats] = await Promise.all([
+                        apiCall(`/enterprise/${partner.partnerId}/projects`),
+                        apiCall(`/enterprise/${partner.partnerId}/formations`),
+                        apiCall(`/enterprise/${partner.partnerId}/events`),
+                        apiCall(`/enterprise/${partner.partnerId}/stats`)
+                    ]);
+
+                    results[name] = {
+                        projects: projects.data || [],
+                        formations: formations.data || [],
+                        events: events.data || [],
+                        stats: stats.data || {}
+                    };
+
+                    // Vérifier que toutes les données appartiennent au bon partenaire
+                    const allData = [
+                        ...results[name].projects,
+                        ...results[name].formations,
+                        ...results[name].events
+                    ];
+
+                    for (const item of allData) {
+                        if (item.partnerId !== partner.partnerId) {
+                            logMessage(`❌ ISOLATION ÉCHOUÉE: ${name} voit des données de ${item.partnerId}`, 'error');
+                            isolationPassed = false;
+                        }
+                    }
+
+                    // Mettre à jour l'affichage
+                    const prefix = name.toLowerCase();
+                    document.getElementById(`${prefix}-projects`).textContent = results[name].projects.length;
+                    document.getElementById(`${prefix}-formations`).textContent = results[name].formations.length;
+                    document.getElementById(`${prefix}-events`).textContent = results[name].events.length;
+                    
+                    const progress = Math.min(100, (results[name].projects.length + results[name].formations.length + results[name].events.length) * 20);
+                    document.getElementById(`${prefix}-progress`).style.width = `${progress}%`;
+
+                    logMessage(`${name}: ${results[name].projects.length} projets, ${results[name].formations.length} formations, ${results[name].events.length} événements`, 'success');
+
+                } catch (error) {
+                    logMessage(`Erreur test ${name}: ${error.message}`, 'error');
+                    isolationPassed = false;
+                }
+            }
+
+            // Afficher le résultat de l'isolation
+            const statusDiv = document.getElementById('isolationStatus');
+            const resultDiv = document.getElementById('isolationResult');
+            statusDiv.style.display = 'block';
+            
+            if (isolationPassed) {
+                statusDiv.className = 'isolation-status isolation-ok';
+                resultDiv.innerHTML = '🎉 ISOLATION RÉUSSIE<br>Chaque partenaire ne voit que ses propres données';
+                logMessage('🎉 TEST D\'ISOLATION RÉUSSI - Données parfaitement isolées', 'success');
+            } else {
+                statusDiv.className = 'isolation-status isolation-fail';
+                resultDiv.innerHTML = '⚠️ ISOLATION ÉCHOUÉE<br>Des données sont partagées entre partenaires';
+                logMessage('⚠️ TEST D\'ISOLATION ÉCHOUÉ - Données non isolées', 'error');
+            }
+
+            return isolationPassed;
+        }
+
+        async function cleanupData() {
+            logMessage('🧹 Nettoyage des données de test...');
+            logMessage('ℹ️ Suppression manuelle requise depuis la base de données', 'warning');
+            logMessage('ℹ️ Rechercher et supprimer: Alpha Technologies, Beta Solutions', 'warning');
+        }
+
+        async function runFullTest() {
+            logMessage('🚀 DÉMARRAGE DU TEST COMPLET D\'ISOLATION');
+            logMessage('================================================');
+            
+            const runBtn = document.getElementById('runTestBtn');
+            runBtn.disabled = true;
+            runBtn.textContent = '⏳ Test en cours...';
+            
+            try {
+                // 1. Test backend
+                logMessage('Phase 1/5: Test de santé du backend');
+                const backendOk = await testBackendHealth();
+                if (!backendOk) throw new Error('Backend inaccessible');
+                
+                // 2. Créer partenaires
+                logMessage('Phase 2/5: Création des partenaires');
+                await createTestPartners();
+                
+                // 3. Créer données
+                logMessage('Phase 3/5: Création des données de test');
+                await createTestData();
+                
+                // 4. Attendre un peu
+                logMessage('Phase 4/5: Attente de synchronisation (2s)');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // 5. Vérifier isolation
+                logMessage('Phase 5/5: Vérification de l\'isolation');
+                const isolationOk = await verifyIsolation();
+                
+                if (isolationOk) {
+                    logMessage('🎉 TEST COMPLET RÉUSSI - Isolation parfaite!', 'success');
+                } else {
+                    logMessage('⚠️ TEST COMPLET ÉCHOUÉ - Problème d\'isolation', 'error');
+                }
+                
+            } catch (error) {
+                logMessage(`❌ TEST COMPLET ÉCHOUÉ: ${error.message}`, 'error');
+            } finally {
+                runBtn.disabled = false;
+                runBtn.textContent = '🧪 Lancer Test Complet';
+            }
+        }
+
+        // Auto-initialisation
+        window.addEventListener('load', () => {
+            logMessage('🔒 Système de test d\'isolation Enterprise - MATC');
+            logMessage('ℹ️ Prêt pour les tests. Cliquez sur "Lancer Test Complet" pour commencer.');
+        });
+    </script>
+</body>
+</html>

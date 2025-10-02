@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Project URL Debug - MATC Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { border-color: #4CAF50; background-color: #f8fff8; }
+        .error { border-color: #f44336; background-color: #fff8f8; }
+        .info { border-color: #2196F3; background-color: #f8f9ff; }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #005a8b; }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Test Project URL Debug - MATC Admin Panel</h1>
+        <p>Test pour diagnostiquer le problème du champ "Lien du projet"</p>
+
+        <div class="test-section info">
+            <h3>📝 Test de création de projet avec URL</h3>
+            <form id="projectForm">
+                <label>Titre du projet:</label>
+                <input type="text" id="title" value="Test Project" required>
+                
+                <label>Description:</label>
+                <textarea id="description">Description du projet de test</textarea>
+                
+                <label>Lien du projet:</label>
+                <input type="url" id="projectUrl" placeholder="https://example.com/project" value="https://github.com/test/project">
+                
+                <label>Note (sur 20):</label>
+                <input type="number" id="grade" min="0" max="20" value="18">
+                
+                <button type="submit">Créer le projet</button>
+            </form>
+        </div>
+
+        <div class="test-section" id="resultSection">
+            <h3>📊 Résultat du test</h3>
+            <div id="result" class="result">Aucun test effectué</div>
+        </div>
+
+        <div class="test-section info">
+            <h3>🔍 Instructions de test</h3>
+            <ol>
+                <li>Remplissez le formulaire ci-dessus</li>
+                <li>Cliquez sur "Créer le projet"</li>
+                <li>Vérifiez que l'URL est bien incluse dans l'objet créé</li>
+                <li>Ouvrez la console du navigateur pour voir les logs détaillés</li>
+            </ol>
+        </div>
+
+        <div class="test-section info">
+            <h3>🛠️ Actions de débogage</h3>
+            <button onclick="testLocalStorage()">Test localStorage</button>
+            <button onclick="testFormData()">Test Form Data</button>
+            <button onclick="clearResults()">Effacer résultats</button>
+        </div>
+    </div>
+
+    <script>
+        // Simuler la structure Project
+        function createProject(formData) {
+            const project = {
+                id: `proj-${Date.now()}`,
+                title: formData.title.trim(),
+                description: formData.description || "",
+                formationId: "",
+                formationTitle: "Test Formation",
+                status: "not_started",
+                feedback: "",
+                note: "",
+                isVisible: true,
+                grade: formData.grade ? Number(formData.grade) : undefined,
+                files: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                dueDate: "",
+                projectUrl: formData.projectUrl || "",
+            };
+            
+            console.log('🔗 Project created with URL:', project.projectUrl);
+            console.log('📋 Full project object:', project);
+            
+            return project;
+        }
+
+        // Test form submission
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                projectUrl: document.getElementById('projectUrl').value,
+                grade: document.getElementById('grade').value
+            };
+            
+            console.log('📝 Form data collected:', formData);
+            
+            const project = createProject(formData);
+            
+            // Display result
+            const resultDiv = document.getElementById('result');
+            const resultSection = document.getElementById('resultSection');
+            
+            if (project.projectUrl) {
+                resultSection.className = 'test-section success';
+                resultDiv.innerHTML = `✅ SUCCESS: Project créé avec URL
+                
+Titre: ${project.title}
+Description: ${project.description}
+URL: ${project.projectUrl}
+Note: ${project.grade || 'N/A'}
+ID: ${project.id}
+Créé: ${project.createdAt}
+
+🔗 URL bien présente: ${project.projectUrl}`;
+            } else {
+                resultSection.className = 'test-section error';
+                resultDiv.innerHTML = `❌ ERROR: Project créé SANS URL
+                
+Titre: ${project.title}
+Description: ${project.description}
+URL: ${project.projectUrl || 'VIDE'}
+Note: ${project.grade || 'N/A'}
+
+⚠️ L'URL n'a pas été sauvegardée!`;
+            }
+            
+            // Save to localStorage for persistence test
+            localStorage.setItem('testProject', JSON.stringify(project));
+        });
+
+        function testLocalStorage() {
+            const saved = localStorage.getItem('testProject');
+            if (saved) {
+                const project = JSON.parse(saved);
+                console.log('💾 Project from localStorage:', project);
+                alert(`Project URL from localStorage: ${project.projectUrl || 'VIDE'}`);
+            } else {
+                alert('Aucun projet sauvegardé dans localStorage');
+            }
+        }
+
+        function testFormData() {
+            const form = document.getElementById('projectForm');
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            console.log('📋 Raw form data:', data);
+            alert('Voir console pour les données du formulaire');
+        }
+
+        function clearResults() {
+            document.getElementById('result').innerHTML = 'Résultats effacés';
+            document.getElementById('resultSection').className = 'test-section';
+            localStorage.removeItem('testProject');
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', function() {
+            console.log('🚀 Page loaded - ready for testing');
+            console.log('📍 Test URL: http://localhost:8536/participants');
+            console.log('🔧 Instructions:');
+            console.log('1. Ouvrir Admin Panel');
+            console.log('2. Aller à Participants');
+            console.log('3. Ajouter un projet avec URL');
+            console.log('4. Vérifier console logs');
+        });
+    </script>
+</body>
+</html>

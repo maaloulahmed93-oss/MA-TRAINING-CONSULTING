@@ -18,7 +18,7 @@ import {
   PlusCircle
 } from 'lucide-react';
 import { getCurrentPartnerId } from '../../services/partnershipAuth';
-import { getPartnerById } from '../../services/partnershipData';
+import { getPartnerById, getEnterpriseProjects } from '../../services/enterpriseApiService';
 import { 
   getProjects, 
   saveProjects, 
@@ -78,26 +78,33 @@ const PartenaireProjectsPage: React.FC = () => {
       const partner = getPartnerById(currentPartnerId);
       setPartnerName(partner?.name || 'Partenaire');
 
-      // Charger les projets
-      const loadedProjects = getProjects(currentPartnerId);
-      setProjects(loadedProjects);
-      
-      // Calculer les statistiques
-      const total = loadedProjects.length;
-      const inProgress = loadedProjects.filter(p => p.status === 'in_progress').length;
-      const completed = loadedProjects.filter(p => p.status === 'completed').length;
-      const planning = loadedProjects.filter(p => p.status === 'planning').length;
-      const onHold = loadedProjects.filter(p => p.status === 'on_hold').length;
-      const averageProgress = total > 0 ? 
-        Math.round(loadedProjects.reduce((sum, p) => sum + p.progress, 0) / total) : 0;
-      
-      setStats({
-        total,
-        inProgress,
-        completed,
-        planning,
-        onHold,
-        averageProgress
+      // Charger les projets depuis Enterprise API
+      getEnterpriseProjects(currentPartnerId).then(loadedProjects => {
+        console.log(`✅ ${loadedProjects.length} projets chargés depuis Enterprise API`);
+        setProjects(loadedProjects);
+        
+        // Recalculer les statistiques avec les nouveaux projets
+        const total = loadedProjects.length;
+        const inProgress = loadedProjects.filter(p => p.status === 'in_progress').length;
+        const completed = loadedProjects.filter(p => p.status === 'completed').length;
+        const planning = loadedProjects.filter(p => p.status === 'planning').length;
+        const onHold = loadedProjects.filter(p => p.status === 'on_hold').length;
+        const averageProgress = total > 0 ? 
+          Math.round(loadedProjects.reduce((sum, p) => sum + p.progress, 0) / total) : 0;
+        
+        setStats({
+          total,
+          inProgress,
+          completed,
+          planning,
+          onHold,
+          averageProgress
+        });
+      }).catch(error => {
+        console.error('❌ Erreur chargement Enterprise API:', error);
+        // Fallback vers localStorage si Enterprise API échoue
+        const fallbackProjects = getProjects(currentPartnerId);
+        setProjects(fallbackProjects);
       });
       
       setLoading(false);
@@ -618,18 +625,60 @@ const PartenaireProjectsPage: React.FC = () => {
       <CreateProjectModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onCreate={(data: NewProjectInput) => {
+        onCreate={async (data: NewProjectInput) => {
           const currentPartnerId = getCurrentPartnerId();
           if (!currentPartnerId) {
             setIsCreateModalOpen(false);
             return;
           }
-          const created = createProject(currentPartnerId, data);
-          setProjects(prev => {
-            const next = [created, ...prev];
-            recomputeStats(next);
-            return next;
-          });
+          
+          try {
+            console.log('🔄 Création du projet via Enterprise API...', data);
+            
+            // Créer le projet via Enterprise API
+            const response = await fetch(`http://localhost:3001/api/enterprise/${currentPartnerId}/projects`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              console.log('✅ Projet créé avec succès:', result.data);
+              
+              // Recharger tous les projets depuis Enterprise API
+              const updatedProjects = await getEnterpriseProjects(currentPartnerId);
+              setProjects(updatedProjects);
+              
+              // Recalculer les statistiques
+              const total = updatedProjects.length;
+              const inProgress = updatedProjects.filter(p => p.status === 'in_progress').length;
+              const completed = updatedProjects.filter(p => p.status === 'completed').length;
+              const planning = updatedProjects.filter(p => p.status === 'planning').length;
+              const onHold = updatedProjects.filter(p => p.status === 'on_hold').length;
+              const averageProgress = total > 0 ? 
+                Math.round(updatedProjects.reduce((sum, p) => sum + p.progress, 0) / total) : 0;
+              
+              setStats({
+                total,
+                inProgress,
+                completed,
+                planning,
+                onHold,
+                averageProgress
+              });
+              
+              alert('Projet créé avec succès!');
+            } else {
+              const error = await response.json();
+              console.error('❌ Erreur création:', error.message);
+              alert('Erreur lors de la création: ' + error.message);
+            }
+          } catch (error) {
+            console.error('❌ Erreur:', error);
+            alert('Erreur lors de la création du projet');
+          }
+          
           setIsCreateModalOpen(false);
         }}
       />

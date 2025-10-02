@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - CSV Typing Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .output {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .demo-input {
+            border: 2px solid #007bff;
+            background-color: #f8f9ff;
+        }
+        .typing-indicator {
+            color: #007bff;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test - CSV Typing Fix</h1>
+        <p>Test de la nouvelle approche pour permettre la saisie de virgules dans les champs CSV</p>
+
+        <!-- Simulation du comportement -->
+        <div class="test-section">
+            <h3>1. Simulation du Nouveau Comportement</h3>
+            <p><strong>Approche:</strong> onChange stocke comme string, onBlur convertit en array</p>
+            
+            <div class="form-group">
+                <label>Compétences (séparées par ,):</label>
+                <input 
+                    type="text" 
+                    id="skills-demo" 
+                    placeholder="JavaScript, React, Node.js, TypeScript"
+                    class="demo-input"
+                    oninput="handleTyping('skills')"
+                    onblur="handleBlur('skills')"
+                >
+                <div class="typing-indicator" id="skills-indicator">
+                    Tapez vos compétences...
+                </div>
+            </div>
+            <div class="output" id="skills-output">
+                État initial...
+            </div>
+        </div>
+
+        <!-- Test Tags -->
+        <div class="test-section">
+            <h3>2. Test Tags</h3>
+            <div class="form-group">
+                <label>Tags (séparées par ,):</label>
+                <input 
+                    type="text" 
+                    id="tags-demo" 
+                    placeholder="remote, frontend, senior, urgent"
+                    class="demo-input"
+                    oninput="handleTyping('tags')"
+                    onblur="handleBlur('tags')"
+                >
+                <div class="typing-indicator" id="tags-indicator">
+                    Tapez vos tags...
+                </div>
+            </div>
+            <div class="output" id="tags-output">
+                État initial...
+            </div>
+        </div>
+
+        <!-- Test IDs -->
+        <div class="test-section">
+            <h3>3. Test Freelancer IDs</h3>
+            <div class="form-group">
+                <label>IDs Freelancer (séparées par ,):</label>
+                <input 
+                    type="text" 
+                    id="ids-demo" 
+                    placeholder="FRE-123456, FRE-789012, FRE-345678"
+                    class="demo-input"
+                    oninput="handleTyping('ids')"
+                    onblur="handleBlur('ids')"
+                >
+                <div class="typing-indicator" id="ids-indicator">
+                    Tapez les IDs...
+                </div>
+            </div>
+            <div class="output" id="ids-output">
+                État initial...
+            </div>
+        </div>
+
+        <!-- Comparaison des approches -->
+        <div class="test-section">
+            <h3>4. Comparaison des Approches</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h4>❌ Ancienne Approche (Problématique)</h4>
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            id="old-approach" 
+                            placeholder="Essayez de taper des virgules..."
+                            oninput="handleOldApproach()"
+                        >
+                    </div>
+                    <div class="output warning" id="old-output">
+                        onChange convertit immédiatement en array
+                    </div>
+                </div>
+                <div>
+                    <h4>✅ Nouvelle Approche (Fixée)</h4>
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            id="new-approach" 
+                            placeholder="Tapez librement avec des virgules!"
+                            oninput="handleNewApproach()"
+                            onblur="handleNewBlur()"
+                        >
+                    </div>
+                    <div class="output success" id="new-output">
+                        onChange stocke string, onBlur convertit
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h3>5. Instructions de Test</h3>
+            <ol>
+                <li><strong>Testez la saisie:</strong> Tapez dans les champs ci-dessus avec des virgules</li>
+                <li><strong>Observez le comportement:</strong> Les virgules doivent rester visibles pendant la saisie</li>
+                <li><strong>Testez onBlur:</strong> Cliquez en dehors du champ pour voir la conversion en array</li>
+                <li><strong>Admin Panel:</strong> Allez sur <a href="http://localhost:8536/partners/freelancer-offers" target="_blank">Freelancer Offers</a></li>
+                <li><strong>Créez une offre:</strong> Testez le champ "Compétences" avec la nouvelle approche</li>
+                <li><strong>Vérifiez la sauvegarde:</strong> Les données doivent se sauvegarder correctement</li>
+            </ol>
+        </div>
+
+        <!-- Diagnostic -->
+        <div class="test-section">
+            <h3>6. Diagnostic Technique</h3>
+            <div class="output info" id="diagnostic">
+                <strong>Changements appliqués:</strong><br>
+                ✅ onChange: stocke comme string pour permettre la saisie<br>
+                ✅ onBlur: convertit en array quand l'utilisateur termine<br>
+                ✅ handleSave: s'assure que les données sont en format array avant sauvegarde<br>
+                ✅ Validation: mise à jour pour gérer les deux formats<br><br>
+                
+                <strong>Avantages:</strong><br>
+                • L'utilisateur peut taper librement avec des virgules<br>
+                • Conversion automatique en array au bon moment<br>
+                • Compatibilité avec les données existantes<br>
+                • Validation robuste pour les deux formats
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulation du state (comme dans React)
+        let formState = {
+            skills: '',
+            tags: '',
+            ids: ''
+        };
+
+        // Simulation onChange (nouvelle approche)
+        function handleTyping(field) {
+            const input = document.getElementById(field + '-demo');
+            const indicator = document.getElementById(field + '-indicator');
+            const output = document.getElementById(field + '-output');
+            
+            // Stocker comme string (permet la saisie de virgules)
+            formState[field] = input.value;
+            
+            indicator.textContent = `Saisie en cours: "${input.value}"`;
+            output.className = 'output info';
+            output.innerHTML = `
+<strong>État pendant la saisie:</strong>
+Type: string
+Value: "${input.value}"
+Length: ${input.value.length} caractères
+Virgules détectées: ${(input.value.match(/,/g) || []).length}
+            `;
+        }
+
+        // Simulation onBlur (conversion en array)
+        function handleBlur(field) {
+            const input = document.getElementById(field + '-demo');
+            const indicator = document.getElementById(field + '-indicator');
+            const output = document.getElementById(field + '-output');
+            
+            // Convertir en array
+            const arrayValue = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            
+            indicator.textContent = `Converti en array: [${arrayValue.length} éléments]`;
+            output.className = 'output success';
+            output.innerHTML = `
+<strong>État après onBlur:</strong>
+Type: array
+Original: "${input.value}"
+Array: [${arrayValue.map(s => `"${s}"`).join(', ')}]
+Count: ${arrayValue.length}
+Rejoined: "${arrayValue.join(', ')}"
+            `;
+        }
+
+        // Simulation ancienne approche (problématique)
+        function handleOldApproach() {
+            const input = document.getElementById('old-approach');
+            const output = document.getElementById('old-output');
+            
+            // Ancienne approche: conversion immédiate
+            const arrayValue = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            const rejoined = arrayValue.join(', ');
+            
+            // Simulation du problème: le champ se "corrige" automatiquement
+            setTimeout(() => {
+                if (input.value !== rejoined) {
+                    input.value = rejoined;
+                }
+            }, 100);
+            
+            output.innerHTML = `
+❌ Problème: conversion immédiate
+Input: "${input.value}"
+Converti: [${arrayValue.map(s => `"${s}"`).join(', ')}]
+Rejoined: "${rejoined}"
+→ Empêche la saisie naturelle de virgules
+            `;
+        }
+
+        // Simulation nouvelle approche
+        function handleNewApproach() {
+            const input = document.getElementById('new-approach');
+            const output = document.getElementById('new-output');
+            
+            output.innerHTML = `
+✅ Nouvelle approche: saisie libre
+Input: "${input.value}"
+Type: string (permet virgules)
+Caractères: ${input.value.length}
+→ L'utilisateur peut taper librement
+            `;
+        }
+
+        function handleNewBlur() {
+            const input = document.getElementById('new-approach');
+            const output = document.getElementById('new-output');
+            
+            const arrayValue = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            
+            output.innerHTML = `
+✅ Conversion onBlur réussie
+Original: "${input.value}"
+Array: [${arrayValue.map(s => `"${s}"`).join(', ')}]
+Count: ${arrayValue.length}
+→ Conversion au bon moment
+            `;
+        }
+
+        // Auto-focus sur le premier champ
+        window.onload = function() {
+            document.getElementById('skills-demo').focus();
+            console.log('🔧 CSV Typing Fix Test loaded');
+            console.log('📝 Testez la saisie dans les champs ci-dessus');
+        };
+    </script>
+</body>
+</html>

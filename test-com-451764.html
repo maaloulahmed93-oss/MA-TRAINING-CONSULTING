@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test COM-451764 - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .problem {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test COM-451764</h1>
+            <p>Diagnostic complet pour l'ID qui ne peut pas se connecter</p>
+        </div>
+
+        <!-- Problème identifié -->
+        <div class="problem">
+            <h3>🚨 Problème Identifié:</h3>
+            <ul>
+                <li><strong>ID:</strong> COM-451764</li>
+                <li><strong>Statut Admin Panel:</strong> ✅ Présent (mohamed - mohamed@example.com)</li>
+                <li><strong>Statut Espace Commercial:</strong> ❌ Erreur 404</li>
+                <li><strong>Cause probable:</strong> ID pas synchronisé dans CommercialNew</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Vérifier dans Partners -->
+        <div class="test-section">
+            <h3>1️⃣ Vérification dans Partners</h3>
+            <button onclick="checkInPartners()">🔍 Chercher dans Partners</button>
+            <div id="partners-result" class="result"></div>
+        </div>
+
+        <!-- Test 2: Vérifier dans CommercialNew -->
+        <div class="test-section">
+            <h3>2️⃣ Vérification dans CommercialNew</h3>
+            <button onclick="checkInCommercialNew()">🔍 Chercher dans CommercialNew</button>
+            <div id="commercial-result" class="result"></div>
+        </div>
+
+        <!-- Test 3: Test Login Direct -->
+        <div class="test-section">
+            <h3>3️⃣ Test Login Direct</h3>
+            <button onclick="testLogin()">🧪 Tester Login COM-451764</button>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Test 4: Fix Automatique -->
+        <div class="test-section">
+            <h3>4️⃣ Fix Automatique</h3>
+            <button onclick="fixSpecific()">🔧 Fix COM-451764</button>
+            <button onclick="syncAll()">🚀 Sync Tous les Commerciaux</button>
+            <div id="fix-result" class="result"></div>
+        </div>
+
+        <!-- Test 5: Vérification Finale -->
+        <div class="test-section">
+            <h3>5️⃣ Test Final</h3>
+            <button onclick="finalTest()">✅ Test Complet Final</button>
+            <div id="final-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const PARTNER_ID = 'COM-451764';
+        const API_BASE = 'http://localhost:3001/api';
+
+        async function checkInPartners() {
+            const resultDiv = document.getElementById('partners-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Recherche de ${PARTNER_ID} dans Partners...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/${PARTNER_ID}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ TROUVÉ dans Partners!\n\n` +
+                        `📋 Détails:\n` +
+                        `   ID: ${result.data.partnerId}\n` +
+                        `   Nom: ${result.data.fullName}\n` +
+                        `   Email: ${result.data.email}\n` +
+                        `   Type: ${result.data.type}\n` +
+                        `   Actif: ${result.data.isActive}\n` +
+                        `   Créé: ${new Date(result.data.createdAt).toLocaleString()}\n\n` +
+                        `🎯 Le partenaire existe dans Partners!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ NON TROUVÉ dans Partners\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `🚨 PROBLÈME GRAVE: ID absent de Partners!`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function checkInCommercialNew() {
+            const resultDiv = document.getElementById('commercial-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Recherche de ${PARTNER_ID} dans CommercialNew...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ TROUVÉ dans CommercialNew!\n\n` +
+                        `📋 Détails:\n` +
+                        `   ID: ${result.data.partnerId}\n` +
+                        `   Nom: ${result.data.fullName}\n` +
+                        `   Email: ${result.data.email}\n` +
+                        `   Niveau: ${result.data.niveau}\n` +
+                        `   Points: ${result.data.points}\n\n` +
+                        `🎯 Le commercial existe dans CommercialNew!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ NON TROUVÉ dans CommercialNew\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `🎯 C'est le problème! ID pas synchronisé.`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🧪 Test login pour ${PARTNER_ID}...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ LOGIN RÉUSSI!\n\n` +
+                        `📋 Données reçues:\n` +
+                        `   ID: ${result.data.partnerId}\n` +
+                        `   Nom: ${result.data.fullName}\n` +
+                        `   Email: ${result.data.email}\n` +
+                        `   Niveau: ${result.data.niveau}\n` +
+                        `   Points: ${result.data.points}\n\n` +
+                        `🎉 Le système hybride a fonctionné!\n` +
+                        `🔄 Migration automatique effectuée.`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ LOGIN ÉCHOUÉ\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `🔍 Vérifiez si l'ID existe dans Partners`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function fixSpecific() {
+            const resultDiv = document.getElementById('fix-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔧 Fix spécifique pour ${PARTNER_ID}...\n\n`;
+
+            try {
+                // Essayer le endpoint de fix spécifique s'il existe
+                const response = await fetch(`${API_BASE}/commercial-new/fix-${PARTNER_ID.toLowerCase()}`, {
+                    method: 'GET'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ FIX RÉUSSI!\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `📊 Statistiques:\n` +
+                        `   Créés: ${result.data?.created || 1}\n` +
+                        `   Existants: ${result.data?.existing || 0}\n\n` +
+                        `🎯 Maintenant testez le login!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ Fix échoué: ${result.message}\n\n` +
+                        `Essayez la synchronisation complète.`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function syncAll() {
+            const resultDiv = document.getElementById('fix-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🚀 Synchronisation complète...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/sync-all-partners`, {
+                    method: 'GET'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ SYNCHRONISATION RÉUSSIE!\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `📊 Statistiques:\n` +
+                        `   Créés: ${result.data.created}\n` +
+                        `   Existants: ${result.data.existing}\n` +
+                        `   Total: ${result.data.total}\n\n` +
+                        `🎯 Tous les commerciaux sont maintenant synchronisés!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Sync échoué: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function finalTest() {
+            const resultDiv = document.getElementById('final-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🧪 Test complet final...\n\n`;
+
+            let allGood = true;
+            let report = '';
+
+            // Test 1: Partners
+            try {
+                const partnersResponse = await fetch(`${API_BASE}/partners/${PARTNER_ID}`);
+                const partnersResult = await partnersResponse.json();
+                
+                if (partnersResult.success) {
+                    report += `✅ Partners: OK\n`;
+                } else {
+                    report += `❌ Partners: NOK\n`;
+                    allGood = false;
+                }
+            } catch (error) {
+                report += `❌ Partners: ERROR\n`;
+                allGood = false;
+            }
+
+            // Test 2: CommercialNew
+            try {
+                const commercialResponse = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}`);
+                const commercialResult = await commercialResponse.json();
+                
+                if (commercialResult.success) {
+                    report += `✅ CommercialNew: OK\n`;
+                } else {
+                    report += `❌ CommercialNew: NOK\n`;
+                    allGood = false;
+                }
+            } catch (error) {
+                report += `❌ CommercialNew: ERROR\n`;
+                allGood = false;
+            }
+
+            // Test 3: Login
+            try {
+                const loginResponse = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const loginResult = await loginResponse.json();
+                
+                if (loginResult.success) {
+                    report += `✅ Login: OK\n`;
+                } else {
+                    report += `❌ Login: NOK\n`;
+                    allGood = false;
+                }
+            } catch (error) {
+                report += `❌ Login: ERROR\n`;
+                allGood = false;
+            }
+
+            resultDiv.textContent += report + '\n';
+
+            if (allGood) {
+                resultDiv.className = 'result success';
+                resultDiv.textContent += 
+                    `🎉 TOUT FONCTIONNE PARFAITEMENT!\n\n` +
+                    `✅ ${PARTNER_ID} peut maintenant:\n` +
+                    `   - Être trouvé dans Partners\n` +
+                    `   - Être trouvé dans CommercialNew\n` +
+                    `   - Se connecter à l'Espace Commercial\n\n` +
+                    `🚀 Testez sur: http://localhost:5173/espace-commercial`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += 
+                    `❌ PROBLÈMES DÉTECTÉS\n\n` +
+                    `Exécutez les fixes ci-dessus pour résoudre.`;
+            }
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            setTimeout(() => {
+                checkInPartners();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

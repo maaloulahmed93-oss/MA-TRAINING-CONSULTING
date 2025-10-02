@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse - Data Flow Admin Panel → Freelancer Space</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .data-source {
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .admin-panel {
+            border-color: #007bff;
+            background-color: #f8f9ff;
+        }
+        .freelancer-space {
+            border-color: #28a745;
+            background-color: #f8fff9;
+        }
+        .data-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+            border-left: 4px solid #ddd;
+        }
+        .match { border-left-color: #28a745; }
+        .mismatch { border-left-color: #dc3545; }
+        .missing { border-left-color: #ffc107; }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 12px;
+        }
+        th { background-color: #f8f9fa; }
+        .field-name { font-weight: bold; }
+        .match-status { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Analyse Data Flow: Admin Panel → Freelancer Space</h1>
+        <p>Analyse détaillée du flux de données entre Admin Panel et Freelancer Space</p>
+
+        <!-- Collecte des données -->
+        <div class="section">
+            <h3>1. Collecte des Données</h3>
+            <button class="btn-primary" onclick="collectAllData()">Collecter Toutes les Données</button>
+            <div id="collect-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Comparaison côte à côte -->
+        <div class="section">
+            <h3>2. Comparaison Détaillée</h3>
+            <button class="btn-success" onclick="compareDetailedData()">Comparer les Données</button>
+            <div id="comparison-container" style="display: none;">
+                <div class="comparison">
+                    <div class="data-source admin-panel">
+                        <h4>📊 Admin Panel (localStorage)</h4>
+                        <div id="admin-data"></div>
+                    </div>
+                    <div class="data-source freelancer-space">
+                        <h4>📱 Freelancer Space (API)</h4>
+                        <div id="freelancer-data"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyse des transformations -->
+        <div class="section">
+            <h3>3. Analyse des Transformations</h3>
+            <button class="btn-warning" onclick="analyzeTransformations()">Analyser Transformations</button>
+            <div id="transform-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Sources de données -->
+        <div class="section">
+            <h3>4. Sources de Données</h3>
+            <button class="btn-primary" onclick="checkDataSources()">Vérifier Sources</button>
+            <div id="sources-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Actions correctives -->
+        <div class="section">
+            <h3>5. Actions Correctives</h3>
+            <button class="btn-success" onclick="fixDataSync()">Synchroniser les Données</button>
+            <button class="btn-danger" onclick="clearAllSources()">Nettoyer Toutes les Sources</button>
+            <div id="fix-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let adminData = [];
+        let freelancerData = [];
+        let backendData = [];
+
+        // Collecter toutes les données
+        async function collectAllData() {
+            const resultDiv = document.getElementById('collect-result');
+            showResult(resultDiv, 'info', '🔄 Collecte des données en cours...');
+
+            try {
+                // 1. Admin Panel localStorage
+                const adminStorage = localStorage.getItem('freelancer_offers');
+                adminData = adminStorage ? JSON.parse(adminStorage) : [];
+
+                // 2. Backend API
+                try {
+                    const backendResponse = await fetch('http://localhost:3001/api/freelancer-offers');
+                    const backendResult = await backendResponse.json();
+                    backendData = backendResult.success ? backendResult.data : [];
+                } catch (e) {
+                    backendData = [];
+                }
+
+                // 3. Freelancer API
+                try {
+                    const freelancerResponse = await fetch('http://localhost:3001/api/freelancer-offers/for-freelancer/FRE-340255');
+                    const freelancerResult = await freelancerResponse.json();
+                    freelancerData = freelancerResult.success ? freelancerResult.data : [];
+                } catch (e) {
+                    freelancerData = [];
+                }
+
+                let result = `📊 Données collectées:\n\n`;
+                result += `Admin Panel (localStorage): ${adminData.length} offres\n`;
+                result += `Backend API: ${backendData.length} offres\n`;
+                result += `Freelancer API: ${freelancerData.length} offres\n\n`;
+
+                if (adminData.length > 0) {
+                    result += `📋 Admin Panel - Première offre:\n`;
+                    const first = adminData[0];
+                    result += `  Titre: "${first.title}"\n`;
+                    result += `  Entreprise: "${first.company}"\n`;
+                    result += `  Description: "${first.description?.substring(0, 50)}..."\n`;
+                    result += `  Compétences: ${JSON.stringify(first.skills)}\n\n`;
+                }
+
+                if (freelancerData.length > 0) {
+                    result += `📱 Freelancer Space - Première offre:\n`;
+                    const first = freelancerData[0];
+                    result += `  Titre: "${first.title}"\n`;
+                    result += `  Entreprise: "${first.company || first.client}"\n`;
+                    result += `  Description: "${first.description?.substring(0, 50)}..."\n`;
+                    result += `  Compétences: ${JSON.stringify(first.skills)}\n`;
+                }
+
+                showResult(resultDiv, 'success', result);
+
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Comparer les données en détail
+        async function compareDetailedData() {
+            if (adminData.length === 0 || freelancerData.length === 0) {
+                await collectAllData();
+            }
+
+            const container = document.getElementById('comparison-container');
+            const adminDiv = document.getElementById('admin-data');
+            const freelancerDiv = document.getElementById('freelancer-data');
+
+            container.style.display = 'block';
+
+            // Admin Panel data
+            let adminHtml = '';
+            adminData.forEach((offer, index) => {
+                adminHtml += `
+                    <div class="data-item">
+                        <strong>Offre ${index + 1}:</strong><br>
+                        <strong>Titre:</strong> "${offer.title}"<br>
+                        <strong>Entreprise:</strong> "${offer.company}"<br>
+                        <strong>Description:</strong> "${offer.description?.substring(0, 100)}..."<br>
+                        <strong>Compétences:</strong> ${JSON.stringify(offer.skills)}<br>
+                        <strong>Salaire:</strong> ${offer.salaryMin} - ${offer.salaryMax} ${offer.currency}<br>
+                        <strong>Status:</strong> ${offer.status}<br>
+                        <strong>Visibilité:</strong> ${offer.visibility}
+                    </div>
+                `;
+            });
+            adminDiv.innerHTML = adminHtml || '<p>Aucune donnée</p>';
+
+            // Freelancer Space data
+            let freelancerHtml = '';
+            freelancerData.forEach((offer, index) => {
+                freelancerHtml += `
+                    <div class="data-item">
+                        <strong>Offre ${index + 1}:</strong><br>
+                        <strong>Titre:</strong> "${offer.title}"<br>
+                        <strong>Entreprise:</strong> "${offer.company || offer.client}"<br>
+                        <strong>Description:</strong> "${offer.description?.substring(0, 100)}..."<br>
+                        <strong>Compétences:</strong> ${JSON.stringify(offer.skills)}<br>
+                        <strong>Budget:</strong> ${offer.budget} ${offer.currency}<br>
+                        <strong>Status:</strong> ${offer.status}<br>
+                        <strong>WorkMode:</strong> ${offer.workMode}
+                    </div>
+                `;
+            });
+            freelancerDiv.innerHTML = freelancerHtml || '<p>Aucune donnée</p>';
+        }
+
+        // Analyser les transformations
+        async function analyzeTransformations() {
+            const resultDiv = document.getElementById('transform-result');
+
+            if (adminData.length === 0 || freelancerData.length === 0) {
+                await collectAllData();
+            }
+
+            let result = `🔍 Analyse des Transformations:\n\n`;
+
+            if (adminData.length > 0 && freelancerData.length > 0) {
+                const adminOffer = adminData[0];
+                const freelancerOffer = freelancerData[0];
+
+                result += `📊 Comparaison Offre 1:\n\n`;
+
+                // Titre
+                const titleMatch = adminOffer.title === freelancerOffer.title;
+                result += `Titre: ${titleMatch ? '✅' : '❌'}\n`;
+                result += `  Admin: "${adminOffer.title}"\n`;
+                result += `  Freelancer: "${freelancerOffer.title}"\n\n`;
+
+                // Description
+                const descMatch = adminOffer.description === freelancerOffer.description;
+                result += `Description: ${descMatch ? '✅' : '❌'}\n`;
+                result += `  Admin: "${adminOffer.description}"\n`;
+                result += `  Freelancer: "${freelancerOffer.description}"\n\n`;
+
+                // Compétences
+                const skillsMatch = JSON.stringify(adminOffer.skills) === JSON.stringify(freelancerOffer.skills);
+                result += `Compétences: ${skillsMatch ? '✅' : '❌'}\n`;
+                result += `  Admin: ${JSON.stringify(adminOffer.skills)}\n`;
+                result += `  Freelancer: ${JSON.stringify(freelancerOffer.skills)}\n\n`;
+
+                // Entreprise
+                const companyMatch = adminOffer.company === (freelancerOffer.company || freelancerOffer.client);
+                result += `Entreprise: ${companyMatch ? '✅' : '❌'}\n`;
+                result += `  Admin: "${adminOffer.company}"\n`;
+                result += `  Freelancer: "${freelancerOffer.company || freelancerOffer.client}"\n\n`;
+
+                // Analyse des problèmes
+                result += `🚨 Problèmes détectés:\n`;
+                if (!titleMatch) result += `- Titre ne correspond pas\n`;
+                if (!descMatch) result += `- Description modifiée pendant la transformation\n`;
+                if (!skillsMatch) result += `- Compétences perdues ou modifiées\n`;
+                if (!companyMatch) result += `- Nom d'entreprise perdu\n`;
+
+            } else {
+                result += `❌ Impossible de comparer - données manquantes\n`;
+                result += `Admin: ${adminData.length} offres\n`;
+                result += `Freelancer: ${freelancerData.length} offres\n`;
+            }
+
+            showResult(resultDiv, 'warning', result);
+        }
+
+        // Vérifier les sources de données
+        async function checkDataSources() {
+            const resultDiv = document.getElementById('sources-result');
+
+            let result = `🔍 Vérification des Sources de Données:\n\n`;
+
+            // localStorage Admin Panel
+            const adminStorage = localStorage.getItem('freelancer_offers');
+            result += `📊 Admin Panel localStorage:\n`;
+            result += `  Clé: 'freelancer_offers'\n`;
+            result += `  Existe: ${adminStorage ? 'Oui' : 'Non'}\n`;
+            result += `  Taille: ${adminStorage ? adminStorage.length : 0} caractères\n\n`;
+
+            // Backend API
+            try {
+                const backendResponse = await fetch('http://localhost:3001/api/freelancer-offers');
+                result += `🖥️ Backend API:\n`;
+                result += `  URL: http://localhost:3001/api/freelancer-offers\n`;
+                result += `  Status: ${backendResponse.status}\n`;
+                result += `  Accessible: ${backendResponse.ok ? 'Oui' : 'Non'}\n\n`;
+            } catch (e) {
+                result += `🖥️ Backend API:\n`;
+                result += `  Status: Erreur de connexion\n`;
+                result += `  Erreur: ${e.message}\n\n`;
+            }
+
+            // Freelancer API
+            try {
+                const freelancerResponse = await fetch('http://localhost:3001/api/freelancer-offers/for-freelancer/FRE-340255');
+                result += `📱 Freelancer API:\n`;
+                result += `  URL: /for-freelancer/FRE-340255\n`;
+                result += `  Status: ${freelancerResponse.status}\n`;
+                result += `  Accessible: ${freelancerResponse.ok ? 'Oui' : 'Non'}\n\n`;
+            } catch (e) {
+                result += `📱 Freelancer API:\n`;
+                result += `  Status: Erreur de connexion\n`;
+                result += `  Erreur: ${e.message}\n\n`;
+            }
+
+            // Mock data check
+            result += `🧪 Sources Mock Data:\n`;
+            result += `  Vérifier si freelancerData.ts utilise mock data\n`;
+            result += `  Vérifier si getJobOffers() a un fallback\n`;
+
+            showResult(resultDiv, 'info', result);
+        }
+
+        // Synchroniser les données
+        async function fixDataSync() {
+            const resultDiv = document.getElementById('fix-result');
+            showResult(resultDiv, 'info', '🔄 Synchronisation en cours...');
+
+            try {
+                if (adminData.length === 0) {
+                    await collectAllData();
+                }
+
+                let result = `🔧 Synchronisation des données:\n\n`;
+                let successCount = 0;
+
+                for (const offer of adminData) {
+                    try {
+                        const syncData = {
+                            ...offer,
+                            status: 'published', // Publier directement
+                            // Assurer la cohérence des champs
+                            client: offer.company,
+                            budget: offer.salaryMax || offer.salaryMin || 0,
+                            workMode: offer.locationType || 'remote'
+                        };
+
+                        const response = await fetch('http://localhost:3001/api/freelancer-offers', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(syncData)
+                        });
+
+                        if (response.ok) {
+                            result += `✅ "${offer.title}" synchronisé\n`;
+                            successCount++;
+                        } else {
+                            result += `❌ "${offer.title}" échec\n`;
+                        }
+
+                    } catch (error) {
+                        result += `❌ "${offer.title}" erreur: ${error.message}\n`;
+                    }
+                }
+
+                result += `\n📊 Résultat: ${successCount}/${adminData.length} synchronisés\n`;
+
+                if (successCount > 0) {
+                    result += `\n✅ Rechargez Freelancer Space pour voir les changements`;
+                }
+
+                showResult(resultDiv, successCount > 0 ? 'success' : 'error', result);
+
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Nettoyer toutes les sources
+        async function clearAllSources() {
+            const resultDiv = document.getElementById('fix-result');
+
+            if (confirm('Êtes-vous sûr de vouloir nettoyer toutes les sources de données ?')) {
+                showResult(resultDiv, 'info', '🗑️ Nettoyage en cours...');
+
+                let result = `🗑️ Nettoyage des sources:\n\n`;
+
+                // Nettoyer localStorage
+                localStorage.removeItem('freelancer_offers');
+                result += `✅ localStorage nettoyé\n`;
+
+                // Nettoyer Backend (si possible)
+                try {
+                    const backendResponse = await fetch('http://localhost:3001/api/freelancer-offers');
+                    const backendData = await backendResponse.json();
+
+                    if (backendData.success && backendData.data.length > 0) {
+                        for (const offer of backendData.data) {
+                            try {
+                                await fetch(`http://localhost:3001/api/freelancer-offers/${offer._id}`, {
+                                    method: 'DELETE'
+                                });
+                            } catch (e) {
+                                // Ignorer les erreurs de suppression
+                            }
+                        }
+                        result += `✅ Backend nettoyé\n`;
+                    }
+                } catch (e) {
+                    result += `⚠️ Backend non accessible\n`;
+                }
+
+                result += `\n✅ Nettoyage terminé. Rechargez les pages.`;
+
+                showResult(resultDiv, 'success', result);
+            }
+        }
+
+        // Fonction utilitaire
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-collecte au chargement
+        window.onload = function() {
+            console.log('🔍 Data Flow Analyzer loaded');
+        };
+    </script>
+</body>
+</html>

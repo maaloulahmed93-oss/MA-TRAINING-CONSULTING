@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إصلاح تكرار الروابط - الإصدار الثاني</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e74c3c;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .critical { background-color: #f8d7da; color: #721c24; }
+        .fixed { background-color: #d4edda; color: #155724; }
+        .testing { background-color: #fff3cd; color: #856404; }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border-right: 4px solid #e74c3c;
+            background-color: #f8f9fa;
+        }
+        .code-block {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .problem-analysis {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .solution {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .emoji { font-size: 1.2em; }
+        ul, ol { padding-right: 25px; }
+        li { margin: 8px 0; }
+        .highlight { background-color: #fff3cd; padding: 2px 5px; border-radius: 3px; }
+        .console-log {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            direction: ltr;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 إصلاح تكرار الروابط - الإصدار الثاني</h1>
+            <p><strong>التاريخ:</strong> 24 سبتمبر 2025 - 02:05</p>
+            <div>
+                <span class="status-badge critical">🚨 مشكلة مستمرة</span>
+                <span class="status-badge fixed">✅ إصلاح محدث</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 تحليل المشكلة المستمرة</h2>
+            <div class="problem-analysis">
+                <h3>الأعراض المرصودة:</h3>
+                <ul>
+                    <li><strong>تكرار الروابط:</strong> الرابط يظهر مرتين في القائمة رغم إدخاله مرة واحدة</li>
+                    <li><strong>نفس الـ ID:</strong> <code>session-link-1758672237527-yhi2r</code> يظهر مرتين</li>
+                    <li><strong>React Warning:</strong> "Encountered two children with the same key"</li>
+                    <li><strong>Console Logs مكررة:</strong> تظهر عمليات التحديث مرتين</li>
+                </ul>
+            </div>
+
+            <div class="console-log">
+ParticipantFormEnhanced.tsx:998 🎯 Updated formations with new link
+ParticipantFormEnhanced.tsx:1010 📚 Updated courseSessions links: [{…}]
+ParticipantFormEnhanced.tsx:998 🎯 Updated formations with new link
+ParticipantFormEnhanced.tsx:1010 📚 Updated courseSessions links: (2) [{…}, {…}]
+            </div>
+
+            <h3>السبب الجذري:</h3>
+            <p>الـ <code>addSessionLink</code> function يتم استدعاؤها <strong>مرتين</strong> بسبب:</p>
+            <ol>
+                <li>المستخدم يضغط Enter في حقل الـ URL</li>
+                <li>في نفس الوقت أو بعدها مباشرة يضغط على زر "Ajouter"</li>
+                <li>الـ <code>useRef</code> protection لا يعمل بسرعة كافية لمنع الاستدعاء الثاني</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ الإصلاحات المطبقة</h2>
+            
+            <div class="solution">
+                <h3>1. تحسين useRef Protection</h3>
+                <div class="code-block">
+const addSessionLink = () => {
+  // Prevent multiple simultaneous calls
+  if (addingLinkRef.current) {
+    console.log('⚠️ Link addition already in progress, skipping...');
+    return;
+  }
+
+  if (!newSessionLink.url.trim() || !newSessionLink.type || !currentCourseKey || currentSessionIndex === null) {
+    console.log('⚠️ Missing required fields for adding session link');
+    return;
+  }
+
+  // Set the ref immediately to prevent double calls
+  addingLinkRef.current = true;
+  console.log('🔒 Setting addingLinkRef to true to prevent duplicates');
+  
+  // ... rest of function
+};
+                </div>
+            </div>
+
+            <div class="solution">
+                <h3>2. حماية Event Handlers</h3>
+                <div class="code-block">
+// Enter key protection
+onKeyPress={(e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    if (!addingLinkRef.current) {
+      addSessionLink();
+    }
+  }
+}}
+
+// Button click protection
+onClick={(e) => {
+  e.preventDefault();
+  if (!addingLinkRef.current) {
+    addSessionLink();
+  }
+}}
+
+// Button disabled state includes ref check
+disabled={!newSessionLink.url.trim() || !newSessionLink.type || addingLinkRef.current}
+                </div>
+            </div>
+
+            <div class="solution">
+                <h3>3. فحص مزدوج للتكرار</h3>
+                <div class="code-block">
+// Check formations array (persistent data)
+const existingLinks = session?.links || [];
+
+// Also check courseSessions (UI state)
+const currentUILinks = courseSessions[currentCourseKey]?.[currentSessionIndex]?.links || [];
+
+// Check for duplicates in both sources
+const isDuplicateUrl = existingLinks.some(link => link.url === urlToAdd) || 
+                      currentUILinks.some(link => link.url === urlToAdd);
+
+const isDuplicateTitle = existingLinks.some(link => 
+  link.title === titleToAdd && link.type === newSessionLink.type
+) || currentUILinks.some(link => 
+  link.title === titleToAdd && link.type === newSessionLink.type
+);
+                </div>
+            </div>
+
+            <div class="solution">
+                <h3>4. تقليل وقت الـ Timeout</h3>
+                <div class="code-block">
+// Reset the ref after a shorter delay
+setTimeout(() => {
+  addingLinkRef.current = false;
+  console.log('🔓 Reset addingLinkRef to false');
+}, 500); // تم تقليله من 1000 إلى 500
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 خطة الاختبار المحدثة</h2>
+            
+            <div class="problem-analysis">
+                <h3>سيناريوهات الاختبار:</h3>
+                <ol>
+                    <li><strong>اختبار الضغط السريع:</strong>
+                        <ul>
+                            <li>أدخل رابط في الحقل</li>
+                            <li>اضغط Enter بسرعة</li>
+                            <li>تحقق من عدم ظهور تكرار</li>
+                        </ul>
+                    </li>
+                    <li><strong>اختبار الضغط المزدوج:</strong>
+                        <ul>
+                            <li>أدخل رابط في الحقل</li>
+                            <li>اضغط Enter ثم اضغط على الزر فوراً</li>
+                            <li>تحقق من عدم ظهور تكرار</li>
+                        </ul>
+                    </li>
+                    <li><strong>اختبار الزر المتعدد:</strong>
+                        <ul>
+                            <li>اضغط على زر "Ajouter" عدة مرات بسرعة</li>
+                            <li>تحقق من إضافة الرابط مرة واحدة فقط</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 التحسينات المطبقة</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3>🔒 حماية محسنة</h3>
+                    <ul>
+                        <li>✅ useRef protection فوري</li>
+                        <li>✅ حماية Enter key</li>
+                        <li>✅ حماية Button click</li>
+                        <li>✅ Button disabled state محدث</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>🔍 فحص مزدوج</h3>
+                    <ul>
+                        <li>✅ فحص formations array</li>
+                        <li>✅ فحص courseSessions state</li>
+                        <li>✅ منع التكرار من كلا المصدرين</li>
+                        <li>✅ console logging محسن</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚡ تعليمات الاختبار</h2>
+            <div class="highlight">
+                <p><strong>للتحقق من الإصلاح:</strong></p>
+                <ol>
+                    <li>افتح Developer Console لمراقبة الـ logs</li>
+                    <li>جرب إضافة رابط بالضغط على Enter</li>
+                    <li>جرب إضافة رابط بالضغط على الزر</li>
+                    <li>جرب الضغط السريع المتعدد</li>
+                    <li>تحقق من عدم ظهور console logs مكررة</li>
+                    <li>تحقق من عدم ظهور React warnings</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 الملفات المعدلة</h2>
+            <ul>
+                <li><code>admin-panel/src/components/participants/ParticipantFormEnhanced.tsx</code>
+                    <ul>
+                        <li>✅ تحسين addSessionLink function</li>
+                        <li>✅ إضافة حماية للـ event handlers</li>
+                        <li>✅ فحص مزدوج للتكرار</li>
+                        <li>✅ تحسين console logging</li>
+                        <li>✅ تقليل timeout للـ useRef reset</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #dee2e6;">
+            <p><strong>الحالة:</strong> <span class="status-badge fixed">✅ إصلاح محدث مطبق</span></p>
+            <p><em>جاهز للاختبار المكثف</em></p>
+        </div>
+    </div>
+</body>
+</html>

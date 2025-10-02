@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧹 Clear Old Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clear Old Notifications</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Warning:</strong> This will permanently delete all old notifications from localStorage.
+        </div>
+
+        <h2>📊 Current Status:</h2>
+        <div id="status"></div>
+
+        <h2>🛠️ Actions:</h2>
+        <button onclick="analyzeNotifications()" class="info">🔍 Analyze Current Notifications</button>
+        <button onclick="clearOldNotifications()">🗑️ Clear Old Notifications (offre_emploi)</button>
+        <button onclick="clearAllNotifications()">💥 Clear ALL Notifications</button>
+        <button onclick="fixDuplicateKeys()" class="success">🔧 Fix Duplicate Keys</button>
+
+        <h2>📋 Results:</h2>
+        <pre id="results"></pre>
+    </div>
+
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            results.textContent += message + '\n';
+            console.log(message);
+        }
+
+        function clearResults() {
+            document.getElementById('results').textContent = '';
+        }
+
+        function analyzeNotifications() {
+            clearResults();
+            log('🔍 Analyzing localStorage notifications...');
+            
+            // Check all localStorage keys for notifications
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || 
+                key.includes('PART-') ||
+                key.includes('notif')
+            );
+            
+            log(`📊 Found ${notificationKeys.length} notification-related keys:`);
+            
+            notificationKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(data)) {
+                        log(`\n🔑 Key: ${key}`);
+                        log(`📝 Count: ${data.length} notifications`);
+                        
+                        // Analyze types
+                        const types = {};
+                        const duplicateIds = {};
+                        
+                        data.forEach(notif => {
+                            // Count types
+                            types[notif.type] = (types[notif.type] || 0) + 1;
+                            
+                            // Check for duplicate IDs
+                            if (duplicateIds[notif.id]) {
+                                duplicateIds[notif.id]++;
+                            } else {
+                                duplicateIds[notif.id] = 1;
+                            }
+                        });
+                        
+                        log(`📊 Types: ${JSON.stringify(types, null, 2)}`);
+                        
+                        // Show duplicates
+                        const duplicates = Object.entries(duplicateIds).filter(([id, count]) => count > 1);
+                        if (duplicates.length > 0) {
+                            log(`⚠️ Duplicate IDs found: ${JSON.stringify(duplicates, null, 2)}`);
+                        }
+                    }
+                } catch (e) {
+                    log(`❌ Error parsing ${key}: ${e.message}`);
+                }
+            });
+            
+            updateStatus();
+        }
+
+        function clearOldNotifications() {
+            clearResults();
+            log('🗑️ Clearing old notification types (offre_emploi, job, info)...');
+            
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || 
+                key.includes('PART-')
+            );
+            
+            let totalCleared = 0;
+            
+            notificationKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(data)) {
+                        const originalCount = data.length;
+                        
+                        // Keep only 'information' type
+                        const filtered = data.filter(notif => notif.type === 'information');
+                        
+                        if (filtered.length !== originalCount) {
+                            localStorage.setItem(key, JSON.stringify(filtered));
+                            const cleared = originalCount - filtered.length;
+                            totalCleared += cleared;
+                            log(`✅ ${key}: Removed ${cleared} old notifications, kept ${filtered.length}`);
+                        } else {
+                            log(`ℹ️ ${key}: No old notifications found`);
+                        }
+                    }
+                } catch (e) {
+                    log(`❌ Error processing ${key}: ${e.message}`);
+                }
+            });
+            
+            log(`\n🎉 Total cleared: ${totalCleared} old notifications`);
+            updateStatus();
+        }
+
+        function clearAllNotifications() {
+            if (!confirm('⚠️ Are you sure you want to delete ALL notifications? This cannot be undone!')) {
+                return;
+            }
+            
+            clearResults();
+            log('💥 Clearing ALL notifications...');
+            
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || 
+                key.includes('PART-')
+            );
+            
+            notificationKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(data)) {
+                        localStorage.setItem(key, JSON.stringify([]));
+                        log(`✅ Cleared ${key}`);
+                    }
+                } catch (e) {
+                    log(`❌ Error clearing ${key}: ${e.message}`);
+                }
+            });
+            
+            log('\n🎉 All notifications cleared!');
+            updateStatus();
+        }
+
+        function fixDuplicateKeys() {
+            clearResults();
+            log('🔧 Fixing duplicate notification IDs...');
+            
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || 
+                key.includes('PART-')
+            );
+            
+            let totalFixed = 0;
+            
+            notificationKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(data)) {
+                        const seenIds = new Set();
+                        const fixed = [];
+                        
+                        data.forEach(notif => {
+                            if (seenIds.has(notif.id)) {
+                                // Generate new unique ID
+                                const newId = `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                                notif.id = newId;
+                                totalFixed++;
+                                log(`🔧 Fixed duplicate ID: ${notif.id}`);
+                            }
+                            seenIds.add(notif.id);
+                            fixed.push(notif);
+                        });
+                        
+                        if (totalFixed > 0) {
+                            localStorage.setItem(key, JSON.stringify(fixed));
+                        }
+                    }
+                } catch (e) {
+                    log(`❌ Error fixing ${key}: ${e.message}`);
+                }
+            });
+            
+            log(`\n🎉 Fixed ${totalFixed} duplicate IDs`);
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('status');
+            
+            // Count current notifications
+            const keys = Object.keys(localStorage);
+            const notificationKeys = keys.filter(key => 
+                key.includes('notification') || 
+                key.includes('PART-')
+            );
+            
+            let totalNotifications = 0;
+            let typeCount = {};
+            
+            notificationKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(data)) {
+                        totalNotifications += data.length;
+                        data.forEach(notif => {
+                            typeCount[notif.type] = (typeCount[notif.type] || 0) + 1;
+                        });
+                    }
+                } catch (e) {
+                    // Ignore parsing errors
+                }
+            });
+            
+            status.innerHTML = `
+                <strong>📊 Current Status:</strong><br>
+                • Total notifications: ${totalNotifications}<br>
+                • Types: ${JSON.stringify(typeCount)}<br>
+                • Storage keys: ${notificationKeys.length}
+            `;
+        }
+
+        // Initialize
+        updateStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Enhanced Participant Login - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .credentials { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; }
+        input { padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px; width: 200px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test Enhanced Participant Login - MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Améliorations appliquées!</h3>
+            <ul>
+                <li><strong>Nouveau système:</strong> ID + Email obligatoires</li>
+                <li><strong>Sécurité renforcée:</strong> Vérification backend des identifiants</li>
+                <li><strong>Interface améliorée:</strong> Messages d'erreur clairs</li>
+                <li><strong>Validation:</strong> Champs obligatoires avec feedback visuel</li>
+            </ul>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>📋 Identifiants de test</h3>
+                <div class="credentials">
+                    <p><strong>ID Participant:</strong> PART-739438</p>
+                    <p><strong>Email:</strong> ahmed.participant@matc.com</p>
+                    <p><strong>Nom:</strong> Ahmed Participant Test</p>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>🧪 Test de connexion</h3>
+                <div>
+                    <input type="text" id="testId" placeholder="ID Participant" value="PART-739438">
+                    <input type="email" id="testEmail" placeholder="Email" value="ahmed.participant@matc.com">
+                    <br>
+                    <button onclick="testLogin()">Tester connexion</button>
+                    <button onclick="testWrongCredentials()" class="danger">Test mauvais identifiants</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Tests automatiques</h3>
+            <button onclick="testBackendEndpoint()">Test endpoint /verify</button>
+            <button onclick="testValidCredentials()">Test identifiants valides</button>
+            <button onclick="testInvalidCredentials()">Test identifiants invalides</button>
+            <button onclick="runAllTests()">Exécuter tous les tests</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Liens rapides</h3>
+            <a href="http://localhost:5173/espace-participant" target="_blank" style="display: inline-block; padding: 10px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; margin: 5px;">
+                🚀 Tester nouvelle interface de connexion
+            </a>
+            <p><small>Utilisez: <strong>PART-739438</strong> + <strong>ahmed.participant@matc.com</strong></small></p>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        const TEST_CREDENTIALS = {
+            id: 'PART-739438',
+            email: 'ahmed.participant@matc.com'
+        };
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testLogin() {
+            const id = document.getElementById('testId').value;
+            const email = document.getElementById('testEmail').value;
+            
+            log(`🔄 Test connexion avec ID: ${id}, Email: ${email}`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ participantId: id, email: email })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ Connexion réussie: ${data.data.fullName}`, 'success');
+                } else {
+                    log(`❌ Connexion échouée: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWrongCredentials() {
+            log('🔄 Test avec mauvais identifiants...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        participantId: 'PART-WRONG', 
+                        email: 'wrong@email.com' 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok || !data.success) {
+                    log(`✅ Sécurité OK: ${data.message}`, 'success');
+                } else {
+                    log(`❌ Problème de sécurité: connexion autorisée avec mauvais identifiants`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBackendEndpoint() {
+            log('🔄 Test endpoint backend /verify...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.status === 400) {
+                    log('✅ Endpoint répond correctement (validation des champs)', 'success');
+                } else {
+                    log(`⚠️ Réponse inattendue: ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                log(`❌ Endpoint non accessible: ${error.message}`, 'error');
+            }
+        }
+
+        async function testValidCredentials() {
+            log('🔄 Test identifiants valides...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(TEST_CREDENTIALS)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ Identifiants valides acceptés: ${data.data.fullName}`, 'success');
+                } else {
+                    log(`❌ Identifiants valides rejetés: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testInvalidCredentials() {
+            log('🔄 Test identifiants invalides...', 'info');
+            
+            const invalidTests = [
+                { id: 'PART-WRONG', email: TEST_CREDENTIALS.email, desc: 'ID incorrect' },
+                { id: TEST_CREDENTIALS.id, email: 'wrong@email.com', desc: 'Email incorrect' },
+                { id: 'PART-WRONG', email: 'wrong@email.com', desc: 'Les deux incorrects' },
+                { id: '', email: TEST_CREDENTIALS.email, desc: 'ID vide' },
+                { id: TEST_CREDENTIALS.id, email: '', desc: 'Email vide' }
+            ];
+
+            for (const test of invalidTests) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/participants/verify`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ participantId: test.id, email: test.email })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (!response.ok || !data.success) {
+                        log(`✅ ${test.desc}: Correctement rejeté`, 'success');
+                    } else {
+                        log(`❌ ${test.desc}: Incorrectement accepté`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Erreur test ${test.desc}: ${error.message}`, 'error');
+                }
+                
+                // Pause entre les tests
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+
+        async function runAllTests() {
+            log('🚀 Démarrage de tous les tests...', 'info');
+            
+            await testBackendEndpoint();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testValidCredentials();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testInvalidCredentials();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            log('🎉 Tous les tests terminés!', 'success');
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Test automatique de l\'endpoint...', 'info');
+                testBackendEndpoint();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

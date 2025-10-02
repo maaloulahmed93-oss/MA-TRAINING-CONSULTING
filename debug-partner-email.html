@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Vérification Email Partenaire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .debug-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Vérification Email Partenaire</h1>
+        <p>Outil de diagnostic pour vérifier les emails des partenaires dans la base de données</p>
+
+        <!-- Recherche par ID -->
+        <div class="debug-section">
+            <h3>1. Rechercher Partenaire par ID</h3>
+            <div class="form-group">
+                <label>ID Partenaire:</label>
+                <input type="text" id="search-id" value="FOR-340255" placeholder="FOR-123456, FRE-123456, etc.">
+            </div>
+            <button onclick="searchPartnerById()">Rechercher</button>
+            <div id="search-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Liste tous les formateurs -->
+        <div class="debug-section">
+            <h3>2. Liste de tous les Formateurs</h3>
+            <button onclick="listAllFormateurs()">Afficher tous les Formateurs</button>
+            <div id="formateurs-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Liste tous les freelancers -->
+        <div class="debug-section">
+            <h3>3. Liste de tous les Freelancers</h3>
+            <button onclick="listAllFreelancers()">Afficher tous les Freelancers</button>
+            <div id="freelancers-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test de connexion -->
+        <div class="debug-section">
+            <h3>4. Test de Connexion</h3>
+            <div class="form-group">
+                <label>ID Partenaire:</label>
+                <input type="text" id="test-id" value="FOR-340255" placeholder="ID du partenaire">
+            </div>
+            <div class="form-group">
+                <label>Email à tester:</label>
+                <input type="email" id="test-email" value="" placeholder="email@exemple.com">
+            </div>
+            <div class="form-group">
+                <label>Type de partenaire:</label>
+                <select id="test-type">
+                    <option value="formateur">Formateur</option>
+                    <option value="freelancer">Freelancer</option>
+                    <option value="entreprise">Entreprise</option>
+                    <option value="commercial">Commercial</option>
+                </select>
+            </div>
+            <button onclick="testLogin()">Tester Connexion</button>
+            <div id="test-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Status du serveur -->
+        <div class="debug-section">
+            <h3>5. Status du Serveur</h3>
+            <button onclick="checkServerStatus()">Vérifier Status</button>
+            <div id="server-status" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Rechercher un partenaire par ID
+        async function searchPartnerById() {
+            const resultDiv = document.getElementById('search-result');
+            const partnerId = document.getElementById('search-id').value.trim();
+            
+            if (!partnerId) {
+                showResult(resultDiv, 'error', 'Veuillez saisir un ID de partenaire');
+                return;
+            }
+
+            try {
+                showResult(resultDiv, 'info', 'Recherche en cours...');
+
+                const response = await fetch(`${API_BASE}/partners?partnerId=${partnerId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.data && data.data.length > 0) {
+                    const partner = data.data[0];
+                    let result = `✅ Partenaire trouvé:\n\n`;
+                    result += `ID: ${partner.partnerId}\n`;
+                    result += `Nom: ${partner.fullName || 'Non défini'}\n`;
+                    result += `Email: ${partner.email || '❌ AUCUN EMAIL DÉFINI'}\n`;
+                    result += `Type: ${partner.type}\n`;
+                    result += `Actif: ${partner.isActive ? 'Oui' : 'Non'}\n`;
+                    result += `Créé le: ${new Date(partner.createdAt).toLocaleString()}\n`;
+                    result += `Dernière connexion: ${partner.lastLogin ? new Date(partner.lastLogin).toLocaleString() : 'Jamais'}\n\n`;
+                    
+                    if (!partner.email) {
+                        result += `⚠️ PROBLÈME: Ce partenaire n'a pas d'email défini!\n`;
+                        result += `C'est pourquoi la connexion échoue avec erreur 401.\n`;
+                    }
+                    
+                    showResult(resultDiv, partner.email ? 'success' : 'warning', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Partenaire non trouvé: ${partnerId}\n\nRéponse serveur:\n${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion:\n${error.message}`);
+            }
+        }
+
+        // Lister tous les formateurs
+        async function listAllFormateurs() {
+            const resultDiv = document.getElementById('formateurs-result');
+            
+            try {
+                showResult(resultDiv, 'info', 'Chargement des formateurs...');
+
+                const response = await fetch(`${API_BASE}/partners?type=formateur`);
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    let result = `📋 Liste des Formateurs (${data.data.length}):\n\n`;
+                    
+                    if (data.data.length === 0) {
+                        result += 'Aucun formateur trouvé.\n';
+                    } else {
+                        data.data.forEach((partner, index) => {
+                            result += `${index + 1}. ${partner.partnerId} - ${partner.fullName || 'Sans nom'}\n`;
+                            result += `   Email: ${partner.email || '❌ AUCUN EMAIL'}\n`;
+                            result += `   Actif: ${partner.isActive ? 'Oui' : 'Non'}\n\n`;
+                        });
+                    }
+                    
+                    showResult(resultDiv, 'info', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur lors du chargement:\n${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion:\n${error.message}`);
+            }
+        }
+
+        // Lister tous les freelancers
+        async function listAllFreelancers() {
+            const resultDiv = document.getElementById('freelancers-result');
+            
+            try {
+                showResult(resultDiv, 'info', 'Chargement des freelancers...');
+
+                const response = await fetch(`${API_BASE}/partners?type=freelancer`);
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    let result = `📋 Liste des Freelancers (${data.data.length}):\n\n`;
+                    
+                    if (data.data.length === 0) {
+                        result += 'Aucun freelancer trouvé.\n';
+                    } else {
+                        data.data.forEach((partner, index) => {
+                            result += `${index + 1}. ${partner.partnerId} - ${partner.fullName || 'Sans nom'}\n`;
+                            result += `   Email: ${partner.email || '❌ AUCUN EMAIL'}\n`;
+                            result += `   Actif: ${partner.isActive ? 'Oui' : 'Non'}\n\n`;
+                        });
+                    }
+                    
+                    showResult(resultDiv, 'info', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur lors du chargement:\n${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion:\n${error.message}`);
+            }
+        }
+
+        // Tester la connexion
+        async function testLogin() {
+            const resultDiv = document.getElementById('test-result');
+            const partnerId = document.getElementById('test-id').value.trim();
+            const email = document.getElementById('test-email').value.trim();
+            const partnerType = document.getElementById('test-type').value;
+            
+            if (!partnerId || !email) {
+                showResult(resultDiv, 'error', 'Veuillez saisir l\'ID et l\'email');
+                return;
+            }
+
+            try {
+                showResult(resultDiv, 'info', 'Test de connexion en cours...');
+
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        partnerId: partnerId,
+                        email: email,
+                        partnerType: partnerType
+                    })
+                });
+
+                const data = await response.json();
+                
+                let result = `🧪 Test de connexion:\n\n`;
+                result += `ID: ${partnerId}\n`;
+                result += `Email: ${email}\n`;
+                result += `Type: ${partnerType}\n`;
+                result += `Status: ${response.status}\n\n`;
+                
+                if (response.ok) {
+                    result += `✅ CONNEXION RÉUSSIE!\n\n`;
+                    result += `Réponse:\n${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    result += `❌ CONNEXION ÉCHOUÉE!\n\n`;
+                    result += `Erreur: ${data.message || 'Erreur inconnue'}\n\n`;
+                    result += `Réponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, 'error', result);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion:\n${error.message}`);
+            }
+        }
+
+        // Vérifier le status du serveur
+        async function checkServerStatus() {
+            const resultDiv = document.getElementById('server-status');
+            
+            try {
+                showResult(resultDiv, 'info', 'Vérification du serveur...');
+
+                const response = await fetch(`${API_BASE}/health`);
+                
+                if (response.ok) {
+                    showResult(resultDiv, 'success', `✅ Serveur backend accessible sur ${API_BASE}\nStatus: ${response.status}`);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Serveur backend non accessible\nStatus: ${response.status}`);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Serveur backend non accessible:\n${error.message}\n\nVérifiez que le serveur backend est démarré sur le port 3001.`);
+            }
+        }
+
+        // Fonction utilitaire pour afficher les résultats
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-check server status on load
+        window.onload = function() {
+            checkServerStatus();
+        };
+    </script>
+</body>
+</html>

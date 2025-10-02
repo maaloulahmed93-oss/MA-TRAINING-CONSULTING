@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Panel Resources - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+        .form-section { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
+        label { font-weight: bold; display: block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Admin Panel Resources - MATC</h1>
+        
+        <div class="warning">
+            <h3>⚠️ Test de l'ajout de ressources via Admin Panel</h3>
+            <p>Simuler l'ajout de ressources de coaching comme dans l'Admin Panel pour diagnostiquer le problème.</p>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>👤 Participant cible</h3>
+                <div class="info">
+                    <h4>Ismael Gharbi</h4>
+                    <p><strong>ID:</strong> PART-550776</p>
+                    <p><strong>Email:</strong> gharbi@gmail.com</p>
+                </div>
+                <button onclick="loadParticipantData()">Charger données participant</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🧪 Tests rapides</h3>
+                <button onclick="testBackendConnection()">Test Backend</button>
+                <button onclick="simulateAdminPanelSave()">Simuler sauvegarde Admin Panel</button>
+                <button onclick="verifyResourcesSaved()">Vérifier ressources sauvées</button>
+                <button onclick="clearResources()" class="danger">Effacer ressources</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Ajouter ressource manuellement</h3>
+            <div class="form-section">
+                <label>Nom de la ressource:</label>
+                <input type="text" id="resourceName" placeholder="Ex: Guide Entretien d'Embauche" value="Test Resource from Admin Panel">
+                
+                <label>Choisir une icône:</label>
+                <select id="resourceIcon">
+                    <option value="📄">📄 Document</option>
+                    <option value="🎥">🎥 Vidéo</option>
+                    <option value="📚">📚 Guide</option>
+                    <option value="💼">💼 CV Template</option>
+                    <option value="✉️">✉️ Lettre</option>
+                </select>
+                
+                <label>URL de la ressource:</label>
+                <input type="url" id="resourceUrl" placeholder="https://example.com/resource" value="https://example.com/test-resource">
+                
+                <label>Type:</label>
+                <select id="resourceType">
+                    <option value="Guide">Guide</option>
+                    <option value="CV Template">CV Template</option>
+                    <option value="Lettre de motivation">Lettre de motivation</option>
+                    <option value="Vidéo Soft Skills">Vidéo Soft Skills</option>
+                    <option value="Jeux Éducatifs">Jeux Éducatifs</option>
+                </select>
+                
+                <label>Catégorie:</label>
+                <select id="resourceCategory">
+                    <option value="Ressources">Ressources</option>
+                    <option value="Templates">Templates</option>
+                    <option value="Soft Skills">Soft Skills</option>
+                    <option value="Carrière">Carrière</option>
+                    <option value="Marketing">Marketing</option>
+                </select>
+                
+                <button onclick="addResourceManually()" class="success">Ajouter cette ressource</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Diagnostic avancé</h3>
+            <button onclick="debugAdminPanelFlow()">Debug flux Admin Panel</button>
+            <button onclick="compareDataStructures()">Comparer structures de données</button>
+            <button onclick="testResourceValidation()">Test validation ressources</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let currentParticipant = null;
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testBackendConnection() {
+            log('🔄 Test de connexion au backend...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants');
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend connecté - ${data.data?.length || 0} participants trouvés`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Backend erreur: ${response.status} ${response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion backend: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function loadParticipantData() {
+            log('🔄 Chargement des données participant PART-550776...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        currentParticipant = data.data;
+                        const resourcesCount = currentParticipant.coachingResources?.length || 0;
+                        
+                        log(`✅ Participant chargé: ${currentParticipant.fullName}`, 'success');
+                        log(`📚 Ressources actuelles: ${resourcesCount}`, resourcesCount > 0 ? 'success' : 'warning');
+                        
+                        if (resourcesCount > 0) {
+                            log(`<pre>Ressources existantes:
+${JSON.stringify(currentParticipant.coachingResources, null, 2)}</pre>`, 'info');
+                        }
+                        
+                        return currentParticipant;
+                    } else {
+                        log('❌ Participant non trouvé', 'error');
+                        return null;
+                    }
+                } else {
+                    log(`❌ Erreur API: ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function simulateAdminPanelSave() {
+            log('🔄 Simulation de sauvegarde Admin Panel...', 'info');
+            
+            if (!currentParticipant) {
+                await loadParticipantData();
+            }
+            
+            if (!currentParticipant) {
+                log('❌ Impossible de charger le participant', 'error');
+                return;
+            }
+            
+            // Simuler l'ajout d'une ressource comme dans Admin Panel
+            const newResource = {
+                id: `RES-${Date.now()}`,
+                title: 'Test Resource from Admin Panel',
+                description: 'Ressource de test ajoutée via simulation Admin Panel',
+                type: 'Guide',
+                category: 'Ressources',
+                thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
+                downloadUrl: '',
+                duration: '',
+                dataLinks: [{
+                    id: `link-${Date.now()}`,
+                    title: 'Lien principal',
+                    url: 'https://example.com/test-resource',
+                    type: 'external'
+                }],
+                assignedDate: new Date().toISOString(),
+                accessedDate: null,
+                isCompleted: false
+            };
+            
+            // Ajouter la nouvelle ressource aux ressources existantes
+            const updatedResources = [...(currentParticipant.coachingResources || []), newResource];
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: updatedResources,
+                updatedAt: new Date().toISOString()
+            };
+            
+            log(`📋 Envoi de ${updatedResources.length} ressources au backend...`, 'info');
+            log(`<pre>Payload envoyé:
+${JSON.stringify({ coachingResources: updatedResources }, null, 2)}</pre>`, 'info');
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        log('✅ Ressource ajoutée avec succès!', 'success');
+                        
+                        // Vérifier immédiatement
+                        setTimeout(() => verifyResourcesSaved(), 1000);
+                    } else {
+                        log(`❌ Erreur lors de la sauvegarde: ${result.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Erreur HTTP: ${response.status}`, 'error');
+                    const errorText = await response.text();
+                    log(`❌ Détails erreur: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyResourcesSaved() {
+            log('🔍 Vérification des ressources sauvegardées...', 'info');
+            
+            const participant = await loadParticipantData();
+            if (participant && participant.coachingResources) {
+                const resources = participant.coachingResources;
+                log(`✅ ${resources.length} ressources trouvées`, 'success');
+                
+                resources.forEach((resource, index) => {
+                    log(`${index + 1}. ${resource.title} (${resource.category})`, 'info');
+                });
+            } else {
+                log('❌ Aucune ressource trouvée', 'warning');
+            }
+        }
+
+        async function addResourceManually() {
+            log('🔄 Ajout manuel de ressource...', 'info');
+            
+            const name = document.getElementById('resourceName').value;
+            const icon = document.getElementById('resourceIcon').value;
+            const url = document.getElementById('resourceUrl').value;
+            const type = document.getElementById('resourceType').value;
+            const category = document.getElementById('resourceCategory').value;
+            
+            if (!name || !url) {
+                log('❌ Nom et URL requis', 'error');
+                return;
+            }
+            
+            if (!currentParticipant) {
+                await loadParticipantData();
+            }
+            
+            if (!currentParticipant) {
+                log('❌ Impossible de charger le participant', 'error');
+                return;
+            }
+            
+            const newResource = {
+                id: `RES-${Date.now()}`,
+                title: name,
+                description: `Ressource ajoutée manuellement: ${name}`,
+                type: type,
+                category: category,
+                thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
+                downloadUrl: '',
+                duration: '',
+                dataLinks: [{
+                    id: `link-${Date.now()}`,
+                    title: 'Lien principal',
+                    url: url,
+                    type: 'external'
+                }],
+                assignedDate: new Date().toISOString(),
+                accessedDate: null,
+                isCompleted: false
+            };
+            
+            const updatedResources = [...(currentParticipant.coachingResources || []), newResource];
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: updatedResources,
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        log(`✅ Ressource "${name}" ajoutée avec succès!`, 'success');
+                        
+                        // Reset form
+                        document.getElementById('resourceName').value = '';
+                        document.getElementById('resourceUrl').value = '';
+                        
+                        // Vérifier
+                        setTimeout(() => verifyResourcesSaved(), 1000);
+                    } else {
+                        log(`❌ Erreur: ${result.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Erreur HTTP: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearResources() {
+            log('🗑️ Suppression de toutes les ressources...', 'warning');
+            
+            if (!currentParticipant) {
+                await loadParticipantData();
+            }
+            
+            if (!currentParticipant) {
+                log('❌ Impossible de charger le participant', 'error');
+                return;
+            }
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: [],
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    log('✅ Toutes les ressources supprimées', 'success');
+                    setTimeout(() => verifyResourcesSaved(), 1000);
+                } else {
+                    log(`❌ Erreur HTTP: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        function debugAdminPanelFlow() {
+            log('🐛 Debug du flux Admin Panel...', 'info');
+            
+            log('Étapes du flux Admin Panel:', 'info');
+            log('1. Utilisateur ouvre modal participant', 'info');
+            log('2. Ajoute ressource dans section "Ressources de coaching"', 'info');
+            log('3. Clique "Mettre à jour"', 'info');
+            log('4. handleFormSubmit() appelé', 'info');
+            log('5. normalizeParticipant() traite les données', 'info');
+            log('6. upsertParticipantAPI() envoie PUT request', 'info');
+            log('7. Backend traite coachingResources[]', 'info');
+            log('8. Sauvegarde dans ParticipantResource collection', 'info');
+            
+            log('Points de vérification:', 'warning');
+            log('- Les données arrivent-elles au backend?', 'warning');
+            log('- Le backend traite-t-il tous les champs?', 'warning');
+            log('- La sauvegarde MongoDB fonctionne-t-elle?', 'warning');
+            log('- Les données sont-elles visibles dans espace participant?', 'warning');
+        }
+
+        function compareDataStructures() {
+            log('📊 Comparaison des structures de données...', 'info');
+            
+            const adminPanelStructure = {
+                id: 'RES-123456',
+                title: 'Resource Title',
+                description: 'Description',
+                type: 'Guide',
+                category: 'Ressources',
+                thumbnail: 'https://...',
+                downloadUrl: 'https://...',
+                duration: '45 min',
+                dataLinks: [{ id: 'link-1', title: 'Lien', url: 'https://...', type: 'external' }],
+                assignedDate: '2024-01-28T...',
+                accessedDate: null,
+                isCompleted: false
+            };
+            
+            const backendExpected = {
+                participantId: 'PART-550776',
+                title: 'Resource Title',
+                description: 'Description',
+                url: 'https://...',
+                icon: '',
+                type: 'Guide',
+                category: 'Ressources',
+                thumbnail: 'https://...',
+                downloadUrl: 'https://...',
+                duration: '45 min',
+                assignedDate: 'Date',
+                accessedDate: null,
+                isCompleted: false,
+                dataLinks: [],
+                isActive: true
+            };
+            
+            log(`<pre>Structure Admin Panel:
+${JSON.stringify(adminPanelStructure, null, 2)}</pre>`, 'info');
+            
+            log(`<pre>Structure Backend attendue:
+${JSON.stringify(backendExpected, null, 2)}</pre>`, 'info');
+        }
+
+        function testResourceValidation() {
+            log('✅ Test de validation des ressources...', 'info');
+            
+            const validResource = {
+                title: 'Test Resource',
+                description: 'Valid description',
+                type: 'Guide',
+                category: 'Ressources',
+                url: 'https://example.com/valid'
+            };
+            
+            const invalidResource = {
+                title: '', // Invalid: empty title
+                description: 'Description',
+                type: 'InvalidType', // Invalid: not in enum
+                category: 'InvalidCategory', // Invalid: not in enum
+                url: 'invalid-url' // Invalid: not proper URL
+            };
+            
+            log('✅ Ressource valide:', 'success');
+            log(`<pre>${JSON.stringify(validResource, null, 2)}</pre>`, 'info');
+            
+            log('❌ Ressource invalide:', 'error');
+            log(`<pre>${JSON.stringify(invalidResource, null, 2)}</pre>`, 'info');
+            
+            log('Validation backend:', 'info');
+            log('- Title: requis, non vide', 'info');
+            log('- Type: enum values définis dans schema', 'info');
+            log('- Category: enum values définis dans schema', 'info');
+            log('- URL: validation pattern pour éviter debug info', 'info');
+        }
+
+        // Auto-run initial tests
+        window.onload = function() {
+            setTimeout(async () => {
+                log('🔄 Tests automatiques au chargement...', 'info');
+                await testBackendConnection();
+                await loadParticipantData();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 اختبار إصلاح Projects</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 اختبار إصلاح Projects</h1>
+        <p>اختبار للتأكد من حل مشكلة ParticipantProject validation</p>
+
+        <div class="error">
+            <h3>❌ المشكلة السابقة:</h3>
+            <pre>ParticipantProject validation failed: formationId: Path `formationId` is required.</pre>
+        </div>
+
+        <div class="success">
+            <h3>✅ الإصلاح المطبق:</h3>
+            <ul>
+                <li>جعل <code>formationId</code> اختياري في ParticipantProject schema</li>
+                <li>جعل <code>formationTitle</code> اختياري في ParticipantProject schema</li>
+                <li>الآن يمكن إنشاء projects بدون تحديد formation</li>
+            </ul>
+        </div>
+
+        <button class="btn-primary" onclick="createTestParticipant()">1. إنشاء مشارك تجريبي</button>
+        <button class="btn-success" onclick="testProjectWithoutFormation()">2. اختبار Project بدون Formation</button>
+        <button class="btn-danger" onclick="testProjectWithFormation()">3. اختبار Project مع Formation</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const TEST_PARTICIPANT_ID = 'PART-PROJECT-FIX-TEST';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="${type}"><strong>[${time}]</strong> ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function createTestParticipant() {
+            log('🔄 إنشاء مشارك تجريبي...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        partnerId: TEST_PARTICIPANT_ID,
+                        fullName: 'مشارك اختبار Projects',
+                        firstName: 'مشارك',
+                        lastName: 'اختبار',
+                        email: 'project.fix.test@matc.com',
+                        phone: '+216 99 777 888',
+                        status: 'active'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ تم إنشاء المشارك التجريبي بنجاح!', 'success');
+                } else {
+                    if (result.message && result.message.includes('existe déjà')) {
+                        log('⚠️ المشارك موجود مسبقاً، المتابعة...', 'warning');
+                    } else {
+                        log(`❌ فشل في إنشاء المشارك: ${result.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ في إنشاء المشارك: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProjectWithoutFormation() {
+            log('🔄 اختبار Project بدون Formation (كان يسبب ValidationError)...', 'info');
+            
+            const dataWithProject = {
+                fullName: 'مشارك اختبار Projects',
+                email: 'project.fix.test@matc.com',
+                formations: [],
+                projects: [{
+                    id: 'proj-without-formation',
+                    title: 'مشروع بدون Formation',
+                    description: 'مشروع للاختبار بدون تحديد formation',
+                    formationId: '',        // ❌ كان يسبب ValidationError
+                    formationTitle: '',     // ❌ كان يسبب ValidationError
+                    status: 'not_started',
+                    feedback: '',
+                    note: '',
+                    isVisible: true
+                }],
+                coachingResources: [],
+                notifications: []
+            };
+
+            try {
+                log('📤 إرسال PUT مع project بدون formation...', 'info');
+                
+                const response = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataWithProject)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('🎉 نجح الاختبار! Project حفظ بدون ValidationError', 'success');
+                    log('✅ الإصلاح يعمل: يمكن إنشاء projects بدون formation', 'success');
+                } else {
+                    log(`❌ فشل الاختبار: ${result.message}`, 'error');
+                    if (result.error) {
+                        log(`🔍 تفاصيل الخطأ: ${result.error}`, 'error');
+                        
+                        if (result.error.includes('ValidationError') && result.error.includes('formationId')) {
+                            log('🚨 لا يزال هناك ValidationError - تحقق من الـ schema', 'error');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ في الشبكة: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProjectWithFormation() {
+            log('🔄 اختبار Project مع Formation...', 'info');
+            
+            const dataWithFormationAndProject = {
+                fullName: 'مشارك اختبار Projects',
+                email: 'project.fix.test@matc.com',
+                formations: [{
+                    id: 'form-for-project',
+                    title: 'Formation للمشروع',
+                    description: 'formation مرتبطة بالمشروع',
+                    domain: 'اختبار',
+                    level: 'Débutant',
+                    duration: '2 ساعة',
+                    status: 'not_started',
+                    progress: 0,
+                    enrollmentDate: new Date().toISOString(),
+                    courses: [],
+                    links: []
+                }],
+                projects: [{
+                    id: 'proj-with-formation',
+                    title: 'مشروع مع Formation',
+                    description: 'مشروع مرتبط بـ formation',
+                    formationId: 'form-for-project',
+                    formationTitle: 'Formation للمشروع',
+                    status: 'not_started',
+                    feedback: '',
+                    note: '',
+                    isVisible: true
+                }],
+                coachingResources: [],
+                notifications: []
+            };
+
+            try {
+                log('📤 إرسال PUT مع formation وproject مرتبط...', 'info');
+                
+                const response = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataWithFormationAndProject)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ نجح حفظ Formation وProject معاً', 'success');
+                    
+                    // التحقق من الاسترجاع
+                    setTimeout(async () => {
+                        try {
+                            const getResponse = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`);
+                            const getData = await getResponse.json();
+                            
+                            if (getData.success) {
+                                const formations = getData.data.formations || [];
+                                const projects = getData.data.projects || [];
+                                
+                                log(`📊 تم استرجاع ${formations.length} formations و ${projects.length} projects`, 'success');
+                                
+                                if (formations.length > 0 && projects.length > 0) {
+                                    log('🎉 النتيجة النهائية: الإصلاح نجح بالكامل!', 'success');
+                                    log('✅ Projects تحفظ وتسترجع صحيح', 'success');
+                                    log('✅ لا مزيد من ValidationError', 'success');
+                                }
+                            }
+                        } catch (e) {
+                            log(`❌ خطأ في استرجاع البيانات: ${e.message}`, 'error');
+                        }
+                    }, 1000);
+                    
+                } else {
+                    log(`❌ فشل حفظ البيانات: ${result.message}`, 'error');
+                    if (result.error) {
+                        log(`🔍 تفاصيل الخطأ: ${result.error}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ في الشبكة: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', () => {
+            log('🚀 أداة اختبار إصلاح Projects جاهزة', 'success');
+            log('🎯 الهدف: التأكد من حل ValidationError في ParticipantProject', 'info');
+            log('📋 المشكلة: formationId كان مطلوب لكن الفورم يرسل قيم فارغة', 'warning');
+            log('✅ الحل: جعل formationId و formationTitle اختياريين', 'success');
+        });
+    </script>
+</body>
+</html>

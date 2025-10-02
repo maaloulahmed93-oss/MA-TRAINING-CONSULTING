@@ -7,6 +7,7 @@ import JobOffersTab from '../components/freelancer/JobOffersTab';
 import ProjectsTab from '../components/freelancer/ProjectsTab';
 import MeetingsTab from '../components/freelancer/MeetingsTab';
 import DeliverablesTab from '../components/freelancer/DeliverablesTab';
+import NotificationsTab from '../components/freelancer/NotificationsTab';
 
 // Service imports - wrapped in try-catch for safety
 import * as freelancerAuthService from '../services/freelancerAuth';
@@ -15,7 +16,7 @@ import * as freelancerDataService from '../services/freelancerData';
 console.log('✅ Services loaded successfully');
 
 // Types
-type TabType = 'dashboard' | 'offers' | 'projects' | 'meetings' | 'deliverables';
+type TabType = 'dashboard' | 'offers' | 'projects' | 'meetings' | 'deliverables' | 'notifications';
 
 interface FreelancerInfo {
   freelancerId: string;
@@ -107,9 +108,9 @@ const EspaceFreelancerPage: React.FC = () => {
     setIsAuthenticated(true);
     setFreelancerInfo({ freelancerId });
     setIsLoading(false);
-    // Re-check authentication to ensure state is properly updated
-    checkAuthentication();
-  }, [checkAuthentication]);
+    // Don't re-check authentication immediately to avoid loop
+    // checkAuthentication();
+  }, []);
 
   // Handler for logout
   const handleLogout = useCallback(() => {
@@ -218,7 +219,7 @@ const EspaceFreelancerPage: React.FC = () => {
                       {freelancerInfo?.freelancerId || 'Utilisateur'}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {stats ? `Revenus: ${stats.monthlyEarnings.toLocaleString()}€` : 'Freelancer'}
+                      Freelancer
                     </p>
                   </div>
                   <button
@@ -269,6 +270,12 @@ const EspaceFreelancerPage: React.FC = () => {
     label: 'Livrables',
     icon: '📦',
     tooltip: 'Voir et soumettre vos livrables'
+  },
+  {
+    key: 'notifications',
+    label: 'Notifications',
+    icon: '🔔',
+    tooltip: 'Voir les décisions de l\'admin'
   }
 ].map((tab) => (
   <button
@@ -315,58 +322,6 @@ const EspaceFreelancerPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Stats Cards */}
-              {stats && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-600 text-sm font-medium">Projets Actifs</p>
-                        <p className="text-3xl font-bold text-gray-800">{stats.activeProjects}</p>
-                      </div>
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xl">📁</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-600 text-sm font-medium">Revenus Totaux</p>
-                        <p className="text-3xl font-bold text-gray-800">{stats.totalEarnings.toLocaleString()}€</p>
-                      </div>
-                      <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xl">💰</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-600 text-sm font-medium">Note Moyenne</p>
-                        <p className="text-3xl font-bold text-gray-800">{stats.averageRating}/5</p>
-                      </div>
-                      <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xl">⭐</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-600 text-sm font-medium">Taux de Réussite</p>
-                        <p className="text-3xl font-bold text-gray-800">{stats.successRate}%</p>
-                      </div>
-                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xl">📈</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Tab Content dynamique */}
               {activeTab === 'dashboard' ? (
@@ -379,6 +334,8 @@ const EspaceFreelancerPage: React.FC = () => {
                 <MeetingsTab />
               ) : activeTab === 'deliverables' ? (
                 <DeliverablesTab />
+              ) : activeTab === 'notifications' ? (
+                <NotificationsTab freelancerId={freelancerInfo?.freelancerId || ''} />
               ) : (
                 <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">

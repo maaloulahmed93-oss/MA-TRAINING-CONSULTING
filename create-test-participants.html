@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Test Participants</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Create Test Participants</h1>
+    <button onclick="createParticipants()">Create Participants</button>
+    <button onclick="checkParticipants()">Check Participants</button>
+    <div id="results"></div>
+
+    <script>
+        async function createParticipants() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>Creating participants...</div>';
+
+            const participants = [
+                {
+                    partnerId: 'PART-2024-001',
+                    fullName: 'Ahmed Ben Ali',
+                    firstName: 'Ahmed',
+                    lastName: 'Ben Ali',
+                    email: 'ahmed.001@matc.com',
+                    phone: '+216 98 123 456',
+                    address: 'Tunis, Tunisie'
+                },
+                {
+                    partnerId: 'PART-2024-002',
+                    fullName: 'Fatima Zahra',
+                    firstName: 'Fatima',
+                    lastName: 'Zahra',
+                    email: 'fatima.002@matc.com',
+                    phone: '+216 97 654 321',
+                    address: 'Sfax, Tunisie'
+                },
+                {
+                    partnerId: 'PART-2024-003',
+                    fullName: 'Mohamed Slim',
+                    firstName: 'Mohamed',
+                    lastName: 'Slim',
+                    email: 'mohamed.003@matc.com',
+                    phone: '+216 99 888 777',
+                    address: 'Sousse, Tunisie'
+                }
+            ];
+
+            for (const participant of participants) {
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(participant)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        results.innerHTML += `<div class="result success">✅ Created: ${result.data.partnerId} - ${result.data.fullName}</div>`;
+                    } else {
+                        results.innerHTML += `<div class="result error">❌ Error: ${participant.partnerId} - ${result.message}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">❌ Network Error: ${participant.partnerId} - ${error.message}</div>`;
+                }
+            }
+        }
+
+        async function checkParticipants() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>Checking participants...</div>';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/participants');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    results.innerHTML = `<div class="result success">Found ${result.data.length} participants:</div>`;
+                    result.data.forEach(p => {
+                        results.innerHTML += `<div class="result">📋 ${p.partnerId}: ${p.fullName} (${p.email})</div>`;
+                    });
+
+                    // Test specific IDs
+                    const testIds = ['PART-2024-001', 'PART-2024-002', 'PART-2024-003'];
+                    for (const id of testIds) {
+                        try {
+                            const testResponse = await fetch(`http://localhost:3001/api/participants/${id}`);
+                            if (testResponse.ok) {
+                                results.innerHTML += `<div class="result success">✅ ${id} is accessible</div>`;
+                            } else {
+                                results.innerHTML += `<div class="result error">❌ ${id} not found (${testResponse.status})</div>`;
+                            }
+                        } catch (error) {
+                            results.innerHTML += `<div class="result error">❌ ${id} error: ${error.message}</div>`;
+                        }
+                    }
+                } else {
+                    results.innerHTML += `<div class="result error">❌ Error: ${result.message}</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="result error">❌ Network Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

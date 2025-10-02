@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Clock, Users, ArrowRight, Sparkles } from 'lucide-react';
-import { Pack, convertPrice } from '../data/themePacks';
+import { Pack } from '../data/themePacks';
+import { convertPrice } from '../utils/currencyConverter';
 
 interface PackCardProps {
   pack: Pack;

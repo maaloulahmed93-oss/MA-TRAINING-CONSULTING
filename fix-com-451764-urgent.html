@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Urgent COM-451764 - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            color: #dc2626;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .urgent {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 3px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .fix-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .fix-button:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 8px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover { 
+            transform: translateY(-2px);
+        }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 FIX URGENT</h1>
+            <h2>COM-451764</h2>
+        </div>
+
+        <div class="urgent">
+            <h3>⚡ PROBLÈME CRITIQUE</h3>
+            <p><strong>ID:</strong> COM-451764 (mohamed - mohamed@example.com)</p>
+            <p><strong>Statut:</strong> ❌ Ne peut pas se connecter à l'Espace Commercial</p>
+            <p><strong>Cause:</strong> ID pas synchronisé entre Admin Panel et Espace Commercial</p>
+        </div>
+
+        <!-- Fix Immédiat -->
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="fix-button" onclick="fixImmediate()">
+                🔧 FIX IMMÉDIAT COM-451764
+            </button>
+            <div id="fix-result" class="result"></div>
+        </div>
+
+        <!-- Tests Rapides -->
+        <div style="text-align: center;">
+            <h3>🧪 Tests Rapides</h3>
+            <button class="test-button" onclick="testLogin()">Test Login</button>
+            <button class="test-button" onclick="syncAll()">Sync Tous</button>
+            <button class="test-button" onclick="verifyFix()">Vérifier Fix</button>
+            <div id="test-result" class="result"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div style="margin-top: 30px; padding: 20px; background: #f3f4f6; border-radius: 8px;">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li><strong>Cliquez "FIX IMMÉDIAT"</strong> pour résoudre le problème</li>
+                <li><strong>Attendez le message de succès</strong></li>
+                <li><strong>Testez sur:</strong> <code>http://localhost:5173/espace-commercial</code></li>
+                <li><strong>Entrez l'ID:</strong> COM-451764</li>
+                <li><strong>Vérifiez l'accès au dashboard</strong></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const PARTNER_ID = 'COM-451764';
+        const API_BASE = 'http://localhost:3001/api';
+
+        async function fixImmediate() {
+            const resultDiv = document.getElementById('fix-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🚨 FIX URGENT EN COURS pour ${PARTNER_ID}...\n\n`;
+
+            try {
+                // Étape 1: Fix spécifique
+                resultDiv.textContent += `🔧 Étape 1: Fix spécifique...\n`;
+                
+                const fixResponse = await fetch(`${API_BASE}/commercial-new/fix-com-451764`);
+                const fixResult = await fixResponse.json();
+                
+                if (fixResult.success) {
+                    resultDiv.textContent += `✅ Fix spécifique réussi!\n`;
+                } else {
+                    resultDiv.textContent += `⚠️ Fix spécifique: ${fixResult.message}\n`;
+                }
+
+                // Étape 2: Test login immédiat
+                resultDiv.textContent += `\n🧪 Étape 2: Test login...\n`;
+                
+                const loginResponse = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const loginResult = await loginResponse.json();
+                
+                if (loginResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += 
+                        `✅ LOGIN RÉUSSI!\n\n` +
+                        `🎉 PROBLÈME RÉSOLU!\n\n` +
+                        `📋 Détails du commercial:\n` +
+                        `   ID: ${loginResult.data.partnerId}\n` +
+                        `   Nom: ${loginResult.data.fullName}\n` +
+                        `   Email: ${loginResult.data.email}\n` +
+                        `   Niveau: ${loginResult.data.niveau}\n\n` +
+                        `🚀 TESTEZ MAINTENANT:\n` +
+                        `   1. Allez sur: http://localhost:5173/espace-commercial\n` +
+                        `   2. Entrez: ${PARTNER_ID}\n` +
+                        `   3. Cliquez "Se Connecter"\n\n` +
+                        `✨ Le dashboard devrait s'ouvrir sans erreur!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += 
+                        `❌ Login échoué: ${loginResult.message}\n\n` +
+                        `🔍 Vérification nécessaire...`;
+                    
+                    // Diagnostic supplémentaire
+                    await diagnosticComplete(resultDiv);
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR CRITIQUE: ${error.message}\n\n`;
+                resultDiv.textContent += `🔧 Vérifiez que le backend est démarré sur le port 3001`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🧪 Test login ${PARTNER_ID}...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += 
+                        `✅ LOGIN OK!\n` +
+                        `Nom: ${result.data.fullName}\n` +
+                        `Email: ${result.data.email}\n` +
+                        `Niveau: ${result.data.niveau}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Login échoué: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function syncAll() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔄 Synchronisation complète...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/sync-all-partners`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += 
+                        `✅ Sync réussie!\n` +
+                        `Créés: ${result.data.created}\n` +
+                        `Existants: ${result.data.existing}\n` +
+                        `Total: ${result.data.total}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Sync échouée: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function verifyFix() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Vérification complète...\n\n`;
+
+            let allGood = true;
+            
+            // Test Partners
+            try {
+                const partnersResp = await fetch(`${API_BASE}/partners/${PARTNER_ID}`);
+                const partnersRes = await partnersResp.json();
+                if (partnersRes.success) {
+                    resultDiv.textContent += `✅ Partners: OK\n`;
+                } else {
+                    resultDiv.textContent += `❌ Partners: NOK\n`;
+                    allGood = false;
+                }
+            } catch (e) {
+                resultDiv.textContent += `❌ Partners: ERROR\n`;
+                allGood = false;
+            }
+
+            // Test CommercialNew
+            try {
+                const commercialResp = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}`);
+                const commercialRes = await commercialResp.json();
+                if (commercialRes.success) {
+                    resultDiv.textContent += `✅ CommercialNew: OK\n`;
+                } else {
+                    resultDiv.textContent += `❌ CommercialNew: NOK\n`;
+                    allGood = false;
+                }
+            } catch (e) {
+                resultDiv.textContent += `❌ CommercialNew: ERROR\n`;
+                allGood = false;
+            }
+
+            // Test Login
+            try {
+                const loginResp = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const loginRes = await loginResp.json();
+                if (loginRes.success) {
+                    resultDiv.textContent += `✅ Login: OK\n`;
+                } else {
+                    resultDiv.textContent += `❌ Login: NOK\n`;
+                    allGood = false;
+                }
+            } catch (e) {
+                resultDiv.textContent += `❌ Login: ERROR\n`;
+                allGood = false;
+            }
+
+            if (allGood) {
+                resultDiv.className = 'result success';
+                resultDiv.textContent += `\n🎉 TOUT FONCTIONNE PARFAITEMENT!`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `\n❌ Problèmes détectés`;
+            }
+        }
+
+        async function diagnosticComplete(resultDiv) {
+            resultDiv.textContent += `\n🔍 DIAGNOSTIC COMPLET...\n`;
+            
+            // Check Partners
+            try {
+                const partnersResp = await fetch(`${API_BASE}/partners/${PARTNER_ID}`);
+                const partnersRes = await partnersResp.json();
+                if (partnersRes.success) {
+                    resultDiv.textContent += `✅ Partners: Trouvé (${partnersRes.data.fullName})\n`;
+                } else {
+                    resultDiv.textContent += `❌ Partners: Non trouvé\n`;
+                }
+            } catch (e) {
+                resultDiv.textContent += `❌ Partners: Erreur connexion\n`;
+            }
+            
+            // Check CommercialNew
+            try {
+                const commercialResp = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}`);
+                const commercialRes = await commercialResp.json();
+                if (commercialRes.success) {
+                    resultDiv.textContent += `✅ CommercialNew: Trouvé\n`;
+                } else {
+                    resultDiv.textContent += `❌ CommercialNew: Non trouvé\n`;
+                }
+            } catch (e) {
+                resultDiv.textContent += `❌ CommercialNew: Erreur connexion\n`;
+            }
+        }
+
+        // Message d'accueil
+        window.onload = function() {
+            console.log('🚨 Fix urgent chargé pour COM-451764');
+        };
+    </script>
+</body>
+</html>

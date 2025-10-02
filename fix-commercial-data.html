@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Commercial Data - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix Commercial Data - MATC</h1>
+            <p>Correction des données commerciales</p>
+        </div>
+
+        <!-- Diagnostic -->
+        <div class="info-box">
+            <h3>🔍 Problème Détecté:</h3>
+            <ul>
+                <li><strong>Erreur 404:</strong> /api/commercial-new/COM-923432/login</li>
+                <li><strong>Erreur 404:</strong> /api/commercial-new/COMM-123456/login</li>
+                <li><strong>Cause:</strong> Données commerciales manquantes dans MongoDB</li>
+            </ul>
+        </div>
+
+        <!-- Fix 1: Créer données pour COM-923432 -->
+        <div class="fix-section">
+            <h3>1. 🔧 Créer Commercial COM-923432</h3>
+            <p>Créer les données pour le commercial existant dans Admin Panel</p>
+            <button onclick="createCommercialCOM923432()">Créer COM-923432</button>
+            <div id="com923432-result" class="result"></div>
+        </div>
+
+        <!-- Fix 2: Créer données pour COMM-123456 -->
+        <div class="fix-section">
+            <h3>2. 🔧 Créer Commercial COMM-123456</h3>
+            <p>Créer les données pour le commercial de test</p>
+            <button onclick="createCommercialCOMM123456()">Créer COMM-123456</button>
+            <div id="comm123456-result" class="result"></div>
+        </div>
+
+        <!-- Fix 3: Créer Service Demo -->
+        <div class="fix-section">
+            <h3>3. 🛠️ Créer Service Demo</h3>
+            <p>Créer un service de test pour les commerciaux</p>
+            <button onclick="createDemoService()">Créer Service</button>
+            <div id="service-result" class="result"></div>
+        </div>
+
+        <!-- Fix 4: Assigner Services -->
+        <div class="fix-section">
+            <h3>4. 🔗 Assigner Services aux Commerciaux</h3>
+            <p>Lier les services aux commerciaux</p>
+            <button onclick="assignServices()">Assigner Services</button>
+            <div id="assign-result" class="result"></div>
+        </div>
+
+        <!-- Fix Complet -->
+        <div class="fix-section">
+            <h3>🎯 Fix Automatique Complet</h3>
+            <button onclick="runCompleteFix()" id="complete-fix-btn">
+                🚀 Corriger Tout Automatiquement
+            </button>
+            <div id="complete-fix-result" class="result"></div>
+        </div>
+
+        <!-- Test après correction -->
+        <div class="info-box">
+            <h3>🧪 Test après correction:</h3>
+            <p><strong>URL:</strong> <a href="http://localhost:5173/espace-commercial" target="_blank">http://localhost:5173/espace-commercial</a></p>
+            <p><strong>IDs à tester:</strong></p>
+            <ul>
+                <li>COM-923432 (existant dans Admin Panel)</li>
+                <li>COMM-123456 (ID de test)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const SECRET_CODE = '20388542';
+        let serviceId = '';
+
+        async function createCommercialCOM923432() {
+            try {
+                // D'abord créer dans la collection commercialnews
+                const commercialData = {
+                    partnerId: 'COM-923432',
+                    fullName: 'Commercial Existant',
+                    email: 'com923432@matc.tn',
+                    niveau: 1,
+                    points: 0,
+                    pointsHistoriques: 0,
+                    chiffreAffaires: 0,
+                    commissionTotale: 0,
+                    ventes: [],
+                    clients: [],
+                    cadeauxMensuels: [],
+                    isActive: true,
+                    dateCreation: new Date()
+                };
+
+                const response = await fetch('http://localhost:3001/api/commercial-new/create-direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+                document.getElementById('com923432-result').textContent = 
+                    `✅ COM-923432 créé!\n${JSON.stringify(result, null, 2)}`;
+                
+                return result.success;
+            } catch (error) {
+                document.getElementById('com923432-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function createCommercialCOMM123456() {
+            try {
+                const commercialData = {
+                    partnerId: 'COMM-123456',
+                    fullName: 'Ahmed Commercial Demo',
+                    email: 'ahmed.demo@matc.tn',
+                    niveau: 1,
+                    points: 0,
+                    pointsHistoriques: 0,
+                    chiffreAffaires: 0,
+                    commissionTotale: 0,
+                    ventes: [],
+                    clients: [],
+                    cadeauxMensuels: [],
+                    isActive: true,
+                    dateCreation: new Date()
+                };
+
+                const response = await fetch('http://localhost:3001/api/commercial-new/create-direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+                document.getElementById('comm123456-result').textContent = 
+                    `✅ COMM-123456 créé!\n${JSON.stringify(result, null, 2)}`;
+                
+                return result.success;
+            } catch (error) {
+                document.getElementById('comm123456-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function createDemoService() {
+            try {
+                const serviceData = {
+                    titre: 'Formation React Avancée - Demo',
+                    categorie: 'Développement Web',
+                    description: 'Formation complète React avec hooks et context',
+                    prixPublic: 1500,
+                    prixCommercial: 1200,
+                    commission: 180,
+                    duree: '3 mois',
+                    secretCode: SECRET_CODE,
+                    adminId: 'fix-system'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(serviceData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    serviceId = result.data._id;
+                }
+                
+                document.getElementById('service-result').textContent = 
+                    `✅ Service créé!\n${JSON.stringify(result, null, 2)}`;
+                
+                return result.success;
+            } catch (error) {
+                document.getElementById('service-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function assignServices() {
+            if (!serviceId) {
+                document.getElementById('assign-result').textContent = 
+                    '⚠️ Créez d\'abord un service';
+                return false;
+            }
+
+            try {
+                const commercials = ['COM-923432', 'COMM-123456'];
+                let results = [];
+
+                for (const partnerId of commercials) {
+                    const assignData = {
+                        serviceId: serviceId,
+                        partnerId: partnerId,
+                        secretCode: SECRET_CODE,
+                        adminId: 'fix-system'
+                    };
+
+                    const response = await fetch(`${API_BASE}/admin/assign-service`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(assignData)
+                    });
+
+                    const result = await response.json();
+                    results.push({ partnerId, result });
+                }
+
+                document.getElementById('assign-result').textContent = 
+                    `✅ Services assignés!\n${JSON.stringify(results, null, 2)}`;
+                
+                return true;
+            } catch (error) {
+                document.getElementById('assign-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+                return false;
+            }
+        }
+
+        async function runCompleteFix() {
+            const btn = document.getElementById('complete-fix-btn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Correction en cours...';
+            
+            document.getElementById('complete-fix-result').textContent = 
+                '🚀 Démarrage de la correction automatique...\n\n';
+
+            const steps = [
+                { name: 'COM-923432', func: createCommercialCOM923432 },
+                { name: 'COMM-123456', func: createCommercialCOMM123456 },
+                { name: 'Service Demo', func: createDemoService },
+                { name: 'Assignation', func: assignServices }
+            ];
+
+            let allSuccess = true;
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                document.getElementById('complete-fix-result').textContent += 
+                    `${i + 1}. ${step.name}...\n`;
+                
+                try {
+                    const success = await step.func();
+                    if (success) {
+                        document.getElementById('complete-fix-result').textContent += 
+                            `   ✅ ${step.name} - OK\n\n`;
+                    } else {
+                        document.getElementById('complete-fix-result').textContent += 
+                            `   ❌ ${step.name} - Échec\n\n`;
+                        allSuccess = false;
+                    }
+                } catch (error) {
+                    document.getElementById('complete-fix-result').textContent += 
+                        `   ❌ ${step.name} - Erreur: ${error.message}\n\n`;
+                    allSuccess = false;
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            if (allSuccess) {
+                document.getElementById('complete-fix-result').textContent += 
+                    '🎉 Correction terminée avec succès!\n\n' +
+                    '📋 Prochaines étapes:\n' +
+                    '1. Actualiser: http://localhost:5173/espace-commercial\n' +
+                    '2. Tester avec: COM-923432 ou COMM-123456\n' +
+                    '3. Les erreurs 404 devraient être résolues\n\n' +
+                    '✨ Le système commercial est maintenant opérationnel!';
+            } else {
+                document.getElementById('complete-fix-result').textContent += 
+                    '⚠️ Correction partiellement terminée. Vérifiez les erreurs.';
+            }
+
+            btn.disabled = false;
+            btn.textContent = allSuccess ? '✅ Correction Terminée' : '🔄 Réessayer';
+        }
+
+        // Test de connectivité
+        window.onload = async function() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const result = await response.json();
+                console.log('✅ Backend connecté:', result);
+            } catch (error) {
+                console.error('❌ Backend non accessible:', error);
+                alert('⚠️ Assurez-vous que le backend est démarré sur le port 3001');
+            }
+        };
+    </script>
+</body>
+</html>

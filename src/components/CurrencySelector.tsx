@@ -9,7 +9,7 @@ interface CurrencySelectorProps {
 const currencies = [
   { code: '€', name: 'Euro', symbol: '€' },
   { code: '$', name: 'Dollar US', symbol: '$' },
-  { code: 'DTN', name: 'Dinar Tunisien', symbol: 'DTN' }
+  { code: 'TND', name: 'Dinar Tunisien', symbol: 'TND' }
 ];
 
 const CurrencySelector: React.FC<CurrencySelectorProps> = ({

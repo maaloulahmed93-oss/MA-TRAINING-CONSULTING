@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص مسار الفورم</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 10px; max-height: 200px; overflow-y: auto; direction: ltr; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص مسار الفورم</h1>
+        <p>تحليل عميق لمسار البيانات من الفورم إلى قاعدة البيانات</p>
+
+        <div class="info">
+            <h3>📋 خطة التشخيص:</h3>
+            <ol>
+                <li>إنشاء مشارك أساسي</li>
+                <li>إضافة Formation مع Links</li>
+                <li>التحقق من قاعدة البيانات</li>
+                <li>محاكاة Refresh</li>
+            </ol>
+        </div>
+
+        <button class="btn-primary" onclick="step1()">1. إنشاء مشارك</button>
+        <button class="btn-success" onclick="step2()">2. إضافة Formation</button>
+        <button class="btn-danger" onclick="step3()">3. التحقق من DB</button>
+        <button class="btn-primary" onclick="step4()">4. محاكاة Refresh</button>
+        <button class="btn-danger" onclick="runAll()">تشغيل الكل</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const TEST_ID = 'PART-DEBUG-FLOW';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="${type}"><strong>[${time}]</strong> ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function step1() {
+            log('🔄 الخطوة 1: إنشاء مشارك أساسي...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        partnerId: TEST_ID,
+                        fullName: 'مشارك تشخيص',
+                        firstName: 'مشارك',
+                        lastName: 'تشخيص',
+                        email: 'debug@matc.com',
+                        phone: '+216 99 000 000',
+                        status: 'active'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ نجح إنشاء المشارك', 'success');
+                    return true;
+                } else {
+                    if (result.message && result.message.includes('existe déjà')) {
+                        log('⚠️ المشارك موجود، المتابعة...', 'warning');
+                        return true;
+                    } else {
+                        log(`❌ فشل إنشاء المشارك: ${result.message}`, 'error');
+                        return false;
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function step2() {
+            log('🔄 الخطوة 2: إضافة Formation مع Links...', 'info');
+            
+            const data = {
+                fullName: 'مشارك تشخيص',
+                email: 'debug@matc.com',
+                formations: [{
+                    id: 'form-debug',
+                    title: 'Formation تشخيص',
+                    description: 'formation للتشخيص',
+                    domain: 'تشخيص',
+                    level: 'Débutant',
+                    duration: '2 ساعة',
+                    status: 'not_started',
+                    progress: 0,
+                    enrollmentDate: new Date().toISOString(),
+                    courses: [],
+                    links: [
+                        {
+                            id: 'link-1',
+                            title: 'رابط تشخيص',
+                            url: 'https://debug.com',
+                            type: 'programme'
+                        }
+                    ]
+                }],
+                projects: [],
+                coachingResources: [],
+                notifications: []
+            };
+
+            try {
+                log(`📤 إرسال PUT مع ${data.formations[0].links.length} links...`, 'info');
+                
+                const response = await fetch(`${API_BASE}/participants/${TEST_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ نجح حفظ Formation مع Links', 'success');
+                    return true;
+                } else {
+                    log(`❌ فشل حفظ Formation: ${result.message}`, 'error');
+                    if (result.error) {
+                        log(`🔍 تفاصيل: ${result.error}`, 'error');
+                    }
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function step3() {
+            log('🔄 الخطوة 3: التحقق من قاعدة البيانات...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TEST_ID}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const formations = result.data.formations || [];
+                    log(`📊 عدد Formations في DB: ${formations.length}`, 'info');
+                    
+                    if (formations.length > 0) {
+                        formations.forEach((f, i) => {
+                            log(`  Formation ${i+1}: ${f.title}`, 'info');
+                            log(`    Links: ${f.links?.length || 0}`, 'info');
+                        });
+                        log('✅ البيانات موجودة في قاعدة البيانات', 'success');
+                        return true;
+                    } else {
+                        log('❌ لا توجد formations في قاعدة البيانات', 'error');
+                        return false;
+                    }
+                } else {
+                    log(`❌ فشل استرجاع البيانات: ${result.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function step4() {
+            log('🔄 الخطوة 4: محاكاة Refresh...', 'info');
+            log('⏳ انتظار 2 ثانية...', 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TEST_ID}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const formations = result.data.formations || [];
+                    log(`📊 بعد Refresh: ${formations.length} formations`, 'info');
+                    
+                    if (formations.length > 0) {
+                        log('🎉 نجح الاختبار: البيانات باقية بعد Refresh!', 'success');
+                        log('✅ الفورم يعمل صحيح', 'success');
+                        return true;
+                    } else {
+                        log('❌ فشل: البيانات اختفت بعد Refresh', 'error');
+                        log('🚨 المشكلة: البيانات لا تحفظ صحيح', 'error');
+                        return false;
+                    }
+                } else {
+                    log(`❌ خطأ في استرجاع البيانات: ${result.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function runAll() {
+            log('🚀 بدء التشخيص الشامل...', 'info');
+            
+            const s1 = await step1();
+            if (!s1) { log('❌ توقف: فشل الخطوة 1', 'error'); return; }
+            
+            await new Promise(r => setTimeout(r, 1000));
+            const s2 = await step2();
+            if (!s2) { log('❌ توقف: فشل الخطوة 2', 'error'); return; }
+            
+            await new Promise(r => setTimeout(r, 1000));
+            const s3 = await step3();
+            if (!s3) { log('❌ توقف: فشل الخطوة 3', 'error'); return; }
+            
+            await new Promise(r => setTimeout(r, 1000));
+            await step4();
+        }
+
+        window.addEventListener('load', () => {
+            log('🚀 أداة التشخيص جاهزة', 'success');
+            log('🎯 الهدف: معرفة سبب عدم حفظ البيانات', 'info');
+        });
+    </script>
+</body>
+</html>

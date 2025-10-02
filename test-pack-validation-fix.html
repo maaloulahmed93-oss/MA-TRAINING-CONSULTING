@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Validation Fix - Packs MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .json-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success { background-color: #28a745; color: white; }
+        .status.error { background-color: #dc3545; color: white; }
+        .status.pending { background-color: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Correction Validation - Packs MATC</h1>
+        <p>Test de la correction du problème de validation Joi pour les images</p>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Tests de Validation</h2>
+        
+        <div class="test-section info">
+            <h3>1. Test avec Image URL Standard</h3>
+            <button onclick="testStandardImage()">Test Image URL</button>
+            <span id="standard-status" class="status pending">En attente</span>
+            <div id="standard-result" class="json-display"></div>
+        </div>
+
+        <div class="test-section info">
+            <h3>2. Test avec Image Base64</h3>
+            <button onclick="testBase64Image()">Test Image Base64</button>
+            <span id="base64-status" class="status pending">En attente</span>
+            <div id="base64-result" class="json-display"></div>
+        </div>
+
+        <div class="test-section info">
+            <h3>3. Test avec Image Relative</h3>
+            <button onclick="testRelativeImage()">Test Image Relative</button>
+            <span id="relative-status" class="status pending">En attente</span>
+            <div id="relative-result" class="json-display"></div>
+        </div>
+
+        <div class="test-section info">
+            <h3>4. Récupération des Packs</h3>
+            <button onclick="fetchAllPacks()">Récupérer Packs</button>
+            <span id="fetch-status" class="status pending">En attente</span>
+            <div id="fetch-result" class="json-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Test 1: Image URL Standard
+        async function testStandardImage() {
+            const statusEl = document.getElementById('standard-status');
+            const resultEl = document.getElementById('standard-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            const testPack = {
+                packId: `test-standard-${Date.now()}`,
+                name: "Pack Test Image URL",
+                description: "Test avec une image URL standard",
+                image: "https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=Standard+URL",
+                details: {
+                    price: 299,
+                    originalPrice: 399,
+                    savings: 100,
+                    advantages: ["Avantage 1", "Avantage 2"],
+                    themes: [{
+                        themeId: "theme-1",
+                        name: "Thème Test",
+                        startDate: "2024-01-01",
+                        endDate: "2024-01-31",
+                        modules: [{
+                            moduleId: "module-1",
+                            title: "Module Test"
+                        }]
+                    }]
+                }
+            };
+            
+            await testPackCreation(testPack, statusEl, resultEl, 'Standard URL');
+        }
+
+        // Test 2: Image Base64
+        async function testBase64Image() {
+            const statusEl = document.getElementById('base64-status');
+            const resultEl = document.getElementById('base64-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            const testPack = {
+                packId: `test-base64-${Date.now()}`,
+                name: "Pack Test Image Base64",
+                description: "Test avec une image en base64",
+                image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+                details: {
+                    price: 399,
+                    originalPrice: 499,
+                    savings: 100,
+                    advantages: ["Avantage Base64 1", "Avantage Base64 2"],
+                    themes: [{
+                        themeId: "theme-base64",
+                        name: "Thème Base64",
+                        startDate: "2024-02-01",
+                        endDate: "2024-02-28",
+                        modules: [{
+                            moduleId: "module-base64",
+                            title: "Module Base64"
+                        }]
+                    }]
+                }
+            };
+            
+            await testPackCreation(testPack, statusEl, resultEl, 'Base64');
+        }
+
+        // Test 3: Image Relative
+        async function testRelativeImage() {
+            const statusEl = document.getElementById('relative-status');
+            const resultEl = document.getElementById('relative-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            const testPack = {
+                packId: `test-relative-${Date.now()}`,
+                name: "Pack Test Image Relative",
+                description: "Test avec une image relative",
+                image: "/images/pack-test.jpg",
+                details: {
+                    price: 199,
+                    originalPrice: 299,
+                    savings: 100,
+                    advantages: ["Avantage Relative 1", "Avantage Relative 2"],
+                    themes: [{
+                        themeId: "theme-relative",
+                        name: "Thème Relative",
+                        startDate: "2024-03-01",
+                        endDate: "2024-03-31",
+                        modules: [{
+                            moduleId: "module-relative",
+                            title: "Module Relative"
+                        }]
+                    }]
+                }
+            };
+            
+            await testPackCreation(testPack, statusEl, resultEl, 'Relative');
+        }
+
+        // Fonction générique de test
+        async function testPackCreation(packData, statusEl, resultEl, testType) {
+            try {
+                console.log(`🔍 Test ${testType}...`);
+                console.log('📤 Pack à créer:', packData);
+                
+                const response = await fetch(`${API_BASE}/packs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(packData)
+                });
+                
+                console.log(`📡 ${testType} Response status:`, response.status);
+                const data = await response.json();
+                console.log(`📄 ${testType} Response data:`, data);
+                
+                if (response.ok) {
+                    statusEl.textContent = 'Succès ✅';
+                    statusEl.className = 'status success';
+                    resultEl.textContent = `✅ ${testType} - Pack créé avec succès!\nStatus: ${response.status}\nPack ID: ${data.data?.packId}\nNom: ${data.data?.name}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                console.error(`❌ Erreur ${testType}:`, error);
+                statusEl.textContent = 'Erreur ❌';
+                statusEl.className = 'status error';
+                resultEl.textContent = `❌ Erreur ${testType}: ${error.message}`;
+            }
+        }
+
+        // Test 4: Récupération des packs
+        async function fetchAllPacks() {
+            const statusEl = document.getElementById('fetch-status');
+            const resultEl = document.getElementById('fetch-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            try {
+                console.log('🔍 Récupération des packs...');
+                
+                const response = await fetch(`${API_BASE}/packs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('📡 Fetch Response status:', response.status);
+                const data = await response.json();
+                console.log('📄 Fetch Response data:', data);
+                
+                if (response.ok) {
+                    statusEl.textContent = 'Succès ✅';
+                    statusEl.className = 'status success';
+                    resultEl.textContent = `✅ Packs récupérés avec succès!\nStatus: ${response.status}\nNombre de packs: ${data.data?.length || 0}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                console.error('❌ Erreur Fetch:', error);
+                statusEl.textContent = 'Erreur ❌';
+                statusEl.className = 'status error';
+                resultEl.textContent = `❌ Erreur Fetch: ${error.message}`;
+            }
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', () => {
+            console.log('🚀 Page de test de validation chargée');
+            setTimeout(() => {
+                fetchAllPacks();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

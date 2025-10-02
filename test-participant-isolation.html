@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Participant Data Isolation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .results { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .participant-card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Test d'Isolation des Données - Participants</h1>
+        <p>Ce test vérifie que chaque participant ne voit que ses propres données (formations, projets, ressources, notifications).</p>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <h3>Participants</h3>
+                <div id="participantCount">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Formations</h3>
+                <div id="formationCount">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Projets</h3>
+                <div id="projectCount">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Ressources</h3>
+                <div id="resourceCount">-</div>
+            </div>
+        </div>
+
+        <!-- Test 1: Backend API Connectivity -->
+        <div class="test-section" id="test1">
+            <h2>Test 1: Connectivité API Backend</h2>
+            <button class="btn-primary" onclick="testBackendConnectivity()">Tester la Connectivité</button>
+            <div class="results" id="test1-results"></div>
+        </div>
+
+        <!-- Test 2: Participant Data Loading -->
+        <div class="test-section" id="test2">
+            <h2>Test 2: Chargement des Données Participants</h2>
+            <button class="btn-primary" onclick="testParticipantDataLoading()">Charger les Participants</button>
+            <div class="results" id="test2-results"></div>
+        </div>
+
+        <!-- Test 3: Data Isolation Verification -->
+        <div class="test-section" id="test3">
+            <h2>Test 3: Vérification de l'Isolation des Données</h2>
+            <button class="btn-primary" onclick="testDataIsolation()">Tester l'Isolation</button>
+            <div class="results" id="test3-results"></div>
+        </div>
+
+        <!-- Test 4: Admin Panel Integration -->
+        <div class="test-section" id="test4">
+            <h2>Test 4: Intégration Admin Panel</h2>
+            <button class="btn-primary" onclick="testAdminPanelIntegration()">Tester Admin Panel</button>
+            <div class="results" id="test4-results"></div>
+        </div>
+
+        <!-- Test 5: Participant Login Flow -->
+        <div class="test-section" id="test5">
+            <h2>Test 5: Flux de Connexion Participant</h2>
+            <button class="btn-primary" onclick="testParticipantLoginFlow()">Tester la Connexion</button>
+            <div class="results" id="test5-results"></div>
+        </div>
+
+        <!-- Run All Tests -->
+        <div class="test-section">
+            <h2>🚀 Exécuter Tous les Tests</h2>
+            <button class="btn-success" onclick="runAllTests()">Lancer Tous les Tests</button>
+            <button class="btn-warning" onclick="runDataMigration()">Migrer les Données</button>
+            <button class="btn-danger" onclick="clearAllData()">Nettoyer les Données</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let testResults = {};
+
+        // Utility functions
+        function log(testId, message, type = 'info') {
+            const resultsDiv = document.getElementById(`${testId}-results`);
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function updateStats() {
+            // This will be called after successful tests
+        }
+
+        // Test 1: Backend API Connectivity
+        async function testBackendConnectivity() {
+            log('test1', 'Début du test de connectivité...', 'info');
+            
+            try {
+                // Test health endpoint
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    log('test1', `✅ Backend accessible: ${healthData.message}`, 'success');
+                } else {
+                    log('test1', '❌ Backend inaccessible', 'error');
+                    return false;
+                }
+
+                // Test participants endpoint
+                const participantsResponse = await fetch(`${API_BASE}/participants`);
+                if (participantsResponse.ok) {
+                    log('test1', '✅ Endpoint participants accessible', 'success');
+                } else {
+                    log('test1', '❌ Endpoint participants inaccessible', 'error');
+                    return false;
+                }
+
+                testResults.connectivity = true;
+                return true;
+            } catch (error) {
+                log('test1', `❌ Erreur de connectivité: ${error.message}`, 'error');
+                testResults.connectivity = false;
+                return false;
+            }
+        }
+
+        // Test 2: Participant Data Loading
+        async function testParticipantDataLoading() {
+            log('test2', 'Début du test de chargement des données...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.success && Array.isArray(result.data)) {
+                    log('test2', `✅ ${result.data.length} participants chargés`, 'success');
+                    
+                    // Update stats
+                    document.getElementById('participantCount').textContent = result.data.length;
+                    
+                    // Display participant details
+                    result.data.forEach(participant => {
+                        log('test2', `📋 ${participant.partnerId}: ${participant.fullName} (${participant.email})`, 'info');
+                    });
+
+                    testResults.dataLoading = true;
+                    return result.data;
+                } else {
+                    log('test2', '❌ Format de réponse invalide', 'error');
+                    testResults.dataLoading = false;
+                    return null;
+                }
+            } catch (error) {
+                log('test2', `❌ Erreur de chargement: ${error.message}`, 'error');
+                testResults.dataLoading = false;
+                return null;
+            }
+        }
+
+        // Test 3: Data Isolation Verification
+        async function testDataIsolation() {
+            log('test3', 'Début du test d\'isolation des données...', 'info');
+            
+            try {
+                // Get all participants first
+                const participantsResponse = await fetch(`${API_BASE}/participants`);
+                const participantsResult = await participantsResponse.json();
+                
+                if (!participantsResult.success || participantsResult.data.length === 0) {
+                    log('test3', '⚠️ Aucun participant trouvé pour tester l\'isolation', 'warning');
+                    return false;
+                }
+
+                const participants = participantsResult.data;
+                log('test3', `🔍 Test d'isolation sur ${participants.length} participants`, 'info');
+
+                let isolationPassed = true;
+
+                for (const participant of participants) {
+                    const participantId = participant.partnerId;
+                    log('test3', `🧪 Test isolation pour ${participantId}...`, 'info');
+
+                    // Test formations isolation
+                    const formationsResponse = await fetch(`${API_BASE}/participants/${participantId}/formations`);
+                    if (formationsResponse.ok) {
+                        const formationsResult = await formationsResponse.json();
+                        const formations = formationsResult.data || [];
+                        
+                        // Verify all formations belong to this participant
+                        const wrongOwner = formations.find(f => f.participantId !== participantId);
+                        if (wrongOwner) {
+                            log('test3', `❌ Formation avec mauvais propriétaire trouvée: ${wrongOwner._id}`, 'error');
+                            isolationPassed = false;
+                        } else {
+                            log('test3', `✅ ${formations.length} formations correctement isolées pour ${participantId}`, 'success');
+                        }
+
+                        // Update formation count
+                        const currentCount = parseInt(document.getElementById('formationCount').textContent) || 0;
+                        document.getElementById('formationCount').textContent = currentCount + formations.length;
+                    }
+
+                    // Test projects isolation
+                    const projectsResponse = await fetch(`${API_BASE}/participants/${participantId}/projects`);
+                    if (projectsResponse.ok) {
+                        const projectsResult = await projectsResponse.json();
+                        const projects = projectsResult.data || [];
+                        
+                        const wrongOwner = projects.find(p => p.participantId !== participantId);
+                        if (wrongOwner) {
+                            log('test3', `❌ Projet avec mauvais propriétaire trouvé: ${wrongOwner._id}`, 'error');
+                            isolationPassed = false;
+                        } else {
+                            log('test3', `✅ ${projects.length} projets correctement isolés pour ${participantId}`, 'success');
+                        }
+
+                        // Update project count
+                        const currentCount = parseInt(document.getElementById('projectCount').textContent) || 0;
+                        document.getElementById('projectCount').textContent = currentCount + projects.length;
+                    }
+
+                    // Test resources isolation
+                    const resourcesResponse = await fetch(`${API_BASE}/participants/${participantId}/resources`);
+                    if (resourcesResponse.ok) {
+                        const resourcesResult = await resourcesResponse.json();
+                        const resources = resourcesResult.data || [];
+                        
+                        const wrongOwner = resources.find(r => r.participantId !== participantId);
+                        if (wrongOwner) {
+                            log('test3', `❌ Ressource avec mauvais propriétaire trouvée: ${wrongOwner._id}`, 'error');
+                            isolationPassed = false;
+                        } else {
+                            log('test3', `✅ ${resources.length} ressources correctement isolées pour ${participantId}`, 'success');
+                        }
+
+                        // Update resource count
+                        const currentCount = parseInt(document.getElementById('resourceCount').textContent) || 0;
+                        document.getElementById('resourceCount').textContent = currentCount + resources.length;
+                    }
+                }
+
+                if (isolationPassed) {
+                    log('test3', '🎉 Test d\'isolation réussi - Toutes les données sont correctement isolées!', 'success');
+                    testResults.isolation = true;
+                } else {
+                    log('test3', '❌ Test d\'isolation échoué - Des fuites de données détectées!', 'error');
+                    testResults.isolation = false;
+                }
+
+                return isolationPassed;
+            } catch (error) {
+                log('test3', `❌ Erreur lors du test d'isolation: ${error.message}`, 'error');
+                testResults.isolation = false;
+                return false;
+            }
+        }
+
+        // Test 4: Admin Panel Integration
+        async function testAdminPanelIntegration() {
+            log('test4', 'Test d\'intégration Admin Panel...', 'info');
+            
+            try {
+                // Test creating a participant via API
+                const newParticipant = {
+                    fullName: 'Test Participant',
+                    firstName: 'Test',
+                    lastName: 'Participant',
+                    email: 'test@example.com',
+                    phone: '+216 99 999 999',
+                    address: 'Test Address'
+                };
+
+                const createResponse = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newParticipant)
+                });
+
+                if (createResponse.ok) {
+                    const createResult = await createResponse.json();
+                    if (createResult.success) {
+                        const participantId = createResult.data.partnerId;
+                        log('test4', `✅ Participant créé via API: ${participantId}`, 'success');
+
+                        // Test updating the participant
+                        const updateResponse = await fetch(`${API_BASE}/participants/${participantId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                fullName: 'Test Participant Updated',
+                                notes: 'Participant de test mis à jour'
+                            })
+                        });
+
+                        if (updateResponse.ok) {
+                            log('test4', '✅ Participant mis à jour via API', 'success');
+                        } else {
+                            log('test4', '❌ Échec de mise à jour du participant', 'error');
+                        }
+
+                        // Clean up - delete the test participant
+                        const deleteResponse = await fetch(`${API_BASE}/participants/${participantId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (deleteResponse.ok) {
+                            log('test4', '✅ Participant de test supprimé', 'success');
+                        }
+
+                        testResults.adminPanel = true;
+                        return true;
+                    }
+                }
+
+                log('test4', '❌ Échec de création du participant de test', 'error');
+                testResults.adminPanel = false;
+                return false;
+            } catch (error) {
+                log('test4', `❌ Erreur d'intégration Admin Panel: ${error.message}`, 'error');
+                testResults.adminPanel = false;
+                return false;
+            }
+        }
+
+        // Test 5: Participant Login Flow
+        async function testParticipantLoginFlow() {
+            log('test5', 'Test du flux de connexion participant...', 'info');
+            
+            try {
+                // Get a participant to test login
+                const participantsResponse = await fetch(`${API_BASE}/participants`);
+                const participantsResult = await participantsResponse.json();
+                
+                if (!participantsResult.success || participantsResult.data.length === 0) {
+                    log('test5', '⚠️ Aucun participant disponible pour tester la connexion', 'warning');
+                    return false;
+                }
+
+                const testParticipant = participantsResult.data[0];
+                const participantId = testParticipant.partnerId;
+
+                // Test login endpoint
+                const loginResponse = await fetch(`${API_BASE}/participants/${participantId}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ participantId })
+                });
+
+                if (loginResponse.ok) {
+                    const loginResult = await loginResponse.json();
+                    if (loginResult.success) {
+                        log('test5', `✅ Connexion réussie pour ${participantId}`, 'success');
+                        
+                        // Test getting participant details
+                        const detailsResponse = await fetch(`${API_BASE}/participants/${participantId}`);
+                        if (detailsResponse.ok) {
+                            const detailsResult = await detailsResponse.json();
+                            if (detailsResult.success) {
+                                const participant = detailsResult.data;
+                                log('test5', `✅ Données participant récupérées: ${participant.formations?.length || 0} formations, ${participant.projects?.length || 0} projets`, 'success');
+                                testResults.loginFlow = true;
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                log('test5', '❌ Échec du flux de connexion', 'error');
+                testResults.loginFlow = false;
+                return false;
+            } catch (error) {
+                log('test5', `❌ Erreur du flux de connexion: ${error.message}`, 'error');
+                testResults.loginFlow = false;
+                return false;
+            }
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            // Clear previous results
+            document.querySelectorAll('.results').forEach(div => div.innerHTML = '');
+            document.getElementById('participantCount').textContent = '0';
+            document.getElementById('formationCount').textContent = '0';
+            document.getElementById('projectCount').textContent = '0';
+            document.getElementById('resourceCount').textContent = '0';
+
+            console.log('🚀 Début de tous les tests...');
+
+            const tests = [
+                { name: 'Connectivité Backend', fn: testBackendConnectivity },
+                { name: 'Chargement Données', fn: testParticipantDataLoading },
+                { name: 'Isolation Données', fn: testDataIsolation },
+                { name: 'Intégration Admin', fn: testAdminPanelIntegration },
+                { name: 'Flux Connexion', fn: testParticipantLoginFlow }
+            ];
+
+            let passedTests = 0;
+            for (const test of tests) {
+                console.log(`Exécution: ${test.name}`);
+                const result = await test.fn();
+                if (result) passedTests++;
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Pause between tests
+            }
+
+            // Summary
+            const summary = `🎯 Tests terminés: ${passedTests}/${tests.length} réussis`;
+            console.log(summary);
+            
+            if (passedTests === tests.length) {
+                alert('🎉 Tous les tests sont passés! Le système d\'isolation des participants fonctionne correctement.');
+            } else {
+                alert(`⚠️ ${tests.length - passedTests} test(s) ont échoué. Vérifiez les détails dans les logs.`);
+            }
+        }
+
+        // Data migration
+        async function runDataMigration() {
+            if (confirm('Voulez-vous exécuter la migration des données? Cela va créer des participants de test.')) {
+                alert('Pour exécuter la migration, lancez: node backend/migrate-participant-data.js');
+            }
+        }
+
+        // Clear all data
+        async function clearAllData() {
+            if (confirm('⚠️ ATTENTION: Cela va supprimer TOUTES les données participants. Êtes-vous sûr?')) {
+                alert('Pour nettoyer les données, utilisez MongoDB Compass ou lancez un script de nettoyage.');
+            }
+        }
+
+        // Auto-run connectivity test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testBackendConnectivity, 1000);
+        });
+    </script>
+</body>
+</html>

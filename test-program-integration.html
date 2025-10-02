@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Intégration Programmes API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { background: #d4edda; padding: 10px; border-radius: 4px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 10px; border-radius: 4px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 10px; border-radius: 4px; color: #856404; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        select { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; min-width: 300px; }
+        .program-details { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .module-list { background: #e9ecef; padding: 10px; border-radius: 4px; margin: 5px 0; }
+        .session-list { background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Intégration Programmes API avec Admin Panel</h1>
+        <p>Ce test vérifie que les programmes de "Gestion des Programmes" apparaissent correctement dans le formulaire "Ajouter depuis e-Training".</p>
+
+        <div class="info">
+            <strong>Test Scenario:</strong>
+            <ul>
+                <li>Charger les programmes depuis l'API <code>/api/programs</code></li>
+                <li>Afficher les programmes dans une liste déroulante</li>
+                <li>Simuler la sélection d'un programme</li>
+                <li>Vérifier la structure des données pour la création de formations</li>
+            </ul>
+        </div>
+
+        <button class="btn-primary" onclick="loadPrograms()">Charger les Programmes</button>
+        <button class="btn-success" onclick="testProgramSelection()">Test Sélection Programme</button>
+        <button class="btn-warning" onclick="clearResults()">Effacer les Résultats</button>
+
+        <div id="results"></div>
+
+        <div style="margin-top: 20px;">
+            <h3>🎯 Simulation du Formulaire Admin Panel</h3>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                <label><strong>Ajouter depuis e-Training:</strong></label><br>
+                <select id="programSelect" onchange="onProgramSelect()" disabled>
+                    <option value="">Chargement des programmes...</option>
+                </select>
+                <button onclick="simulateAddFormation()" disabled id="addBtn">➕ Ajouter</button>
+                <div id="programDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let programs = [];
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function loadPrograms() {
+            log('🔄 Chargement des programmes depuis l\'API...', 'info');
+            clearResults();
+
+            try {
+                const response = await fetch(`${API_BASE}/programs`);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    programs = data.data || [];
+                    log(`✅ ${programs.length} programmes chargés avec succès`, 'success');
+                    
+                    // Populer la liste déroulante
+                    populateSelect();
+                    
+                    // Afficher les détails des programmes
+                    displayProgramsList();
+                    
+                } else {
+                    log(`❌ Erreur API: ${data.message || 'Réponse invalide'}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error');
+            }
+        }
+
+        function populateSelect() {
+            const select = document.getElementById('programSelect');
+            select.innerHTML = '<option value="">Sélectionner un programme…</option>';
+            
+            programs.forEach(program => {
+                const option = document.createElement('option');
+                option.value = program._id;
+                const categoryName = typeof program.category === 'object' ? program.category.name : program.category;
+                option.textContent = `${program.title} — ${categoryName} — ${program.level}`;
+                select.appendChild(option);
+            });
+            
+            select.disabled = false;
+            document.getElementById('addBtn').disabled = false;
+        }
+
+        function displayProgramsList() {
+            log('<h4>📋 Liste des Programmes Disponibles:</h4>', 'info');
+            
+            programs.forEach((program, index) => {
+                const categoryName = typeof program.category === 'object' ? program.category.name : program.category;
+                
+                log(`
+                    <div class="program-details">
+                        <strong>${index + 1}. ${program.title}</strong><br>
+                        <strong>Catégorie:</strong> ${categoryName}<br>
+                        <strong>Niveau:</strong> ${program.level}<br>
+                        <strong>Durée:</strong> ${program.duration}<br>
+                        <strong>Prix:</strong> ${program.price}€<br>
+                        <strong>Max Participants:</strong> ${program.maxParticipants}<br>
+                        <strong>Sessions/An:</strong> ${program.sessionsPerYear}<br>
+                        <div class="module-list">
+                            <strong>Modules (${program.modules?.length || 0}):</strong>
+                            ${(program.modules || []).map(m => `• ${m.title}`).join('<br>')}
+                        </div>
+                        <div class="session-list">
+                            <strong>Sessions (${program.sessions?.length || 0}):</strong>
+                            ${(program.sessions || []).map(s => `• ${s.title} (${s.date})`).join('<br>')}
+                        </div>
+                    </div>
+                `, 'info');
+            });
+        }
+
+        function onProgramSelect() {
+            const select = document.getElementById('programSelect');
+            const selectedId = select.value;
+            
+            if (!selectedId) {
+                document.getElementById('programDetails').innerHTML = '';
+                return;
+            }
+            
+            const program = programs.find(p => p._id === selectedId);
+            if (!program) return;
+            
+            const categoryName = typeof program.category === 'object' ? program.category.name : program.category;
+            
+            document.getElementById('programDetails').innerHTML = `
+                <div class="program-details" style="margin-top: 10px;">
+                    <h4>📋 Programme Sélectionné:</h4>
+                    <strong>${program.title}</strong><br>
+                    <strong>Description:</strong> ${program.description}<br>
+                    <strong>Catégorie:</strong> ${categoryName}<br>
+                    <strong>Niveau:</strong> ${program.level}<br>
+                    <strong>Durée:</strong> ${program.duration}<br>
+                    <div class="module-list">
+                        <strong>Modules qui seront créés:</strong><br>
+                        ${(program.modules || []).map(m => `• ${m.title}`).join('<br>')}
+                    </div>
+                    <div class="session-list">
+                        <strong>Sessions qui seront créées:</strong><br>
+                        ${(program.sessions || []).map(s => `• ${s.title} (${s.date})`).join('<br>')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function simulateAddFormation() {
+            const select = document.getElementById('programSelect');
+            const selectedId = select.value;
+            
+            if (!selectedId) {
+                log('⚠️ Aucun programme sélectionné', 'warning');
+                return;
+            }
+            
+            const program = programs.find(p => p._id === selectedId);
+            if (!program) {
+                log('❌ Programme introuvable', 'error');
+                return;
+            }
+            
+            log('🎯 Simulation de la création de formation...', 'info');
+            
+            // Simuler la logique de addFormationFromProgram
+            const categoryName = typeof program.category === 'object' ? program.category.name : program.category;
+            
+            const simulatedFormation = {
+                id: `form-${Date.now()}`,
+                title: program.title,
+                description: program.description,
+                domain: categoryName,
+                level: program.level,
+                duration: program.duration,
+                status: "not_started",
+                progress: 0,
+                enrollmentDate: new Date().toISOString(),
+                courses: (program.modules || []).map(module => ({
+                    id: `course-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                    title: module.title,
+                    description: "",
+                    progress: 0,
+                    isCompleted: false,
+                    duration: "0",
+                    modules: []
+                })),
+                links: [
+                    {
+                        id: `link-${Date.now()}`,
+                        title: "Suivre sur e-Training",
+                        url: "",
+                        type: "programme"
+                    },
+                    ...(program.sessions || []).map(s => ({
+                        id: `link-${Date.now()}-${s.title}`,
+                        title: `Session: ${s.date}`,
+                        url: "",
+                        type: "session"
+                    }))
+                ]
+            };
+            
+            log(`✅ Formation simulée créée avec succès:`, 'success');
+            log(`
+                <div class="program-details">
+                    <strong>Titre:</strong> ${simulatedFormation.title}<br>
+                    <strong>Domaine:</strong> ${simulatedFormation.domain}<br>
+                    <strong>Niveau:</strong> ${simulatedFormation.level}<br>
+                    <strong>Durée:</strong> ${simulatedFormation.duration}<br>
+                    <strong>Cours créés:</strong> ${simulatedFormation.courses.length}<br>
+                    <strong>Liens créés:</strong> ${simulatedFormation.links.length}<br>
+                    <div class="module-list">
+                        <strong>Cours:</strong><br>
+                        ${simulatedFormation.courses.map(c => `• ${c.title}`).join('<br>')}
+                    </div>
+                    <div class="session-list">
+                        <strong>Liens:</strong><br>
+                        ${simulatedFormation.links.map(l => `• ${l.title} (${l.type})`).join('<br>')}
+                    </div>
+                </div>
+            `, 'success');
+        }
+
+        async function testProgramSelection() {
+            log('🧪 Test de sélection de programme...', 'info');
+            
+            if (programs.length === 0) {
+                log('⚠️ Aucun programme chargé. Chargez d\'abord les programmes.', 'warning');
+                return;
+            }
+            
+            // Sélectionner automatiquement le premier programme
+            const firstProgram = programs[0];
+            const select = document.getElementById('programSelect');
+            select.value = firstProgram._id;
+            onProgramSelect();
+            
+            log(`✅ Programme "${firstProgram.title}" sélectionné automatiquement`, 'success');
+            
+            // Simuler l'ajout
+            setTimeout(() => {
+                simulateAddFormation();
+            }, 1000);
+        }
+
+        // Auto-charger les programmes au démarrage
+        window.addEventListener('load', () => {
+            log('🚀 Test d\'intégration programmes API chargé', 'info');
+            log('Cliquez sur "Charger les Programmes" pour commencer le test', 'info');
+        });
+    </script>
+</body>
+</html>

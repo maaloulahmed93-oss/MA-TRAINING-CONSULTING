@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC - Analyse Formations: Panel → Espace Participant</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .section { padding: 30px; border-bottom: 1px solid #e2e8f0; }
+        .section:last-child { border-bottom: none; }
+        .section h2 { color: #2d3748; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .mapping-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .mapping-table th, .mapping-table td { padding: 12px; border: 1px solid #e2e8f0; text-align: left; }
+        .mapping-table th { background: #f8fafc; font-weight: 600; }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .status.perfect { background: #c6f6d5; color: #22543d; }
+        .status.good { background: #bee3f8; color: #2c5282; }
+        .status.warning { background: #fef5e7; color: #c05621; }
+        .status.missing { background: #fed7d7; color: #c53030; }
+        .mismatch { background: #fed7d7; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .fix { background: #c6f6d5; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .code { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 12px; }
+        .step { background: #f7fafc; border-left: 4px solid #4299e1; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Analyse Formations MATC</h1>
+            <p>Panel → Backend → Espace Participant (3 Pages)</p>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Schema Mapping - Formations</h2>
+            <table class="mapping-table">
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Panel (Admin)</th>
+                        <th>Backend Model</th>
+                        <th>Espace Participant</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>ID</strong></td>
+                        <td>formation.id</td>
+                        <td>_id (MongoDB)</td>
+                        <td>formation.id</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Mapping direct</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Titre</strong></td>
+                        <td>formation.title</td>
+                        <td>title (String)</td>
+                        <td>formation.title</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Page 1 - Overview</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Description</strong></td>
+                        <td>formation.description</td>
+                        <td>description (String)</td>
+                        <td>formation.description</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Page 1 - Overview</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Domaine</strong></td>
+                        <td>formation.domain</td>
+                        <td>domain (String)</td>
+                        <td>formation.domain</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Page 1 - Overview</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Niveau</strong></td>
+                        <td>formation.level</td>
+                        <td>level (enum)</td>
+                        <td>formation.level</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Page 1 - Overview</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Durée</strong></td>
+                        <td>formation.duration</td>
+                        <td>duration (String)</td>
+                        <td>formation.duration</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Page 1 - Overview</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Image</strong></td>
+                        <td>formation.thumbnail</td>
+                        <td>thumbnail (String)</td>
+                        <td>formation.thumbnail</td>
+                        <td><span class="status perfect">Perfect</span></td>
+                        <td>Page 1 - Overview</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cours</strong></td>
+                        <td>formation.courses[]</td>
+                        <td>courses[] (Array)</td>
+                        <td>formation.courses[]</td>
+                        <td><span class="status good">Good</span></td>
+                        <td>Page 2 - Structure OK</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sessions</strong></td>
+                        <td>course.sessions[]</td>
+                        <td>courses[].sessions[]</td>
+                        <td>❌ MANQUANT</td>
+                        <td><span class="status missing">Missing</span></td>
+                        <td>Page 3 - Non implémenté</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Session Links</strong></td>
+                        <td>session.links[]</td>
+                        <td>sessions[].links[]</td>
+                        <td>❌ MANQUANT</td>
+                        <td><span class="status missing">Missing</span></td>
+                        <td>Page 3 - Non implémenté</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Mismatches Identifiés</h2>
+            
+            <div class="mismatch">
+                <h3>🚨 CRITIQUE: Page 3 Sessions Manquante</h3>
+                <p><strong>Problème:</strong> L'Espace Participant ne gère pas les sessions et leurs liens</p>
+                <p><strong>Impact:</strong> Perte de fonctionnalité - Structure 3 pages incomplète</p>
+                <p><strong>Données perdues:</strong> session.title, session.description, session.links[]</p>
+            </div>
+
+            <div class="mismatch">
+                <h3>⚠️ Types Différents</h3>
+                <p><strong>Panel:</strong> Formation avec status, enrollmentDate, completionDate</p>
+                <p><strong>Espace:</strong> Formation avec totalCourses, completedCourses, progress</p>
+                <p><strong>Impact:</strong> Calculs de progression différents</p>
+            </div>
+
+            <div class="mismatch">
+                <h3>⚠️ Modules vs Sessions</h3>
+                <p><strong>Panel:</strong> course.modules[] + course.sessions[]</p>
+                <p><strong>Espace:</strong> course.modules[] seulement</p>
+                <p><strong>Impact:</strong> Sessions non affichées côté participant</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ Plan d'Intégration</h2>
+            
+            <div class="step">
+                <h3>Étape 1: Unifier les Types TypeScript</h3>
+                <div class="code">
+// src/types/shared-formation.ts
+export interface SharedFormation {
+  id: string;
+  title: string;
+  description: string;
+  domain: string;
+  level: 'Débutant' | 'Intermédiaire' | 'Avancé';
+  duration: string;
+  progress: number;
+  status: 'not_started' | 'in_progress' | 'completed' | 'paused';
+  thumbnail?: string;
+  courses: SharedCourse[];
+}
+
+export interface SharedCourse {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  isCompleted: boolean;
+  duration: string;
+  modules: SharedModule[];
+  sessions: SharedSession[]; // ✅ Ajouté
+}
+
+export interface SharedSession {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  isCompleted: boolean;
+  order: number;
+  links: SharedSessionLink[];
+}
+
+export interface SharedSessionLink {
+  id: string;
+  type: 'Résumé' | 'Support' | 'Vidéo' | 'Exercice';
+  title: string;
+  url: string;
+}
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>Étape 2: Créer Page 3 Sessions dans Espace Participant</h3>
+                <div class="code">
+// src/components/participant/FormationSessions.tsx
+const FormationSessions = ({ course, onBack }) => {
+  return (
+    &lt;div className="min-h-screen bg-gray-50"&gt;
+      &lt;div className="bg-white shadow-sm border-b"&gt;
+        &lt;h1&gt;Sessions - {course.title}&lt;/h1&gt;
+      &lt;/div&gt;
+      
+      &lt;div className="max-w-7xl mx-auto px-4 py-8"&gt;
+        {course.sessions?.map((session, index) =&gt; (
+          &lt;div key={session.id} className="bg-white rounded-xl p-6 mb-4"&gt;
+            &lt;h3&gt;{session.title}&lt;/h3&gt;
+            &lt;p&gt;{session.description}&lt;/p&gt;
+            
+            {/* Session Links */}
+            &lt;div className="mt-4 space-y-2"&gt;
+              {session.links?.map(link =&gt; (
+                &lt;a key={link.id} href={link.url} 
+                   className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg"&gt;
+                  &lt;span&gt;{link.type}: {link.title}&lt;/span&gt;
+                &lt;/a&gt;
+              ))}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>Étape 3: Modifier MesFormations.tsx</h3>
+                <div class="code">
+// Ajouter état pour sessions
+const [selectedSession, setSelectedSession] = useState&lt;Session | null&gt;(null);
+
+// Ajouter navigation vers sessions
+&lt;button onClick={() =&gt; setSelectedSession(course)}&gt;
+  Voir Sessions
+&lt;/button&gt;
+
+// Ajouter condition de rendu
+if (selectedSession) {
+  return &lt;FormationSessions course={selectedSession} onBack={() =&gt; setSelectedSession(null)} /&gt;;
+}
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>Étape 4: Vérifier API Backend</h3>
+                <div class="code">
+// Vérifier que les sessions sont bien sauvées
+GET /api/participants/:id/formations
+// Doit retourner formations avec courses.sessions[]
+
+// Test avec participant existant
+curl http://localhost:3001/api/participants/PART-653876/formations
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✅ Tests End-to-End</h2>
+            
+            <div class="fix">
+                <h3>Test 1: Création Panel → Backend</h3>
+                <ol>
+                    <li>Créer formation dans Panel avec cours et sessions</li>
+                    <li>Vérifier sauvegarde MongoDB avec sessions</li>
+                    <li>Confirmer structure: formation.courses[].sessions[]</li>
+                </ol>
+            </div>
+
+            <div class="fix">
+                <h3>Test 2: Backend → API → Espace</h3>
+                <ol>
+                    <li>GET /api/participants/:id/formations</li>
+                    <li>Vérifier présence sessions dans réponse</li>
+                    <li>Tester affichage Page 1, 2, 3 dans Espace</li>
+                </ol>
+            </div>
+
+            <div class="fix">
+                <h3>Test 3: Navigation 3 Pages</h3>
+                <ol>
+                    <li>Page 1: Liste formations (image, description, domaine, niveau, durée)</li>
+                    <li>Page 2: Liste cours de la formation sélectionnée</li>
+                    <li>Page 3: Liste sessions du cours sélectionné + liens</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Résumé Exécutif</h2>
+            <p><strong>Score Compatibilité:</strong> 75% (Bon avec améliorations nécessaires)</p>
+            
+            <h3>✅ Points Forts:</h3>
+            <ul>
+                <li>Pages 1 et 2 fonctionnelles (Overview + Cours)</li>
+                <li>Backend model complet avec sessions</li>
+                <li>API endpoints opérationnels</li>
+                <li>Types Panel ↔ Backend alignés</li>
+            </ul>
+
+            <h3>🔧 Actions Requises:</h3>
+            <ul>
+                <li><strong>Critique:</strong> Implémenter Page 3 Sessions dans Espace Participant</li>
+                <li><strong>Important:</strong> Unifier types TypeScript entre Panel et Espace</li>
+                <li><strong>Moyen:</strong> Ajouter navigation sessions dans MesFormations.tsx</li>
+            </ul>
+
+            <h3>⏱️ Estimation:</h3>
+            <ul>
+                <li>Page 3 Sessions: 1-2 jours</li>
+                <li>Types unifiés: 0.5 jour</li>
+                <li>Tests E2E: 0.5 jour</li>
+                <li><strong>Total: 2-3 jours</strong></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

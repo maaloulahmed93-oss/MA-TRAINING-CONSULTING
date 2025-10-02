@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Commercial Avancé - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 500;
+        }
+        button:hover { transform: translateY(-2px); }
+        .result {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .url-box {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .url-box a {
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Test Commercial Avancé - MATC</h1>
+            <p>Test complet du système commercial avec toutes les fonctionnalités</p>
+        </div>
+
+        <!-- URLs d'accès -->
+        <div class="test-section">
+            <h3>🌐 URLs d'Accès</h3>
+            <div class="url-box">
+                <strong>Espace Commercial:</strong><br>
+                <a href="http://localhost:5173/espace-commercial-new" target="_blank">http://localhost:5173/espace-commercial-new</a>
+            </div>
+            <div class="url-box">
+                <strong>Admin Panel - Services Commerciaux:</strong><br>
+                <a href="http://localhost:8536/commercial-services" target="_blank">http://localhost:8536/commercial-services</a>
+            </div>
+        </div>
+
+        <!-- Test Backend -->
+        <div class="test-section">
+            <h3>1. Test Backend API</h3>
+            <button onclick="testBackend()">Tester Backend</button>
+            <div id="backend-result" class="result"></div>
+        </div>
+
+        <!-- Test Service Creation -->
+        <div class="test-section">
+            <h3>2. Créer Service (Admin)</h3>
+            <div class="form-group">
+                <label>Titre:</label>
+                <input type="text" id="service-titre" value="Formation React Avancée" />
+            </div>
+            <div class="form-group">
+                <label>Prix Public (€):</label>
+                <input type="number" id="service-prix-public" value="1200" />
+            </div>
+            <div class="form-group">
+                <label>Prix Commercial (€):</label>
+                <input type="number" id="service-prix-commercial" value="1000" />
+            </div>
+            <div class="form-group">
+                <label>Commission (€):</label>
+                <input type="number" id="service-commission" value="120" />
+            </div>
+            <button onclick="createService()">Créer Service (Secret Code: 20388542)</button>
+            <div id="service-result" class="result"></div>
+        </div>
+
+        <!-- Test Commercial Creation -->
+        <div class="test-section">
+            <h3>3. Créer Commercial Test</h3>
+            <button onclick="createCommercial()">Créer Commercial (COMM-123456)</button>
+            <div id="commercial-result" class="result"></div>
+        </div>
+
+        <!-- Test Login -->
+        <div class="test-section">
+            <h3>4. Test Login Commercial</h3>
+            <button onclick="testLogin()">Login Commercial</button>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Test Vente -->
+        <div class="test-section">
+            <h3>5. Test Ajout Vente</h3>
+            <button onclick="testVente()">Ajouter Vente (+5 points)</button>
+            <div id="vente-result" class="result"></div>
+        </div>
+
+        <!-- Test Statistiques -->
+        <div class="test-section">
+            <h3>6. Test Statistiques</h3>
+            <button onclick="testStats()">Récupérer Statistiques</button>
+            <div id="stats-result" class="result"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h3>📋 Instructions</h3>
+            <ol>
+                <li>Démarrer tous les services (Backend, Frontend, Admin Panel)</li>
+                <li>Tester Backend pour vérifier la connexion</li>
+                <li>Créer un service via Admin Panel</li>
+                <li>Créer un commercial test</li>
+                <li>Tester le login et les fonctionnalités</li>
+                <li>Aller sur l'interface web pour tester l'UI complète</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const SECRET_CODE = '20388542';
+        let currentServiceId = '';
+
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const result = await response.json();
+                
+                document.getElementById('backend-result').textContent = 
+                    `✅ Backend connecté!\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('backend-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function createService() {
+            try {
+                const serviceData = {
+                    titre: document.getElementById('service-titre').value,
+                    categorie: 'Développement Web',
+                    description: 'Formation complète React avec hooks et context',
+                    prixPublic: parseFloat(document.getElementById('service-prix-public').value),
+                    prixCommercial: parseFloat(document.getElementById('service-prix-commercial').value),
+                    commission: parseFloat(document.getElementById('service-commission').value),
+                    duree: '3 mois',
+                    secretCode: SECRET_CODE,
+                    adminId: 'admin-test'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(serviceData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentServiceId = result.data._id;
+                }
+                
+                document.getElementById('service-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('service-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function createCommercial() {
+            try {
+                const commercialData = {
+                    type: 'commercial',
+                    fullName: 'Ahmed Test Commercial',
+                    email: 'ahmed.test@matc.tn',
+                    phone: '+216 98 765 432',
+                    secteur: 'Commercial'
+                };
+
+                const response = await fetch('http://localhost:3001/api/partners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('commercial-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('commercial-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/COMM-123456/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('login-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('login-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testVente() {
+            try {
+                const venteData = {
+                    serviceId: currentServiceId || 'test-service-id',
+                    client: 'TechCorp SARL',
+                    clientEmail: 'contact@techcorp.tn',
+                    montant: 1000,
+                    commission: 120,
+                    methodePaiement: 'Virement bancaire'
+                };
+
+                const response = await fetch(`${API_BASE}/COMM-123456/vente`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venteData)
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('vente-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('vente-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testStats() {
+            try {
+                const response = await fetch(`${API_BASE}/COMM-123456/stats`);
+                const result = await response.json();
+                
+                document.getElementById('stats-result').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('stats-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-test
+        window.onload = function() {
+            testBackend();
+        };
+    </script>
+</body>
+</html>

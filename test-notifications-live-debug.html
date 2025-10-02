@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Debug Notifications - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.success { background: #28a745; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 11px; overflow-x: auto; max-height: 300px; }
+        .test-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .urgent { background: #ff6b6b; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Live Debug Notifications - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ Problème persistant</h3>
+            <p><strong>Status:</strong> Les notifications Admin Panel ne s'affichent toujours pas dans espace participant</p>
+            <p><strong>Action:</strong> Debug en temps réel pour identifier la cause exacte</p>
+        </div>
+
+        <div class="test-grid">
+            <div>
+                <h3>🔧 Tests Backend</h3>
+                <button onclick="testBackendStatus()">Status Backend</button>
+                <button onclick="testParticipantAPI()">API Participant</button>
+                <button onclick="testNotificationsAPI()">API Notifications</button>
+                <button onclick="testDirectMongoDB()">Test MongoDB Direct</button>
+            </div>
+            <div>
+                <h3>🎯 Tests Frontend</h3>
+                <button onclick="testEspaceParticipantAPI()">Espace Participant API</button>
+                <button onclick="simulateNotificationLoad()">Simuler chargement</button>
+                <button onclick="testComponentLogic()">Test Component Logic</button>
+                <button onclick="checkConsoleErrors()">Check Console Errors</button>
+            </div>
+        </div>
+
+        <div class="warning">
+            <h4>🚨 Actions urgentes à vérifier:</h4>
+            <ol>
+                <li><strong>Redémarrage Backend:</strong> Le serveur backend a-t-il été redémarré après les modifications?</li>
+                <li><strong>Cache Browser:</strong> Vider le cache du navigateur</li>
+                <li><strong>MongoDB:</strong> Les données sont-elles réellement sauvegardées?</li>
+                <li><strong>API Endpoints:</strong> Les nouveaux endpoints fonctionnent-ils?</li>
+            </ol>
+        </div>
+
+        <button onclick="runUrgentDiagnostic()" class="urgent">🚨 DIAGNOSTIC URGENT</button>
+        <button onclick="runCompleteDebug()" class="success">🔍 Debug Complet</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testBackendStatus() {
+            log('🔄 Test status Backend...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants');
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend accessible', 'success');
+                    log(`📊 ${data.data?.length || 0} participants trouvés`, 'info');
+                    
+                    // Check if PART-550776 is in the list
+                    const targetParticipant = data.data?.find(p => p.id === 'PART-550776' || p.partnerId === 'PART-550776');
+                    if (targetParticipant) {
+                        log('✅ PART-550776 trouvé dans la liste', 'success');
+                        log(`🔔 Notifications dans liste: ${targetParticipant.notifications?.length || 0}`, 
+                            targetParticipant.notifications?.length > 0 ? 'success' : 'error');
+                    } else {
+                        log('❌ PART-550776 NON trouvé dans la liste!', 'error');
+                    }
+                } else {
+                    log(`❌ Backend erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Backend inaccessible: ${error.message}`, 'error');
+            }
+        }
+
+        async function testParticipantAPI() {
+            log('👤 Test API Participant direct...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        log('✅ Participant API accessible', 'success');
+                        log(`📊 Participant: ${data.data.fullName}`, 'info');
+                        
+                        const notifications = data.data.notifications;
+                        log(`🔔 Notifications count: ${notifications?.length || 0}`, 
+                            notifications?.length > 0 ? 'success' : 'error');
+                        
+                        if (notifications && notifications.length > 0) {
+                            log(`<pre>Notifications trouvées:
+${JSON.stringify(notifications, null, 2)}</pre>`, 'success');
+                        } else {
+                            log('❌ AUCUNE notification dans API participant!', 'error');
+                            log('💡 Cela confirme que le problème est dans le backend', 'warning');
+                        }
+                    } else {
+                        log('❌ API participant response invalide', 'error');
+                    }
+                } else {
+                    log(`❌ API participant erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur API participant: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNotificationsAPI() {
+            log('🔔 Test API Notifications dédiée...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        log(`✅ API Notifications: ${data.data.length} trouvées`, 
+                            data.data.length > 0 ? 'success' : 'error');
+                        
+                        if (data.data.length > 0) {
+                            log(`<pre>API Notifications:
+${JSON.stringify(data.data, null, 2)}</pre>`, 'success');
+                        } else {
+                            log('❌ API notifications retourne tableau vide!', 'error');
+                        }
+                    } else {
+                        log('❌ API notifications response non successful', 'error');
+                    }
+                } else {
+                    log(`❌ API notifications erreur: ${response.status}`, 'error');
+                    const errorText = await response.text();
+                    log(`❌ Détails: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur API notifications: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectMongoDB() {
+            log('🗄️ Test MongoDB direct (via backend logs)...', 'info');
+            
+            log('📋 Instructions pour vérifier MongoDB:', 'warning');
+            log('1. Ouvrez terminal backend et vérifiez les logs', 'info');
+            log('2. Cherchez les messages de type "Found X notifications for PART-550776"', 'info');
+            log('3. Vérifiez si les notifications sont réellement dans MongoDB', 'info');
+            
+            // Try to trigger backend logs by calling API
+            await testParticipantAPI();
+        }
+
+        async function testEspaceParticipantAPI() {
+            log('🖥️ Test Espace Participant API calls...', 'info');
+            
+            log('📋 Simulation des appels API d\'Espace Participant:', 'info');
+            
+            // Simulate what Notifications component does
+            log('1. Component Notifications appelle getNotifications()...', 'info');
+            const apiNotifications = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+            
+            if (apiNotifications.ok) {
+                const apiData = await apiNotifications.json();
+                log(`✅ getNotifications() retourne: ${apiData.data?.length || 0} notifications`, 'info');
+                
+                if (apiData.data?.length > 0) {
+                    log('2. Conversion des données API...', 'info');
+                    const converted = apiData.data.map(n => ({
+                        id: n._id,
+                        title: n.title,
+                        message: n.message,
+                        type: n.type,
+                        date: n.date,
+                        isRead: n.isRead
+                    }));
+                    log(`✅ ${converted.length} notifications converties pour affichage`, 'success');
+                } else {
+                    log('❌ Aucune notification à convertir', 'error');
+                }
+            } else {
+                log('❌ getNotifications() échoue', 'error');
+            }
+            
+            // Fallback test
+            log('3. Test fallback vers participant data...', 'info');
+            const participantData = await fetch('http://localhost:3001/api/participants/PART-550776');
+            if (participantData.ok) {
+                const pData = await participantData.json();
+                const fallbackNotifications = pData.data?.notifications || [];
+                log(`✅ Fallback: ${fallbackNotifications.length} notifications`, 'info');
+            }
+        }
+
+        async function simulateNotificationLoad() {
+            log('🎭 Simulation complète du chargement notifications...', 'info');
+            
+            // Exact simulation of Notifications.tsx loadNotifications()
+            log('📋 Simulation exacte de loadNotifications():', 'info');
+            
+            try {
+                // Step 1: Try dedicated API
+                log('Étape 1: Appel API dédiée...', 'info');
+                const apiResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                
+                if (apiResponse.ok) {
+                    const apiData = await apiResponse.json();
+                    if (apiData.success && apiData.data && apiData.data.length > 0) {
+                        log(`✅ API dédiée: ${apiData.data.length} notifications`, 'success');
+                        log('🎉 Component devrait afficher ces notifications!', 'success');
+                        return;
+                    }
+                }
+                
+                // Step 2: Fallback to participant data
+                log('Étape 2: Fallback vers participant data...', 'info');
+                const participantResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                
+                if (participantResponse.ok) {
+                    const participantData = await participantResponse.json();
+                    if (participantData.success && participantData.data) {
+                        const notifications = participantData.data.notifications;
+                        if (notifications && notifications.length > 0) {
+                            log(`✅ Fallback: ${notifications.length} notifications`, 'success');
+                            log('🎉 Component devrait afficher ces notifications!', 'success');
+                        } else {
+                            log('❌ Fallback: Aucune notification', 'error');
+                            log('🔍 Component affichera "Aucune notification"', 'warning');
+                        }
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur simulation: ${error.message}`, 'error');
+            }
+        }
+
+        async function testComponentLogic() {
+            log('🧩 Test logique Component...', 'info');
+            
+            log('📋 Points à vérifier dans Component Notifications:', 'warning');
+            log('1. useEffect appelle loadNotifications() au mount', 'info');
+            log('2. loadNotifications() appelle participantApiService.getNotifications()', 'info');
+            log('3. Si pas de résultats, fallback vers getParticipant()', 'info');
+            log('4. Données converties et stockées dans state', 'info');
+            log('5. Component affiche selon filteredNotifications', 'info');
+            
+            log('🔍 Vérifications console browser:', 'warning');
+            log('- Ouvrez DevTools dans espace participant', 'info');
+            log('- Cherchez logs "✅ Loaded X notifications from API"', 'info');
+            log('- Cherchez erreurs JavaScript', 'info');
+        }
+
+        async function checkConsoleErrors() {
+            log('🔍 Check Console Errors...', 'info');
+            
+            log('📋 Instructions pour vérifier les erreurs:', 'warning');
+            log('1. Ouvrez espace participant dans un nouvel onglet', 'info');
+            log('2. Ouvrez DevTools (F12)', 'info');
+            log('3. Allez à l\'onglet Console', 'info');
+            log('4. Connectez-vous et allez aux notifications', 'info');
+            log('5. Cherchez les erreurs en rouge', 'info');
+            log('6. Cherchez les logs de chargement des notifications', 'info');
+            
+            log('🎯 Logs à chercher:', 'info');
+            log('- "✅ Loaded X notifications from API"', 'info');
+            log('- "✅ Loaded X notifications from participant data"', 'info');
+            log('- "ℹ️ No notifications found for participant"', 'info');
+            log('- Erreurs de type "Failed to fetch" ou "Network error"', 'info');
+        }
+
+        async function runUrgentDiagnostic() {
+            log('🚨 DIAGNOSTIC URGENT EN COURS...', 'warning');
+            
+            // Quick tests to identify the main issue
+            log('🔍 Test 1: Backend accessible?', 'info');
+            const backendTest = await testBackendStatus();
+            
+            log('🔍 Test 2: API Participant fonctionne?', 'info');
+            await testParticipantAPI();
+            
+            log('🔍 Test 3: API Notifications fonctionne?', 'info');
+            await testNotificationsAPI();
+            
+            setTimeout(() => {
+                log('🚨 RÉSUMÉ URGENT:', 'error');
+                log('📋 Actions immédiates à faire:', 'warning');
+                log('1. ⚡ REDÉMARRER le serveur backend (npm run dev)', 'error');
+                log('2. 🔄 VIDER le cache browser (Ctrl+Shift+R)', 'error');
+                log('3. 🔍 VÉRIFIER les logs backend dans terminal', 'error');
+                log('4. 📊 TESTER avec les boutons ci-dessus', 'error');
+            }, 3000);
+        }
+
+        async function runCompleteDebug() {
+            log('🔍 Debug complet en cours...', 'info');
+            
+            await testBackendStatus();
+            await testParticipantAPI();
+            await testNotificationsAPI();
+            await testEspaceParticipantAPI();
+            await simulateNotificationLoad();
+            
+            setTimeout(() => {
+                log('🎯 Debug complet terminé', 'success');
+                log('📋 Consultez tous les résultats ci-dessus', 'info');
+                log('🔍 Si toutes les APIs retournent 0 notifications, le problème est dans le backend', 'warning');
+                log('🔍 Si les APIs retournent des notifications mais espace participant est vide, le problème est dans le frontend', 'warning');
+            }, 2000);
+        }
+
+        // Auto-run urgent diagnostic
+        window.onload = function() {
+            setTimeout(() => {
+                log('🚨 PROBLÈME PERSISTANT DÉTECTÉ', 'error');
+                log('📋 Lancement du diagnostic urgent...', 'warning');
+                runUrgentDiagnostic();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

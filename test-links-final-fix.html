@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 اختبار الإصلاح النهائي للـ Links</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .success { background: #d4edda; padding: 15px; border-radius: 5px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 15px; border-radius: 5px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; margin: 10px 0; }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px 5px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .test-case {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 اختبار الإصلاح النهائي للـ Links</h1>
+        <p>اختبار شامل للتأكد من أن الـ links تحفظ وتسترجع صحيح</p>
+
+        <div class="info">
+            <h3>📋 الـ Structure المتوقع من الفورم:</h3>
+            <pre>
+Formation Links: {
+  id: string,
+  title: string,
+  url: string,
+  type: "Résumé" | "Support" | "Vidéo" | "Exercice"
+}
+
+Session Links: {
+  id: string,
+  title: string,
+  url: string,
+  type: "video" | "article" | "quiz" | "file" | "external"
+}
+            </pre>
+        </div>
+
+        <div class="test-case">
+            <h3>🎯 اختبار شامل</h3>
+            <button class="btn-primary" onclick="createTestParticipant()">1. إنشاء مشارك تجريبي</button>
+            <button class="btn-success" onclick="testCompleteFormationStructure()">2. اختبار Formation كامل مع Links</button>
+            <button class="btn-warning" onclick="verifyDataAfterRefresh()">3. التحقق من البيانات بعد Refresh</button>
+            <button class="btn-danger" onclick="clearResults()">مسح النتائج</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const TEST_PARTICIPANT_ID = 'PART-FINAL-LINKS-TEST';
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">
+                <strong>[${timestamp}]</strong> ${message}
+            </div>`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // البيانات التجريبية الكاملة كما يبعثها الفورم
+        const completeTestData = {
+            fullName: 'مشارك اختبار Links النهائي',
+            firstName: 'مشارك',
+            lastName: 'اختبار',
+            email: 'final.links.test@matc.com',
+            phone: '+216 99 123 456',
+            status: 'active',
+            formations: [{
+                id: 'form-final-test',
+                title: 'Formation اختبار Links شامل',
+                description: 'اختبار شامل للـ formation مع courses وsessions وlinks',
+                domain: 'اختبار',
+                level: 'Débutant',
+                duration: '5 ساعات',
+                status: 'not_started',
+                progress: 0,
+                enrollmentDate: new Date().toISOString(),
+                thumbnail: '',
+                // Formation Links - كما يبعثها الفورم
+                links: [
+                    {
+                        id: 'link-formation-1',
+                        title: 'مقدمة Formation',
+                        url: 'https://formation-intro.com',
+                        type: 'Résumé'
+                    },
+                    {
+                        id: 'link-formation-2',
+                        title: 'دعم Formation',
+                        url: 'https://formation-support.com',
+                        type: 'Support'
+                    }
+                ],
+                courses: [{
+                    id: 'course-final-test',
+                    title: 'Course اختبار شامل',
+                    description: 'Course مع sessions وlinks',
+                    progress: 0,
+                    isCompleted: false,
+                    duration: '3 ساعات',
+                    modules: [],
+                    sessions: [{
+                        id: 'session-final-test',
+                        title: 'Session اختبار Links',
+                        description: 'Session مع links متعددة',
+                        duration: '1 ساعة',
+                        isCompleted: false,
+                        order: 1,
+                        // Session Links - كما يبعثها الفورم
+                        links: [
+                            {
+                                id: 'link-session-1',
+                                title: 'فيديو Session',
+                                url: 'https://session-video.com',
+                                type: 'video'
+                            },
+                            {
+                                id: 'link-session-2',
+                                title: 'مقال Session',
+                                url: 'https://session-article.com',
+                                type: 'article'
+                            },
+                            {
+                                id: 'link-session-3',
+                                title: 'ملف Session',
+                                url: 'https://session-file.com',
+                                type: 'file'
+                            }
+                        ]
+                    }]
+                }]
+            }],
+            projects: [],
+            coachingResources: [],
+            notifications: []
+        };
+
+        async function createTestParticipant() {
+            log('🔄 إنشاء مشارك تجريبي للاختبار النهائي...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        partnerId: TEST_PARTICIPANT_ID,
+                        fullName: 'مشارك اختبار Links النهائي',
+                        firstName: 'مشارك',
+                        lastName: 'اختبار',
+                        email: 'final.links.test@matc.com',
+                        phone: '+216 99 123 456',
+                        status: 'active'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ تم إنشاء المشارك التجريبي بنجاح!', 'success');
+                } else {
+                    if (result.message && result.message.includes('existe déjà')) {
+                        log('ℹ️ المشارك موجود مسبقاً، المتابعة...', 'warning');
+                    } else {
+                        log(`❌ فشل في إنشاء المشارك: ${result.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ في إنشاء المشارك: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCompleteFormationStructure() {
+            log('🔄 اختبار Formation كامل مع Links...', 'info');
+            log('📊 البيانات المرسلة:', 'info');
+            log(`  - Formation Links: ${completeTestData.formations[0].links.length}`, 'info');
+            log(`  - Session Links: ${completeTestData.formations[0].courses[0].sessions[0].links.length}`, 'info');
+            
+            try {
+                log('📤 إرسال البيانات الكاملة...', 'info');
+
+                const response = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(completeTestData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('✅ تم حفظ Formation مع Links بنجاح!', 'success');
+                    log('🎉 الإصلاح يعمل! البيانات حفظت صحيح', 'success');
+                    
+                    // اختبار فوري للاسترجاع
+                    setTimeout(() => verifyDataAfterRefresh(), 2000);
+                } else {
+                    log(`❌ فشل في حفظ Formation: ${result.message}`, 'error');
+                    if (result.error) {
+                        log(`🔍 تفاصيل الخطأ: ${result.error}`, 'error');
+                        
+                        if (result.error.includes('CastError')) {
+                            log('🚨 لا يزال هناك CastError - الإصلاح لم يكتمل', 'error');
+                        }
+                    }
+                    if (result.details) {
+                        log(`<pre>${result.details}</pre>`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ خطأ في الشبكة: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyDataAfterRefresh() {
+            log('🔄 التحقق من البيانات بعد محاكاة Refresh...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${TEST_PARTICIPANT_ID}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const formations = result.data.formations || [];
+                    log(`📊 عدد Formations المسترجعة: ${formations.length}`, 'info');
+                    
+                    if (formations.length > 0) {
+                        const formation = formations[0];
+                        log(`🎓 Formation: ${formation.title}`, 'info');
+                        
+                        // التحقق من Formation Links
+                        if (formation.links && formation.links.length > 0) {
+                            log(`✅ Formation Links موجودة: ${formation.links.length}`, 'success');
+                            formation.links.forEach((link, index) => {
+                                log(`  🔗 Link ${index + 1}: ${link.title} (${link.type})`, 'success');
+                            });
+                        } else {
+                            log(`❌ Formation Links مفقودة`, 'error');
+                        }
+                        
+                        // التحقق من Courses والSessions
+                        if (formation.courses && formation.courses.length > 0) {
+                            const course = formation.courses[0];
+                            log(`📚 Course: ${course.title}`, 'info');
+                            
+                            if (course.sessions && course.sessions.length > 0) {
+                                const session = course.sessions[0];
+                                log(`📝 Session: ${session.title}`, 'info');
+                                
+                                // التحقق من Session Links
+                                if (session.links && session.links.length > 0) {
+                                    log(`✅ Session Links موجودة: ${session.links.length}`, 'success');
+                                    session.links.forEach((link, index) => {
+                                        log(`    🔗 Session Link ${index + 1}: ${link.title} (${link.type})`, 'success');
+                                    });
+                                } else {
+                                    log(`❌ Session Links مفقودة`, 'error');
+                                }
+                            } else {
+                                log(`❌ Sessions مفقودة`, 'error');
+                            }
+                        } else {
+                            log(`❌ Courses مفقودة`, 'error');
+                        }
+                        
+                        // النتيجة النهائية
+                        const formationLinksOk = formation.links && formation.links.length > 0;
+                        const sessionLinksOk = formation.courses?.[0]?.sessions?.[0]?.links?.length > 0;
+                        
+                        if (formationLinksOk && sessionLinksOk) {
+                            log('🎉 النتيجة النهائية: الإصلاح نجح بالكامل!', 'success');
+                            log('✅ Formation Links تحفظ وتسترجع صحيح', 'success');
+                            log('✅ Session Links تحفظ وتسترجع صحيح', 'success');
+                            log('✅ البيانات تبقى بعد Refresh', 'success');
+                        } else {
+                            log('❌ النتيجة النهائية: الإصلاح لم يكتمل', 'error');
+                            if (!formationLinksOk) log('❌ Formation Links لا تعمل', 'error');
+                            if (!sessionLinksOk) log('❌ Session Links لا تعمل', 'error');
+                        }
+                        
+                    } else {
+                        log('❌ لا توجد formations مسترجعة (البيانات لم تحفظ)', 'error');
+                    }
+                } else {
+                    log(`❌ فشل في استرجاع البيانات: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ خطأ في استرجاع البيانات: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', () => {
+            log('🚀 أداة اختبار الإصلاح النهائي جاهزة', 'success');
+            log('📋 الهدف: التأكد من أن Links تحفظ وتسترجع كـ objects', 'info');
+            log('🎯 اتبع الخطوات بالترتيب للتحقق من الإصلاح', 'warning');
+        });
+    </script>
+</body>
+</html>

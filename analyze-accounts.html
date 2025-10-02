@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل دقيق للحسابين</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        .account-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .account-card.ent-752810 { border-left-color: #28a745; }
+        .account-card.ent-190973 { border-left-color: #dc3545; }
+        .account-id {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .stats-table th, .stats-table td {
+            padding: 8px 12px;
+            text-align: right;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .stats-table th {
+            background: #e9ecef;
+            font-weight: bold;
+        }
+        .comparison-section {
+            grid-column: 1 / -1;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .formations-list {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .formation-item {
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #007bff;
+        }
+        .formation-item.wrong-partner {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        button {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+        }
+        .log-entry.error { color: #ff6b6b; }
+        .log-entry.warning { color: #feca57; }
+        .log-entry.success { color: #48dbfb; }
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 تحليل دقيق للحسابين</h1>
+            <p>تشخيص مشكلة عزل البيانات بين ENT-752810 و ENT-190973</p>
+        </div>
+        
+        <div class="controls">
+            <button onclick="analyzeAccounts()" id="analyze-btn">🔍 تحليل شامل</button>
+            <button onclick="compareFormations()" id="compare-btn">📊 مقارنة الفورماسيون</button>
+            <button onclick="checkDatabase()" id="db-btn">🗄️ فحص قاعدة البيانات</button>
+            <button onclick="clearLog()">🧹 مسح السجل</button>
+        </div>
+        
+        <div class="analysis-grid">
+            <div class="account-card ent-752810">
+                <div class="account-id">ENT-752810</div>
+                <div id="account-752810-data">
+                    <p>جاري التحميل...</p>
+                </div>
+            </div>
+            
+            <div class="account-card ent-190973">
+                <div class="account-id">ENT-190973</div>
+                <div id="account-190973-data">
+                    <p>جاري التحميل...</p>
+                </div>
+            </div>
+            
+            <div class="comparison-section">
+                <h3>📊 مقارنة وتحليل</h3>
+                <div id="comparison-results">
+                    <p>اضغط على "تحليل شامل" لبدء المقارنة</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log" id="log">
+            <div class="log-entry">نظام التحليل جاهز - اضغط "تحليل شامل" للبدء</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const ACCOUNTS = ['ENT-752810', 'ENT-190973'];
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function apiCall(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function analyzeAccounts() {
+            log('🔍 بدء التحليل الشامل للحسابين...', 'info');
+            const btn = document.getElementById('analyze-btn');
+            btn.disabled = true;
+            
+            const accountsData = {};
+            
+            for (const accountId of ACCOUNTS) {
+                try {
+                    log(`📊 تحليل الحساب ${accountId}...`, 'info');
+                    
+                    // فحص وجود الشريك
+                    const partnerResponse = await apiCall(`/partners/${accountId}`);
+                    
+                    if (!partnerResponse.success) {
+                        log(`❌ الحساب ${accountId} غير موجود في قاعدة البيانات`, 'error');
+                        continue;
+                    }
+                    
+                    const partner = partnerResponse.data;
+                    log(`✅ ${accountId}: ${partner.fullName} (${partner.type})`, 'success');
+                    
+                    // الحصول على الإحصائيات
+                    const statsResponse = await apiCall(`/enterprise/${accountId}/stats`);
+                    const stats = statsResponse.data;
+                    
+                    // الحصول على الفورماسيون
+                    const formationsResponse = await apiCall(`/enterprise/${accountId}/formations`);
+                    const formations = formationsResponse.data;
+                    
+                    // الحصول على المشاريع
+                    const projectsResponse = await apiCall(`/enterprise/${accountId}/projects`);
+                    const projects = projectsResponse.data;
+                    
+                    // الحصول على الأحداث
+                    const eventsResponse = await apiCall(`/enterprise/${accountId}/events`);
+                    const events = eventsResponse.data;
+                    
+                    accountsData[accountId] = {
+                        partner,
+                        stats,
+                        formations,
+                        projects,
+                        events
+                    };
+                    
+                    // عرض البيانات في الواجهة
+                    displayAccountData(accountId, accountsData[accountId]);
+                    
+                    log(`📊 ${accountId}: ${formations.length} فورماسيون، ${projects.length} مشروع، ${events.length} حدث`, 'info');
+                    
+                } catch (error) {
+                    log(`❌ خطأ في تحليل ${accountId}: ${error.message}`, 'error');
+                }
+            }
+            
+            // مقارنة البيانات
+            compareAccountsData(accountsData);
+            
+            btn.disabled = false;
+            log('✅ انتهى التحليل الشامل', 'success');
+        }
+
+        function displayAccountData(accountId, data) {
+            const container = document.getElementById(`account-${accountId.replace('-', '')}-data`);
+            
+            const html = `
+                <table class="stats-table">
+                    <tr><th>البيان</th><th>القيمة</th></tr>
+                    <tr><td>اسم الشريك</td><td>${data.partner.fullName}</td></tr>
+                    <tr><td>نوع الحساب</td><td>${data.partner.type}</td></tr>
+                    <tr><td>حالة الحساب</td><td>${data.partner.isActive ? 'نشط' : 'غير نشط'}</td></tr>
+                    <tr><td>إجمالي المشاريع</td><td>${data.stats.totalProjects}</td></tr>
+                    <tr><td>إجمالي الفورماسيون</td><td>${data.stats.totalFormations}</td></tr>
+                    <tr><td>الأحداث القادمة</td><td>${data.stats.upcomingEvents}</td></tr>
+                    <tr><td>إجمالي المشاركين</td><td>${data.stats.totalParticipants}</td></tr>
+                </table>
+                
+                <h4>📚 الفورماسيون (${data.formations.length})</h4>
+                <div class="formations-list">
+                    ${data.formations.length > 0 ? 
+                        data.formations.map(f => `
+                            <div class="formation-item ${f.partnerId !== accountId ? 'wrong-partner' : ''}">
+                                <strong>${f.title || 'بدون عنوان'}</strong><br>
+                                <small>ID: ${f.formationId}</small><br>
+                                <small>Partner: ${f.partnerId} ${f.partnerId !== accountId ? '❌' : '✅'}</small><br>
+                                <small>تاريخ: ${new Date(f.createdAt).toLocaleDateString('ar')}</small>
+                            </div>
+                        `).join('') : 
+                        '<p>لا توجد فورماسيون</p>'
+                    }
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function compareAccountsData(accountsData) {
+            const comparisonDiv = document.getElementById('comparison-results');
+            
+            const accounts = Object.keys(accountsData);
+            if (accounts.length < 2) {
+                comparisonDiv.innerHTML = '<p>يحتاج حسابين على الأقل للمقارنة</p>';
+                return;
+            }
+            
+            const account1 = accounts[0];
+            const account2 = accounts[1];
+            const data1 = accountsData[account1];
+            const data2 = accountsData[account2];
+            
+            // مقارنة الفورماسيون
+            const formations1 = data1.formations;
+            const formations2 = data2.formations;
+            
+            // البحث عن فورماسيون مشتركة
+            const sharedFormations = formations1.filter(f1 => 
+                formations2.some(f2 => f2.formationId === f1.formationId)
+            );
+            
+            // البحث عن فورماسيون بـ partnerId خاطئ
+            const wrongPartner1 = formations1.filter(f => f.partnerId !== account1);
+            const wrongPartner2 = formations2.filter(f => f.partnerId !== account2);
+            
+            let analysisHtml = `
+                <h4>🔍 نتائج المقارنة</h4>
+                <table class="stats-table">
+                    <tr><th>البيان</th><th>${account1}</th><th>${account2}</th></tr>
+                    <tr><td>عدد الفورماسيون</td><td>${formations1.length}</td><td>${formations2.length}</td></tr>
+                    <tr><td>فورماسيون بـ partnerId خاطئ</td><td>${wrongPartner1.length}</td><td>${wrongPartner2.length}</td></tr>
+                    <tr><td>الإحصائيات تظهر</td><td>${data1.stats.totalFormations}</td><td>${data2.stats.totalFormations}</td></tr>
+                </table>
+            `;
+            
+            if (sharedFormations.length > 0) {
+                log(`❌ تم العثور على ${sharedFormations.length} فورماسيون مشتركة!`, 'error');
+                analysisHtml += `
+                    <div style="background: #fff5f5; border: 1px solid #dc3545; border-radius: 5px; padding: 15px; margin: 10px 0;">
+                        <h5>❌ فورماسيون مشتركة (${sharedFormations.length})</h5>
+                        ${sharedFormations.map(f => `
+                            <div>• ${f.title} (${f.formationId})</div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                log('✅ لا توجد فورماسيون مشتركة', 'success');
+            }
+            
+            if (wrongPartner1.length > 0 || wrongPartner2.length > 0) {
+                log(`⚠️ توجد فورماسيون بـ partnerId خاطئ`, 'warning');
+                analysisHtml += `
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 15px; margin: 10px 0;">
+                        <h5>⚠️ فورماسيون بـ partnerId خاطئ</h5>
+                        ${wrongPartner1.concat(wrongPartner2).map(f => `
+                            <div>• ${f.title} (Partner: ${f.partnerId})</div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // تحليل التناقض في الإحصائيات
+            const statsIssue1 = formations1.length !== data1.stats.totalFormations;
+            const statsIssue2 = formations2.length !== data2.stats.totalFormations;
+            
+            if (statsIssue1 || statsIssue2) {
+                log('❌ تناقض في الإحصائيات - العدد الفعلي يختلف عن المحسوب', 'error');
+                analysisHtml += `
+                    <div style="background: #fff5f5; border: 1px solid #dc3545; border-radius: 5px; padding: 15px; margin: 10px 0;">
+                        <h5>❌ تناقض في الإحصائيات</h5>
+                        <p>هذا يعني أن الـ middleware لا يعمل بشكل صحيح أو أن هناك فورماسيون بدون partnerId</p>
+                        <ul>
+                            ${statsIssue1 ? `<li>${account1}: فعلي ${formations1.length} ≠ محسوب ${data1.stats.totalFormations}</li>` : ''}
+                            ${statsIssue2 ? `<li>${account2}: فعلي ${formations2.length} ≠ محسوب ${data2.stats.totalFormations}</li>` : ''}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            comparisonDiv.innerHTML = analysisHtml;
+        }
+
+        async function compareFormations() {
+            log('📊 مقارنة الفورماسيون بين الحسابين...', 'info');
+            
+            try {
+                const formations1 = await apiCall(`/enterprise/${ACCOUNTS[0]}/formations`);
+                const formations2 = await apiCall(`/enterprise/${ACCOUNTS[1]}/formations`);
+                
+                log(`📊 ${ACCOUNTS[0]}: ${formations1.count} فورماسيون`, 'info');
+                log(`📊 ${ACCOUNTS[1]}: ${formations2.count} فورماسيون`, 'info');
+                
+                // مقارنة مفصلة
+                const data1 = formations1.data;
+                const data2 = formations2.data;
+                
+                const shared = data1.filter(f1 => data2.some(f2 => f2.formationId === f1.formationId));
+                
+                if (shared.length > 0) {
+                    log(`❌ ${shared.length} فورماسيون مشتركة - مشكلة في العزل!`, 'error');
+                    shared.forEach(f => {
+                        log(`   • ${f.title} (${f.formationId})`, 'error');
+                    });
+                } else {
+                    log('✅ لا توجد فورماسيون مشتركة - العزل يعمل', 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ في المقارنة: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkDatabase() {
+            log('🗄️ فحص قاعدة البيانات مباشرة...', 'info');
+            
+            try {
+                // محاولة الوصول لجميع الفورماسيون (بدون فلترة)
+                // هذا يتطلب endpoint خاص أو استخدام MongoDB مباشرة
+                log('⚠️ هذه الوظيفة تتطلب وصول مباشر لقاعدة البيانات', 'warning');
+                log('💡 يمكن استخدام MongoDB Compass أو mongo shell للفحص المباشر', 'info');
+                
+                // اقتراح استعلامات MongoDB
+                const queries = [
+                    'db.enterpriseformations.find({})',
+                    'db.enterpriseformations.find({partnerId: {$exists: false}})',
+                    'db.enterpriseformations.find({partnerId: null})',
+                    'db.enterpriseformations.find({partnerId: ""})',
+                    'db.enterpriseformations.aggregate([{$group: {_id: "$partnerId", count: {$sum: 1}}}])'
+                ];
+                
+                log('📝 استعلامات MongoDB المقترحة:', 'info');
+                queries.forEach(query => {
+                    log(`   ${query}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`❌ خطأ في فحص قاعدة البيانات: ${error.message}`, 'error');
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('تم مسح السجل - جاهز للتحليل', 'info');
+        }
+
+        // تشغيل تلقائي
+        window.onload = function() {
+            log('🚀 نظام التحليل جاهز', 'success');
+            log('💡 اضغط "تحليل شامل" لبدء فحص الحسابين', 'info');
+        };
+    </script>
+</body>
+</html>

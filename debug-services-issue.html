@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Services Issue - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #dc2626;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .urgent-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .problem {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Debug Services Issue</h1>
+            <p>Analyse complète du problème des services qui ne s'affichent pas</p>
+        </div>
+
+        <!-- Problème identifié -->
+        <div class="problem">
+            <h3>🚨 Problème Identifié:</h3>
+            <ul>
+                <li><strong>Symptôme:</strong> "Service créé avec succès!" mais ne s'affiche pas</li>
+                <li><strong>Page:</strong> Admin Panel → Gestion des Services Commerciaux</li>
+                <li><strong>Comportement:</strong> Création réussie mais liste vide</li>
+                <li><strong>Similaire à:</strong> Problème des programmes qui ne s'affichaient pas</li>
+            </ul>
+        </div>
+
+        <!-- Diagnostic Complet -->
+        <div class="debug-section">
+            <h3>🔬 Diagnostic Complet</h3>
+            <button class="urgent-button" onclick="fullDiagnostic()">
+                🚨 DIAGNOSTIC COMPLET
+            </button>
+            <div id="diagnostic-result" class="result"></div>
+        </div>
+
+        <!-- Test Backend Direct -->
+        <div class="debug-section">
+            <h3>🔧 Test Backend Direct</h3>
+            <button onclick="testBackendDirect()">📡 Test API Direct</button>
+            <button onclick="testCreateService()">➕ Test Création</button>
+            <button onclick="testLoadServices()">📋 Test Chargement</button>
+            <div id="backend-result" class="result"></div>
+        </div>
+
+        <!-- Test Frontend -->
+        <div class="debug-section">
+            <h3>🖥️ Test Frontend</h3>
+            <button onclick="testFrontendLoad()">🔄 Test loadServices()</button>
+            <button onclick="testNetworkTab()">🌐 Analyser Network Tab</button>
+            <button onclick="testConsoleErrors()">⚠️ Check Console Errors</button>
+            <div id="frontend-result" class="result"></div>
+        </div>
+
+        <!-- Solution Proposée -->
+        <div class="debug-section">
+            <h3>💡 Solution Proposée</h3>
+            <button onclick="proposeSolution()">🔧 Analyser & Proposer Solution</button>
+            <div id="solution-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function fullDiagnostic() {
+            const resultDiv = document.getElementById('diagnostic-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔬 DIAGNOSTIC COMPLET EN COURS...\n\n';
+
+            let issues = [];
+            let allGood = true;
+
+            try {
+                // Test 1: Backend Status
+                resultDiv.textContent += '1️⃣ Test Backend Status...\n';
+                try {
+                    const backendResponse = await fetch('http://localhost:3001/api/partners');
+                    if (backendResponse.ok) {
+                        resultDiv.textContent += '   ✅ Backend accessible\n';
+                    } else {
+                        resultDiv.textContent += '   ❌ Backend problème\n';
+                        issues.push('Backend non accessible');
+                        allGood = false;
+                    }
+                } catch (e) {
+                    resultDiv.textContent += '   ❌ Backend offline\n';
+                    issues.push('Backend offline');
+                    allGood = false;
+                }
+
+                // Test 2: Services API Endpoint
+                resultDiv.textContent += '\n2️⃣ Test Services API...\n';
+                try {
+                    const servicesResponse = await fetch(`${API_BASE}/admin/services`);
+                    const servicesResult = await servicesResponse.json();
+                    
+                    if (servicesResult.success) {
+                        resultDiv.textContent += `   ✅ API fonctionne: ${servicesResult.data.length} services\n`;
+                        if (servicesResult.data.length === 0) {
+                            resultDiv.textContent += '   ⚠️ Aucun service dans la DB\n';
+                            issues.push('Base de données vide');
+                        } else {
+                            resultDiv.textContent += '   📋 Services trouvés:\n';
+                            servicesResult.data.forEach((service, index) => {
+                                resultDiv.textContent += `      ${index + 1}. ${service.titre} (${service.commission}€)\n`;
+                            });
+                        }
+                    } else {
+                        resultDiv.textContent += `   ❌ API erreur: ${servicesResult.message}\n`;
+                        issues.push('API erreur');
+                        allGood = false;
+                    }
+                } catch (e) {
+                    resultDiv.textContent += `   ❌ API inaccessible: ${e.message}\n`;
+                    issues.push('API inaccessible');
+                    allGood = false;
+                }
+
+                // Test 3: Test Création
+                resultDiv.textContent += '\n3️⃣ Test Création Service...\n';
+                try {
+                    const testService = {
+                        titre: 'Test Debug Service',
+                        description: 'Service créé pour debug',
+                        categorie: 'Debug',
+                        prixPublic: 100,
+                        prixCommercial: 80,
+                        commission: 20,
+                        duree: '1h'
+                    };
+
+                    const createResponse = await fetch(`${API_BASE}/admin/services`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testService)
+                    });
+
+                    const createResult = await createResponse.json();
+                    
+                    if (createResult.success) {
+                        resultDiv.textContent += '   ✅ Création fonctionne\n';
+                        resultDiv.textContent += `   📝 Service créé: ${createResult.data.titre}\n`;
+                    } else {
+                        resultDiv.textContent += `   ❌ Création échoue: ${createResult.message}\n`;
+                        issues.push('Création échoue');
+                        allGood = false;
+                    }
+                } catch (e) {
+                    resultDiv.textContent += `   ❌ Création erreur: ${e.message}\n`;
+                    issues.push('Création erreur');
+                    allGood = false;
+                }
+
+                // Test 4: Re-test après création
+                resultDiv.textContent += '\n4️⃣ Re-test après création...\n';
+                try {
+                    const reTestResponse = await fetch(`${API_BASE}/admin/services`);
+                    const reTestResult = await reTestResponse.json();
+                    
+                    if (reTestResult.success) {
+                        resultDiv.textContent += `   📊 Services après création: ${reTestResult.data.length}\n`;
+                        if (reTestResult.data.length > 0) {
+                            resultDiv.textContent += '   ✅ Les services sont bien sauvegardés\n';
+                        }
+                    }
+                } catch (e) {
+                    resultDiv.textContent += `   ❌ Re-test erreur: ${e.message}\n`;
+                }
+
+                // Résultat final
+                resultDiv.textContent += '\n📊 RÉSULTAT DIAGNOSTIC:\n';
+                if (allGood && issues.length === 0) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ BACKEND FONCTIONNE PARFAITEMENT!\n';
+                    resultDiv.textContent += '\n🎯 CONCLUSION: Le problème est dans le FRONTEND\n';
+                    resultDiv.textContent += 'La fonction loadServices() ne fonctionne pas correctement\n';
+                    resultDiv.textContent += 'ou il y a un problème de rafraîchissement de l\'interface.';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ PROBLÈMES DÉTECTÉS:\n';
+                    issues.forEach(issue => {
+                        resultDiv.textContent += `   • ${issue}\n`;
+                    });
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR CRITIQUE: ${error.message}`;
+            }
+        }
+
+        async function testBackendDirect() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📡 Test Backend Direct...\n\n';
+
+            try {
+                // Test GET
+                const getResponse = await fetch(`${API_BASE}/admin/services`);
+                const getResult = await getResponse.json();
+                
+                resultDiv.textContent += `GET ${API_BASE}/admin/services\n`;
+                resultDiv.textContent += `Status: ${getResponse.status}\n`;
+                resultDiv.textContent += `Response: ${JSON.stringify(getResult, null, 2)}\n\n`;
+
+                if (getResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `✅ Backend fonctionne: ${getResult.data.length} services`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Backend erreur: ${getResult.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testCreateService() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '➕ Test Création Service...\n\n';
+
+            const testService = {
+                titre: `Test Service ${Date.now()}`,
+                description: 'Service de test automatique',
+                categorie: 'Test',
+                prixPublic: 200,
+                prixCommercial: 160,
+                commission: 40,
+                duree: '2h'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testService)
+                });
+
+                const result = await response.json();
+                
+                resultDiv.textContent += `POST ${API_BASE}/admin/services\n`;
+                resultDiv.textContent += `Body: ${JSON.stringify(testService, null, 2)}\n`;
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `Response: ${JSON.stringify(result, null, 2)}\n`;
+
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `\n✅ Service créé: ${result.data.titre}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `\n❌ Création échouée: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testLoadServices() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test Chargement Services...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `✅ ${result.data.length} services chargés:\n\n`;
+                    
+                    result.data.forEach((service, index) => {
+                        resultDiv.textContent += 
+                            `${index + 1}. ${service.titre}\n` +
+                            `   Catégorie: ${service.categorie}\n` +
+                            `   Prix: ${service.prixPublic}€ → ${service.prixCommercial}€\n` +
+                            `   Commission: ${service.commission}€\n` +
+                            `   Durée: ${service.duree}\n` +
+                            `   ID: ${service._id}\n` +
+                            `   Créé: ${new Date(service.createdAt).toLocaleString()}\n\n`;
+                    });
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Erreur: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testFrontendLoad() {
+            const resultDiv = document.getElementById('frontend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔄 Simulation loadServices() Frontend...\n\n';
+
+            try {
+                // Simuler exactement ce que fait le frontend
+                resultDiv.textContent += 'Simulation du code Frontend:\n';
+                resultDiv.textContent += 'const response = await fetch("http://localhost:3001/api/commercial-new/admin/services");\n';
+                resultDiv.textContent += 'const result = await response.json();\n\n';
+
+                const response = await fetch('http://localhost:3001/api/commercial-new/admin/services');
+                const result = await response.json();
+                
+                resultDiv.textContent += `Response reçue:\n`;
+                resultDiv.textContent += `success: ${result.success}\n`;
+                resultDiv.textContent += `data: ${result.data ? `Array(${result.data.length})` : 'undefined'}\n`;
+                resultDiv.textContent += `message: ${result.message || 'N/A'}\n\n`;
+
+                if (result.success && result.data) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += `✅ Frontend devrait recevoir ${result.data.length} services\n\n`;
+                    resultDiv.textContent += '🎯 CONCLUSION: Le problème n\'est PAS dans l\'API\n';
+                    resultDiv.textContent += 'Le problème est probablement:\n';
+                    resultDiv.textContent += '1. loadServices() n\'est pas appelée après création\n';
+                    resultDiv.textContent += '2. setState ne met pas à jour l\'interface\n';
+                    resultDiv.textContent += '3. Problème de re-render du composant\n';
+                    resultDiv.textContent += '4. Cache du navigateur\n';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ API ne retourne pas de données valides`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testNetworkTab() {
+            const resultDiv = document.getElementById('frontend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🌐 Instructions pour Network Tab...\n\n';
+            
+            resultDiv.textContent += 
+                '📋 INSTRUCTIONS POUR DÉBUGGER:\n\n' +
+                '1. Ouvrez DevTools (F12)\n' +
+                '2. Allez sur l\'onglet Network\n' +
+                '3. Actualisez la page Admin Panel\n' +
+                '4. Cherchez la requête: admin/services\n' +
+                '5. Vérifiez:\n' +
+                '   - Status Code (doit être 200)\n' +
+                '   - Response Body (doit contenir les services)\n' +
+                '   - Request Headers\n\n' +
+                '6. Créez un nouveau service\n' +
+                '7. Vérifiez si une nouvelle requête admin/services est faite\n' +
+                '8. Si non → Problème: loadServices() pas appelée\n' +
+                '9. Si oui mais pas d\'affichage → Problème: setState\n\n' +
+                '🎯 Rapportez ce que vous voyez dans Network Tab!';
+        }
+
+        async function testConsoleErrors() {
+            const resultDiv = document.getElementById('frontend-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⚠️ Check Console Errors...\n\n';
+            
+            resultDiv.textContent += 
+                '📋 VÉRIFICATIONS CONSOLE:\n\n' +
+                '1. Ouvrez DevTools Console\n' +
+                '2. Cherchez les erreurs rouges\n' +
+                '3. Erreurs communes à chercher:\n' +
+                '   - CORS errors\n' +
+                '   - 404 Not Found\n' +
+                '   - TypeError: Cannot read properties\n' +
+                '   - Network errors\n' +
+                '   - React warnings\n\n' +
+                '4. Après création de service, vérifiez:\n' +
+                '   - "Service créé avec succès!" apparaît\n' +
+                '   - Pas d\'erreur après le succès\n' +
+                '   - loadServices() est appelée\n\n' +
+                '🎯 Copiez toute erreur que vous voyez!';
+        }
+
+        async function proposeSolution() {
+            const resultDiv = document.getElementById('solution-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '💡 Analyse et Solution...\n\n';
+
+            // Test rapide pour déterminer la cause
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`);
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += 
+                        '🎯 DIAGNOSTIC: Backend fonctionne parfaitement\n\n' +
+                        '❌ PROBLÈME IDENTIFIÉ: Frontend ne rafraîchit pas\n\n' +
+                        '🔧 SOLUTIONS PROPOSÉES:\n\n' +
+                        '1. SOLUTION IMMÉDIATE:\n' +
+                        '   - Actualisez la page Admin Panel (F5)\n' +
+                        '   - Les services devraient apparaître\n\n' +
+                        '2. SOLUTION CODE:\n' +
+                        '   - Vérifier que loadServices() est appelée après création\n' +
+                        '   - Ajouter console.log dans loadServices()\n' +
+                        '   - Vérifier setState(services)\n\n' +
+                        '3. SOLUTION DEBUG:\n' +
+                        '   - Ajouter un bouton "Actualiser" temporaire\n' +
+                        '   - Forcer le re-render du composant\n\n' +
+                        '🚨 TESTEZ: Actualisez la page maintenant!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += 
+                        '❌ PROBLÈME: Backend ne retourne pas de services\n\n' +
+                        '🔧 SOLUTIONS:\n' +
+                        '1. Vérifier que les services sont bien sauvegardés\n' +
+                        '2. Vérifier la connexion MongoDB\n' +
+                        '3. Redémarrer le backend\n';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🔍 Debug Services Issue chargé');
+        };
+    </script>
+</body>
+</html>

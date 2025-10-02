@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Admin Panel Resources Issue - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+        .step { background: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin: 10px 0; }
+        .critical { background: #ffe6e6; border-left: 4px solid #dc3545; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Admin Panel Resources Issue - MATC</h1>
+        
+        <div class="critical">
+            <h3>🚨 المشكلة المبلغ عنها</h3>
+            <p><strong>الوصف:</strong> عند إدخال معلومات الموارد في Admin Panel وعمل "Mettre à jour" للمشارك، الموارد تختفي ولا تظهر.</p>
+            <p><strong>السيناريو:</strong> إضافة موارد → حفظ → الموارد تختفي من النموذج</p>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>👤 بيانات الاختبار</h3>
+                <div class="info">
+                    <h4>Ismael Gharbi</h4>
+                    <p><strong>ID:</strong> PART-550776</p>
+                    <p><strong>Email:</strong> gharbi@gmail.com</p>
+                </div>
+                <button onclick="loadCurrentData()">تحميل البيانات الحالية</button>
+                <button onclick="checkBackendData()">فحص البيانات في Backend</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🧪 اختبارات التشخيص</h3>
+                <button onclick="simulateAdminPanelFlow()">محاكاة Admin Panel</button>
+                <button onclick="testResourcePersistence()">اختبار الاستمرارية</button>
+                <button onclick="debugDataFlow()">تشخيص تدفق البيانات</button>
+                <button onclick="checkStateManagement()">فحص إدارة الحالة</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 تحليل المشكلة المحتملة</h3>
+            
+            <div class="step">
+                <h4>احتمال 1: مشكلة في إدارة الحالة</h4>
+                <p>الموارد تُضاف إلى state لكن لا تُحفظ عند الإرسال</p>
+                <button onclick="testStateManagement()">اختبار إدارة الحالة</button>
+            </div>
+            
+            <div class="step">
+                <h4>احتمال 2: مشكلة في API Request</h4>
+                <p>البيانات تُرسل لكن Backend لا يحفظها بشكل صحيح</p>
+                <button onclick="testApiRequest()">اختبار API Request</button>
+            </div>
+            
+            <div class="step">
+                <h4>احتمال 3: مشكلة في تحميل البيانات</h4>
+                <p>البيانات محفوظة لكن لا تُحمل في النموذج</p>
+                <button onclick="testDataLoading()">اختبار تحميل البيانات</button>
+            </div>
+            
+            <div class="step">
+                <h4>احتمال 4: مشكلة في تحديث الواجهة</h4>
+                <p>البيانات محفوظة ومحملة لكن الواجهة لا تُحدث</p>
+                <button onclick="testUIUpdate()">اختبار تحديث الواجهة</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 اختبار شامل للمشكلة</h3>
+            <button onclick="runFullDiagnosis()" class="success">تشغيل التشخيص الشامل</button>
+            <div id="diagnosisResults" style="display: none;">
+                <h4>نتائج التشخيص:</h4>
+                <div id="diagnosisSteps"></div>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let currentParticipant = null;
+        let testResource = null;
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function logDiagnosis(step, message, status) {
+            const diagnosisSteps = document.getElementById('diagnosisSteps');
+            const div = document.createElement('div');
+            div.className = `step ${status}`;
+            div.innerHTML = `<strong>Étape ${step}:</strong> ${message}`;
+            diagnosisSteps.appendChild(div);
+        }
+
+        async function loadCurrentData() {
+            log('🔄 Chargement des données actuelles...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        currentParticipant = data.data;
+                        const resourcesCount = currentParticipant.coachingResources?.length || 0;
+                        
+                        log(`✅ Participant chargé: ${currentParticipant.fullName}`, 'success');
+                        log(`📚 Ressources actuelles: ${resourcesCount}`, resourcesCount > 0 ? 'success' : 'warning');
+                        
+                        if (resourcesCount > 0) {
+                            log(`<pre>Ressources existantes:
+${JSON.stringify(currentParticipant.coachingResources, null, 2)}</pre>`, 'info');
+                        } else {
+                            log('⚠️ Aucune ressource trouvée - c\'est peut-être la cause du problème', 'warning');
+                        }
+                        
+                        return currentParticipant;
+                    } else {
+                        log('❌ Participant non trouvé', 'error');
+                        return null;
+                    }
+                } else {
+                    log(`❌ Erreur API: ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function checkBackendData() {
+            log('🔍 Vérification des données Backend...', 'info');
+            
+            try {
+                // Check MongoDB directly via API
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        log('✅ Backend accessible', 'success');
+                        log(`📊 Données Backend:`, 'info');
+                        log(`- Participant: ${data.data.fullName}`, 'info');
+                        log(`- Formations: ${data.data.formations?.length || 0}`, 'info');
+                        log(`- Projets: ${data.data.projects?.length || 0}`, 'info');
+                        log(`- Ressources: ${data.data.coachingResources?.length || 0}`, 'info');
+                        
+                        if (data.data.coachingResources?.length > 0) {
+                            data.data.coachingResources.forEach((resource, index) => {
+                                log(`  ${index + 1}. ${resource.title} (${resource.type || 'N/A'} - ${resource.category || 'N/A'})`, 'info');
+                            });
+                        }
+                    }
+                } else {
+                    log(`❌ Backend error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Backend connection error: ${error.message}`, 'error');
+            }
+        }
+
+        async function simulateAdminPanelFlow() {
+            log('🎭 Simulation du flux Admin Panel...', 'info');
+            
+            if (!currentParticipant) {
+                await loadCurrentData();
+            }
+            
+            if (!currentParticipant) {
+                log('❌ Impossible de continuer sans participant', 'error');
+                return;
+            }
+            
+            // Étape 1: Simuler l'ajout d'une ressource
+            log('📋 Étape 1: Simulation ajout ressource...', 'info');
+            testResource = {
+                id: `RES-${Date.now()}`,
+                title: 'Test Resource Debug',
+                description: 'Ressource de test pour debug',
+                type: 'Guide',
+                category: 'Ressources',
+                icon: '📖',
+                thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
+                downloadUrl: '',
+                duration: '30 min',
+                dataLinks: [{
+                    id: `link-${Date.now()}`,
+                    title: 'Lien principal',
+                    url: 'https://example.com/test-debug',
+                    type: 'external'
+                }],
+                assignedDate: new Date().toISOString(),
+                accessedDate: null,
+                isCompleted: false
+            };
+            
+            log(`✅ Ressource créée: ${testResource.title}`, 'success');
+            
+            // Étape 2: Simuler l'envoi comme Admin Panel
+            log('📋 Étape 2: Simulation envoi Admin Panel...', 'info');
+            const updatedResources = [...(currentParticipant.coachingResources || []), testResource];
+            
+            const updateData = {
+                ...currentParticipant,
+                coachingResources: updatedResources,
+                updatedAt: new Date().toISOString()
+            };
+            
+            log(`📤 Envoi de ${updatedResources.length} ressources...`, 'info');
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        log('✅ Envoi réussi!', 'success');
+                        
+                        // Étape 3: Vérifier immédiatement
+                        log('📋 Étape 3: Vérification immédiate...', 'info');
+                        setTimeout(async () => {
+                            await loadCurrentData();
+                            
+                            const found = currentParticipant?.coachingResources?.find(r => r.title === testResource.title);
+                            if (found) {
+                                log('✅ Ressource trouvée après sauvegarde!', 'success');
+                            } else {
+                                log('❌ Ressource DISPARUE après sauvegarde - PROBLÈME CONFIRMÉ!', 'error');
+                            }
+                        }, 2000);
+                    } else {
+                        log(`❌ Erreur sauvegarde: ${result.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Erreur HTTP: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testResourcePersistence() {
+            log('🔒 Test de persistance des ressources...', 'info');
+            
+            // Test 1: Ajouter une ressource
+            log('📋 Test 1: Ajout ressource...', 'info');
+            await simulateAdminPanelFlow();
+            
+            // Test 2: Attendre et vérifier
+            setTimeout(async () => {
+                log('📋 Test 2: Vérification après délai...', 'info');
+                await loadCurrentData();
+                
+                if (testResource && currentParticipant?.coachingResources?.find(r => r.title === testResource.title)) {
+                    log('✅ Persistance confirmée!', 'success');
+                } else {
+                    log('❌ Problème de persistance détecté!', 'error');
+                }
+            }, 5000);
+        }
+
+        async function debugDataFlow() {
+            log('🔍 Debug du flux de données...', 'info');
+            
+            log('📋 Analyse du flux:', 'info');
+            log('1. Admin Panel → State (coachingResources)', 'info');
+            log('2. State → dataToSubmit', 'info');
+            log('3. dataToSubmit → API Request', 'info');
+            log('4. API Request → Backend Processing', 'info');
+            log('5. Backend → MongoDB Save', 'info');
+            log('6. MongoDB → API Response', 'info');
+            log('7. API Response → Admin Panel Reload', 'info');
+            
+            log('🔍 Points de vérification:', 'warning');
+            log('- Les ressources sont-elles dans coachingResources state?', 'warning');
+            log('- dataToSubmit contient-il les ressources?', 'warning');
+            log('- L\'API request contient-elle les ressources?', 'warning');
+            log('- Le backend traite-t-il les ressources?', 'warning');
+            log('- MongoDB sauvegarde-t-il les ressources?', 'warning');
+            log('- Le reload charge-t-il les ressources?', 'warning');
+        }
+
+        async function checkStateManagement() {
+            log('🧠 Vérification de la gestion d\'état...', 'info');
+            
+            log('📋 Points à vérifier dans ParticipantFormEnhanced:', 'info');
+            log('1. useState pour coachingResources initialisé correctement', 'info');
+            log('2. useEffect charge initialData.coachingResources', 'info');
+            log('3. addResource() ajoute à coachingResources state', 'info');
+            log('4. handleSubmit() inclut coachingResources dans dataToSubmit', 'info');
+            log('5. onSubmit() parent reçoit les données complètes', 'info');
+            
+            log('⚠️ Problèmes possibles:', 'warning');
+            log('- State reset après ajout', 'warning');
+            log('- useEffect écrase les nouvelles ressources', 'warning');
+            log('- handleSubmit ne passe pas les ressources', 'warning');
+            log('- Parent component ne traite pas les ressources', 'warning');
+        }
+
+        async function testStateManagement() {
+            log('🧪 Test de gestion d\'état...', 'info');
+            
+            log('📋 Simulation des étapes Admin Panel:', 'info');
+            log('1. Utilisateur ouvre formulaire participant', 'info');
+            log('2. useEffect charge initialData.coachingResources', 'info');
+            log('3. Utilisateur ajoute nouvelle ressource', 'info');
+            log('4. addResource() met à jour coachingResources state', 'info');
+            log('5. Utilisateur clique "Mettre à jour"', 'info');
+            log('6. handleSubmit() crée dataToSubmit', 'info');
+            log('7. onSubmit() appelé avec dataToSubmit', 'info');
+            
+            log('🔍 À vérifier:', 'warning');
+            log('- coachingResources state contient-il les nouvelles ressources à l\'étape 4?', 'warning');
+            log('- dataToSubmit contient-il coachingResources à l\'étape 6?', 'warning');
+            log('- onSubmit reçoit-il les ressources à l\'étape 7?', 'warning');
+        }
+
+        async function testApiRequest() {
+            log('📡 Test de la requête API...', 'info');
+            
+            if (!currentParticipant) {
+                await loadCurrentData();
+            }
+            
+            // Créer une requête test exactement comme Admin Panel
+            const testData = {
+                ...currentParticipant,
+                coachingResources: [
+                    ...(currentParticipant.coachingResources || []),
+                    {
+                        id: `RES-API-TEST-${Date.now()}`,
+                        title: 'API Test Resource',
+                        description: 'Test pour vérifier API',
+                        type: 'Guide',
+                        category: 'Ressources',
+                        icon: '🧪',
+                        dataLinks: [{
+                            id: `link-${Date.now()}`,
+                            title: 'Test Link',
+                            url: 'https://example.com/api-test',
+                            type: 'external'
+                        }],
+                        assignedDate: new Date().toISOString(),
+                        isCompleted: false
+                    }
+                ],
+                updatedAt: new Date().toISOString()
+            };
+            
+            log(`📤 Envoi requête avec ${testData.coachingResources.length} ressources...`, 'info');
+            log(`<pre>Payload:
+${JSON.stringify({ coachingResources: testData.coachingResources }, null, 2)}</pre>`, 'info');
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/participants/PART-550776`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ API Request réussie', 'success');
+                    log(`📊 Réponse: ${JSON.stringify(result, null, 2)}`, 'info');
+                } else {
+                    log(`❌ API Request échouée: ${response.status}`, 'error');
+                    const errorText = await response.text();
+                    log(`❌ Détails: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur API: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDataLoading() {
+            log('📥 Test de chargement des données...', 'info');
+            
+            // Vérifier ce que l'API retourne
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    log('✅ API Response reçue', 'success');
+                    log(`📊 Structure de données:`, 'info');
+                    log(`- success: ${data.success}`, 'info');
+                    log(`- data.fullName: ${data.data?.fullName}`, 'info');
+                    log(`- data.coachingResources: ${Array.isArray(data.data?.coachingResources) ? 'Array' : typeof data.data?.coachingResources}`, 'info');
+                    log(`- data.coachingResources.length: ${data.data?.coachingResources?.length || 0}`, 'info');
+                    
+                    if (data.data?.coachingResources?.length > 0) {
+                        log(`📋 Première ressource:`, 'info');
+                        log(`<pre>${JSON.stringify(data.data.coachingResources[0], null, 2)}</pre>`, 'info');
+                    } else {
+                        log('⚠️ Aucune ressource dans la réponse API', 'warning');
+                    }
+                } else {
+                    log(`❌ Erreur API: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUIUpdate() {
+            log('🖥️ Test de mise à jour de l\'interface...', 'info');
+            
+            log('📋 Points à vérifier dans Admin Panel:', 'info');
+            log('1. Après ajout ressource, elle apparaît dans la liste', 'info');
+            log('2. Après "Mettre à jour", le formulaire se ferme', 'info');
+            log('3. Après réouverture, les ressources sont présentes', 'info');
+            
+            log('🔍 Instructions de test manuel:', 'warning');
+            log('1. Ouvrez Admin Panel: http://localhost:8536/participants', 'info');
+            log('2. Modifiez Ismael Gharbi', 'info');
+            log('3. Ajoutez une ressource et vérifiez qu\'elle apparaît', 'info');
+            log('4. Cliquez "Mettre à jour"', 'info');
+            log('5. Rouvrez le participant et vérifiez les ressources', 'info');
+        }
+
+        async function runFullDiagnosis() {
+            log('🚀 Lancement du diagnostic complet...', 'info');
+            document.getElementById('diagnosisResults').style.display = 'block';
+            
+            // Étape 1: Charger données actuelles
+            logDiagnosis(1, 'Chargement des données actuelles', 'info');
+            await loadCurrentData();
+            
+            // Étape 2: Vérifier Backend
+            logDiagnosis(2, 'Vérification Backend', 'info');
+            await checkBackendData();
+            
+            // Étape 3: Test API
+            logDiagnosis(3, 'Test requête API', 'info');
+            await testApiRequest();
+            
+            // Étape 4: Attendre et vérifier persistance
+            logDiagnosis(4, 'Attente et vérification persistance...', 'warning');
+            setTimeout(async () => {
+                await loadCurrentData();
+                logDiagnosis(5, 'Diagnostic terminé', 'success');
+                
+                log('🎉 Diagnostic complet terminé!', 'success');
+                log('📋 Consultez les résultats ci-dessus pour identifier la cause', 'info');
+            }, 3000);
+        }
+
+        // Auto-run initial tests
+        window.onload = function() {
+            setTimeout(async () => {
+                log('🔄 Chargement initial...', 'info');
+                await loadCurrentData();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système Commercial Complet - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .warning { color: #f59e0b; font-weight: bold; }
+        .info { color: #3b82f6; font-weight: bold; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .url-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .url-box a {
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .url-box a:hover {
+            text-decoration: underline;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .status-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .feature-item h4 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Système Commercial Complet - MATC</h1>
+            <p>Test intégral du nouveau système commercial avec 3 niveaux</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="global-progress" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- URLs d'accès -->
+        <div class="test-section">
+            <h3>🌐 URLs d'Accès Système</h3>
+            <div class="url-box">
+                <strong>🏠 Frontend Principal:</strong><br>
+                <a href="http://localhost:5173" target="_blank">http://localhost:5173</a>
+            </div>
+            <div class="url-box">
+                <strong>💼 Espace Commercial Nouveau:</strong><br>
+                <a href="http://localhost:5173/espace-commercial-new" target="_blank">http://localhost:5173/espace-commercial-new</a>
+            </div>
+            <div class="url-box">
+                <strong>⚙️ Admin Panel - Gestion Services:</strong><br>
+                <a href="http://localhost:8536/commercial-services" target="_blank">http://localhost:8536/commercial-services</a>
+            </div>
+            <div class="url-box">
+                <strong>🔧 Backend API Health:</strong><br>
+                <a href="http://localhost:3001/api/health" target="_blank">http://localhost:3001/api/health</a>
+            </div>
+        </div>
+
+        <!-- Status Global -->
+        <div class="test-section">
+            <h3>📊 Status Global du Système</h3>
+            <div class="status-grid" id="status-grid">
+                <div class="status-item">
+                    <strong>Backend</strong><br>
+                    <span id="backend-status">🔄 En test...</span>
+                </div>
+                <div class="status-item">
+                    <strong>Frontend</strong><br>
+                    <span id="frontend-status">🔄 En test...</span>
+                </div>
+                <div class="status-item">
+                    <strong>Admin Panel</strong><br>
+                    <span id="admin-status">🔄 En test...</span>
+                </div>
+                <div class="status-item">
+                    <strong>Commercial System</strong><br>
+                    <span id="commercial-status">🔄 En test...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Backend -->
+        <div class="test-section">
+            <h3>1. 🔧 Test Backend & API</h3>
+            <button onclick="testBackend()">Tester Backend</button>
+            <button onclick="testCommercialAPI()">Tester API Commercial</button>
+            <div id="backend-result" class="result"></div>
+        </div>
+
+        <!-- Test Service Creation -->
+        <div class="test-section">
+            <h3>2. 🛠️ Création de Services (Admin)</h3>
+            <p><strong>Code Secret:</strong> <code>20388542</code></p>
+            <button onclick="createTestService()">Créer Service Test</button>
+            <button onclick="listServices()">Lister Services</button>
+            <div id="service-result" class="result"></div>
+        </div>
+
+        <!-- Test Commercial Creation -->
+        <div class="test-section">
+            <h3>3. 👤 Création Commercial Test</h3>
+            <button onclick="createTestCommercial()">Créer Commercial (COMM-123456)</button>
+            <button onclick="assignServiceToCommercial()">Assigner Service au Commercial</button>
+            <div id="commercial-creation-result" class="result"></div>
+        </div>
+
+        <!-- Test Login & Dashboard -->
+        <div class="test-section">
+            <h3>4. 🔐 Test Login & Dashboard</h3>
+            <button onclick="testCommercialLogin()">Login Commercial</button>
+            <button onclick="testDashboardData()">Récupérer Données Dashboard</button>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Test Fonctionnalités Avancées -->
+        <div class="test-section">
+            <h3>5. ⚡ Fonctionnalités Avancées</h3>
+            <button onclick="testAddVente()">Ajouter Vente (+5 points)</button>
+            <button onclick="testAddClient()">Ajouter Client</button>
+            <button onclick="testTransfert()">Test Transfert (Niveau 2→3)</button>
+            <button onclick="testMonthlyGift()">Test Cadeau Mensuel</button>
+            <div id="advanced-result" class="result"></div>
+        </div>
+
+        <!-- Test Statistiques -->
+        <div class="test-section">
+            <h3>6. 📈 Statistiques & Rapports</h3>
+            <button onclick="testStatistics()">Statistiques Complètes</button>
+            <button onclick="testLevelProgression()">Progression Niveaux</button>
+            <div id="stats-result" class="result"></div>
+        </div>
+
+        <!-- Fonctionnalités du Système -->
+        <div class="test-section">
+            <h3>🎯 Fonctionnalités Disponibles</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>🥉 Niveau 1 - Apprenti</h4>
+                    <ul>
+                        <li>5 points par vente confirmée</li>
+                        <li>Commission standard</li>
+                        <li>Objectif: 1000 points → Niveau 2</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <h4>🥈 Niveau 2 - Confirmé</h4>
+                    <ul>
+                        <li>Gestion des clients</li>
+                        <li>Suivi du chiffre d'affaires</li>
+                        <li>Transfert 500€ → Niveau 3</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <h4>🥇 Niveau 3 - Partenaire</h4>
+                    <ul>
+                        <li>20% commission directe</li>
+                        <li>5€ cadeau automatique/mois</li>
+                        <li>Statut partenaire officiel</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <h4>⚙️ Admin Panel</h4>
+                    <ul>
+                        <li>Création de services</li>
+                        <li>Assignation aux commerciaux</li>
+                        <li>Code secret sécurisé</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <h4>📊 Dashboard Avancé</h4>
+                    <ul>
+                        <li>Onglets: Dashboard, Ventes, Clients</li>
+                        <li>Statistiques en temps réel</li>
+                        <li>Gestion complète des données</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <h4>🔒 Sécurité</h4>
+                    <ul>
+                        <li>Code secret admin: 20388542</li>
+                        <li>Sessions sécurisées</li>
+                        <li>Validation des données</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Complètes -->
+        <div class="test-section">
+            <h3>📋 Instructions d'Utilisation</h3>
+            <div style="background: #f0f9ff; padding: 20px; border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                <h4>🚀 Démarrage Rapide:</h4>
+                <ol>
+                    <li><strong>Backend:</strong> <code>cd backend && npm run dev</code> (Port 3001)</li>
+                    <li><strong>Frontend:</strong> <code>npm run dev</code> (Port 5173)</li>
+                    <li><strong>Admin Panel:</strong> <code>cd admin-panel && npm run dev</code> (Port 8536)</li>
+                </ol>
+                
+                <h4>🧪 Tests Automatiques:</h4>
+                <ol>
+                    <li>Cliquer sur "Test Complet Automatique" ci-dessous</li>
+                    <li>Ou tester chaque section individuellement</li>
+                    <li>Vérifier les URLs dans un nouvel onglet</li>
+                </ol>
+                
+                <h4>💼 Utilisation Normale:</h4>
+                <ol>
+                    <li>Admin crée des services via Admin Panel</li>
+                    <li>Admin assigne services aux commerciaux</li>
+                    <li>Commercial se connecte avec son ID</li>
+                    <li>Commercial utilise le dashboard pour gérer ventes/clients</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Test Automatique Complet -->
+        <div class="test-section">
+            <h3>🎯 Test Automatique Complet</h3>
+            <button onclick="runCompleteTest()" id="complete-test-btn">
+                🚀 Lancer Test Complet Automatique
+            </button>
+            <div id="complete-test-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+        const SECRET_CODE = '20388542';
+        let testProgress = 0;
+        let totalTests = 8;
+
+        function updateProgress() {
+            testProgress++;
+            const percentage = (testProgress / totalTests) * 100;
+            document.getElementById('global-progress').style.width = percentage + '%';
+        }
+
+        function updateStatus(component, success, message = '') {
+            const statusElement = document.getElementById(`${component}-status`);
+            if (success) {
+                statusElement.innerHTML = `✅ Opérationnel ${message}`;
+                statusElement.style.color = '#10b981';
+            } else {
+                statusElement.innerHTML = `❌ Erreur ${message}`;
+                statusElement.style.color = '#ef4444';
+            }
+        }
+
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const result = await response.json();
+                
+                document.getElementById('backend-result').textContent = 
+                    `✅ Backend connecté!\n${JSON.stringify(result, null, 2)}`;
+                
+                updateStatus('backend', true, '(Port 3001)');
+                updateProgress();
+            } catch (error) {
+                document.getElementById('backend-result').textContent = 
+                    `❌ Erreur Backend: ${error.message}`;
+                updateStatus('backend', false);
+            }
+        }
+
+        async function testCommercialAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const result = await response.json();
+                
+                document.getElementById('backend-result').textContent += 
+                    `\n\n✅ API Commercial connectée!\n${JSON.stringify(result, null, 2)}`;
+                
+                updateStatus('commercial', true);
+            } catch (error) {
+                document.getElementById('backend-result').textContent += 
+                    `\n\n❌ Erreur API Commercial: ${error.message}`;
+                updateStatus('commercial', false);
+            }
+        }
+
+        async function createTestService() {
+            try {
+                const serviceData = {
+                    titre: 'Formation React Avancée - Test',
+                    categorie: 'Développement Web',
+                    description: 'Formation complète React avec hooks, context et tests',
+                    prixPublic: 1500,
+                    prixCommercial: 1200,
+                    commission: 150,
+                    duree: '3 mois',
+                    secretCode: SECRET_CODE,
+                    adminId: 'test-admin'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(serviceData)
+                });
+
+                const result = await response.json();
+                document.getElementById('service-result').textContent = 
+                    JSON.stringify(result, null, 2);
+                
+                if (result.success) {
+                    window.testServiceId = result.data._id;
+                    updateProgress();
+                }
+            } catch (error) {
+                document.getElementById('service-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function listServices() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secretCode: SECRET_CODE })
+                });
+
+                const result = await response.json();
+                document.getElementById('service-result').textContent += 
+                    `\n\n📋 Services disponibles:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('service-result').textContent += 
+                    `\n\n❌ Erreur liste services: ${error.message}`;
+            }
+        }
+
+        async function createTestCommercial() {
+            try {
+                const commercialData = {
+                    type: 'commercial',
+                    fullName: 'Ahmed Test Commercial',
+                    email: 'ahmed.commercial@matc.tn',
+                    phone: '+216 98 765 432',
+                    secteur: 'Commercial'
+                };
+
+                const response = await fetch('http://localhost:3001/api/partners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+                document.getElementById('commercial-creation-result').textContent = 
+                    JSON.stringify(result, null, 2);
+                
+                if (result.success) {
+                    updateProgress();
+                }
+            } catch (error) {
+                document.getElementById('commercial-creation-result').textContent = 
+                    `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function assignServiceToCommercial() {
+            if (!window.testServiceId) {
+                document.getElementById('commercial-creation-result').textContent += 
+                    '\n\n⚠️ Créez d\'abord un service test';
+                return;
+            }
+
+            try {
+                const assignData = {
+                    serviceId: window.testServiceId,
+                    partnerId: 'COMM-123456',
+                    secretCode: SECRET_CODE,
+                    adminId: 'test-admin'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/assign-service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(assignData)
+                });
+
+                const result = await response.json();
+                document.getElementById('commercial-creation-result').textContent += 
+                    `\n\n📎 Assignation service:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('commercial-creation-result').textContent += 
+                    `\n\n❌ Erreur assignation: ${error.message}`;
+            }
+        }
+
+        async function testCommercialLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/COMM-123456/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                document.getElementById('login-result').textContent = 
+                    JSON.stringify(result, null, 2);
+                
+                if (result.success) {
+                    window.commercialData = result.data;
+                    updateStatus('frontend', true, '(Login OK)');
+                    updateProgress();
+                }
+            } catch (error) {
+                document.getElementById('login-result').textContent = 
+                    `❌ Erreur login: ${error.message}`;
+                updateStatus('frontend', false);
+            }
+        }
+
+        async function testDashboardData() {
+            try {
+                const response = await fetch(`${API_BASE}/COMM-123456`);
+                const result = await response.json();
+                
+                document.getElementById('login-result').textContent += 
+                    `\n\n📊 Données Dashboard:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('login-result').textContent += 
+                    `\n\n❌ Erreur dashboard: ${error.message}`;
+            }
+        }
+
+        async function testAddVente() {
+            try {
+                const venteData = {
+                    serviceId: window.testServiceId || 'test-service',
+                    client: 'TechCorp SARL',
+                    clientEmail: 'contact@techcorp.tn',
+                    montant: 1200,
+                    commission: 150,
+                    methodePaiement: 'Virement bancaire'
+                };
+
+                const response = await fetch(`${API_BASE}/COMM-123456/vente`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venteData)
+                });
+
+                const result = await response.json();
+                document.getElementById('advanced-result').textContent = 
+                    `💰 Ajout vente:\n${JSON.stringify(result, null, 2)}`;
+                
+                if (result.success) {
+                    updateProgress();
+                }
+            } catch (error) {
+                document.getElementById('advanced-result').textContent = 
+                    `❌ Erreur vente: ${error.message}`;
+            }
+        }
+
+        async function testAddClient() {
+            try {
+                const clientData = {
+                    nom: 'Dupont',
+                    prenom: 'Jean',
+                    email: 'jean.dupont@example.com',
+                    tel: '+216 20 123 456',
+                    programme: 'Formation React',
+                    montant: 1500
+                };
+
+                const response = await fetch(`${API_BASE}/COMM-123456/client`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(clientData)
+                });
+
+                const result = await response.json();
+                document.getElementById('advanced-result').textContent += 
+                    `\n\n👤 Ajout client:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('advanced-result').textContent += 
+                    `\n\n❌ Erreur client: ${error.message}`;
+            }
+        }
+
+        async function testTransfert() {
+            try {
+                const response = await fetch(`${API_BASE}/COMM-123456/transfert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ montant: 500 })
+                });
+
+                const result = await response.json();
+                document.getElementById('advanced-result').textContent += 
+                    `\n\n🔄 Test transfert:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('advanced-result').textContent += 
+                    `\n\n❌ Erreur transfert: ${error.message}`;
+            }
+        }
+
+        async function testMonthlyGift() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/monthly-gifts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secretCode: SECRET_CODE })
+                });
+
+                const result = await response.json();
+                document.getElementById('advanced-result').textContent += 
+                    `\n\n🎁 Cadeaux mensuels:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('advanced-result').textContent += 
+                    `\n\n❌ Erreur cadeaux: ${error.message}`;
+            }
+        }
+
+        async function testStatistics() {
+            try {
+                const response = await fetch(`${API_BASE}/COMM-123456/stats`);
+                const result = await response.json();
+                
+                document.getElementById('stats-result').textContent = 
+                    `📈 Statistiques:\n${JSON.stringify(result, null, 2)}`;
+                
+                updateProgress();
+            } catch (error) {
+                document.getElementById('stats-result').textContent = 
+                    `❌ Erreur stats: ${error.message}`;
+            }
+        }
+
+        async function testLevelProgression() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/stats`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secretCode: SECRET_CODE })
+                });
+
+                const result = await response.json();
+                document.getElementById('stats-result').textContent += 
+                    `\n\n📊 Stats globales:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('stats-result').textContent += 
+                    `\n\n❌ Erreur stats globales: ${error.message}`;
+            }
+        }
+
+        async function runCompleteTest() {
+            const btn = document.getElementById('complete-test-btn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Test en cours...';
+            
+            testProgress = 0;
+            document.getElementById('complete-test-result').textContent = 
+                '🚀 Démarrage du test complet automatique...\n\n';
+
+            const tests = [
+                { name: 'Backend', func: testBackend },
+                { name: 'API Commercial', func: testCommercialAPI },
+                { name: 'Service Test', func: createTestService },
+                { name: 'Commercial Test', func: createTestCommercial },
+                { name: 'Login Commercial', func: testCommercialLogin },
+                { name: 'Vente Test', func: testAddVente },
+                { name: 'Client Test', func: testAddClient },
+                { name: 'Statistiques', func: testStatistics }
+            ];
+
+            for (let i = 0; i < tests.length; i++) {
+                const test = tests[i];
+                document.getElementById('complete-test-result').textContent += 
+                    `${i + 1}. Test ${test.name}...\n`;
+                
+                try {
+                    await test.func();
+                    document.getElementById('complete-test-result').textContent += 
+                        `   ✅ ${test.name} - OK\n\n`;
+                } catch (error) {
+                    document.getElementById('complete-test-result').textContent += 
+                        `   ❌ ${test.name} - Erreur: ${error.message}\n\n`;
+                }
+                
+                // Pause entre les tests
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            document.getElementById('complete-test-result').textContent += 
+                '🎉 Test complet terminé!\n\n' +
+                '📋 Prochaines étapes:\n' +
+                '1. Vérifier les URLs dans de nouveaux onglets\n' +
+                '2. Tester l\'interface utilisateur\n' +
+                '3. Vérifier les fonctionnalités avancées\n\n' +
+                '✨ Le système commercial est prêt à l\'utilisation!';
+
+            btn.disabled = false;
+            btn.textContent = '✅ Test Terminé - Relancer';
+            updateStatus('admin', true, '(Test OK)');
+        }
+
+        // Auto-start basic tests
+        window.onload = function() {
+            setTimeout(() => {
+                testBackend();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

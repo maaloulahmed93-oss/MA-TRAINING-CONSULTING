@@ -23,6 +23,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { mockCoachingResources } from '../../data/participantData';
+import { participantApiService, ApiCoachingResource } from '../../services/participantApiService';
 
 
 interface CoachingProps {
@@ -50,6 +51,8 @@ interface ChatSession {
 const Coaching = ({ onNavigate, participantId }: CoachingProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [resources, setResources] = useState<ApiCoachingResource[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [currentMessage, setCurrentMessage] = useState('');
   const [chatSession, setChatSession] = useState<ChatSession | null>(null);
@@ -59,10 +62,42 @@ const Coaching = ({ onNavigate, participantId }: CoachingProps) => {
 
   const categories = ['all', 'Templates', 'Soft Skills', 'Carrière', 'Guide', 'Ressources', 'Marketing', 'Innovation', 'Productivité'];
   
-  const filteredResources = mockCoachingResources.filter(resource => {
+  // Load resources from API with fallback to mock data
+  useEffect(() => {
+    const loadResources = async () => {
+      if (!participantId) {
+        console.log('🔄 No participantId provided, using mock data');
+        setResources(mockCoachingResources as any);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        console.log('🔄 Loading coaching resources for participant:', participantId);
+        const apiResources = await participantApiService.getParticipantResources(participantId);
+        
+        if (apiResources && apiResources.length > 0) {
+          console.log('✅ Loaded', apiResources.length, 'resources from API');
+          setResources(apiResources);
+        } else {
+          console.log('⚠️ No API resources found, using mock data as fallback');
+          setResources(mockCoachingResources as any);
+        }
+      } catch (error) {
+        console.error('❌ Error loading resources, using mock data:', error);
+        setResources(mockCoachingResources as any);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadResources();
+  }, [participantId]);
+  
+  const filteredResources = resources.filter(resource => {
     const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
     const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (resource.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -350,7 +385,20 @@ const Coaching = ({ onNavigate, participantId }: CoachingProps) => {
                         <h4 className="text-sm font-medium text-gray-900 truncate">{resource.title}</h4>
                         <p className="text-xs text-gray-500">{resource.type}</p>
                       </div>
-                      <Eye className="w-4 h-4 text-gray-400 hover:text-blue-600 transition-colors" />
+                      <Eye 
+                        className="w-4 h-4 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const url = resource.dataLinks?.[0]?.url;
+                          if (url) {
+                            console.log('🔗 Opening resource URL:', url);
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                          } else {
+                            console.log('⚠️ No URL found for resource:', resource.title);
+                          }
+                        }}
+                        title={resource.dataLinks?.[0]?.url ? 'Ouvrir le lien' : 'Aucun lien disponible'}
+                      />
                     </motion.div>
                   );
                 })}

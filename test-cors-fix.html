@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CORS Fix - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #059669;
+            border-bottom: 3px solid #d1fae5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 3px solid #10b981;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .test-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test CORS Fix</h1>
+            <p>Test du fix CORS pour résoudre le problème des services</p>
+        </div>
+
+        <!-- Fix Appliqué -->
+        <div class="fix-section">
+            <h3>🛠️ FIX CORS APPLIQUÉ:</h3>
+            <ul>
+                <li>✅ <strong>Origins étendus:</strong> localhost:8536, 127.0.0.1, file://</li>
+                <li>✅ <strong>Methods explicites:</strong> GET, POST, PUT, DELETE, OPTIONS</li>
+                <li>✅ <strong>Headers autorisés:</strong> Content-Type, Authorization, X-Requested-With</li>
+                <li>✅ <strong>Preflight handling:</strong> OPTIONS requests gérées</li>
+                <li>✅ <strong>Credentials support:</strong> cookies et auth headers</li>
+            </ul>
+            <p><strong>🎯 OBJECTIF:</strong> Éliminer toute restriction CORS qui bloque les requêtes</p>
+        </div>
+
+        <!-- Test CORS -->
+        <div style="text-align: center;">
+            <button class="test-button" onclick="testCORSFix()">
+                🚀 TEST CORS FIX COMPLET
+            </button>
+            <div id="cors-result" class="result"></div>
+        </div>
+
+        <!-- Tests Spécifiques -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>🔍 Test Preflight</h3>
+                <button onclick="testPreflight()">🔒 OPTIONS Request</button>
+                <div id="preflight-result" class="result"></div>
+            </div>
+            
+            <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                <h3>🌐 Test Headers</h3>
+                <button onclick="testHeaders()">📋 Check Headers</button>
+                <div id="headers-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div style="margin-top: 30px; padding: 25px; background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px;">
+            <h3>📋 Instructions Après Fix:</h3>
+            <ol>
+                <li><strong>Redémarrez le Backend:</strong> Ctrl+C puis <code>npm start</code></li>
+                <li><strong>Testez CORS:</strong> Cliquez "🚀 TEST CORS FIX COMPLET"</li>
+                <li><strong>Si CORS OK:</strong> Retournez à Admin Panel et testez</li>
+                <li><strong>Vérifiez Services:</strong> Ils devraient maintenant s'afficher</li>
+            </ol>
+            
+            <h4>🎯 Résultat Attendu:</h4>
+            <ul>
+                <li>✅ Aucune erreur CORS dans Console</li>
+                <li>✅ Requêtes GET/POST passent sans problème</li>
+                <li>✅ Services s'affichent dans Admin Panel</li>
+                <li>✅ Bouton "Actualiser" fonctionne</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function testCORSFix() {
+            const resultDiv = document.getElementById('cors-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 TEST CORS FIX COMPLET...\n\n';
+
+            let corsIssues = [];
+
+            try {
+                // Test 1: OPTIONS Preflight
+                resultDiv.textContent += '1️⃣ TEST PREFLIGHT (OPTIONS)...\n';
+                try {
+                    const optionsResponse = await fetch(`${API_BASE}/admin/services`, {
+                        method: 'OPTIONS'
+                    });
+                    
+                    resultDiv.textContent += `OPTIONS Status: ${optionsResponse.status}\n`;
+                    
+                    if (optionsResponse.ok) {
+                        resultDiv.textContent += '✅ Preflight OK\n';
+                    } else {
+                        corsIssues.push('Preflight failed');
+                        resultDiv.textContent += '❌ Preflight failed\n';
+                    }
+                } catch (e) {
+                    corsIssues.push(`Preflight error: ${e.message}`);
+                    resultDiv.textContent += `❌ Preflight error: ${e.message}\n`;
+                }
+
+                // Test 2: GET Request
+                resultDiv.textContent += '\n2️⃣ TEST GET REQUEST...\n';
+                try {
+                    const getResponse = await fetch(`${API_BASE}/admin/services`);
+                    resultDiv.textContent += `GET Status: ${getResponse.status}\n`;
+                    
+                    if (getResponse.ok) {
+                        const getData = await getResponse.json();
+                        resultDiv.textContent += `✅ GET Success: ${getData.data?.length || 0} services\n`;
+                    } else {
+                        corsIssues.push('GET request failed');
+                        resultDiv.textContent += '❌ GET request failed\n';
+                    }
+                } catch (e) {
+                    if (e.message.includes('CORS')) {
+                        corsIssues.push(`CORS error on GET: ${e.message}`);
+                        resultDiv.textContent += `❌ CORS error on GET: ${e.message}\n`;
+                    } else {
+                        corsIssues.push(`GET error: ${e.message}`);
+                        resultDiv.textContent += `❌ GET error: ${e.message}\n`;
+                    }
+                }
+
+                // Test 3: POST Request
+                resultDiv.textContent += '\n3️⃣ TEST POST REQUEST...\n';
+                try {
+                    const testService = {
+                        titre: `CORS Test ${Date.now()}`,
+                        description: 'Service créé pour tester CORS fix',
+                        categorie: 'CORS Test',
+                        prixPublic: 100,
+                        prixCommercial: 80,
+                        commission: 20,
+                        duree: '1h'
+                    };
+
+                    const postResponse = await fetch(`${API_BASE}/admin/services`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testService)
+                    });
+
+                    resultDiv.textContent += `POST Status: ${postResponse.status}\n`;
+                    
+                    if (postResponse.ok) {
+                        const postData = await postResponse.json();
+                        resultDiv.textContent += `✅ POST Success: ${postData.data?.titre}\n`;
+                    } else {
+                        corsIssues.push('POST request failed');
+                        resultDiv.textContent += '❌ POST request failed\n';
+                    }
+                } catch (e) {
+                    if (e.message.includes('CORS')) {
+                        corsIssues.push(`CORS error on POST: ${e.message}`);
+                        resultDiv.textContent += `❌ CORS error on POST: ${e.message}\n`;
+                    } else {
+                        corsIssues.push(`POST error: ${e.message}`);
+                        resultDiv.textContent += `❌ POST error: ${e.message}\n`;
+                    }
+                }
+
+                // Résultat final
+                resultDiv.textContent += '\n🎯 RÉSULTAT CORS FIX:\n';
+                
+                if (corsIssues.length === 0) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += 
+                        '✅ CORS FIX RÉUSSI!\n\n' +
+                        '✅ Preflight fonctionne\n' +
+                        '✅ GET requests passent\n' +
+                        '✅ POST requests passent\n' +
+                        '✅ Aucune restriction CORS\n\n' +
+                        '🎉 PROBLÈME RÉSOLU!\n' +
+                        'Retournez à Admin Panel - les services\n' +
+                        'devraient maintenant s\'afficher correctement!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ PROBLÈMES CORS PERSISTANTS:\n';
+                    corsIssues.forEach((issue, index) => {
+                        resultDiv.textContent += `${index + 1}. ${issue}\n`;
+                    });
+                    resultDiv.textContent += '\n🔧 ACTION REQUISE: Redémarrez le backend';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR CRITIQUE: ${error.message}`;
+            }
+        }
+
+        async function testPreflight() {
+            const resultDiv = document.getElementById('preflight-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔒 Test Preflight...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`, {
+                    method: 'OPTIONS'
+                });
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `OK: ${response.ok}\n\n`;
+                
+                resultDiv.textContent += 'Headers:\n';
+                for (const [key, value] of response.headers.entries()) {
+                    if (key.toLowerCase().includes('access-control')) {
+                        resultDiv.textContent += `${key}: ${value}\n`;
+                    }
+                }
+
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n✅ Preflight OK';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n❌ Preflight Failed';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function testHeaders() {
+            const resultDiv = document.getElementById('headers-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '📋 Test Headers...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/services`);
+                
+                resultDiv.textContent += 'Response Headers:\n';
+                for (const [key, value] of response.headers.entries()) {
+                    resultDiv.textContent += `${key}: ${value}\n`;
+                }
+
+                resultDiv.textContent += '\nRequest Headers:\n';
+                resultDiv.textContent += `Origin: ${window.location.origin}\n`;
+                resultDiv.textContent += `User-Agent: ${navigator.userAgent.substring(0, 50)}...\n`;
+
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result error';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            console.log('🔧 Test CORS Fix chargé');
+        };
+    </script>
+</body>
+</html>

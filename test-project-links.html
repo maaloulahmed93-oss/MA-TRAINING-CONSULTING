@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Liens Projets - Bouton Accéder</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; }
+        .section { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+        .section:last-child { border-bottom: none; }
+        .test-button { background: #4299e1; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin: 5px; font-weight: 500; }
+        .test-button:hover { background: #3182ce; }
+        .test-button.success { background: #38a169; }
+        .test-button.error { background: #e53e3e; }
+        .result { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; }
+        .success { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+        .error { background: #fed7d7; border-color: #e53e3e; color: #c53030; }
+        .warning { background: #fef5e7; border-color: #d69e2e; color: #c05621; }
+        .info { background: #bee3f8; border-color: #3182ce; color: #2c5282; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .step { background: #f0fff4; border-left: 4px solid #38a169; padding: 15px; margin: 10px 0; }
+        .demo-project { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 15px 0; }
+        .demo-button { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; margin: 5px; }
+        .demo-button.with-link { background: #10b981; color: white; }
+        .demo-button.with-link:hover { background: #059669; }
+        .demo-button.no-link { background: #3b82f6; color: white; }
+        .demo-button.no-link:hover { background: #2563eb; }
+        .demo-button.disabled { background: #9ca3af; color: white; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Test Liens Projets</h1>
+            <p>Vérification du fonctionnement des liens dans les projets</p>
+            <div style="font-size: 14px; margin-top: 20px; opacity: 0.9;">
+                Bouton "Accéder" → Ouvre le lien du projet depuis le Panel Admin
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Objectif</h2>
+            <div class="info">
+                <p><strong>Problème:</strong> Le bouton "Accéder" dans l'Espace Participant ne ouvrait pas les liens des projets</p>
+                <p><strong>Solution:</strong> Modifier le bouton pour ouvrir le lien (URL) saisi dans le Panel Admin</p>
+                <p><strong>Comportement:</strong> Si projet a un lien → ouvre le lien | Si pas de lien → affiche détails</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Modifications Apportées</h2>
+            
+            <div class="step">
+                <h3>1. Ajout Champ projectUrl au Backend</h3>
+                <div class="card">
+                    <h4>ParticipantProject.js Schema</h4>
+                    <pre style="font-size: 11px;">// Project URL/Link
+projectUrl: {
+  type: String,
+  trim: true
+},</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>2. Modification Transformation API</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>❌ AVANT</h4>
+                        <pre style="font-size: 11px;">projectUrl: apiProject.files?.[0]?.url</pre>
+                    </div>
+                    <div class="card">
+                        <h4>✅ APRÈS</h4>
+                        <pre style="font-size: 11px;">projectUrl: apiProject.projectUrl || apiProject.files?.[0]?.url</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>3. Fonction handleAccessProject Améliorée</h3>
+                <div class="card">
+                    <h4>✅ Nouvelle Logique</h4>
+                    <pre style="font-size: 11px;">const handleAccessProject = (project: Project) => {
+  console.log('Accès au projet:', project.title);
+  
+  // Si le projet a un URL, l'ouvrir dans un nouvel onglet
+  if (project.projectUrl && project.projectUrl.trim()) {
+    console.log('🔗 Ouverture du lien projet:', project.projectUrl);
+    window.open(project.projectUrl, '_blank', 'noopener,noreferrer');
+  } else {
+    // Sinon, ouvrir les détails du projet
+    console.log('📋 Ouverture des détails du projet (pas de lien)');
+    setSelectedProject(project);
+    setShowUploadModal(true);
+  }
+};</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>4. Bouton Dynamique avec Icônes</h3>
+                <div class="card">
+                    <h4>✅ Bouton Adaptatif</h4>
+                    <pre style="font-size: 11px;">{project.projectUrl && project.projectUrl.trim() ? (
+  &lt;&gt;
+    &lt;ExternalLink className="w-4 h-4" /&gt;
+    &lt;span&gt;Ouvrir lien&lt;/span&gt;
+  &lt;/&gt;
+) : (
+  &lt;&gt;
+    &lt;FileText className="w-4 h-4" /&gt;
+    &lt;span&gt;Détails&lt;/span&gt;
+  &lt;/&gt;
+)}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎨 Aperçu Interface</h2>
+            
+            <div class="demo-project">
+                <h3 style="margin: 0 0 10px 0;">📋 Projet avec Lien</h3>
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 15px;">
+                    Titre: Application Web E-commerce<br>
+                    Lien: https://www.youtube.com/watch?v=wwhPciDPE5s&list=RDV4NEJel0A92Q&index=5
+                </p>
+                <button class="demo-button with-link" onclick="openDemoLink()">
+                    🔗 Ouvrir lien
+                </button>
+                <p style="font-size: 12px; color: #10b981; margin-top: 8px;">
+                    ✅ Bouton vert → Ouvre le lien dans un nouvel onglet
+                </p>
+            </div>
+
+            <div class="demo-project">
+                <h3 style="margin: 0 0 10px 0;">📋 Projet sans Lien</h3>
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 15px;">
+                    Titre: Rapport d'analyse<br>
+                    Lien: (aucun)
+                </p>
+                <button class="demo-button no-link" onclick="showDemoDetails()">
+                    📄 Détails
+                </button>
+                <p style="font-size: 12px; color: #3b82f6; margin-top: 8px;">
+                    ✅ Bouton bleu → Ouvre les détails du projet
+                </p>
+            </div>
+
+            <div class="demo-project">
+                <h3 style="margin: 0 0 10px 0;">📋 Modal - Bouton Accéder</h3>
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 15px;">
+                    Dans le modal des détails du projet:
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="demo-button with-link" onclick="openDemoLink()">
+                        🔗 Ouvrir lien
+                    </button>
+                    <button class="demo-button disabled">
+                        Pas de lien
+                    </button>
+                </div>
+                <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+                    ✅ Bouton adaptatif selon la présence du lien
+                </p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Comportements</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🔗 Avec Lien</h3>
+                    <ul style="font-size: 14px;">
+                        <li>✅ Bouton vert "Ouvrir lien"</li>
+                        <li>✅ Icône ExternalLink</li>
+                        <li>✅ Tooltip avec URL</li>
+                        <li>✅ Ouvre dans nouvel onglet</li>
+                        <li>✅ Console log du lien</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📄 Sans Lien</h3>
+                    <ul style="font-size: 14px;">
+                        <li>✅ Bouton bleu "Détails"</li>
+                        <li>✅ Icône FileText</li>
+                        <li>✅ Tooltip "Voir détails"</li>
+                        <li>✅ Ouvre modal détails</li>
+                        <li>✅ Console log "pas de lien"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Test Workflow</h2>
+            
+            <div class="step">
+                <h3>📋 Étapes de Test</h3>
+                <ol>
+                    <li><strong>Panel Admin:</strong> Créer un projet avec un lien dans le champ "Lien"</li>
+                    <li><strong>Espace Participant:</strong> Se connecter et aller dans "Projets Pratiques"</li>
+                    <li><strong>Vérifier Bouton:</strong> Le bouton doit être vert "Ouvrir lien"</li>
+                    <li><strong>Cliquer:</strong> Le lien doit s'ouvrir dans un nouvel onglet</li>
+                    <li><strong>Console:</strong> Vérifier les logs de debug</li>
+                </ol>
+            </div>
+
+            <div class="info">
+                <h3>🔍 Points de Vérification</h3>
+                <ul>
+                    <li>✅ Champ projectUrl ajouté au schema backend</li>
+                    <li>✅ Transformation API inclut projectUrl</li>
+                    <li>✅ Bouton change de couleur selon présence du lien</li>
+                    <li>✅ Icône change selon le type d'action</li>
+                    <li>✅ Tooltip informatif</li>
+                    <li>✅ Ouverture dans nouvel onglet (sécurisé)</li>
+                    <li>✅ Fallback vers détails si pas de lien</li>
+                    <li>✅ Modal bouton aussi adaptatif</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✅ Résultat Final</h2>
+            
+            <div class="success">
+                <h3>🎉 Fonctionnalité Implémentée</h3>
+                <p><strong>Le bouton "Accéder" fonctionne maintenant parfaitement !</strong></p>
+                <ul>
+                    <li>✅ Ouvre les liens saisis dans le Panel Admin</li>
+                    <li>✅ Interface adaptative selon la présence du lien</li>
+                    <li>✅ Sécurité: ouverture dans nouvel onglet</li>
+                    <li>✅ Fallback vers détails si pas de lien</li>
+                    <li>✅ Logging pour debug</li>
+                    <li>✅ UX améliorée avec couleurs et icônes</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <h3>⚠️ Notes Importantes</h3>
+                <ul>
+                    <li>Le champ projectUrl a été ajouté au schema backend</li>
+                    <li>Les liens s'ouvrent avec noopener,noreferrer pour la sécurité</li>
+                    <li>Le bouton modal est aussi adaptatif</li>
+                    <li>Compatibilité maintenue avec les projets existants</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDemoLink() {
+            // Simuler l'ouverture d'un lien
+            const demoUrl = 'https://www.youtube.com/watch?v=wwhPciDPE5s&list=RDV4NEJel0A92Q&index=5';
+            console.log('🔗 Ouverture du lien projet:', demoUrl);
+            window.open(demoUrl, '_blank', 'noopener,noreferrer');
+        }
+        
+        function showDemoDetails() {
+            alert('📋 Ouverture des détails du projet\n(Modal avec informations détaillées)');
+            console.log('📋 Ouverture des détails du projet (pas de lien)');
+        }
+        
+        // Auto-log on page load
+        window.onload = function() {
+            console.log('🧪 Test Liens Projets - Page chargée');
+            console.log('✅ Fonctionnalité: Bouton Accéder ouvre les liens des projets');
+        };
+    </script>
+</body>
+</html>

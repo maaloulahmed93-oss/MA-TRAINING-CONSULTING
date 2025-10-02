@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Fix Commercial New Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test - Fix Commercial New Page</h1>
+        <p>Test des corrections apportées à la page Espace Commercial</p>
+
+        <!-- Test de la page -->
+        <div class="test-section">
+            <h3>1. Vérification de la Page</h3>
+            <p>La page devrait maintenant afficher le champ email.</p>
+            <button class="btn-primary" onclick="openCommercialPage()">Ouvrir Espace Commercial</button>
+            <div id="page-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test API -->
+        <div class="test-section">
+            <h3>2. Test API Login</h3>
+            <button class="btn-success" onclick="testApiLogin()">Tester API avec Email</button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h3>3. Instructions de Test</h3>
+            <ol>
+                <li><strong>Actualiser la page:</strong> Appuyez sur Ctrl+F5 pour vider le cache</li>
+                <li><strong>Ouvrir la page:</strong> <a href="http://localhost:5173/espace-commercial" target="_blank">localhost:5173/espace-commercial</a></li>
+                <li><strong>Vérifier:</strong> Le champ "Email du compte *" doit être visible</li>
+                <li><strong>Tester:</strong> Essayez de vous connecter avec un ID et email</li>
+            </ol>
+        </div>
+
+        <!-- Cache clearing -->
+        <div class="test-section">
+            <h3>4. Nettoyage du Cache</h3>
+            <button class="btn-danger" onclick="clearCache()">Vider le Cache Navigateur</button>
+            <div id="cache-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Ouvrir la page commercial
+        function openCommercialPage() {
+            const resultDiv = document.getElementById('page-result');
+            
+            try {
+                window.open('http://localhost:5173/espace-commercial', '_blank');
+                showResult(resultDiv, 'success', '✅ Page ouverte dans un nouvel onglet\n\nVérifiez que le champ "Email du compte *" est visible.');
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Test API Login
+        async function testApiLogin() {
+            const resultDiv = document.getElementById('api-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Test de l\'API en cours...');
+
+                const response = await fetch('http://localhost:3001/api/partners/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        partnerId: 'COM-123456',
+                        email: 'commercial@matc.com',
+                        partnerType: 'commercial'
+                    })
+                });
+
+                const data = await response.json();
+                
+                let result = `🧪 Test API Login:\n\n`;
+                result += `Status: ${response.status}\n`;
+                result += `Success: ${data.success}\n\n`;
+                
+                if (response.ok && data.success) {
+                    result += `✅ API FONCTIONNE!\n\n`;
+                    result += `Réponse:\n${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    result += `❌ API ERREUR!\n\n`;
+                    result += `Message: ${data.message}\n\n`;
+                    result += `Réponse complète:\n${JSON.stringify(data, null, 2)}`;
+                    showResult(resultDiv, 'error', result);
+                }
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion:\n${error.message}\n\nAssurez-vous que le serveur backend est démarré.`);
+            }
+        }
+
+        // Vider le cache
+        function clearCache() {
+            const resultDiv = document.getElementById('cache-result');
+            
+            try {
+                // Vider localStorage
+                localStorage.clear();
+                
+                // Vider sessionStorage
+                sessionStorage.clear();
+                
+                let result = `🗑️ Cache vidé:\n\n`;
+                result += `✅ localStorage vidé\n`;
+                result += `✅ sessionStorage vidé\n\n`;
+                result += `💡 Pour vider complètement le cache:\n`;
+                result += `1. Appuyez sur Ctrl+Shift+R\n`;
+                result += `2. Ou F12 > Network > Disable cache\n`;
+                result += `3. Ou Settings > Clear browsing data`;
+                
+                showResult(resultDiv, 'success', result);
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Fonction utilitaire pour afficher les résultats
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Message d'accueil
+        window.onload = function() {
+            console.log('🔧 Test Commercial New Page Fix loaded');
+            console.log('📝 Instructions:');
+            console.log('1. Vider le cache avec Ctrl+F5');
+            console.log('2. Ouvrir http://localhost:5173/espace-commercial');
+            console.log('3. Vérifier que le champ email est visible');
+        };
+    </script>
+</body>
+</html>

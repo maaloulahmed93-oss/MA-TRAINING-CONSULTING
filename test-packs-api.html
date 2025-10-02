@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Packs - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .json-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success { background-color: #28a745; color: white; }
+        .status.error { background-color: #dc3545; color: white; }
+        .status.pending { background-color: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test API Packs - MATC</h1>
+        <p>Diagnostic complet de l'API des packs</p>
+    </div>
+
+    <div class="container">
+        <h2>🔍 Tests de Connectivité</h2>
+        
+        <div class="test-section info">
+            <h3>1. Test Backend Direct (Port 3001)</h3>
+            <button onclick="testBackendDirect()">Tester Backend Direct</button>
+            <span id="backend-status" class="status pending">En attente</span>
+            <div id="backend-result" class="json-display"></div>
+        </div>
+
+        <div class="test-section info">
+            <h3>2. Test via Proxy Admin Panel (Port 8536)</h3>
+            <button onclick="testViaProxy()">Tester via Proxy</button>
+            <span id="proxy-status" class="status pending">En attente</span>
+            <div id="proxy-result" class="json-display"></div>
+        </div>
+
+        <div class="test-section info">
+            <h3>3. Test Création de Pack</h3>
+            <button onclick="testCreatePack()">Créer Pack Test</button>
+            <span id="create-status" class="status pending">En attente</span>
+            <div id="create-result" class="json-display"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Résultats des Tests</h2>
+        <div id="test-summary" class="test-section">
+            <p>Cliquez sur les boutons ci-dessus pour lancer les tests.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BACKEND = 'http://localhost:3001/api';
+        const API_PROXY = '/api'; // Via proxy admin panel
+
+        // Test 1: Backend Direct
+        async function testBackendDirect() {
+            const statusEl = document.getElementById('backend-status');
+            const resultEl = document.getElementById('backend-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            try {
+                console.log('🔍 Test Backend Direct...');
+                const response = await fetch(`${API_BACKEND}/packs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('📡 Response status:', response.status);
+                const data = await response.json();
+                console.log('📄 Response data:', data);
+                
+                if (response.ok) {
+                    statusEl.textContent = 'Succès';
+                    statusEl.className = 'status success';
+                    resultEl.textContent = `✅ Backend connecté!\nStatus: ${response.status}\nPacks trouvés: ${data.data?.length || 0}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                console.error('❌ Erreur Backend Direct:', error);
+                statusEl.textContent = 'Erreur';
+                statusEl.className = 'status error';
+                resultEl.textContent = `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Test 2: Via Proxy
+        async function testViaProxy() {
+            const statusEl = document.getElementById('proxy-status');
+            const resultEl = document.getElementById('proxy-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            try {
+                console.log('🔍 Test Via Proxy...');
+                const response = await fetch(`${API_PROXY}/packs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('📡 Proxy Response status:', response.status);
+                const data = await response.json();
+                console.log('📄 Proxy Response data:', data);
+                
+                if (response.ok) {
+                    statusEl.textContent = 'Succès';
+                    statusEl.className = 'status success';
+                    resultEl.textContent = `✅ Proxy fonctionne!\nStatus: ${response.status}\nPacks trouvés: ${data.data?.length || 0}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                console.error('❌ Erreur Via Proxy:', error);
+                statusEl.textContent = 'Erreur';
+                statusEl.className = 'status error';
+                resultEl.textContent = `❌ Erreur Proxy: ${error.message}`;
+            }
+        }
+
+        // Test 3: Création de Pack
+        async function testCreatePack() {
+            const statusEl = document.getElementById('create-status');
+            const resultEl = document.getElementById('create-result');
+            
+            statusEl.textContent = 'En cours...';
+            statusEl.className = 'status pending';
+            
+            const testPack = {
+                packId: `test-pack-${Date.now()}`,
+                name: "Pack Test Diagnostic",
+                description: "Pack créé pour tester l'API",
+                image: "https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=Test+Pack",
+                details: {
+                    price: 299,
+                    originalPrice: 399,
+                    savings: 100,
+                    advantages: [
+                        "Test advantage 1",
+                        "Test advantage 2"
+                    ],
+                    themes: [
+                        {
+                            themeId: "theme-test-1",
+                            name: "Thème Test 1",
+                            startDate: "2024-01-01",
+                            endDate: "2024-01-31",
+                            modules: [
+                                {
+                                    moduleId: "module-test-1",
+                                    title: "Module Test 1"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            };
+            
+            try {
+                console.log('🔍 Test Création Pack...');
+                console.log('📤 Pack à créer:', testPack);
+                
+                const response = await fetch(`${API_BACKEND}/packs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testPack)
+                });
+                
+                console.log('📡 Create Response status:', response.status);
+                const data = await response.json();
+                console.log('📄 Create Response data:', data);
+                
+                if (response.ok) {
+                    statusEl.textContent = 'Succès';
+                    statusEl.className = 'status success';
+                    resultEl.textContent = `✅ Pack créé avec succès!\nStatus: ${response.status}\nPack ID: ${data.data?.packId}\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                console.error('❌ Erreur Création Pack:', error);
+                statusEl.textContent = 'Erreur';
+                statusEl.className = 'status error';
+                resultEl.textContent = `❌ Erreur Création: ${error.message}`;
+            }
+        }
+
+        // Auto-test au chargement
+        window.addEventListener('load', () => {
+            console.log('🚀 Page de test chargée');
+            setTimeout(() => {
+                testBackendDirect();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

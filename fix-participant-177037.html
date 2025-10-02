@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix - Participant PART-177037</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { background: #d4edda; padding: 10px; border-radius: 4px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 10px; border-radius: 4px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 10px; border-radius: 4px; color: #856404; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .fix-section { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix - Participant PART-177037</h1>
+        <p>Outil de diagnostic et réparation pour le participant PART-177037</p>
+
+        <div class="warning">
+            <strong>Problème identifié:</strong><br>
+            Le participant PART-177037 existe dans l'Admin Panel mais l'API retourne 404
+        </div>
+
+        <div class="fix-section">
+            <h3>🔍 Étapes de diagnostic:</h3>
+            <button class="btn-primary" onclick="step1_checkBackend()">1. Vérifier Backend</button>
+            <button class="btn-primary" onclick="step2_listParticipants()">2. Lister Participants</button>
+            <button class="btn-primary" onclick="step3_checkDatabase()">3. Vérifier Base de Données</button>
+            <button class="btn-warning" onclick="step4_fixParticipant()">4. Réparer Participant</button>
+            <button class="btn-success" onclick="step5_testFixed()">5. Tester Réparation</button>
+        </div>
+
+        <div class="fix-section">
+            <h3>🚀 Réparations automatiques:</h3>
+            <button class="btn-success" onclick="autoFix()">🔧 Réparation Automatique</button>
+            <button class="btn-danger" onclick="recreateParticipant()">🔄 Recréer Participant</button>
+            <button onclick="clearResults()">Effacer Résultats</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        let participantData = null;
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function step1_checkBackend() {
+            log('🔄 Étape 1: Vérification du backend...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Backend opérationnel', 'success');
+                    return true;
+                } else {
+                    log('❌ Backend non accessible', 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur backend: ${error.message}`, 'error');
+                log('🔧 Assurez-vous que le backend est démarré sur le port 3001', 'warning');
+                return false;
+            }
+        }
+
+        async function step2_listParticipants() {
+            log('🔄 Étape 2: Listage des participants...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ ${data.data.length} participants trouvés`, 'success');
+                    
+                    const target = data.data.find(p => 
+                        p.id === PARTICIPANT_ID || 
+                        p.partnerId === PARTICIPANT_ID
+                    );
+                    
+                    if (target) {
+                        log('🎯 PART-177037 trouvé dans la liste!', 'success');
+                        participantData = target;
+                        return true;
+                    } else {
+                        log('❌ PART-177037 non trouvé dans la liste', 'error');
+                        log('📋 Participants disponibles:', 'info');
+                        data.data.forEach(p => {
+                            log(`• ${p.id || p.partnerId} - ${p.fullName}`, 'info');
+                        });
+                        return false;
+                    }
+                } else {
+                    log(`❌ Erreur API participants: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function step3_checkDatabase() {
+            log('🔄 Étape 3: Vérification base de données...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ Base de données accessible`, 'success');
+                    
+                    const target = data.data.find(p => 
+                        p.partnerId === PARTICIPANT_ID ||
+                        (p.fullName && p.fullName.includes('177037'))
+                    );
+                    
+                    if (target) {
+                        log('🎯 Participant trouvé dans la base de données!', 'success');
+                        log(`<pre>Données brutes:
+Type: ${target.type}
+Partner ID: ${target.partnerId}
+Nom: ${target.fullName}
+Email: ${target.email}
+Actif: ${target.isActive}
+Description: ${target.description}</pre>`, 'info');
+                        
+                        // Vérifier les critères de filtrage
+                        if (target.type !== 'participant') {
+                            log(`⚠️ Problème: Type = "${target.type}" (devrait être "participant")`, 'warning');
+                        }
+                        if (!target.isActive) {
+                            log(`⚠️ Problème: isActive = false (devrait être true)`, 'warning');
+                        }
+                        
+                        participantData = target;
+                        return true;
+                    } else {
+                        log('❌ Participant non trouvé dans la base de données', 'error');
+                        return false;
+                    }
+                } else {
+                    log(`❌ Erreur base de données: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function step4_fixParticipant() {
+            log('🔄 Étape 4: Réparation du participant...', 'info');
+            
+            if (!participantData) {
+                log('❌ Aucune donnée participant trouvée. Exécutez d\'abord les étapes 1-3', 'error');
+                return false;
+            }
+            
+            try {
+                // Essayer de mettre à jour le participant pour corriger les problèmes
+                const updateData = {
+                    fullName: participantData.fullName || 'Ahmed',
+                    email: participantData.email || 'aj@hotmail.com',
+                    phone: participantData.phone || '',
+                    address: participantData.address || '',
+                    firstName: 'Ahmed',
+                    lastName: '',
+                    status: 'active'
+                };
+                
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log('✅ Participant réparé avec succès!', 'success');
+                    log(`<pre>${JSON.stringify(data.data, null, 2)}</pre>`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Erreur lors de la réparation: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function step5_testFixed() {
+            log('🔄 Étape 5: Test de la réparation...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log('🎉 SUCCÈS! Participant accessible!', 'success');
+                    log(`<pre>${JSON.stringify(data.data, null, 2)}</pre>`, 'success');
+                    log('✅ Le problème 404 est résolu!', 'success');
+                    return true;
+                } else {
+                    log(`❌ Toujours en erreur: ${data.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function autoFix() {
+            log('🚀 Démarrage de la réparation automatique...', 'info');
+            clearResults();
+            
+            const step1 = await step1_checkBackend();
+            if (!step1) return;
+            
+            const step2 = await step2_listParticipants();
+            const step3 = await step3_checkDatabase();
+            
+            if (step2 || step3) {
+                const step4 = await step4_fixParticipant();
+                if (step4) {
+                    await step5_testFixed();
+                }
+            } else {
+                log('❌ Participant non trouvé. Essayez "Recréer Participant"', 'error');
+            }
+        }
+
+        async function recreateParticipant() {
+            log('🔄 Recréation du participant PART-177037...', 'info');
+            
+            try {
+                const newParticipantData = {
+                    partnerId: PARTICIPANT_ID,
+                    fullName: 'Ahmed',
+                    firstName: 'Ahmed',
+                    lastName: '',
+                    email: 'aj@hotmail.com',
+                    phone: '+216 20 123 456',
+                    address: 'Tunis, Tunisie',
+                    avatar: '',
+                    status: 'active',
+                    notes: 'Participant recréé automatiquement'
+                };
+                
+                const response = await fetch(`${API_BASE}/participants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newParticipantData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log('✅ Participant recréé avec succès!', 'success');
+                    log(`<pre>${JSON.stringify(data.data, null, 2)}</pre>`, 'success');
+                    
+                    // Tester immédiatement
+                    await step5_testFixed();
+                } else {
+                    log(`❌ Erreur lors de la recréation: ${data.message}`, 'error');
+                    
+                    if (data.message && data.message.includes('existe déjà')) {
+                        log('ℹ️ Le participant existe déjà. Essayez la réparation automatique.', 'info');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-start
+        window.addEventListener('load', () => {
+            log('🔧 Outil de réparation PART-177037 chargé', 'info');
+            log('Cliquez sur "Réparation Automatique" pour résoudre le problème', 'info');
+        });
+    </script>
+</body>
+</html>

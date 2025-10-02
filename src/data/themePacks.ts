@@ -317,12 +317,12 @@ export const themePacks: Pack[] = [
 // Fonction pour convertir le prix selon la devise
 export const convertPrice = (price: number, currency: string): string => {
   switch (currency) {
-    case 'EUR':
+    case '€':
       return `${price}€`;
-    case 'USD':
-      return `$${Math.round(price * 1.1)}`;
-    case 'DTN':
-      return `${Math.round(price * 3.3)} DT`;
+    case '$':
+      return `$${Math.round(price * 1.08)}`;
+    case 'TND':
+      return `${Math.round(price * 3.35)} TND`;
     default:
       return `${price}€`;
   }

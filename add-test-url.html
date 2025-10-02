@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة رابط اختبار</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 30px; text-align: center; }
+        .section { padding: 20px; }
+        .test-button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin: 10px 0; font-weight: 500; display: block; width: 100%; }
+        .test-button:hover { background: #1d4ed8; }
+        .test-button.success { background: #10b981; }
+        .result { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; }
+        .result.success { background: #ecfdf5; border-color: #10b981; color: #065f46; }
+        .result.error { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 إضافة رابط اختبار</h1>
+            <p>إضافة رابط للمشروع لاختبار العرض الجديد</p>
+        </div>
+
+        <div class="section">
+            <h2>🎯 الهدف</h2>
+            <p>إضافة رابط اختبار للمشروع "cima" لرؤية كيف سيظهر في الجدول الجديد</p>
+            
+            <button class="test-button" onclick="addTestUrl()">🔗 إضافة رابط اختبار للمشروع</button>
+            <div id="result" class="result"></div>
+            
+            <h3>📋 الخطوات بعد الإضافة:</h3>
+            <ol>
+                <li>حدث صفحة المشارك (F5)</li>
+                <li>ابحث عن قسم "Lien du projet" في بطاقة المشروع</li>
+                <li>يجب أن ترى "Ouvrir le lien" بدلاً من "Aucun lien disponible"</li>
+                <li>اضغط على الرابط للاختبار</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        const TEST_URL = 'https://tv.animerco.org/';
+
+        async function addTestUrl() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'إضافة رابط اختبار...';
+            
+            try {
+                console.log('🔗 إضافة رابط اختبار للمشروع');
+                
+                // Get current participant data
+                const getResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const participantData = await getResponse.json();
+                
+                if (!participantData.success) {
+                    throw new Error('المشارك غير موجود');
+                }
+                
+                console.log('👤 بيانات المشارك:', participantData.data);
+                
+                // Update project with test URL
+                const updatedProjects = participantData.data.projects.map(project => {
+                    if (project.title === 'cima') {
+                        console.log(`🔄 إضافة رابط للمشروع: ${project.title}`);
+                        return { ...project, projectUrl: TEST_URL };
+                    }
+                    return project;
+                });
+                
+                // Send update
+                const updateResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...participantData.data,
+                        projects: updatedProjects
+                    })
+                });
+                
+                const updateResult = await updateResponse.json();
+                
+                if (updateResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>🎉 تم إضافة الرابط بنجاح!</strong><br><br>
+                        • المشروع: cima<br>
+                        • الرابط: ${TEST_URL}<br>
+                        • المشارك: ${PARTICIPANT_ID}<br><br>
+                        
+                        <strong>✅ الآن:</strong><br>
+                        1. حدث صفحة المشارك (F5)<br>
+                        2. ابحث عن قسم "Lien du projet" في بطاقة المشروع<br>
+                        3. يجب أن ترى زر "Ouvrir le lien" أزرق<br>
+                        4. اضغط عليه لاختبار الرابط<br><br>
+                        
+                        <strong>📝 Console Log المتوقع:</strong><br>
+                        🔗 Ouverture du lien projet depuis le tableau: ${TEST_URL}
+                    `;
+                } else {
+                    throw new Error(updateResult.message || 'فشل في التحديث');
+                }
+                
+            } catch (error) {
+                console.error('❌ خطأ:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ خطأ في إضافة الرابط</strong><br><br>
+                    ${error.message}<br><br>
+                    <strong>🛠️ تأكد من:</strong><br>
+                    • Backend يعمل على localhost:3001<br>
+                    • المشارك PART-177037 موجود<br>
+                    • المشروع "cima" موجود
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

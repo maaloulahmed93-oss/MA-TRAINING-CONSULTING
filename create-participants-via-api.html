@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Sample Participants</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { background: #d4edda; padding: 10px; border-radius: 4px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 10px; border-radius: 4px; color: #0c5460; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Créer des Participants d'Exemple</h1>
+        <p>Cet outil crée les participants nécessaires pour tester le système d'isolation des données.</p>
+
+        <div class="info">
+            <strong>Participants à créer:</strong>
+            <ul>
+                <li>PART-2024-001 - Ahmed Ben Ali</li>
+                <li>PART-2024-002 - Fatima Zahra</li>
+                <li>PART-2024-003 - Mohamed Slim</li>
+            </ul>
+        </div>
+
+        <button class="btn-primary" onclick="createSampleParticipants()">Créer les Participants</button>
+        <button class="btn-success" onclick="verifyParticipants()">Vérifier les Participants</button>
+        <button class="btn-danger" onclick="deleteAllParticipants()">Supprimer Tous les Participants</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        const sampleParticipants = [
+            {
+                partnerId: 'PART-2024-001',
+                fullName: 'Ahmed Ben Ali',
+                firstName: 'Ahmed',
+                lastName: 'Ben Ali',
+                email: 'ahmed.benali@email.com',
+                phone: '+216 98 123 456',
+                address: 'Tunis, Tunisie',
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+                status: 'active',
+                notes: 'Participant motivé avec un bon potentiel',
+                totalProgress: 75,
+                enrollmentDate: '2024-01-15T00:00:00.000Z'
+            },
+            {
+                partnerId: 'PART-2024-002',
+                fullName: 'Fatima Zahra',
+                firstName: 'Fatima',
+                lastName: 'Zahra',
+                email: 'fatima.zahra@email.com',
+                phone: '+216 97 654 321',
+                address: 'Sfax, Tunisie',
+                avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+                status: 'active',
+                notes: 'Excellente participante, très assidue',
+                totalProgress: 90,
+                enrollmentDate: '2024-02-01T00:00:00.000Z'
+            },
+            {
+                partnerId: 'PART-2024-003',
+                fullName: 'Mohamed Slim',
+                firstName: 'Mohamed',
+                lastName: 'Slim',
+                email: 'mohamed.slim@email.com',
+                phone: '+216 99 888 777',
+                address: 'Sousse, Tunisie',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                status: 'active',
+                notes: 'Participant débutant mais très motivé',
+                totalProgress: 45,
+                enrollmentDate: '2024-03-10T00:00:00.000Z'
+            }
+        ];
+
+        async function createSampleParticipants() {
+            document.getElementById('results').innerHTML = '';
+            log('🚀 Début de la création des participants...', 'info');
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const participant of sampleParticipants) {
+                try {
+                    log(`📝 Création de ${participant.partnerId} - ${participant.fullName}...`, 'info');
+                    
+                    const response = await fetch(`${API_BASE}/participants`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(participant)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        log(`✅ Participant créé: ${result.data.partnerId}`, 'success');
+                        successCount++;
+                    } else {
+                        const error = await response.json();
+                        log(`❌ Erreur création ${participant.partnerId}: ${error.message}`, 'error');
+                        errorCount++;
+                    }
+                } catch (error) {
+                    log(`❌ Erreur réseau pour ${participant.partnerId}: ${error.message}`, 'error');
+                    errorCount++;
+                }
+
+                // Pause between requests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            log(`🎯 Création terminée: ${successCount} réussies, ${errorCount} échouées`, successCount > 0 ? 'success' : 'error');
+
+            // Create sample formations
+            if (successCount > 0) {
+                await createSampleFormations();
+            }
+        }
+
+        async function createSampleFormations() {
+            log('📚 Création des formations d\'exemple...', 'info');
+
+            const formations = [
+                {
+                    participantId: 'PART-2024-001',
+                    title: 'Développement Web Frontend',
+                    description: 'Formation complète en HTML, CSS, JavaScript et React',
+                    domain: 'Développement Web',
+                    level: 'Intermédiaire',
+                    duration: '120 heures',
+                    progress: 75,
+                    status: 'in_progress',
+                    enrollmentDate: '2024-01-15T00:00:00.000Z',
+                    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=300&h=200&fit=crop'
+                },
+                {
+                    participantId: 'PART-2024-002',
+                    title: 'Marketing Digital',
+                    description: 'Stratégies de marketing numérique et réseaux sociaux',
+                    domain: 'Marketing',
+                    level: 'Avancé',
+                    duration: '80 heures',
+                    progress: 90,
+                    status: 'in_progress',
+                    enrollmentDate: '2024-02-01T00:00:00.000Z',
+                    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop'
+                },
+                {
+                    participantId: 'PART-2024-003',
+                    title: 'Comptabilité et Gestion',
+                    description: 'Principes de base de la comptabilité d\'entreprise',
+                    domain: 'Gestion',
+                    level: 'Débutant',
+                    duration: '60 heures',
+                    progress: 45,
+                    status: 'in_progress',
+                    enrollmentDate: '2024-03-10T00:00:00.000Z',
+                    thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=300&h=200&fit=crop'
+                }
+            ];
+
+            let formationCount = 0;
+            for (const formation of formations) {
+                try {
+                    const response = await fetch(`${API_BASE}/participants/${formation.participantId}/formations`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formation)
+                    });
+
+                    if (response.ok) {
+                        log(`✅ Formation créée: ${formation.title} pour ${formation.participantId}`, 'success');
+                        formationCount++;
+                    } else {
+                        log(`⚠️ Formation non créée: ${formation.title}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Erreur formation: ${error.message}`, 'error');
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            log(`📊 ${formationCount} formations créées`, 'success');
+        }
+
+        async function verifyParticipants() {
+            document.getElementById('results').innerHTML = '';
+            log('🔍 Vérification des participants...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const participants = result.data || [];
+                    
+                    log(`📊 Total participants: ${participants.length}`, 'success');
+                    
+                    participants.forEach(participant => {
+                        log(`👤 ${participant.partnerId}: ${participant.fullName} (${participant.email})`, 'info');
+                    });
+
+                    // Test specific participants
+                    for (const expectedId of ['PART-2024-001', 'PART-2024-002', 'PART-2024-003']) {
+                        try {
+                            const participantResponse = await fetch(`${API_BASE}/participants/${expectedId}`);
+                            if (participantResponse.ok) {
+                                log(`✅ ${expectedId} accessible`, 'success');
+                            } else {
+                                log(`❌ ${expectedId} non trouvé (${participantResponse.status})`, 'error');
+                            }
+                        } catch (error) {
+                            log(`❌ Erreur accès ${expectedId}: ${error.message}`, 'error');
+                        }
+                    }
+                } else {
+                    log('❌ Impossible de récupérer les participants', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteAllParticipants() {
+            if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer TOUS les participants?')) {
+                return;
+            }
+
+            document.getElementById('results').innerHTML = '';
+            log('🗑️ Suppression de tous les participants...', 'info');
+
+            try {
+                // Get all participants first
+                const response = await fetch(`${API_BASE}/participants`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const participants = result.data || [];
+                    
+                    let deleteCount = 0;
+                    for (const participant of participants) {
+                        try {
+                            const deleteResponse = await fetch(`${API_BASE}/participants/${participant.partnerId}`, {
+                                method: 'DELETE'
+                            });
+                            
+                            if (deleteResponse.ok) {
+                                log(`✅ Supprimé: ${participant.partnerId}`, 'success');
+                                deleteCount++;
+                            } else {
+                                log(`❌ Échec suppression: ${participant.partnerId}`, 'error');
+                            }
+                        } catch (error) {
+                            log(`❌ Erreur suppression ${participant.partnerId}: ${error.message}`, 'error');
+                        }
+                        
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                    }
+                    
+                    log(`🎯 ${deleteCount} participants supprimés`, deleteCount > 0 ? 'success' : 'info');
+                } else {
+                    log('❌ Impossible de récupérer les participants pour suppression', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de suppression: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-verify on page load
+        window.addEventListener('load', () => {
+            setTimeout(verifyParticipants, 1000);
+        });
+    </script>
+</body>
+</html>

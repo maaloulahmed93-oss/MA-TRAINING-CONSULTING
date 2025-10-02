@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Management Tool</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f8f9fa; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { background: #007bff; color: white; border: none; padding: 12px 24px; margin: 8px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.warning { background: #ffc107; color: #212529; }
+        button.danger { background: #dc3545; }
+        button.info { background: #17a2b8; }
+        .result { margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        h1 { color: #007bff; text-align: center; }
+        h2 { color: #495057; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .status { padding: 8px 16px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 5px; }
+        .status-online { background: #d4edda; color: #155724; }
+        .status-offline { background: #f8d7da; color: #721c24; }
+        .status-unknown { background: #e2e3e5; color: #495057; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0; }
+        .stat-card { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { font-size: 12px; color: #6c757d; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Backend Management Tool</h1>
+        <p style="text-align: center; color: #6c757d;">أداة إدارة وصيانة Backend MATC</p>
+        
+        <div class="card">
+            <h2>📊 Backend Status</h2>
+            <div id="backendStatus">
+                <span class="status status-unknown">Checking...</span>
+                <p>Checking backend server status...</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="participantsCount">-</div>
+                    <div class="stat-label">Participants</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="projectsCount">-</div>
+                    <div class="stat-label">Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="resourcesCount">-</div>
+                    <div class="stat-label">Resources</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="healthStatus">-</div>
+                    <div class="stat-label">Health</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔧 Server Management</h2>
+            <div class="grid">
+                <button onclick="testConnection()">🔌 Test Connection</button>
+                <button onclick="checkHealth()">❤️ Health Check</button>
+                <button onclick="restartInstructions()">🔄 Restart Instructions</button>
+                <button class="info" onclick="showLogs()">📋 Show Logs</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🧹 Data Management</h2>
+            <div class="grid">
+                <button class="warning" onclick="checkDataIntegrity()">🔍 Check Data Integrity</button>
+                <button class="danger" onclick="cleanCorruptedData()">🧹 Clean Corrupted Data</button>
+                <button class="success" onclick="validateProjects()">✅ Validate Projects</button>
+                <button class="info" onclick="backupData()">💾 Backup Data</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🧪 API Testing</h2>
+            <div class="grid">
+                <button onclick="testParticipantsAPI()">👥 Test Participants</button>
+                <button onclick="testProjectsAPI()">📋 Test Projects</button>
+                <button onclick="testResourcesAPI()">📚 Test Resources</button>
+                <button onclick="runFullTest()">🚀 Full Test Suite</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📝 Management Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function addResult(content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = content;
+            resultsDiv.appendChild(resultDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function updateStatus(elementId, value, color = '#007bff') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value;
+                element.style.color = color;
+            }
+        }
+        
+        function updateBackendStatus(status, message) {
+            const statusDiv = document.getElementById('backendStatus');
+            const statusClass = status === 'online' ? 'status-online' : 
+                               status === 'offline' ? 'status-offline' : 'status-unknown';
+            const statusText = status === 'online' ? '✅ Online' : 
+                              status === 'offline' ? '❌ Offline' : '🔍 Unknown';
+            
+            statusDiv.innerHTML = `
+                <span class="status ${statusClass}">${statusText}</span>
+                <p>${message}</p>
+            `;
+        }
+        
+        async function testConnection() {
+            addResult('🔌 <strong>Testing Backend Connection...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateBackendStatus('online', 'Backend server is running correctly!');
+                    updateStatus('healthStatus', '✅', '#28a745');
+                    
+                    addResult(`
+                        <h3>✅ Backend Connection Successful!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Message:</strong> ${data.message}</p>
+                        <p><strong>Environment:</strong> ${data.environment}</p>
+                    `, 'success');
+                    
+                    // Load stats
+                    loadStats();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateBackendStatus('offline', 'Backend server is not responding');
+                updateStatus('healthStatus', '❌', '#dc3545');
+                
+                addResult(`
+                    <h3>❌ Backend Connection Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Solution:</strong> Start backend server using fix-backend.bat</p>
+                `, 'error');
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                // Load participants
+                const participantsResponse = await fetch(`${API_BASE}/participants`);
+                if (participantsResponse.ok) {
+                    const participantsData = await participantsResponse.json();
+                    updateStatus('participantsCount', participantsData.data?.length || 0);
+                }
+                
+                // Load projects for a test participant
+                const projectsResponse = await fetch(`${API_BASE}/participants/PART-177037/projects`);
+                if (projectsResponse.ok) {
+                    const projectsData = await projectsResponse.json();
+                    updateStatus('projectsCount', projectsData.data?.length || 0);
+                }
+                
+                // Load resources for a test participant
+                const resourcesResponse = await fetch(`${API_BASE}/participants/PART-177037/resources`);
+                if (resourcesResponse.ok) {
+                    const resourcesData = await resourcesResponse.json();
+                    updateStatus('resourcesCount', resourcesData.data?.length || 0);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function checkHealth() {
+            addResult('❤️ <strong>Checking Backend Health...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    addResult(`
+                        <h3>✅ Health Check Passed!</h3>
+                        <p><strong>API Status:</strong> ${data.message}</p>
+                        <p><strong>Environment:</strong> ${data.environment}</p>
+                        <p><strong>Server Time:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+                    `, 'success');
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Health Check Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+        
+        function restartInstructions() {
+            addResult(`
+                <h3>🔄 Backend Restart Instructions</h3>
+                <p><strong>Method 1 - Batch File (Recommended):</strong></p>
+                <pre>Double-click: fix-backend.bat</pre>
+                
+                <p><strong>Method 2 - Command Line:</strong></p>
+                <pre>cd C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend
+npm start</pre>
+                
+                <p><strong>Method 3 - PowerShell:</strong></p>
+                <pre>Set-Location "C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend"
+npm start</pre>
+                
+                <p><strong>Expected Output:</strong></p>
+                <pre>✅ MongoDB Atlas connecté avec succès
+🚀 Serveur démarré sur le port 3001</pre>
+            `, 'info');
+        }
+        
+        function showLogs() {
+            addResult(`
+                <h3>📋 Backend Logs Information</h3>
+                <p>Backend logs are displayed in the terminal/command prompt where the server is running.</p>
+                <p><strong>To view logs:</strong></p>
+                <ol>
+                    <li>Look at the terminal window where you started the backend</li>
+                    <li>Logs show real-time API requests and responses</li>
+                    <li>Error messages appear in red</li>
+                    <li>Success messages appear in green</li>
+                </ol>
+                <p><strong>Common log patterns:</strong></p>
+                <pre>📥 GET /api/participants - Get all participants request
+✅ Project saved: "Project Name" for PART-177037
+🔄 Transforming resource: {...}</pre>
+            `, 'info');
+        }
+        
+        function checkDataIntegrity() {
+            addResult(`
+                <h3>🔍 Data Integrity Check</h3>
+                <p><strong>To run data integrity check:</strong></p>
+                <pre>cd C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend
+node check-data-integrity.js</pre>
+                
+                <p><strong>This will check:</strong></p>
+                <ul>
+                    <li>✅ Valid vs invalid resource URLs</li>
+                    <li>🔄 Duplicate resources</li>
+                    <li>📋 Projects with/without URLs</li>
+                    <li>👥 Participant data consistency</li>
+                </ul>
+                
+                <p><strong>Note:</strong> This is a read-only check. No data will be modified.</p>
+            `, 'warning');
+        }
+        
+        function cleanCorruptedData() {
+            addResult(`
+                <h3>🧹 Clean Corrupted Data</h3>
+                <p><strong>⚠️ WARNING:</strong> This will permanently delete corrupted data!</p>
+                
+                <p><strong>To run cleanup:</strong></p>
+                <pre>cd C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend
+node clean-corrupted-data.js</pre>
+                
+                <p><strong>This will remove:</strong></p>
+                <ul>
+                    <li>❌ Resources with invalid URLs (PART-IDs, chunk files, etc.)</li>
+                    <li>🔄 Duplicate resources</li>
+                    <li>🔧 Fix URLs without proper protocol</li>
+                </ul>
+                
+                <p><strong>Recommendation:</strong> Run data integrity check first!</p>
+            `, 'danger');
+        }
+        
+        async function validateProjects() {
+            addResult('✅ <strong>Validating Projects...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/PART-177037/projects`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const projects = data.data;
+                    const projectsWithUrls = projects.filter(p => p.projectUrl && p.projectUrl.trim());
+                    const projectsWithoutUrls = projects.filter(p => !p.projectUrl || !p.projectUrl.trim());
+                    
+                    let validationHtml = `
+                        <h3>📋 Project Validation Results</h3>
+                        <p><strong>Total Projects:</strong> ${projects.length}</p>
+                        <p><strong>Projects with URLs:</strong> ${projectsWithUrls.length}</p>
+                        <p><strong>Projects without URLs:</strong> ${projectsWithoutUrls.length}</p>
+                    `;
+                    
+                    if (projectsWithUrls.length > 0) {
+                        validationHtml += '<h4>✅ Projects with URLs:</h4>';
+                        projectsWithUrls.forEach(project => {
+                            validationHtml += `<div style="margin: 5px 0; padding: 8px; background: #e8f5e8; border-radius: 3px;">
+                                <strong>${project.title}</strong><br>
+                                <small>URL: <code>${project.projectUrl}</code></small>
+                            </div>`;
+                        });
+                    }
+                    
+                    if (projectsWithoutUrls.length > 0) {
+                        validationHtml += '<h4>❌ Projects without URLs:</h4>';
+                        projectsWithoutUrls.forEach(project => {
+                            validationHtml += `<div style="margin: 5px 0; padding: 8px; background: #f8e8e8; border-radius: 3px;">
+                                <strong>${project.title}</strong><br>
+                                <small>Status: ${project.status}</small>
+                            </div>`;
+                        });
+                    }
+                    
+                    const resultType = projectsWithUrls.length === projects.length ? 'success' : 'warning';
+                    addResult(validationHtml, resultType);
+                } else {
+                    throw new Error('Failed to load projects');
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Project Validation Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+        
+        function backupData() {
+            addResult(`
+                <h3>💾 Data Backup Instructions</h3>
+                <p><strong>MongoDB Atlas Backup:</strong></p>
+                <p>Your data is automatically backed up in MongoDB Atlas cloud.</p>
+                
+                <p><strong>Manual Export (if needed):</strong></p>
+                <pre>mongodump --uri "mongodb+srv://matc:matc44172284@matc.so6zd1x.mongodb.net/matc_db"</pre>
+                
+                <p><strong>Local Backup Script:</strong></p>
+                <p>You can create a backup script to export specific collections:</p>
+                <pre>mongoexport --uri "mongodb+srv://..." --collection participants --out participants.json
+mongoexport --uri "mongodb+srv://..." --collection participantprojects --out projects.json</pre>
+                
+                <p><strong>Note:</strong> MongoDB Atlas provides automatic backups with point-in-time recovery.</p>
+            `, 'info');
+        }
+        
+        async function testParticipantsAPI() {
+            addResult('👥 <strong>Testing Participants API...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`
+                        <h3>✅ Participants API Working!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Participants Found:</strong> ${data.data?.length || 0}</p>
+                        <p><strong>Success:</strong> ${data.success}</p>
+                    `, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Participants API Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+        
+        async function testProjectsAPI() {
+            addResult('📋 <strong>Testing Projects API...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/PART-177037/projects`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const projects = data.data;
+                    const projectsWithUrls = projects.filter(p => p.projectUrl && p.projectUrl.trim());
+                    
+                    addResult(`
+                        <h3>✅ Projects API Working!</h3>
+                        <p><strong>Total Projects:</strong> ${projects.length}</p>
+                        <p><strong>Projects with URLs:</strong> ${projectsWithUrls.length}</p>
+                        <p><strong>URL Success Rate:</strong> ${projects.length > 0 ? Math.round((projectsWithUrls.length / projects.length) * 100) : 0}%</p>
+                    `, 'success');
+                } else {
+                    throw new Error('Projects API failed');
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Projects API Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+        
+        async function testResourcesAPI() {
+            addResult('📚 <strong>Testing Resources API...</strong>', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/PART-177037/resources`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const resources = data.data;
+                    
+                    addResult(`
+                        <h3>✅ Resources API Working!</h3>
+                        <p><strong>Total Resources:</strong> ${resources.length}</p>
+                        <p><strong>API Response:</strong> Success</p>
+                    `, 'success');
+                } else {
+                    throw new Error('Resources API failed');
+                }
+            } catch (error) {
+                addResult(`
+                    <h3>❌ Resources API Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+        
+        async function runFullTest() {
+            addResult('🚀 <strong>Running Full Test Suite...</strong>', 'info');
+            
+            await testConnection();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await checkHealth();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testParticipantsAPI();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testProjectsAPI();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testResourcesAPI();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await validateProjects();
+            
+            addResult(`
+                <h3>🎉 Full Test Suite Complete!</h3>
+                <p>All backend components have been tested.</p>
+                <p>Check the results above for any issues that need attention.</p>
+            `, 'success');
+        }
+        
+        // Auto-run connection test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>

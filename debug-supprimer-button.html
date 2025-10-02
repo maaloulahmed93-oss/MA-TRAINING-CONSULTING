@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Debug Supprimer Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f9ff;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .urgent {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 3px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        button:hover { background: #dc2626; }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #9ca3af;
+        }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .test-button {
+            background: #3b82f6;
+            margin: 5px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .delete-simulation {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Supprimer Button</h1>
+        <p>تشخيص مشكلة عدم عمل زر Supprimer في Admin Panel</p>
+
+        <div class="urgent">
+            <h2>🚨 PROBLÈME URGENT</h2>
+            <p><strong>Symptôme:</strong> Boutons "Supprimer" ne réagissent pas au clic</p>
+            <p><strong>Cause probable:</strong> JavaScript disabled, loading state, ou event handler non attaché</p>
+        </div>
+
+        <!-- Tests de simulation -->
+        <h3>🧪 Tests de simulation:</h3>
+        
+        <div class="delete-simulation">
+            <h4>Test 1: Bouton normal (doit marcher)</h4>
+            <button onclick="testNormalButton()">🗑️ Test Supprimer Normal</button>
+        </div>
+
+        <div class="delete-simulation">
+            <h4>Test 2: Bouton disabled (ne doit pas marcher)</h4>
+            <button onclick="testDisabledButton()" disabled>🗑️ Test Supprimer Disabled</button>
+        </div>
+
+        <div class="delete-simulation">
+            <h4>Test 3: Simulation Admin Panel</h4>
+            <button onclick="simulateAdminPanelDelete('service-123', 'Test Service')">🗑️ Simulation Admin Panel</button>
+        </div>
+
+        <!-- Tests techniques -->
+        <h3>🔍 Tests techniques:</h3>
+        <button class="test-button" onclick="checkJavaScript()">JS Enabled?</button>
+        <button class="test-button" onclick="checkConsoleErrors()">Console Errors?</button>
+        <button class="test-button" onclick="checkAdminPanel()">Admin Panel Status?</button>
+        <button class="test-button" onclick="testDeleteAPI()">API Delete Test</button>
+
+        <!-- Diagnostic complet -->
+        <button onclick="runCompleteDiagnostic()" style="width: 100%; padding: 20px; font-size: 18px; background: #dc2626;">
+            🚀 DIAGNOSTIC COMPLET
+        </button>
+
+        <div id="results" class="result">Cliquez sur un test pour commencer le diagnostic...</div>
+
+        <!-- Solutions rapides -->
+        <div style="margin-top: 30px; padding: 20px; background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px;">
+            <h3>💡 Solutions Rapides:</h3>
+            <ol>
+                <li><strong>Redémarrer Admin Panel:</strong> Ctrl+C puis npm run dev</li>
+                <li><strong>Vider cache:</strong> Ctrl+F5 dans le navigateur</li>
+                <li><strong>Vérifier Console:</strong> F12 → Console → Chercher erreurs</li>
+                <li><strong>Tester avec ce fichier:</strong> Si ça marche ici, problème dans Admin Panel</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function testNormalButton() {
+            const result = document.getElementById('results');
+            result.textContent = '✅ TEST NORMAL BUTTON\n\n';
+            result.textContent += 'Bouton normal cliqué avec succès!\n';
+            result.textContent += 'JavaScript fonctionne correctement.\n';
+            result.textContent += 'Event handlers sont attachés.\n\n';
+            result.textContent += 'CONCLUSION: Le problème n\'est PAS dans JavaScript de base.';
+            
+            // Simulation de confirmation
+            const confirmed = confirm('Test: Voulez-vous vraiment supprimer ce service test?');
+            if (confirmed) {
+                result.textContent += '\n\n✅ Confirmation dialog fonctionne aussi!';
+            } else {
+                result.textContent += '\n\n❌ Confirmation annulée (normal).';
+            }
+        }
+
+        function testDisabledButton() {
+            const result = document.getElementById('results');
+            result.textContent = '❌ TEST DISABLED BUTTON\n\n';
+            result.textContent += 'Ce bouton est disabled et ne devrait pas réagir.\n';
+            result.textContent += 'Si vous voyez ce message, il y a un problème!\n\n';
+            result.textContent += 'CAUSE PROBABLE dans Admin Panel:\n';
+            result.textContent += '- loading state = true\n';
+            result.textContent += '- disabled={loading} rend les boutons inactifs';
+        }
+
+        function simulateAdminPanelDelete(serviceId, serviceTitle) {
+            const result = document.getElementById('results');
+            result.textContent = '🧪 SIMULATION ADMIN PANEL\n\n';
+            result.textContent += `Service ID: ${serviceId}\n`;
+            result.textContent += `Service Title: ${serviceTitle}\n\n`;
+            
+            // Simulation exacte du code Admin Panel
+            const confirmed = confirm(`Êtes-vous sûr de vouloir supprimer le service "${serviceTitle}" ?\n\nCette action est irréversible.`);
+            
+            if (!confirmed) {
+                result.textContent += '❌ Suppression annulée par utilisateur\n';
+                return;
+            }
+
+            result.textContent += '✅ Confirmation reçue\n';
+            result.textContent += '📡 Simulation DELETE request...\n\n';
+            
+            // Simulation de la requête
+            simulateDeleteRequest(serviceId, serviceTitle);
+        }
+
+        async function simulateDeleteRequest(serviceId, serviceTitle) {
+            const result = document.getElementById('results');
+            
+            try {
+                result.textContent += `DELETE http://localhost:3001/api/commercial-services/${serviceId}\n`;
+                
+                const response = await fetch(`http://localhost:3001/api/commercial-services/${serviceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const apiResult = await response.json();
+                
+                result.textContent += `Status: ${response.status}\n`;
+                result.textContent += `Response: ${JSON.stringify(apiResult, null, 2)}\n\n`;
+
+                if (response.ok && apiResult.success) {
+                    result.textContent += `✅ Service "${serviceTitle}" supprimé avec succès!\n`;
+                    result.textContent += '🔄 Dans Admin Panel, loadServices() serait appelée maintenant.';
+                } else {
+                    result.textContent += `❌ Erreur: ${apiResult.message || 'Suppression échouée'}`;
+                }
+
+            } catch (error) {
+                result.textContent += `❌ Erreur de connexion: ${error.message}\n\n`;
+                result.textContent += 'CAUSE PROBABLE:\n';
+                result.textContent += '- Backend non démarré (port 3001)\n';
+                result.textContent += '- CORS non configuré\n';
+                result.textContent += '- Route DELETE manquante';
+            }
+        }
+
+        function checkJavaScript() {
+            const result = document.getElementById('results');
+            result.textContent = '🔍 CHECK JAVASCRIPT\n\n';
+            result.textContent += `JavaScript enabled: ✅ OUI\n`;
+            result.textContent += `Date: ${new Date()}\n`;
+            result.textContent += `User Agent: ${navigator.userAgent}\n`;
+            result.textContent += `Local Storage: ${localStorage ? '✅ Disponible' : '❌ Indisponible'}\n`;
+            result.textContent += `Console: ${console ? '✅ Disponible' : '❌ Indisponible'}\n\n`;
+            result.textContent += 'CONCLUSION: JavaScript fonctionne parfaitement.';
+        }
+
+        function checkConsoleErrors() {
+            const result = document.getElementById('results');
+            result.textContent = '🔍 CHECK CONSOLE ERRORS\n\n';
+            result.textContent += 'Pour vérifier les erreurs Console dans Admin Panel:\n\n';
+            result.textContent += '1. Ouvrir Admin Panel: http://localhost:8536/commercial-services\n';
+            result.textContent += '2. Appuyer F12 pour ouvrir DevTools\n';
+            result.textContent += '3. Aller dans l\'onglet "Console"\n';
+            result.textContent += '4. Cliquer sur un bouton Supprimer\n';
+            result.textContent += '5. Chercher des erreurs rouges\n\n';
+            result.textContent += 'ERREURS COMMUNES:\n';
+            result.textContent += '❌ "handleDeleteService is not defined"\n';
+            result.textContent += '❌ "Cannot read property of undefined"\n';
+            result.textContent += '❌ "Network error" ou "CORS error"\n';
+            result.textContent += '❌ "Failed to fetch"';
+        }
+
+        async function checkAdminPanel() {
+            const result = document.getElementById('results');
+            result.textContent = '🔍 CHECK ADMIN PANEL STATUS\n\n';
+
+            try {
+                // Test si Admin Panel est accessible
+                result.textContent += 'Test Admin Panel accessibility...\n';
+                
+                const adminResponse = await fetch('http://localhost:8536/commercial-services');
+                result.textContent += `Admin Panel (8536): ${adminResponse.ok ? '✅ Accessible' : '❌ Non accessible'}\n`;
+                
+                // Test Backend
+                const backendResponse = await fetch('http://localhost:3001/api/health');
+                result.textContent += `Backend (3001): ${backendResponse.ok ? '✅ Accessible' : '❌ Non accessible'}\n\n`;
+
+                if (!adminResponse.ok) {
+                    result.textContent += '❌ PROBLÈME: Admin Panel non accessible\n';
+                    result.textContent += 'SOLUTION: Démarrer Admin Panel avec "npm run dev"\n';
+                } else if (!backendResponse.ok) {
+                    result.textContent += '❌ PROBLÈME: Backend non accessible\n';
+                    result.textContent += 'SOLUTION: Démarrer Backend avec "npm run dev"\n';
+                } else {
+                    result.textContent += '✅ Admin Panel et Backend accessibles\n';
+                    result.textContent += 'PROBLÈME: Probablement dans le code frontend';
+                }
+
+            } catch (error) {
+                result.textContent += `❌ Erreur de test: ${error.message}\n\n`;
+                result.textContent += 'SOLUTIONS:\n';
+                result.textContent += '1. Démarrer Backend: cd backend && npm run dev\n';
+                result.textContent += '2. Démarrer Admin Panel: cd admin-panel && npm run dev\n';
+                result.textContent += '3. Vérifier ports 3001 et 8536';
+            }
+        }
+
+        async function testDeleteAPI() {
+            const result = document.getElementById('results');
+            result.textContent = '🔍 TEST DELETE API\n\n';
+
+            try {
+                // Test avec un ID fake
+                const fakeId = '507f1f77bcf86cd799439011';
+                result.textContent += `Test DELETE avec ID fake: ${fakeId}\n\n`;
+
+                const response = await fetch(`http://localhost:3001/api/commercial-services/${fakeId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const apiResult = await response.json();
+                
+                result.textContent += `Status: ${response.status}\n`;
+                result.textContent += `Response: ${JSON.stringify(apiResult, null, 2)}\n\n`;
+
+                if (response.status === 404) {
+                    result.textContent += '✅ API DELETE fonctionne (404 pour ID inexistant)\n';
+                    result.textContent += 'CONCLUSION: Backend DELETE route est opérationnelle';
+                } else if (response.status === 200) {
+                    result.textContent += '✅ API DELETE fonctionne parfaitement\n';
+                } else {
+                    result.textContent += '⚠️ API DELETE répond mais comportement inattendu';
+                }
+
+            } catch (error) {
+                result.textContent += `❌ API DELETE non accessible: ${error.message}\n\n`;
+                result.textContent += 'CAUSE:\n';
+                result.textContent += '- Backend non démarré\n';
+                result.textContent += '- Route DELETE manquante\n';
+                result.textContent += '- CORS mal configuré';
+            }
+        }
+
+        async function runCompleteDiagnostic() {
+            const result = document.getElementById('results');
+            result.textContent = '🚀 DIAGNOSTIC COMPLET - BOUTON SUPPRIMER\n\n';
+            result.textContent += '='.repeat(50) + '\n\n';
+
+            try {
+                // Test 1: JavaScript
+                result.textContent += '1️⃣ JAVASCRIPT: ✅ Fonctionnel\n';
+                
+                // Test 2: Admin Panel
+                result.textContent += '2️⃣ ADMIN PANEL: ';
+                try {
+                    const adminResponse = await fetch('http://localhost:8536/commercial-services');
+                    result.textContent += adminResponse.ok ? '✅ Accessible\n' : '❌ Non accessible\n';
+                } catch {
+                    result.textContent += '❌ Non accessible\n';
+                }
+
+                // Test 3: Backend
+                result.textContent += '3️⃣ BACKEND: ';
+                try {
+                    const backendResponse = await fetch('http://localhost:3001/api/health');
+                    result.textContent += backendResponse.ok ? '✅ Accessible\n' : '❌ Non accessible\n';
+                } catch {
+                    result.textContent += '❌ Non accessible\n';
+                }
+
+                // Test 4: DELETE API
+                result.textContent += '4️⃣ DELETE API: ';
+                try {
+                    const deleteResponse = await fetch('http://localhost:3001/api/commercial-services/test', {
+                        method: 'DELETE'
+                    });
+                    result.textContent += deleteResponse.status === 404 ? '✅ Disponible\n' : '⚠️ Comportement inattendu\n';
+                } catch {
+                    result.textContent += '❌ Non accessible\n';
+                }
+
+                result.textContent += '\n' + '='.repeat(50) + '\n';
+                result.textContent += 'DIAGNOSTIC FINAL:\n\n';
+
+                result.textContent += 'CAUSES PROBABLES du problème:\n';
+                result.textContent += '1. 🔴 loading={true} rend boutons disabled\n';
+                result.textContent += '2. 🔴 Event handlers non attachés après re-render\n';
+                result.textContent += '3. 🔴 JavaScript errors silencieux\n';
+                result.textContent += '4. 🔴 CSS z-index cache les boutons\n\n';
+
+                result.textContent += 'SOLUTIONS IMMÉDIATES:\n';
+                result.textContent += '✅ 1. Redémarrer Admin Panel: npm run dev\n';
+                result.textContent += '✅ 2. Vider cache navigateur: Ctrl+F5\n';
+                result.textContent += '✅ 3. Vérifier Console: F12 → Console\n';
+                result.textContent += '✅ 4. Tester handleDeleteService dans Console\n\n';
+
+                result.textContent += 'TEST MANUEL DANS ADMIN PANEL:\n';
+                result.textContent += '1. F12 → Console\n';
+                result.textContent += '2. Taper: console.log(typeof handleDeleteService)\n';
+                result.textContent += '3. Si "undefined" → Fonction non chargée\n';
+                result.textContent += '4. Si "function" → Fonction OK, problème ailleurs';
+
+            } catch (error) {
+                result.textContent += `❌ ERREUR DIAGNOSTIC: ${error.message}`;
+            }
+        }
+
+        window.onload = function() {
+            console.log('🔧 Debug Supprimer Button chargé');
+            console.log('Si vous voyez ce message, JavaScript fonctionne!');
+        };
+    </script>
+</body>
+</html>

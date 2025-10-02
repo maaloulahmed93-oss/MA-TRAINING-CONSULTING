@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Project URL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px 0; }
+        .result { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; margin: 10px 0; border-radius: 6px; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
+        .success { background: #ecfdf5; border-color: #10b981; }
+        .error { background: #fef2f2; border-color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Project URL Status</h1>
+        
+        <button class="button" onclick="testCurrentStatus()">Check Current Status</button>
+        <button class="button" onclick="forceUpdateUrl()">Force Update URL</button>
+        
+        <div id="result" class="result">Click a button to test...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        const TEST_URL = 'https://tv.animerco.org/';
+
+        async function testCurrentStatus() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Testing current status...';
+            
+            try {
+                // Get projects
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}/projects`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let output = `✅ Found ${data.data.length} projects:\n\n`;
+                    
+                    data.data.forEach((project, index) => {
+                        output += `${index + 1}. ${project.title}\n`;
+                        output += `   ID: ${project._id}\n`;
+                        output += `   projectUrl: "${project.projectUrl || 'EMPTY'}"\n`;
+                        output += `   Status: ${project.status}\n`;
+                        output += `   Has URL: ${project.projectUrl ? '✅ YES' : '❌ NO'}\n\n`;
+                    });
+                    
+                    resultDiv.textContent = output;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error('Failed to get projects');
+                }
+                
+            } catch (error) {
+                resultDiv.textContent = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function forceUpdateUrl() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Force updating URL...';
+            
+            try {
+                // 1. Get participant data
+                const getResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const participantData = await getResponse.json();
+                
+                if (!participantData.success) {
+                    throw new Error('Participant not found');
+                }
+                
+                // 2. Update projects with URL
+                const updatedProjects = participantData.data.projects.map(project => {
+                    if (project.title === 'cima' || project.title === 'dbdc') {
+                        return { ...project, projectUrl: TEST_URL };
+                    }
+                    return project;
+                });
+
+                // 3. Send update
+                const updateResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...participantData.data,
+                        projects: updatedProjects
+                    })
+                });
+
+                const updateResult = await updateResponse.json();
+                
+                if (updateResult.success) {
+                    resultDiv.textContent = `✅ SUCCESS! Updated projects with URL: ${TEST_URL}\n\nNow refresh the participant page and check the projects.`;
+                    resultDiv.className = 'result success';
+                } else {
+                    throw new Error(updateResult.message || 'Update failed');
+                }
+                
+            } catch (error) {
+                resultDiv.textContent = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html>

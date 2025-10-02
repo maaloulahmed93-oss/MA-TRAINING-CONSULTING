@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Briefcase, 
@@ -13,59 +13,100 @@ import {
 } from 'lucide-react';
 import { JobOffer } from '../../types/freelancer';
 import { getJobOffers, acceptJobOffer, refuseJobOffer } from '../../services/freelancerData';
+import { getFreelancerSession } from '../../services/freelancerAuth';
 
 type JobOffersTabProps = {
   onAccepted?: () => void;
 };
 
 const JobOffersTab: React.FC<JobOffersTabProps> = ({ onAccepted }) => {
-  // Suivi des données mock
-  console.log('JobOffers:', getJobOffers());
-  const [jobOffers, setJobOffers] = useState<JobOffer[]>(getJobOffers());
+  const [jobOffers, setJobOffers] = useState<JobOffer[]>([]);
   const [selectedOffer, setSelectedOffer] = useState<JobOffer | null>(null);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRefuseModal, setShowRefuseModal] = useState(false);
   const [workMode, setWorkMode] = useState<'solo' | 'team'>('solo');
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
   const [refusalReason, setRefusalReason] = useState('');
-  const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'refused'>('pending');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredOffers = jobOffers.filter(offer => 
-    filter === 'all' || offer.status === filter
-  );
+  // تحميل العروض عند بدء تشغيل المكون
+  useEffect(() => {
+    loadOffers();
+  }, []);
+
+  const loadOffers = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const session = getFreelancerSession();
+      const freelancerId = session?.freelancerId;
+      
+      const offers = await getJobOffers(freelancerId);
+      setJobOffers(offers);
+      
+    } catch (err) {
+      setError('خطأ في تحميل العروض');
+      console.error('خطأ في تحميل العروض:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleAccept = (offer: JobOffer) => {
     setSelectedOffer(offer);
     setShowAcceptModal(true);
   };
-
   const handleRefuse = (offer: JobOffer) => {
     setSelectedOffer(offer);
     setShowRefuseModal(true);
   };
 
-  const confirmAccept = () => {
+  const confirmAccept = async () => {
     if (selectedOffer) {
-      acceptJobOffer(selectedOffer.id, workMode === 'team' ? teamMembers : undefined);
-      setJobOffers(getJobOffers());
-      setShowAcceptModal(false);
-      setSelectedOffer(null);
-      setWorkMode('solo');
-      setTeamMembers([]);
-      // Inform parent to switch to Projects tab if provided
-      if (onAccepted) {
-        onAccepted();
+      setLoading(true);
+      try {
+        const session = getFreelancerSession();
+        const freelancerId = session?.freelancerId;
+        
+        await acceptJobOffer(
+          selectedOffer.id, 
+          workMode === 'team' ? teamMembers : undefined,
+          freelancerId
+        );
+        await loadOffers(); // إعادة تحميل العروض
+        setShowAcceptModal(false);
+        setSelectedOffer(null);
+        onAccepted?.();
+      } catch (err) {
+        setError('خطأ في قبول العرض');
+        console.error('خطأ في قبول العرض:', err);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
-  const confirmRefuse = () => {
-    if (selectedOffer && refusalReason.trim()) {
-      refuseJobOffer(selectedOffer.id, refusalReason);
-      setJobOffers(getJobOffers());
-      setShowRefuseModal(false);
-      setSelectedOffer(null);
-      setRefusalReason('');
+  const confirmRefuse = async () => {
+    if (selectedOffer) {
+      setLoading(true);
+      try {
+        const session = getFreelancerSession();
+        const freelancerId = session?.freelancerId;
+        
+        await refuseJobOffer(selectedOffer.id, refusalReason, freelancerId);
+        await loadOffers(); // إعادة تحميل العروض
+        setShowRefuseModal(false);
+        setSelectedOffer(null);
+        setRefusalReason('');
+      } catch (err) {
+        setError('خطأ في رفض العرض');
+        console.error('خطأ في رفض العرض:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -90,36 +131,26 @@ const JobOffersTab: React.FC<JobOffersTabProps> = ({ onAccepted }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header avec filtres */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl">📋</span>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Offres de Mission</h2>
+      {/* Affichage des erreurs */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
         </div>
-        <p className="text-gray-600">Découvrez et acceptez de nouvelles missions</p>
-        
-        <div className="flex gap-2">
-          {(['all', 'pending', 'accepted', 'refused'] as const).map((filterType) => (
-            <button
-              key={filterType}
-              onClick={() => setFilter(filterType)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === filterType
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {filterType === 'all' ? 'Toutes' : 
-               filterType === 'pending' ? 'En attente' :
-               filterType === 'accepted' ? 'Acceptées' : 'Refusées'}
-            </button>
-          ))}
+      )}
+
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-3xl">📋</span>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Offres de Mission</h2>
+          <p className="text-gray-600">Découvrez et acceptez de nouvelles missions</p>
         </div>
+        {loading && <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 ml-auto"></div>}
       </div>
 
       {/* Liste des offres */}
       <div className="grid gap-6">
-        {filteredOffers.map((offer, index) => (
+        {jobOffers.map((offer, index) => (
           <motion.div
             key={offer.id}
             initial={{ opacity: 0, y: 20 }}
@@ -153,7 +184,6 @@ const JobOffersTab: React.FC<JobOffersTabProps> = ({ onAccepted }) => {
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{offer.title}</h3>
                     <p className="text-gray-600 mb-3">{offer.description}</p>
                   </div>
                   <div className="flex gap-2">
@@ -171,15 +201,20 @@ const JobOffersTab: React.FC<JobOffersTabProps> = ({ onAccepted }) => {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="flex items-center text-gray-600">
                     <DollarSign className="w-4 h-4 mr-2" />
-                    <span className="text-sm">{offer.price} {offer.currency}</span>
+                    <span className="text-sm">
+                      {offer.salaryMin && offer.salaryMax 
+                        ? `${offer.salaryMin} - ${offer.salaryMax} ${offer.currency || 'TND'}`
+                        : `${offer.budget || 0} ${offer.currency || 'TND'}`
+                      }
+                    </span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    <span className="text-sm">{new Date(offer.deadline).toLocaleDateString('fr-FR')}</span>
+                    <span className="text-sm">{offer.deadline ? new Date(offer.deadline).toLocaleDateString('fr-FR') : 'Date non définie'}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Briefcase className="w-4 h-4 mr-2" />
-                    <span className="text-sm">{offer.clientName}</span>
+                    <span className="text-sm">{offer.client || offer.clientName || 'Entreprise'}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Clock className="w-4 h-4 mr-2" />
@@ -187,15 +222,58 @@ const JobOffersTab: React.FC<JobOffersTabProps> = ({ onAccepted }) => {
                   </div>
                 </div>
 
-                {/* Exigences */}
-                <div className="mb-4">
-                  <h4 className="font-semibold text-gray-800 mb-2">Exigences :</h4>
-                  <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                    {offer.requirements?.map((req, idx) => (
-                      <li key={idx}>{req}</li>
-                    )) || <li>Aucune exigence spécifiée</li>}
-                  </ul>
+                {/* Informations supplémentaires */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                  <div className="flex items-center text-gray-600">
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      📍 {offer.workMode === 'remote' ? 'Remote' : 
+                          offer.workMode === 'hybrid' ? 'Hybride' : 
+                          offer.workMode === 'onsite' ? 'Sur site' : 'Remote'}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      🎯 {offer.seniority === 'junior' ? 'Junior' : 
+                          offer.seniority === 'mid' ? 'Intermédiaire' : 
+                          offer.seniority === 'senior' ? 'Senior' : 'Tous niveaux'}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                      💼 {offer.contractType === 'full-time' ? 'Temps plein' : 
+                          offer.contractType === 'part-time' ? 'Temps partiel' : 
+                          offer.contractType === 'contract' ? 'Contrat' : 
+                          offer.contractType === 'internship' ? 'Stage' : 'Contrat'}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Compétences requises */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-800 mb-2">Compétences requises :</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(offer.skills && offer.skills.length > 0) ? 
+                      offer.skills.map((skill, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                          {skill}
+                        </span>
+                      )) : 
+                      <span className="text-gray-500 text-sm">Aucune compétence spécifiée</span>
+                    }
+                  </div>
+                </div>
+
+                {/* Exigences supplémentaires */}
+                {offer.requirements && offer.requirements.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold text-gray-800 mb-2">Exigences supplémentaires :</h4>
+                    <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                      {offer.requirements.map((req, idx) => (
+                        <li key={idx}>{req}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
@@ -367,14 +445,14 @@ const JobOffersTab: React.FC<JobOffersTabProps> = ({ onAccepted }) => {
         </motion.div>
       )}
 
-      {filteredOffers.length === 0 && (
+      {jobOffers.length === 0 && (
         <div className="text-center py-12">
           <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-600 mb-2">
-            Aucune offre {filter !== 'all' ? (filter === 'pending' ? 'en attente' : filter === 'accepted' ? 'acceptée' : 'refusée') : ''}
+            Aucune offre disponible
           </h3>
           <p className="text-gray-500">
-            {filter === 'pending' ? 'Revenez plus tard pour découvrir de nouvelles missions' : 'Changez de filtre pour voir d\'autres offres'}
+            Revenez plus tard pour découvrir de nouvelles missions
           </p>
         </div>
       )}

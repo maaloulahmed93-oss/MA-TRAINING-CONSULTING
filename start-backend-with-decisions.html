@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 تشغيل Backend مع القرارات</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #10b981;
+        }
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 8px 5px;
+            font-size: 14px;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .warning { color: #f59e0b; font-weight: bold; }
+        .info { color: #3b82f6; }
+        .highlight { background: #dcfce7; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #10b981; }
+        .command { background: #374151; color: #e5e7eb; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 تشغيل Backend مع نظام القرارات</h1>
+            <p>MongoDB + Express + FreelancerDecisions API</p>
+            <div class="highlight">
+                <strong>🎯 الهدف:</strong> تشغيل Backend وإنشاء قرارات في MongoDB بدلاً من localStorage
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Backend Control -->
+            <div class="section">
+                <h3>🖥️ التحكم في Backend</h3>
+                <button class="btn btn-success" onclick="startBackend()">🚀 تشغيل Backend</button>
+                <button class="btn" onclick="checkBackendStatus()">🔍 فحص حالة Backend</button>
+                <button class="btn btn-warning" onclick="restartBackend()">🔄 إعادة تشغيل Backend</button>
+                <button class="btn btn-danger" onclick="stopBackend()">⏹️ إيقاف Backend</button>
+                
+                <div class="command">
+                    <strong>الأمر المطلوب:</strong><br>
+                    cd backend && npm start
+                </div>
+            </div>
+            
+            <!-- MongoDB Operations -->
+            <div class="section">
+                <h3>🗄️ عمليات MongoDB</h3>
+                <button class="btn btn-success" onclick="createTestDecisions()">➕ إنشاء قرارات تجريبية</button>
+                <button class="btn" onclick="fetchDecisionsFromAPI()">📋 جلب القرارات من API</button>
+                <button class="btn" onclick="testFullFlow()">🔄 اختبار التدفق الكامل</button>
+                <button class="btn btn-danger" onclick="clearMongoDecisions()">🗑️ مسح قرارات MongoDB</button>
+            </div>
+            
+            <!-- النتائج والسجلات -->
+            <div class="results" id="results">🚀 جاهز لتشغيل Backend مع نظام القرارات...\n\n📋 الخطوات:\n1. تشغيل Backend (MongoDB + Express)\n2. إنشاء قرارات تجريبية في MongoDB\n3. اختبار API endpoints\n4. التأكد من ظهور القرارات في Espace Freelancer\n\n</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            results.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function startBackend() {
+            log('🚀 تشغيل Backend...', 'info');
+            log('📋 يجب تشغيل الأمر التالي في Terminal:', 'warning');
+            log('cd "C:\\Users\\ahmed\\Desktop\\MATC SITE\\backend"', 'info');
+            log('npm start', 'info');
+            log('', 'info');
+            log('💡 أو افتح Terminal جديد واكتب:', 'warning');
+            log('cd backend && npm start', 'info');
+            log('', 'info');
+            log('⏳ انتظر حتى ترى: "✅ Serveur démarré sur le port 3001"', 'warning');
+            log('🔗 Backend سيعمل على: http://localhost:3001', 'info');
+        }
+
+        async function checkBackendStatus() {
+            log('🔍 فحص حالة Backend...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend يعمل بشكل صحيح!', 'success');
+                    log(`📊 الحالة: ${data.status}`, 'success');
+                    log(`🕒 الوقت: ${data.timestamp}`, 'info');
+                    
+                    // فحص MongoDB
+                    if (data.database === 'connected') {
+                        log('✅ MongoDB متصل', 'success');
+                    } else {
+                        log('❌ MongoDB غير متصل', 'error');
+                    }
+                    
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log('❌ Backend غير متاح', 'error');
+                log(`💡 السبب: ${error.message}`, 'warning');
+                log('🔧 تأكد من تشغيل Backend أولاً', 'warning');
+            }
+        }
+
+        async function createTestDecisions() {
+            log('➕ إنشاء قرارات تجريبية في MongoDB...', 'info');
+            
+            const testDecisions = [
+                {
+                    freelancerId: 'FRE-340255',
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Design Interface Utilisateur - MongoDB',
+                    decision: 'approved',
+                    observation: 'عمل ممتاز! التصميم يلبي جميع المتطلبات المطلوبة. تم حفظه في MongoDB.',
+                    adminId: 'admin'
+                },
+                {
+                    freelancerId: 'FRE-340255',
+                    freelancerName: 'ismail',
+                    deliverableTitle: 'Documentation Technique - MongoDB',
+                    decision: 'rejected',
+                    observation: 'يرجى إعادة العمل على الوثائق. هناك بعض النقاط التي تحتاج إلى تحسين. محفوظ في MongoDB.',
+                    adminId: 'admin'
+                }
+            ];
+            
+            try {
+                for (const decision of testDecisions) {
+                    const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(decision)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        log(`✅ تم إنشاء قرار: ${decision.deliverableTitle}`, 'success');
+                        log(`🆔 معرف القرار: ${result.data._id}`, 'info');
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                }
+                
+                log('🎉 تم إنشاء جميع القرارات التجريبية بنجاح!', 'success');
+                log('📱 اذهب الآن إلى Espace Freelancer → Notifications', 'warning');
+                
+            } catch (error) {
+                log(`❌ خطأ في إنشاء القرارات: ${error.message}`, 'error');
+                log('💡 تأكد من أن Backend يعمل', 'warning');
+            }
+        }
+
+        async function fetchDecisionsFromAPI() {
+            log('📋 جلب القرارات من MongoDB API...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions/FRE-340255');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    const decisions = result.data;
+                    
+                    log(`✅ تم جلب ${decisions.length} قرار من MongoDB`, 'success');
+                    
+                    if (decisions.length > 0) {
+                        log('📋 القرارات الموجودة:', 'info');
+                        decisions.forEach((decision, index) => {
+                            const status = decision.decision === 'approved' ? '✅' : '❌';
+                            log(`${index + 1}. ${status} ${decision.deliverableTitle}`, 'info');
+                            log(`   📝 ${decision.observation}`, 'info');
+                            log(`   🕒 ${new Date(decision.createdAt).toLocaleString('ar-SA')}`, 'info');
+                        });
+                    } else {
+                        log('📭 لا توجد قرارات في MongoDB', 'warning');
+                        log('💡 استخدم "إنشاء قرارات تجريبية" أولاً', 'warning');
+                    }
+                    
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ في جلب القرارات: ${error.message}`, 'error');
+                log('💡 تأكد من أن Backend يعمل', 'warning');
+            }
+        }
+
+        async function testFullFlow() {
+            log('🔄 اختبار التدفق الكامل...', 'info');
+            
+            // 1. فحص Backend
+            log('1️⃣ فحص Backend...', 'info');
+            await checkBackendStatus();
+            
+            // انتظار قصير
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 2. إنشاء قرار جديد
+            log('2️⃣ إنشاء قرار جديد...', 'info');
+            const testDecision = {
+                freelancerId: 'FRE-340255',
+                freelancerName: 'ismail',
+                deliverableTitle: `Test Flow - ${new Date().toLocaleTimeString()}`,
+                decision: 'approved',
+                observation: 'قرار اختبار التدفق الكامل - تم إنشاؤه من أداة التحكم',
+                adminId: 'admin'
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testDecision)
+                });
+                
+                if (response.ok) {
+                    log('✅ تم إنشاء قرار الاختبار', 'success');
+                    
+                    // 3. جلب القرارات
+                    log('3️⃣ جلب القرارات...', 'info');
+                    await fetchDecisionsFromAPI();
+                    
+                    log('🎉 اختبار التدفق الكامل مكتمل!', 'success');
+                    log('📱 اذهب إلى Espace Freelancer لرؤية النتائج', 'warning');
+                    
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                log(`❌ فشل اختبار التدفق: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearMongoDecisions() {
+            if (!confirm('هل أنت متأكد من حذف جميع القرارات من MongoDB؟')) return;
+            
+            log('🗑️ حذف قرارات MongoDB...', 'warning');
+            log('⚠️ هذه العملية غير متاحة حالياً لأسباب أمنية', 'warning');
+            log('💡 يمكنك حذف القرارات يدوياً من MongoDB Compass', 'info');
+        }
+
+        function restartBackend() {
+            log('🔄 إعادة تشغيل Backend...', 'warning');
+            log('📋 اتبع هذه الخطوات:', 'info');
+            log('1. اضغط Ctrl+C في Terminal لإيقاف Backend', 'info');
+            log('2. اكتب: npm start', 'info');
+            log('3. انتظر حتى ترى: "✅ Serveur démarré sur le port 3001"', 'info');
+        }
+
+        function stopBackend() {
+            log('⏹️ إيقاف Backend...', 'warning');
+            log('📋 اضغط Ctrl+C في Terminal لإيقاف Backend', 'info');
+        }
+
+        // تحميل أولي
+        window.addEventListener('load', function() {
+            log('🚀 أداة تشغيل Backend جاهزة', 'success');
+            log('📋 المطلوب: تشغيل Backend وإنشاء قرارات في MongoDB', 'info');
+            log('🎯 الهدف: استبدال localStorage بـ MongoDB للقرارات', 'info');
+            
+            // فحص فوري للـ Backend
+            setTimeout(checkBackendStatus, 1000);
+        });
+    </script>
+</body>
+</html>

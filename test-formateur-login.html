@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Formateur Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Test Système Formateur</h1>
+
+    <div class="section">
+        <h3>1. Test Connexion API</h3>
+        <button onclick="testApiHealth()">Tester API Health</button>
+        <div id="healthResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>2. Lister les Formateurs</h3>
+        <button onclick="listFormateurs()">Lister Formateurs</button>
+        <div id="formateursList" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>3. Créer un Formateur Test</h3>
+        <input type="text" id="formateurName" placeholder="Nom complet" value="Ahmed Test Formateur">
+        <input type="email" id="formateurEmail" placeholder="Email" value="ahmed.formateur@test.com">
+        <br>
+        <button onclick="createTestFormateur()">Créer Formateur</button>
+        <div id="createResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h3>4. Test Login Formateur</h3>
+        <input type="text" id="loginId" placeholder="ID Formateur (ex: FOR-123456)">
+        <br>
+        <button onclick="testLogin()">Tester Connexion</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        async function testApiHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<span class="success">✅ API fonctionne: ${data.message}</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur API: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Connexion échouée: ${error.message}</span>`;
+            }
+        }
+
+        async function listFormateurs() {
+            const resultDiv = document.getElementById('formateursList');
+            try {
+                const response = await fetch(`${API_BASE}/partners?type=formateur`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const formateurs = data.data;
+                    if (formateurs.length === 0) {
+                        resultDiv.innerHTML = '<span class="error">❌ Aucun formateur trouvé</span>';
+                    } else {
+                        let html = `<span class="success">✅ ${formateurs.length} formateur(s) trouvé(s):</span><br>`;
+                        formateurs.forEach(f => {
+                            html += `<strong>${f.partnerId}</strong> - ${f.fullName} (${f.email}) - Actif: ${f.isActive}<br>`;
+                        });
+                        resultDiv.innerHTML = html;
+                    }
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function createTestFormateur() {
+            const resultDiv = document.getElementById('createResult');
+            const name = document.getElementById('formateurName').value;
+            const email = document.getElementById('formateurEmail').value;
+
+            if (!name || !email) {
+                resultDiv.innerHTML = '<span class="error">❌ Nom et email requis</span>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/partners`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fullName: name,
+                        email: email,
+                        type: 'formateur',
+                        formateurInfo: {
+                            specialites: ['Web Development', 'JavaScript'],
+                            experience: 5,
+                            tarifHoraire: 50
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const partnerId = data.data.partnerId;
+                    resultDiv.innerHTML = `<span class="success">✅ Formateur créé avec succès!<br>ID: <strong>${partnerId}</strong></span>`;
+                    document.getElementById('loginId').value = partnerId;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            const formateurId = document.getElementById('loginId').value;
+
+            if (!formateurId) {
+                resultDiv.innerHTML = '<span class="error">❌ ID formateur requis</span>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        partnerId: formateurId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Connexion réussie!<br>Formateur: ${data.data.fullName}<br>Email: ${data.data.email}<br>Type: ${data.data.type}</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            testApiHealth();
+            setTimeout(listFormateurs, 500);
+        };
+    </script>
+</body>
+</html>

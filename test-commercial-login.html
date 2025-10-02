@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Commercial Login - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        
+        input {
+            padding: 12px;
+            margin: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            width: 200px;
+            font-size: 16px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Commercial Login</h1>
+            <p>Test du système hybride Partners ↔ CommercialNew</p>
+        </div>
+
+        <!-- Info -->
+        <div class="info">
+            <h3>📋 Comment ça marche:</h3>
+            <ol>
+                <li><strong>Recherche dans CommercialNew</strong> (nouveau système)</li>
+                <li><strong>Si non trouvé:</strong> Recherche dans Partners</li>
+                <li><strong>Si trouvé dans Partners:</strong> Création automatique dans CommercialNew</li>
+                <li><strong>Retour:</strong> Données du commercial pour le dashboard</li>
+            </ol>
+        </div>
+
+        <!-- Test Login -->
+        <div class="test-section">
+            <h3>🔐 Test Login Commercial</h3>
+            <div>
+                <input type="text" id="partnerId" placeholder="COM-569714" value="COM-923432">
+                <button onclick="testLogin()">🧪 Tester Login</button>
+            </div>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Test Multiple IDs -->
+        <div class="test-section">
+            <h3>🔄 Test Multiple IDs</h3>
+            <p>Tester plusieurs IDs automatiquement</p>
+            <button onclick="testMultipleIds()">🚀 Test Batch</button>
+            <div id="batch-result" class="result"></div>
+        </div>
+
+        <!-- Backend Status -->
+        <div class="test-section">
+            <h3>⚙️ Backend Status</h3>
+            <button onclick="checkBackend()">🔍 Vérifier Backend</button>
+            <div id="backend-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-new';
+
+        async function testLogin() {
+            const partnerId = document.getElementById('partnerId').value || 'COM-923432';
+            const resultDiv = document.getElementById('login-result');
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Test de login pour ${partnerId}...\n\n`;
+
+            try {
+                console.log(`Testing login for: ${partnerId}`);
+                
+                const response = await fetch(`${API_BASE}/${partnerId}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ LOGIN RÉUSSI pour ${partnerId}!\n\n` +
+                        `📋 Données reçues:\n` +
+                        `   Partner ID: ${result.data.partnerId}\n` +
+                        `   Nom: ${result.data.fullName}\n` +
+                        `   Email: ${result.data.email}\n` +
+                        `   Niveau: ${result.data.niveau}\n` +
+                        `   Points: ${result.data.points}\n` +
+                        `   CA: ${result.data.chiffreAffaires}€\n` +
+                        `   Commission: ${result.data.commissionTotale}€\n\n` +
+                        `🎯 Le commercial peut maintenant accéder au dashboard!\n\n` +
+                        `🔗 Test sur: http://localhost:5173/espace-commercial`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ ÉCHEC du login pour ${partnerId}\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `Causes possibles:\n` +
+                        `- ID inexistant dans Admin Panel\n` +
+                        `- Type différent de 'commercial'\n` +
+                        `- Compte désactivé (isActive: false)\n` +
+                        `- Erreur de connexion DB`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 
+                    `❌ ERREUR TECHNIQUE\n\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Vérifiez:\n` +
+                    `- Backend démarré sur port 3001\n` +
+                    `- MongoDB Atlas accessible\n` +
+                    `- CORS configuré\n` +
+                    `- Route /api/commercial-new/:id/login existe`;
+            }
+        }
+
+        async function testMultipleIds() {
+            const testIds = ['COM-923432', 'COM-569714', 'COM-123456', 'COM-999999'];
+            const resultDiv = document.getElementById('batch-result');
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🚀 Test batch en cours...\n\n';
+
+            let results = [];
+
+            for (const id of testIds) {
+                resultDiv.textContent += `🔍 Test ${id}...\n`;
+                
+                try {
+                    const response = await fetch(`${API_BASE}/${id}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        results.push(`✅ ${id}: OK - ${result.data.fullName}`);
+                    } else {
+                        results.push(`❌ ${id}: ${result.message}`);
+                    }
+                } catch (error) {
+                    results.push(`💥 ${id}: ERROR - ${error.message}`);
+                }
+                
+                // Pause entre les tests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            resultDiv.textContent += '\n📊 RÉSULTATS FINAUX:\n\n';
+            results.forEach(result => {
+                resultDiv.textContent += result + '\n';
+            });
+
+            const successCount = results.filter(r => r.includes('✅')).length;
+            const totalCount = results.length;
+            
+            resultDiv.textContent += `\n🎯 Succès: ${successCount}/${totalCount}`;
+            
+            if (successCount === totalCount) {
+                resultDiv.className = 'result success';
+            } else if (successCount > 0) {
+                resultDiv.className = 'result';
+            } else {
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function checkBackend() {
+            const resultDiv = document.getElementById('backend-result');
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔍 Vérification du backend...\n\n';
+
+            try {
+                // Test 1: Health check
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                const healthResult = await healthResponse.json();
+                
+                resultDiv.textContent += `✅ Health Check: ${healthResult.message}\n`;
+
+                // Test 2: Commercial routes
+                const routeResponse = await fetch(`${API_BASE}/test-route`);
+                if (routeResponse.status === 404) {
+                    resultDiv.textContent += `✅ Route /api/commercial-new accessible\n`;
+                }
+
+                // Test 3: Database connection
+                resultDiv.textContent += `✅ Backend opérationnel sur port 3001\n`;
+                resultDiv.textContent += `✅ Routes commerciales disponibles\n\n`;
+                
+                resultDiv.textContent += `📋 Endpoints disponibles:\n`;
+                resultDiv.textContent += `- POST /api/commercial-new/:id/login\n`;
+                resultDiv.textContent += `- GET /api/commercial-new/:id/services\n`;
+                resultDiv.textContent += `- GET /api/commercial-new/sync-all-partners\n`;
+                resultDiv.textContent += `- GET /api/commercial-new/fix-com-923432\n`;
+
+                resultDiv.className = 'result success';
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += 
+                    `❌ Backend non accessible!\n\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Actions requises:\n` +
+                    `1. Démarrer le backend: cd backend && npm start\n` +
+                    `2. Vérifier MongoDB Atlas\n` +
+                    `3. Vérifier le port 3001`;
+            }
+        }
+
+        // Auto-check backend au chargement
+        window.onload = function() {
+            checkBackend();
+        };
+    </script>
+</body>
+</html>

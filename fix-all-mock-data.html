@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حذف جميع البيانات الوهمية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .problem-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .solution-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button.success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        }
+        button.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #333;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: right;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .countdown {
+            font-size: 36px;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧹 حذف جميع البيانات الوهمية</h1>
+            <p>إصلاح شامل لمشكلة البيانات المشتركة في الفورماسيون والمشاريع والأحداث</p>
+        </div>
+
+        <div class="problem-box">
+            <h3>🚨 المشكلة المكتشفة:</h3>
+            <ul>
+                <li><strong>5 formations</strong> تظهر لجميع الشركاء</li>
+                <li><strong>مشاريع وهمية</strong> في localStorage</li>
+                <li><strong>أحداث وهمية</strong> في localStorage</li>
+                <li><strong>بيانات مشتركة</strong> غير معزولة حسب partnerId</li>
+            </ul>
+        </div>
+
+        <div class="solution-box">
+            <h3>✅ الحل الشامل:</h3>
+            <p>حذف جميع البيانات الوهمية من localStorage وإعادة تعيين النظام لاستخدام قاعدة البيانات فقط</p>
+        </div>
+
+        <div class="countdown" id="countdown">🔥</div>
+
+        <div style="text-align: center;">
+            <button onclick="analyzeData()" class="warning">🔍 تحليل البيانات الموجودة</button>
+            <button onclick="fixAllData()" id="fix-btn">🚀 إصلاح شامل - حذف جميع البيانات الوهمية</button>
+            <button onclick="verifyFix()" class="success">✅ التحقق من الإصلاح</button>
+        </div>
+
+        <div id="analysis" class="grid" style="display: none;">
+            <div class="card">
+                <h3>📚 الفورماسيون</h3>
+                <div class="number" id="formations-count">--</div>
+                <p>مفاتيح localStorage</p>
+            </div>
+            <div class="card">
+                <h3>🏗️ المشاريع</h3>
+                <div class="number" id="projects-count">--</div>
+                <p>مفاتيح localStorage</p>
+            </div>
+            <div class="card">
+                <h3>📅 الأحداث</h3>
+                <div class="number" id="events-count">--</div>
+                <p>مفاتيح localStorage</p>
+            </div>
+            <div class="card">
+                <h3>📊 إجمالي</h3>
+                <div class="number" id="total-count">--</div>
+                <p>مفاتيح مشكلة</p>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // قائمة شاملة بجميع مفاتيح localStorage المشكلة
+        const PROBLEMATIC_KEYS = [
+            // الفورماسيون
+            'formationsCoAnimees',
+            'formations',
+            'Formation',
+            'mockFormations',
+            
+            // المشاريع
+            'projects',
+            'mockProjects',
+            'partnershipProjects',
+            'enterpriseProjects',
+            
+            // الأحداث
+            'evenements',
+            'events',
+            'mockEvents',
+            'partnershipEvents',
+            'evenementsPartenariat',
+            
+            // بيانات أخرى
+            'participants',
+            'mockParticipants',
+            'freelancerData',
+            'trainerData',
+            'commercialData'
+        ];
+
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function analyzeData() {
+            addResult('🔍 بدء تحليل البيانات الموجودة...', 'info');
+            
+            const allKeys = Object.keys(localStorage);
+            let formationsCount = 0;
+            let projectsCount = 0;
+            let eventsCount = 0;
+            let totalProblematic = 0;
+
+            // تحليل المفاتيح
+            allKeys.forEach(key => {
+                const lowerKey = key.toLowerCase();
+                
+                if (lowerKey.includes('formation')) {
+                    formationsCount++;
+                    totalProblematic++;
+                    addResult(`📚 فورماسيون: ${key}`, 'warning');
+                } else if (lowerKey.includes('project')) {
+                    projectsCount++;
+                    totalProblematic++;
+                    addResult(`🏗️ مشروع: ${key}`, 'warning');
+                } else if (lowerKey.includes('event') || lowerKey.includes('evenement')) {
+                    eventsCount++;
+                    totalProblematic++;
+                    addResult(`📅 حدث: ${key}`, 'warning');
+                } else if (PROBLEMATIC_KEYS.some(problemKey => 
+                    lowerKey.includes(problemKey.toLowerCase()))) {
+                    totalProblematic++;
+                    addResult(`🔍 بيانات أخرى: ${key}`, 'warning');
+                }
+            });
+
+            // تحديث العدادات
+            document.getElementById('formations-count').textContent = formationsCount;
+            document.getElementById('projects-count').textContent = projectsCount;
+            document.getElementById('events-count').textContent = eventsCount;
+            document.getElementById('total-count').textContent = totalProblematic;
+            
+            // إظهار التحليل
+            document.getElementById('analysis').style.display = 'grid';
+            
+            addResult(`📊 تحليل مكتمل: ${totalProblematic} مفتاح مشكلة من أصل ${allKeys.length}`, 'info');
+            
+            if (totalProblematic > 0) {
+                addResult('⚠️ تم العثور على بيانات وهمية - يحتاج إصلاح!', 'error');
+                document.getElementById('countdown').textContent = '🚨';
+            } else {
+                addResult('✅ لا توجد بيانات وهمية', 'success');
+                document.getElementById('countdown').textContent = '✅';
+            }
+        }
+
+        function fixAllData() {
+            addResult('🚀 بدء الإصلاح الشامل...', 'warning');
+            const btn = document.getElementById('fix-btn');
+            btn.disabled = true;
+            
+            const allKeys = Object.keys(localStorage);
+            let deletedCount = 0;
+            let skippedCount = 0;
+            
+            addResult(`📊 فحص ${allKeys.length} مفتاح في localStorage...`, 'info');
+            
+            // حذف المفاتيح المشكلة
+            allKeys.forEach(key => {
+                const lowerKey = key.toLowerCase();
+                let shouldDelete = false;
+                let category = '';
+                
+                // فحص إذا كان المفتاح مشكلة
+                if (lowerKey.includes('formation')) {
+                    shouldDelete = true;
+                    category = '📚 فورماسيون';
+                } else if (lowerKey.includes('project')) {
+                    shouldDelete = true;
+                    category = '🏗️ مشروع';
+                } else if (lowerKey.includes('event') || lowerKey.includes('evenement')) {
+                    shouldDelete = true;
+                    category = '📅 حدث';
+                } else if (PROBLEMATIC_KEYS.some(problemKey => 
+                    lowerKey.includes(problemKey.toLowerCase()))) {
+                    shouldDelete = true;
+                    category = '🔍 بيانات أخرى';
+                }
+                
+                if (shouldDelete) {
+                    try {
+                        // عرض محتوى المفتاح قبل الحذف
+                        const data = localStorage.getItem(key);
+                        let dataInfo = '';
+                        
+                        if (data) {
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (Array.isArray(parsed)) {
+                                    dataInfo = `${parsed.length} عنصر`;
+                                } else {
+                                    dataInfo = 'كائن';
+                                }
+                            } catch (e) {
+                                dataInfo = `${data.length} حرف`;
+                            }
+                        }
+                        
+                        localStorage.removeItem(key);
+                        deletedCount++;
+                        addResult(`✅ حُذف ${category}: ${key} (${dataInfo})`, 'success');
+                        
+                    } catch (error) {
+                        addResult(`❌ فشل حذف ${key}: ${error.message}`, 'error');
+                    }
+                } else {
+                    skippedCount++;
+                }
+            });
+            
+            // النتائج النهائية
+            addResult(`🎉 الإصلاح مكتمل!`, 'success');
+            addResult(`✅ تم حذف: ${deletedCount} مفتاح`, 'success');
+            addResult(`ℹ️ تم تجاهل: ${skippedCount} مفتاح (آمن)`, 'info');
+            
+            if (deletedCount > 0) {
+                addResult('🔄 إعادة تحميل الصفحة خلال 5 ثوانٍ...', 'warning');
+                
+                // عد تنازلي
+                let countdown = 5;
+                const countdownElement = document.getElementById('countdown');
+                
+                const timer = setInterval(() => {
+                    countdownElement.textContent = countdown;
+                    countdown--;
+                    
+                    if (countdown < 0) {
+                        clearInterval(timer);
+                        addResult('🔄 إعادة تحميل...', 'success');
+                        window.location.reload();
+                    }
+                }, 1000);
+            } else {
+                addResult('ℹ️ لا توجد بيانات للحذف', 'info');
+            }
+            
+            btn.disabled = false;
+        }
+
+        function verifyFix() {
+            addResult('✅ التحقق من نجاح الإصلاح...', 'info');
+            
+            const allKeys = Object.keys(localStorage);
+            let remainingIssues = 0;
+            
+            allKeys.forEach(key => {
+                const lowerKey = key.toLowerCase();
+                
+                if (lowerKey.includes('formation') || 
+                    lowerKey.includes('project') || 
+                    lowerKey.includes('event') || 
+                    lowerKey.includes('evenement') ||
+                    PROBLEMATIC_KEYS.some(problemKey => 
+                        lowerKey.includes(problemKey.toLowerCase()))) {
+                    
+                    remainingIssues++;
+                    addResult(`⚠️ لا يزال موجود: ${key}`, 'warning');
+                }
+            });
+            
+            if (remainingIssues === 0) {
+                addResult('🎉 تم الإصلاح بنجاح! لا توجد بيانات وهمية', 'success');
+                addResult('✅ الآن كل شريك سيرى بياناته الخاصة فقط', 'success');
+                document.getElementById('countdown').textContent = '✅';
+                
+                // تحديث العدادات
+                document.getElementById('formations-count').textContent = '0';
+                document.getElementById('projects-count').textContent = '0';
+                document.getElementById('events-count').textContent = '0';
+                document.getElementById('total-count').textContent = '0';
+                
+            } else {
+                addResult(`❌ لا تزال هناك ${remainingIssues} مشكلة`, 'error');
+                addResult('💡 قد تحتاج لتشغيل الإصلاح مرة أخرى', 'warning');
+            }
+            
+            addResult(`📊 إجمالي مفاتيح localStorage: ${allKeys.length}`, 'info');
+        }
+
+        // فحص تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            addResult('🚀 أداة الإصلاح الشامل جاهزة', 'success');
+            addResult('💡 ابدأ بـ "تحليل البيانات" لرؤية المشاكل', 'info');
+            
+            // فحص سريع
+            setTimeout(() => {
+                analyzeData();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

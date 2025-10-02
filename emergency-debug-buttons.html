@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Emergency Debug - Buttons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #dc2626;
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .emergency {
+            background: #fef2f2;
+            border: 3px solid #dc2626;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .step {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        button:hover { background: #b91c1c; }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .code {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emergency">
+            <h1>🚨 EMERGENCY DEBUG</h1>
+            <h2>Alert لم يظهر = handleDeleteService لم يتم استدعاؤها</h2>
+            <p><strong>CAUSE PROBABLE:</strong> Boutons disabled أو Event handlers غير مرتبطة</p>
+        </div>
+
+        <div class="step">
+            <h2>🔍 DIAGNOSTIC IMMÉDIAT</h2>
+            <p>اختبر هذه الخطوات بالترتيب:</p>
+            
+            <h3>1️⃣ Test Admin Panel Status:</h3>
+            <button onclick="checkAdminPanel()">🔗 Check Admin Panel</button>
+            
+            <h3>2️⃣ Test Console Access:</h3>
+            <button onclick="testConsoleAccess()">🖥️ Test Console</button>
+            
+            <h3>3️⃣ Manual Function Test:</h3>
+            <button onclick="manualFunctionTest()">⚡ Manual Test</button>
+            
+            <div id="results" class="result">اضغط على الاختبارات أعلاه...</div>
+        </div>
+
+        <div class="step">
+            <h2>🛠️ SOLUTIONS IMMÉDIATES</h2>
+            
+            <h3>Solution 1: Force Restart</h3>
+            <div class="code">
+# Arrêter tout (Ctrl+C dans tous les terminals)
+# Puis redémarrer:
+
+cd backend
+npm run dev
+
+# Terminal séparé:
+cd admin-panel  
+npm run dev
+            </div>
+
+            <h3>Solution 2: Clear Browser Cache</h3>
+            <div class="code">
+1. Ctrl+Shift+Delete (Clear cache)
+2. Ou Ctrl+F5 (Hard refresh)
+3. Ou mode incognito
+            </div>
+
+            <h3>Solution 3: Manual Console Test</h3>
+            <div class="code">
+1. Ouvrir Admin Panel: http://localhost:8536/commercial-services
+2. F12 → Console
+3. Taper: typeof handleDeleteService
+4. Si "undefined" → Fonction pas chargée
+5. Si "function" → Fonction OK, problème ailleurs
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🔧 QUICK FIX - Direct Injection</h2>
+            <p>Si rien ne marche, injecte cette fonction directement dans la console:</p>
+            <div class="code">
+// Copie-colle ça dans Console de Admin Panel:
+window.testDeleteFunction = function() {
+    alert('🧪 Test function works!');
+    console.log('Test function called');
+};
+
+// Puis teste:
+testDeleteFunction();
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>📋 CHECKLIST URGENTE</h2>
+            <ol>
+                <li>☐ Backend running sur port 3001?</li>
+                <li>☐ Admin Panel running sur port 8536?</li>
+                <li>☐ Page rechargée après modifications?</li>
+                <li>☐ Console errors visibles?</li>
+                <li>☐ Boutons visuellement disabled?</li>
+                <li>☐ JavaScript enabled dans navigateur?</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        async function checkAdminPanel() {
+            const resultDiv = document.getElementById('results');
+            resultDiv.textContent = '🔗 Check Admin Panel...\n\n';
+
+            try {
+                // Test si Admin Panel répond
+                const response = await fetch('http://localhost:8536/commercial-services');
+                
+                resultDiv.textContent += `Admin Panel Status: ${response.status}\n`;
+                resultDiv.textContent += `Accessible: ${response.ok ? '✅ OUI' : '❌ NON'}\n\n`;
+
+                if (response.ok) {
+                    resultDiv.textContent += '✅ Admin Panel accessible\n\n';
+                    resultDiv.textContent += 'ÉTAPES SUIVANTES:\n';
+                    resultDiv.textContent += '1. Ouvrir: http://localhost:8536/commercial-services\n';
+                    resultDiv.textContent += '2. F12 → Console\n';
+                    resultDiv.textContent += '3. Taper: typeof handleDeleteService\n';
+                    resultDiv.textContent += '4. Chercher erreurs rouges\n\n';
+                    resultDiv.textContent += 'SI "undefined" → Fonction pas chargée\n';
+                    resultDiv.textContent += 'SI "function" → Fonction OK, boutons disabled';
+                } else {
+                    resultDiv.textContent += '❌ Admin Panel NON ACCESSIBLE\n\n';
+                    resultDiv.textContent += 'SOLUTION IMMÉDIATE:\n';
+                    resultDiv.textContent += '1. cd admin-panel\n';
+                    resultDiv.textContent += '2. npm run dev\n';
+                    resultDiv.textContent += '3. Attendre "Local: http://localhost:8536"';
+                }
+
+            } catch (error) {
+                resultDiv.textContent += `❌ ERREUR: ${error.message}\n\n`;
+                resultDiv.textContent += 'CAUSES PROBABLES:\n';
+                resultDiv.textContent += '- Admin Panel pas démarré\n';
+                resultDiv.textContent += '- Port 8536 occupé\n';
+                resultDiv.textContent += '- Firewall bloque connexion\n\n';
+                resultDiv.textContent += 'SOLUTION: Redémarrer Admin Panel';
+            }
+        }
+
+        function testConsoleAccess() {
+            const resultDiv = document.getElementById('results');
+            resultDiv.textContent = '🖥️ Test Console Access...\n\n';
+
+            // Test basic JavaScript
+            resultDiv.textContent += 'JavaScript Status: ✅ FONCTIONNEL\n';
+            resultDiv.textContent += `Date: ${new Date().toLocaleString()}\n`;
+            resultDiv.textContent += `User Agent: ${navigator.userAgent.substring(0, 50)}...\n\n`;
+
+            // Test console methods
+            try {
+                console.log('🧪 Test console.log');
+                console.error('🧪 Test console.error');
+                console.warn('🧪 Test console.warn');
+                
+                resultDiv.textContent += 'Console Methods: ✅ DISPONIBLES\n\n';
+                
+                resultDiv.textContent += 'INSTRUCTIONS CONSOLE:\n';
+                resultDiv.textContent += '1. Ouvrir Admin Panel\n';
+                resultDiv.textContent += '2. F12 → Console tab\n';
+                resultDiv.textContent += '3. Chercher messages rouges (erreurs)\n';
+                resultDiv.textContent += '4. Taper: window.location.href\n';
+                resultDiv.textContent += '5. Vérifier URL correcte\n\n';
+                
+                resultDiv.textContent += 'TESTS MANUELS:\n';
+                resultDiv.textContent += 'typeof handleDeleteService → "function" ou "undefined"\n';
+                resultDiv.textContent += 'document.querySelector("button") → doit retourner boutons\n';
+                resultDiv.textContent += 'console.log("test") → doit afficher dans console';
+                
+            } catch (error) {
+                resultDiv.textContent += `❌ Console Error: ${error.message}`;
+            }
+        }
+
+        function manualFunctionTest() {
+            const resultDiv = document.getElementById('results');
+            resultDiv.textContent = '⚡ Manual Function Test...\n\n';
+
+            // Simulate the exact function that should be called
+            resultDiv.textContent += 'SIMULATION handleDeleteService:\n\n';
+            
+            try {
+                // Test 1: Alert functionality
+                alert('🧪 TEST: Si tu vois cette alert, JavaScript fonctionne!');
+                resultDiv.textContent += '✅ Alert functionality: OK\n';
+                
+                // Test 2: Confirm functionality  
+                const confirmed = confirm('🧪 TEST: Confirm dialog test');
+                resultDiv.textContent += `✅ Confirm result: ${confirmed ? 'Confirmé' : 'Annulé'}\n`;
+                
+                // Test 3: Console functionality
+                console.log('🧪 TEST: Manual console log');
+                resultDiv.textContent += '✅ Console log: Envoyé (vérifier F12)\n\n';
+                
+                resultDiv.textContent += 'CONCLUSION:\n';
+                resultDiv.textContent += 'JavaScript fonctionne parfaitement ici.\n';
+                resultDiv.textContent += 'Le problème est dans Admin Panel:\n\n';
+                
+                resultDiv.textContent += 'CAUSES PROBABLES:\n';
+                resultDiv.textContent += '1. 🔴 handleDeleteService pas définie\n';
+                resultDiv.textContent += '2. 🔴 Boutons disabled par loading=true\n';
+                resultDiv.textContent += '3. 🔴 Event handlers pas attachés\n';
+                resultDiv.textContent += '4. 🔴 React re-render casse les handlers\n\n';
+                
+                resultDiv.textContent += 'SOLUTION IMMÉDIATE:\n';
+                resultDiv.textContent += '1. Redémarrer Admin Panel complètement\n';
+                resultDiv.textContent += '2. Vider cache navigateur (Ctrl+F5)\n';
+                resultDiv.textContent += '3. Vérifier Console pour erreurs\n';
+                resultDiv.textContent += '4. Tester en mode incognito';
+                
+            } catch (error) {
+                resultDiv.textContent += `❌ Test Error: ${error.message}`;
+            }
+        }
+
+        // Auto-run basic test on load
+        window.onload = function() {
+            console.log('🚨 Emergency Debug chargé');
+            console.log('Si tu vois ce message, JavaScript fonctionne!');
+            
+            // Show immediate status
+            const resultDiv = document.getElementById('results');
+            resultDiv.textContent = '🚨 EMERGENCY DEBUG CHARGÉ\n\n';
+            resultDiv.textContent += 'JavaScript: ✅ FONCTIONNEL\n';
+            resultDiv.textContent += 'Console: ✅ ACCESSIBLE\n';
+            resultDiv.textContent += 'Time: ' + new Date().toLocaleString() + '\n\n';
+            resultDiv.textContent += 'Cliquez sur les tests ci-dessus pour diagnostiquer...';
+        };
+    </script>
+</body>
+</html>

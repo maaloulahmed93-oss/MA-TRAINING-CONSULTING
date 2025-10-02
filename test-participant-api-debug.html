@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Participant API PART-177037</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { background: #d4edda; padding: 10px; border-radius: 4px; color: #155724; margin: 10px 0; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; color: #721c24; margin: 10px 0; }
+        .info { background: #d1ecf1; padding: 10px; border-radius: 4px; color: #0c5460; margin: 10px 0; }
+        .warning { background: #fff3cd; padding: 10px; border-radius: 4px; color: #856404; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .participant-details { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .endpoint { background: #e9ecef; padding: 8px; border-radius: 4px; font-family: monospace; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Participant API PART-177037</h1>
+        <p>Ce test diagnostique le problème 404 avec le participant PART-177037</p>
+
+        <div class="warning">
+            <strong>Erreur signalée:</strong><br>
+            <code>Failed to load resource: the server responded with a status of 404 (Not Found) - :3001/api/participants/PART-177037:1</code>
+        </div>
+
+        <div class="info">
+            <strong>Tests à effectuer:</strong>
+            <ul>
+                <li>Vérifier si le backend est en marche</li>
+                <li>Tester l'endpoint de santé</li>
+                <li>Lister tous les participants</li>
+                <li>Chercher PART-177037 spécifiquement</li>
+                <li>Vérifier la base de données</li>
+            </ul>
+        </div>
+
+        <button class="btn-primary" onclick="testBackendHealth()">1. Test Backend Health</button>
+        <button class="btn-success" onclick="testListAllParticipants()">2. Lister Tous les Participants</button>
+        <button class="btn-warning" onclick="testSpecificParticipant()">3. Test PART-177037</button>
+        <button class="btn-danger" onclick="testDatabaseConnection()">4. Test Base de Données</button>
+        <button onclick="clearResults()">Effacer</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testBackendHealth() {
+            log('🔄 Test de santé du backend...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Backend en marche!', 'success');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    log(`❌ Backend répond avec erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Impossible de contacter le backend: ${error.message}`, 'error');
+                log('🔧 Vérifiez que le backend est démarré sur le port 3001', 'warning');
+            }
+        }
+
+        async function testListAllParticipants() {
+            log('🔄 Test de listage de tous les participants...', 'info');
+            log(`<div class="endpoint">GET ${API_BASE}/participants</div>`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ ${data.data.length} participants trouvés`, 'success');
+                    
+                    // Chercher PART-177037 dans la liste
+                    const targetParticipant = data.data.find(p => p.id === PARTICIPANT_ID || p.partnerId === PARTICIPANT_ID);
+                    
+                    if (targetParticipant) {
+                        log(`🎯 PART-177037 trouvé dans la liste!`, 'success');
+                        log(`<div class="participant-details">
+                            <strong>Détails:</strong><br>
+                            ID: ${targetParticipant.id}<br>
+                            Partner ID: ${targetParticipant.partnerId}<br>
+                            Nom: ${targetParticipant.fullName}<br>
+                            Email: ${targetParticipant.email}<br>
+                            Type: ${targetParticipant.type}<br>
+                            Actif: ${targetParticipant.isActive}<br>
+                            Créé: ${targetParticipant.createdAt}
+                        </div>`, 'success');
+                    } else {
+                        log(`❌ PART-177037 NOT FOUND dans la liste des participants`, 'error');
+                        log('📋 Participants disponibles:', 'info');
+                        data.data.forEach(p => {
+                            log(`• ${p.id || p.partnerId} - ${p.fullName} (${p.email})`, 'info');
+                        });
+                    }
+                    
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'info');
+                } else {
+                    log(`❌ Erreur API: ${data.message || 'Réponse invalide'}`, 'error');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSpecificParticipant() {
+            log(`🔄 Test spécifique pour ${PARTICIPANT_ID}...`, 'info');
+            log(`<div class="endpoint">GET ${API_BASE}/participants/${PARTICIPANT_ID}</div>`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                
+                log(`📊 Status Code: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`📊 Status Text: ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Participant ${PARTICIPANT_ID} trouvé!`, 'success');
+                    log(`<div class="participant-details">
+                        <strong>Détails complets:</strong><br>
+                        ID: ${data.data.id}<br>
+                        Partner ID: ${data.data.partnerId}<br>
+                        Nom: ${data.data.fullName}<br>
+                        Email: ${data.data.email}<br>
+                        Téléphone: ${data.data.phone}<br>
+                        Adresse: ${data.data.address}<br>
+                        Type: ${data.data.type}<br>
+                        Actif: ${data.data.isActive}<br>
+                        Progrès Total: ${data.data.totalProgress}%<br>
+                        Formations: ${data.data.formations?.length || 0}<br>
+                        Projets: ${data.data.projects?.length || 0}<br>
+                        Ressources: ${data.data.coachingResources?.length || 0}<br>
+                        Notifications: ${data.data.notifications?.length || 0}
+                    </div>`, 'success');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else if (response.status === 404) {
+                    const data = await response.json();
+                    log(`❌ 404 - Participant ${PARTICIPANT_ID} non trouvé`, 'error');
+                    log(`Message: ${data.message}`, 'error');
+                    log('🔍 Causes possibles:', 'warning');
+                    log('• Le participant n\'existe pas dans la base de données', 'warning');
+                    log('• Le participant existe mais avec un ID différent', 'warning');
+                    log('• Le participant est marqué comme inactif (isActive: false)', 'warning');
+                    log('• Le participant n\'a pas le type "participant"', 'warning');
+                } else {
+                    const data = await response.json();
+                    log(`❌ Erreur ${response.status}: ${data.message}`, 'error');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDatabaseConnection() {
+            log('🔄 Test de connexion à la base de données...', 'info');
+            
+            // Test via l'endpoint partners pour voir la structure de données
+            try {
+                log(`<div class="endpoint">GET ${API_BASE}/partners</div>`, 'info');
+                const response = await fetch(`${API_BASE}/partners`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log(`✅ Base de données accessible - ${data.data.length} partners trouvés`, 'success');
+                    
+                    // Chercher les participants dans les partners
+                    const participants = data.data.filter(p => p.type === 'participant');
+                    log(`👥 ${participants.length} participants trouvés dans la collection Partners`, 'info');
+                    
+                    // Chercher PART-177037
+                    const target = data.data.find(p => 
+                        p.partnerId === PARTICIPANT_ID || 
+                        p.id === PARTICIPANT_ID ||
+                        p.fullName?.includes('177037')
+                    );
+                    
+                    if (target) {
+                        log(`🎯 Trouvé dans Partners collection!`, 'success');
+                        log(`<div class="participant-details">
+                            <strong>Données brutes:</strong><br>
+                            Partner ID: ${target.partnerId}<br>
+                            Nom: ${target.fullName}<br>
+                            Email: ${target.email}<br>
+                            Type: ${target.type}<br>
+                            Actif: ${target.isActive}<br>
+                            Description: ${target.description || 'N/A'}
+                        </div>`, 'success');
+                    } else {
+                        log(`❌ ${PARTICIPANT_ID} non trouvé dans la collection Partners`, 'error');
+                        log('📋 Partners avec type "participant":', 'info');
+                        participants.forEach(p => {
+                            log(`• ${p.partnerId} - ${p.fullName} (${p.email}) - Actif: ${p.isActive}`, 'info');
+                        });
+                    }
+                } else {
+                    log(`❌ Erreur d'accès à la base de données: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion à la base de données: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-start basic tests
+        window.addEventListener('load', () => {
+            log('🚀 Debug Participant API chargé', 'info');
+            log(`🎯 Cible: ${PARTICIPANT_ID}`, 'info');
+            log('Cliquez sur les boutons pour diagnostiquer le problème', 'info');
+        });
+    </script>
+</body>
+</html>

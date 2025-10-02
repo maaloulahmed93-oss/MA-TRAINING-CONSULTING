@@ -1,0 +1,273 @@
+dmin<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Main Site API Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .loading { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 300px; }
+        .program-card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Main Site API Connection</h1>
+        <p>Testing connection from localhost:5174 to backend API at localhost:3001</p>
+        
+        <div class="test-section">
+            <h2>1. Test Programs API</h2>
+            <button onclick="testProgramsAPI()">Test Programs</button>
+            <div id="programs-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Test Packs API</h2>
+            <button onclick="testPacksAPI()">Test Packs</button>
+            <div id="packs-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Test Categories API</h2>
+            <button onclick="testCategoriesAPI()">Test Categories</button>
+            <div id="categories-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Display Programs (Frontend Format)</h2>
+            <button onclick="displayPrograms()">Display Programs</button>
+            <div id="display-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        
+        async function testProgramsAPI() {
+            const resultDiv = document.getElementById('programs-result');
+            resultDiv.innerHTML = '<div class="loading">Testing programs API...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/programs`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Programs API Success</h3>
+                            <p><strong>Count:</strong> ${data.count} programs</p>
+                            <p><strong>Programs:</strong></p>
+                            <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Programs API Error</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>💥 Connection Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>This indicates a CORS or network issue</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testPacksAPI() {
+            const resultDiv = document.getElementById('packs-result');
+            resultDiv.innerHTML = '<div class="loading">Testing packs API...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/packs`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Packs API Success</h3>
+                            <p><strong>Count:</strong> ${data.data.length} packs</p>
+                            <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Packs API Error</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>💥 Connection Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testCategoriesAPI() {
+            const resultDiv = document.getElementById('categories-result');
+            resultDiv.innerHTML = '<div class="loading">Testing categories API...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Categories API Success</h3>
+                            <p><strong>Count:</strong> ${data.data.length} categories</p>
+                            <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Categories API Error</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>💥 Connection Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Transform API program to frontend format (same as in programsApi.ts)
+        function transformApiProgram(apiProgram) {
+            const getInstructorByCategory = (category) => {
+                const instructors = {
+                    'Technologies': 'Ahmed Benali',
+                    'Management': 'Dr. Fatima El Mansouri',
+                    'Business': 'Mohamed Kharrat',
+                    'Design': 'Leila Trabelsi',
+                    'Marketing': 'Youssef Hadj'
+                };
+                return instructors[category] || 'Instructeur MATC';
+            };
+            
+            const getFeaturesByCategory = (category) => {
+                const features = {
+                    'Technologies': ['Projets pratiques', 'Mentorat personnalisé', 'Certificat de fin de formation', 'Accès à vie aux ressources'],
+                    'Management': ['Études de cas réels', 'Coaching individuel', 'Certification PMI', 'Réseau professionnel'],
+                    'Business': ['Études de cas réels', 'Coaching individuel', 'Certification PMI', 'Réseau professionnel'],
+                    'Design': ['Portfolio professionnel', 'Projets clients réels', 'Mentorat design senior', 'Certification Adobe'],
+                    'Marketing': ['Campagnes marketing réelles', 'Outils premium inclus', 'Certification Google/Facebook', 'Suivi ROI personnalisé']
+                };
+                return features[category] || ['Formation certifiante', 'Support pédagogique', 'Suivi personnalisé', 'Accès aux ressources'];
+            };
+            
+            const categoryName = typeof apiProgram.category === 'object' ? apiProgram.category.name : apiProgram.category;
+            
+            return {
+                id: apiProgram._id,
+                title: apiProgram.title,
+                description: apiProgram.description,
+                sessions: apiProgram.sessions.map((session, index) => ({
+                    id: `${apiProgram._id}-session-${index + 1}`,
+                    date: session.date,
+                    startDate: session.date.split(' - ')[0] || session.date,
+                    endDate: session.date.split(' - ')[1] || session.date
+                })),
+                modules: apiProgram.modules.map(module => module.title),
+                price: apiProgram.price,
+                duration: apiProgram.duration,
+                level: apiProgram.level,
+                category: categoryName,
+                instructor: getInstructorByCategory(categoryName),
+                maxStudents: apiProgram.maxParticipants,
+                features: getFeaturesByCategory(categoryName),
+                rating: 4.5
+            };
+        }
+        
+        async function displayPrograms() {
+            const resultDiv = document.getElementById('display-result');
+            resultDiv.innerHTML = '<div class="loading">Loading and transforming programs...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/programs`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const transformedPrograms = data.data.map(transformApiProgram);
+                    
+                    let html = `
+                        <div class="success">
+                            <h3>✅ Programs Loaded and Transformed</h3>
+                            <p><strong>Count:</strong> ${transformedPrograms.length} programs</p>
+                    `;
+                    
+                    transformedPrograms.forEach(program => {
+                        html += `
+                            <div class="program-card">
+                                <h4>${program.title}</h4>
+                                <p><strong>Category:</strong> ${program.category}</p>
+                                <p><strong>Level:</strong> ${program.level}</p>
+                                <p><strong>Price:</strong> ${program.price}€</p>
+                                <p><strong>Duration:</strong> ${program.duration}</p>
+                                <p><strong>Instructor:</strong> ${program.instructor}</p>
+                                <p><strong>Max Students:</strong> ${program.maxStudents}</p>
+                                <p><strong>Modules:</strong> ${program.modules.join(', ')}</p>
+                                <p><strong>Features:</strong> ${program.features.join(', ')}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error Loading Programs</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>💥 Connection Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.onload = function() {
+            setTimeout(() => {
+                testProgramsAPI();
+                setTimeout(() => testPacksAPI(), 1000);
+                setTimeout(() => testCategoriesAPI(), 2000);
+                setTimeout(() => displayPrograms(), 3000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

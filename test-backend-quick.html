@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Quick</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Backend Quick</h1>
+    
+    <button onclick="testHealth()">Test Health</button>
+    <button onclick="testRegistrations()">Test Registrations</button>
+    <button onclick="createTestRegistration()">Create Test Registration</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function addResult(message, isSuccess = true) {
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                addResult(`✅ Health Check: ${data.message}`, true);
+            } catch (error) {
+                addResult(`❌ Health Check Failed: ${error.message}`, false);
+            }
+        }
+        
+        async function testRegistrations() {
+            try {
+                const response = await fetch(`${API_BASE}/registrations`);
+                const data = await response.json();
+                addResult(`✅ Registrations: Found ${data.data?.length || 0} registrations`, true);
+            } catch (error) {
+                addResult(`❌ Registrations Failed: ${error.message}`, false);
+            }
+        }
+        
+        async function createTestRegistration() {
+            try {
+                const testData = {
+                    type: 'program',
+                    itemId: 'test-program-123',
+                    itemName: 'Test Program',
+                    price: 100,
+                    currency: '€',
+                    sessionId: 'session-1',
+                    user: {
+                        firstName: 'Test',
+                        lastName: 'User',
+                        email: 'test@example.com',
+                        whatsapp: '+216 12 345 678'
+                    }
+                };
+                
+                const response = await fetch(`${API_BASE}/registrations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`✅ Registration Created: ID ${data.data._id}`, true);
+                } else {
+                    addResult(`❌ Registration Failed: ${data.message}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ Registration Error: ${error.message}`, false);
+            }
+        }
+        
+        // Auto test on load
+        window.onload = () => {
+            testHealth();
+        };
+    </script>
+</body>
+</html>

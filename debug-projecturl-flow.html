@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug ProjectUrl Flow - MATC</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .step { margin-bottom: 25px; padding: 20px; border: 2px solid #e0e0e0; border-radius: 10px; background: #f9f9f9; }
+        .step h2 { color: #4a90e2; margin-top: 0; }
+        .btn { background: linear-gradient(45deg, #4a90e2, #357abd); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin: 5px; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn.success { background: linear-gradient(45deg, #28a745, #20c997); }
+        .btn.danger { background: linear-gradient(45deg, #dc3545, #c82333); }
+        .result { margin-top: 15px; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; max-height: 300px; overflow-y: auto; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        .input-group { margin: 10px 0; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .flow-step { display: inline-block; padding: 8px 16px; margin: 5px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .flow-success { background: #28a745; color: white; }
+        .flow-error { background: #dc3545; color: white; }
+        .flow-pending { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug ProjectUrl Flow</h1>
+        
+        <!-- Étape 1: Test Backend -->
+        <div class="step">
+            <h2>1️⃣ Test Connectivité Backend</h2>
+            <button class="btn" onclick="testBackend()">Tester Backend</button>
+            <div id="backendResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 2: Analyse Participant -->
+        <div class="step">
+            <h2>2️⃣ Analyse Participant</h2>
+            <div class="input-group">
+                <label>ID Participant:</label>
+                <input type="text" id="participantId" value="PART-177037" placeholder="PART-XXXXXX">
+            </div>
+            <button class="btn" onclick="analyzeParticipant()">Analyser Participant</button>
+            <div id="participantResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 3: Test Sauvegarde API -->
+        <div class="step">
+            <h2>3️⃣ Test Sauvegarde ProjectUrl</h2>
+            <div class="input-group">
+                <label>Titre Projet:</label>
+                <input type="text" id="projectTitle" value="Test ProjectUrl" placeholder="Nom du projet">
+            </div>
+            <div class="input-group">
+                <label>URL Projet:</label>
+                <input type="url" id="projectUrl" value="https://example.com/test" placeholder="https://...">
+            </div>
+            <button class="btn success" onclick="testProjectUrlSave()">Tester Sauvegarde</button>
+            <div id="saveResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 4: Vérification MongoDB -->
+        <div class="step">
+            <h2>4️⃣ Vérification MongoDB</h2>
+            <button class="btn" onclick="verifyMongoDB()">Vérifier MongoDB</button>
+            <div id="mongoResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 5: Flux Complet -->
+        <div class="step">
+            <h2>5️⃣ Visualisation Flux Complet</h2>
+            <div id="flowVisualization">
+                <div class="flow-step flow-pending">Admin Panel</div>
+                <div class="flow-step flow-pending">→ API Service</div>
+                <div class="flow-step flow-pending">→ Backend Route</div>
+                <div class="flow-step flow-pending">→ MongoDB</div>
+                <div class="flow-step flow-pending">→ Frontend</div>
+            </div>
+            <button class="btn" onclick="testCompleteFlow()">Tester Flux Complet</button>
+            <div id="flowResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Étape 6: Correction -->
+        <div class="step">
+            <h2>6️⃣ Correction Automatique</h2>
+            <button class="btn danger" onclick="fixProjectUrls()">Corriger URLs Manquantes</button>
+            <div id="fixResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let flowStatus = {
+            adminPanel: false,
+            apiService: false,
+            backendRoute: false,
+            mongodb: false,
+            frontend: false
+        };
+
+        function updateFlowVisualization() {
+            const steps = document.querySelectorAll('.flow-step');
+            const statuses = Object.values(flowStatus);
+            
+            steps.forEach((step, index) => {
+                step.className = 'flow-step ' + (statuses[index] ? 'flow-success' : 'flow-error');
+            });
+        }
+
+        async function testBackend() {
+            const resultDiv = document.getElementById('backendResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Test connexion backend...';
+
+            try {
+                const response = await fetch(`${API_BASE}/participants`);
+                if (response.ok) {
+                    const data = await response.json();
+                    flowStatus.backendRoute = true;
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Backend connecté!\nParticipants: ${data.data?.length || 0}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                flowStatus.backendRoute = false;
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur backend: ${error.message}`;
+            }
+            updateFlowVisualization();
+        }
+
+        async function analyzeParticipant() {
+            const participantId = document.getElementById('participantId').value.trim();
+            if (!participantId) {
+                alert('Veuillez saisir un ID participant');
+                return;
+            }
+
+            const resultDiv = document.getElementById('participantResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = `🔄 Analyse participant ${participantId}...`;
+
+            try {
+                const response = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const participant = data.data;
+                    const projects = participant.projects || [];
+                    
+                    const projectsWithUrl = projects.filter(p => p.projectUrl && p.projectUrl.trim());
+                    const projectsWithoutUrl = projects.filter(p => !p.projectUrl || !p.projectUrl.trim());
+
+                    flowStatus.mongodb = projectsWithUrl.length > 0;
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Participant trouvé: ${participant.fullName}\n` +
+                        `📊 Projets total: ${projects.length}\n` +
+                        `✅ Avec URL: ${projectsWithUrl.length}\n` +
+                        `❌ Sans URL: ${projectsWithoutUrl.length}\n\n` +
+                        `📋 Détails projets:\n${JSON.stringify(projects.map(p => ({
+                            title: p.title,
+                            projectUrl: p.projectUrl || 'VIDE'
+                        })), null, 2)}`;
+                } else {
+                    throw new Error(`Participant non trouvé: ${response.status}`);
+                }
+            } catch (error) {
+                flowStatus.mongodb = false;
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur: ${error.message}`;
+            }
+            updateFlowVisualization();
+        }
+
+        async function testProjectUrlSave() {
+            const participantId = document.getElementById('participantId').value.trim();
+            const projectTitle = document.getElementById('projectTitle').value.trim();
+            const projectUrl = document.getElementById('projectUrl').value.trim();
+
+            if (!participantId || !projectTitle || !projectUrl) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            const resultDiv = document.getElementById('saveResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Test sauvegarde projectUrl...';
+
+            try {
+                // 1. Récupérer participant actuel
+                const getResponse = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (!getResponse.ok) throw new Error(`Participant non trouvé: ${getResponse.status}`);
+                
+                const participantData = await getResponse.json();
+                const participant = participantData.data;
+                
+                flowStatus.apiService = true;
+
+                // 2. Ajouter/modifier projet avec URL
+                const projects = participant.projects || [];
+                const existingIndex = projects.findIndex(p => p.title === projectTitle);
+                
+                const newProject = {
+                    title: projectTitle,
+                    description: `Test project pour vérifier projectUrl`,
+                    projectUrl: projectUrl,
+                    status: 'not_started',
+                    dueDate: new Date().toISOString(),
+                    isVisible: true,
+                    isActive: true
+                };
+
+                if (existingIndex >= 0) {
+                    projects[existingIndex] = { ...projects[existingIndex], ...newProject };
+                } else {
+                    projects.push(newProject);
+                }
+
+                // 3. Sauvegarder via PUT
+                const putResponse = await fetch(`${API_BASE}/participants/${participantId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...participant,
+                        projects: projects
+                    })
+                });
+
+                if (putResponse.ok) {
+                    const result = await putResponse.json();
+                    flowStatus.adminPanel = true;
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ ProjectUrl sauvegardé avec succès!\n` +
+                        `Participant: ${participantId}\n` +
+                        `Projet: ${projectTitle}\n` +
+                        `URL: ${projectUrl}\n` +
+                        `Response: ${JSON.stringify(result, null, 2)}`;
+                } else {
+                    throw new Error(`Erreur PUT: ${putResponse.status}`);
+                }
+            } catch (error) {
+                flowStatus.adminPanel = false;
+                flowStatus.apiService = false;
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur sauvegarde: ${error.message}`;
+            }
+            updateFlowVisualization();
+        }
+
+        async function verifyMongoDB() {
+            const participantId = document.getElementById('participantId').value.trim();
+            
+            const resultDiv = document.getElementById('mongoResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Vérification MongoDB...';
+
+            try {
+                // Vérifier via API directe projets
+                const response = await fetch(`${API_BASE}/participants/${participantId}/projects`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const projects = data.data || [];
+                    
+                    const urlAnalysis = projects.map(p => ({
+                        title: p.title,
+                        hasUrl: !!(p.projectUrl && p.projectUrl.trim()),
+                        url: p.projectUrl || 'VIDE',
+                        createdAt: p.createdAt,
+                        updatedAt: p.updatedAt
+                    }));
+
+                    flowStatus.mongodb = projects.some(p => p.projectUrl && p.projectUrl.trim());
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ MongoDB vérifié!\n` +
+                        `Projets dans ParticipantProject collection: ${projects.length}\n\n` +
+                        `📊 Analyse URLs:\n${JSON.stringify(urlAnalysis, null, 2)}`;
+                } else {
+                    throw new Error(`Erreur API projets: ${response.status}`);
+                }
+            } catch (error) {
+                flowStatus.mongodb = false;
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur MongoDB: ${error.message}`;
+            }
+            updateFlowVisualization();
+        }
+
+        async function testCompleteFlow() {
+            const resultDiv = document.getElementById('flowResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Test flux complet...';
+
+            // Reset flow status
+            Object.keys(flowStatus).forEach(key => flowStatus[key] = false);
+
+            try {
+                // Test chaque étape
+                await testBackend();
+                await analyzeParticipant();
+                await testProjectUrlSave();
+                await verifyMongoDB();
+
+                // Vérifier frontend
+                const participantId = document.getElementById('participantId').value.trim();
+                const frontendResponse = await fetch(`${API_BASE}/participants/${participantId}`);
+                if (frontendResponse.ok) {
+                    const data = await frontendResponse.json();
+                    const hasProjectsWithUrls = data.data.projects?.some(p => p.projectUrl && p.projectUrl.trim());
+                    flowStatus.frontend = hasProjectsWithUrls;
+                }
+
+                const successCount = Object.values(flowStatus).filter(Boolean).length;
+                const totalSteps = Object.keys(flowStatus).length;
+
+                resultDiv.className = successCount === totalSteps ? 'result success' : 'result warning';
+                resultDiv.textContent = `📊 Flux testé: ${successCount}/${totalSteps} étapes réussies\n\n` +
+                    `✅ Backend Route: ${flowStatus.backendRoute ? 'OK' : 'ÉCHEC'}\n` +
+                    `✅ API Service: ${flowStatus.apiService ? 'OK' : 'ÉCHEC'}\n` +
+                    `✅ Admin Panel: ${flowStatus.adminPanel ? 'OK' : 'ÉCHEC'}\n` +
+                    `✅ MongoDB: ${flowStatus.mongodb ? 'OK' : 'ÉCHEC'}\n` +
+                    `✅ Frontend: ${flowStatus.frontend ? 'OK' : 'ÉCHEC'}`;
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur flux complet: ${error.message}`;
+            }
+            updateFlowVisualization();
+        }
+
+        async function fixProjectUrls() {
+            const resultDiv = document.getElementById('fixResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Correction URLs en cours...';
+
+            const fixes = [
+                { participantId: 'PART-177037', title: 'nde', url: 'https://www.youtube.com/watch?v=P9ot-NGv2Qg' },
+                { participantId: 'PART-177037', title: 'تليي', url: 'https://chatgpt.com/c/68c6fb2a-3cd8-832e-88fe-7b081a7aaf2d' },
+                { participantId: 'PART-177037', title: 'بوينج', url: 'https://www.youtube.com/watch?v=oqo2bSoem5g' }
+            ];
+
+            let results = [];
+
+            for (const fix of fixes) {
+                try {
+                    document.getElementById('participantId').value = fix.participantId;
+                    document.getElementById('projectTitle').value = fix.title;
+                    document.getElementById('projectUrl').value = fix.url;
+                    
+                    await testProjectUrlSave();
+                    results.push(`✅ ${fix.title}: OK`);
+                } catch (error) {
+                    results.push(`❌ ${fix.title}: ${error.message}`);
+                }
+            }
+
+            resultDiv.className = 'result success';
+            resultDiv.textContent = `✅ Correction terminée!\n\n${results.join('\n')}`;
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            setTimeout(testBackend, 1000);
+        };
+    </script>
+</body>
+</html>

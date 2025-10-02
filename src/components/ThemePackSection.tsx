@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { themePacks, Pack } from '../data/themePacks';
+import { getPacksWithFallback } from '../services/packsApi';
 import PackCard from './PackCard';
 import PackModal from './PackModal';
 
@@ -10,6 +11,24 @@ interface ThemePackSectionProps {
 
 const ThemePackSection: React.FC<ThemePackSectionProps> = ({ selectedCurrency }) => {
   const [selectedPack, setSelectedPack] = useState<Pack | null>(null);
+  const [packs, setPacks] = useState<Pack[]>(themePacks);
+
+  // Load packs from API on component mount
+  useEffect(() => {
+    const loadPacks = async () => {
+      try {
+        const apiPacks = await getPacksWithFallback();
+        if (apiPacks && apiPacks.length > 0) {
+          setPacks(apiPacks);
+        }
+      } catch (error) {
+        console.error('Error loading packs:', error);
+        // Keep fallback packs if API fails
+      }
+    };
+    
+    loadPacks();
+  }, []);
 
   const handleOpenModal = (pack: Pack) => {
     console.log('Ouverture du modal pour:', pack.name);
@@ -68,7 +87,7 @@ const ThemePackSection: React.FC<ThemePackSectionProps> = ({ selectedCurrency })
 
             {/* Packs Grid avec espacement amélioré */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-              {themePacks.map((pack, index) => (
+              {packs.map((pack, index) => (
                 <motion.div
                   key={pack.packId}
                   data-pack-id={pack.packId}

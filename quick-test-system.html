@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ اختبار سريع - نظام العروض والمشاريع</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 5px solid #4CAF50; }
+        .error { border-left: 5px solid #f44336; }
+        .warning { border-left: 5px solid #ff9800; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        .result { margin-top: 10px; padding: 10px; border-radius: 5px; }
+        .loading { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>⚡ اختبار سريع للنظام</h1>
+    
+    <div class="test-card">
+        <h3>🔧 1. اختبار Backend</h3>
+        <button onclick="testBackend()">اختبار الاتصال</button>
+        <div id="backend-result" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h3>📋 2. اختبار العروض</h3>
+        <button onclick="testOffers()">جلب العروض</button>
+        <div id="offers-result" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h3>✅ 3. اختبار قبول العرض</h3>
+        <button onclick="testAccept()">قبول عرض</button>
+        <div id="accept-result" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h3>📊 4. اختبار المشاريع</h3>
+        <button onclick="testProjects()">جلب المشاريع</button>
+        <div id="projects-result" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h3>🚀 5. اختبار شامل</h3>
+        <button onclick="runFullTest()">تشغيل الاختبار الكامل</button>
+        <div id="full-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        const FREELANCER_ID = 'FREEL123';
+        let availableOfferId = null;
+
+        async function testBackend() {
+            const result = document.getElementById('backend-result');
+            result.innerHTML = '<span class="loading">🔄 جاري الاختبار...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = '✅ Backend يعمل بنجاح';
+                    result.className = 'result success';
+                } else {
+                    throw new Error('Backend not responding correctly');
+                }
+            } catch (error) {
+                result.innerHTML = `❌ خطأ: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testOffers() {
+            const result = document.getElementById('offers-result');
+            result.innerHTML = '<span class="loading">🔄 جاري جلب العروض...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/freelancer-offers/for-freelancer/${FREELANCER_ID}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    availableOfferId = data.data.length > 0 ? data.data[0]._id : null;
+                    result.innerHTML = `✅ تم جلب ${data.data.length} عروض`;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message || 'Failed to fetch offers');
+                }
+            } catch (error) {
+                result.innerHTML = `❌ خطأ: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testAccept() {
+            const result = document.getElementById('accept-result');
+            
+            if (!availableOfferId) {
+                result.innerHTML = '⚠️ لا يوجد عرض للاختبار. جرب "جلب العروض" أولاً';
+                result.className = 'result warning';
+                return;
+            }
+            
+            result.innerHTML = '<span class="loading">🔄 جاري قبول العرض...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/freelancer-offers/${availableOfferId}/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ freelancerId: FREELANCER_ID })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = '✅ تم قبول العرض وإنشاء المشروع بنجاح';
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message || 'Failed to accept offer');
+                }
+            } catch (error) {
+                result.innerHTML = `❌ خطأ: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testProjects() {
+            const result = document.getElementById('projects-result');
+            result.innerHTML = '<span class="loading">🔄 جاري جلب المشاريع...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/freelancer-projects/for-freelancer/${FREELANCER_ID}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `✅ تم جلب ${data.data.length} مشاريع`;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message || 'Failed to fetch projects');
+                }
+            } catch (error) {
+                result.innerHTML = `❌ خطأ: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function runFullTest() {
+            const result = document.getElementById('full-result');
+            result.innerHTML = '<span class="loading">🔄 جاري تشغيل الاختبار الكامل...</span>';
+            
+            try {
+                // اختبار Backend
+                await testBackend();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // جلب العروض
+                await testOffers();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // قبول عرض إذا كان متاحاً
+                if (availableOfferId) {
+                    await testAccept();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                // جلب المشاريع
+                await testProjects();
+                
+                result.innerHTML = '🎉 جميع الاختبارات نجحت! النظام يعمل بشكل مثالي';
+                result.className = 'result success';
+                
+            } catch (error) {
+                result.innerHTML = `❌ فشل الاختبار الكامل: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // تشغيل اختبار Backend تلقائياً عند تحميل الصفحة
+        window.onload = function() {
+            testBackend();
+        };
+    </script>
+</body>
+</html>

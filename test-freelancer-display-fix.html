@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Freelancer Display Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        
+        .offer-preview {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #f9f9f9;
+        }
+        .offer-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .offer-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .detail-item {
+            padding: 5px 10px;
+            background-color: white;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-blue { background-color: #e3f2fd; color: #1976d2; }
+        .badge-green { background-color: #e8f5e8; color: #2e7d32; }
+        .badge-purple { background-color: #f3e5f5; color: #7b1fa2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Freelancer Display Fix</h1>
+        <p>Test des améliorations d'affichage pour Freelancer Space</p>
+
+        <!-- Test des données actuelles -->
+        <div class="section">
+            <h3>1. Test des Données Actuelles</h3>
+            <button class="btn-primary" onclick="testCurrentData()">Tester Données Actuelles</button>
+            <div id="current-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Aperçu des améliorations -->
+        <div class="section">
+            <h3>2. Aperçu des Améliorations</h3>
+            <button class="btn-success" onclick="showImprovements()">Voir les Améliorations</button>
+            <div id="improvements-result" style="display: none;"></div>
+        </div>
+
+        <!-- Test avec données d'exemple -->
+        <div class="section">
+            <h3>3. Test avec Données d'Exemple</h3>
+            <button class="btn-warning" onclick="testWithSampleData()">Tester avec Exemples</button>
+            <div id="sample-result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="section">
+            <h3>4. Instructions de Test</h3>
+            <ol>
+                <li>Testez les données actuelles pour voir le format actuel</li>
+                <li>Regardez l'aperçu des améliorations</li>
+                <li>Allez sur <a href="http://localhost:5173/espace-freelancer" target="_blank">Freelancer Space</a></li>
+                <li>Connectez-vous et vérifiez la section "Offres de Mission"</li>
+                <li>Vérifiez que les nouveaux champs apparaissent:
+                    <ul>
+                        <li><strong>Salaire Min - Max</strong></li>
+                        <li><strong>Type de lieu</strong> (Remote/Hybride/Sur site)</li>
+                        <li><strong>Niveau</strong> (Junior/Intermédiaire/Senior)</li>
+                        <li><strong>Type de contrat</strong> (Temps plein/partiel/etc.)</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Tester les données actuelles
+        async function testCurrentData() {
+            const resultDiv = document.getElementById('current-result');
+            
+            try {
+                showResult(resultDiv, 'info', '🔄 Test des données actuelles...');
+                
+                const response = await fetch(`${API_BASE}/freelancer-offers/for-freelancer/FRE-340255`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let result = `📊 Données actuelles (${data.count} offres):\n\n`;
+                    
+                    data.data.forEach((offer, index) => {
+                        result += `${index + 1}. ${offer.title}\n`;
+                        result += `   Entreprise: ${offer.company}\n`;
+                        result += `   Salaire Min: ${offer.salaryMin || 'Non défini'}\n`;
+                        result += `   Salaire Max: ${offer.salaryMax || 'Non défini'}\n`;
+                        result += `   Currency: ${offer.currency || 'TND'}\n`;
+                        result += `   Type lieu: ${offer.locationType || 'Non défini'}\n`;
+                        result += `   Niveau: ${offer.seniority || 'Non défini'}\n`;
+                        result += `   Contrat: ${offer.contractType || 'Non défini'}\n`;
+                        result += `   Compétences: ${JSON.stringify(offer.skills || [])}\n\n`;
+                    });
+                    
+                    showResult(resultDiv, 'success', result);
+                } else {
+                    showResult(resultDiv, 'error', `❌ Erreur: ${data.message || 'Pas de données'}`);
+                }
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        // Montrer les améliorations
+        function showImprovements() {
+            const resultDiv = document.getElementById('improvements-result');
+            resultDiv.style.display = 'block';
+            
+            resultDiv.innerHTML = `
+                <h4>✨ Améliorations Appliquées:</h4>
+                
+                <div class="offer-preview">
+                    <div class="offer-title">🚀 Développeur React Senior</div>
+                    <div class="offer-details">
+                        <div class="detail-item">
+                            <strong>💰 Salaire:</strong> 2500 - 4000 TND
+                        </div>
+                        <div class="detail-item">
+                            <strong>🏢 Entreprise:</strong> TechCorp
+                        </div>
+                        <div class="detail-item">
+                            <strong>📅 Deadline:</strong> 30/12/2024
+                        </div>
+                        <div class="detail-item">
+                            <strong>📅 Créé:</strong> 25/09/2024
+                        </div>
+                    </div>
+                    
+                    <div class="offer-details">
+                        <div class="detail-item">
+                            <span class="badge badge-blue">📍 Remote</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="badge badge-green">🎯 Senior</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="badge badge-purple">💼 Temps plein</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <strong>Exigences:</strong> React, TypeScript, Node.js, 5+ ans d'expérience
+                    </div>
+                </div>
+                
+                <h4>🔧 Changements Techniques:</h4>
+                <ul>
+                    <li>✅ Affichage du salaire Min-Max avec currency</li>
+                    <li>✅ Badges colorés pour Type de lieu, Niveau, Contrat</li>
+                    <li>✅ Meilleure gestion des données manquantes</li>
+                    <li>✅ Mapping correct entre API et affichage</li>
+                    <li>✅ Support des champs: salaryMin, salaryMax, seniority, contractType, locationType</li>
+                </ul>
+            `;
+        }
+
+        // Tester avec données d'exemple
+        function testWithSampleData() {
+            const resultDiv = document.getElementById('sample-result');
+            resultDiv.style.display = 'block';
+            
+            const sampleOffers = [
+                {
+                    title: "Développeur Frontend React",
+                    company: "TechCorp",
+                    salaryMin: 2500,
+                    salaryMax: 4000,
+                    currency: "TND",
+                    locationType: "remote",
+                    seniority: "senior",
+                    contractType: "full-time",
+                    skills: ["React", "TypeScript", "JavaScript"]
+                },
+                {
+                    title: "Designer UX/UI",
+                    company: "DesignStudio",
+                    salaryMin: 1800,
+                    salaryMax: 2800,
+                    currency: "TND",
+                    locationType: "hybrid",
+                    seniority: "mid",
+                    contractType: "part-time",
+                    skills: ["Figma", "Adobe XD", "UI Design"]
+                }
+            ];
+            
+            let html = '<h4>📋 Aperçu avec Données d\'Exemple:</h4>';
+            
+            sampleOffers.forEach((offer, index) => {
+                const workModeText = offer.locationType === 'remote' ? 'Remote' : 
+                                   offer.locationType === 'hybrid' ? 'Hybride' : 'Sur site';
+                const seniorityText = offer.seniority === 'junior' ? 'Junior' : 
+                                    offer.seniority === 'mid' ? 'Intermédiaire' : 'Senior';
+                const contractText = offer.contractType === 'full-time' ? 'Temps plein' : 
+                                   offer.contractType === 'part-time' ? 'Temps partiel' : 'Contrat';
+                
+                html += `
+                    <div class="offer-preview">
+                        <div class="offer-title">${index + 1}. ${offer.title}</div>
+                        <div class="offer-details">
+                            <div class="detail-item">
+                                <strong>💰 Salaire:</strong> ${offer.salaryMin} - ${offer.salaryMax} ${offer.currency}
+                            </div>
+                            <div class="detail-item">
+                                <strong>🏢 Entreprise:</strong> ${offer.company}
+                            </div>
+                        </div>
+                        
+                        <div class="offer-details">
+                            <div class="detail-item">
+                                <span class="badge badge-blue">📍 ${workModeText}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="badge badge-green">🎯 ${seniorityText}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="badge badge-purple">💼 ${contractText}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 10px;">
+                            <strong>Compétences:</strong> ${offer.skills.join(', ')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // Fonction utilitaire
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-load
+        window.onload = function() {
+            console.log('🧪 Freelancer Display Fix Test loaded');
+        };
+    </script>
+</body>
+</html>

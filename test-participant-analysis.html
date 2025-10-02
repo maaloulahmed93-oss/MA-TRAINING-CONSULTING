@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC Participant System Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .endpoint { font-family: monospace; background: #e9ecef; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 MATC Participant System Analysis</h1>
+        <p>Deep analysis of the Participant system and Admin Panel data isolation issue.</p>
+    </div>
+
+    <div class="container">
+        <h2>📊 Current System Architecture</h2>
+        <div id="architecture-info" class="test-section info">
+            <h3>Discovered Architecture:</h3>
+            <ul>
+                <li><strong>Admin Panel:</strong> Uses localStorage-based participantsService.ts</li>
+                <li><strong>Participant Space:</strong> Uses mock data from participantData.ts</li>
+                <li><strong>Backend:</strong> No dedicated participant routes found</li>
+                <li><strong>Data Storage:</strong> Admin = localStorage, Participant = static mock data</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 API Endpoint Tests</h2>
+        
+        <div class="test-section">
+            <h3>1. Check Backend Health</h3>
+            <button onclick="testBackendHealth()">Test Backend Health</button>
+            <div id="health-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Participant-related Endpoints</h3>
+            <button onclick="testParticipantEndpoints()">Test Participant Routes</button>
+            <div id="participant-endpoints-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Check Partner Routes (for participant type)</h3>
+            <button onclick="testPartnerRoutes()">Test Partner Routes</button>
+            <div id="partner-routes-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Test Data Creation Flow</h3>
+            <button onclick="testDataCreation()">Test Admin → Backend Flow</button>
+            <div id="data-creation-result"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Mock Data Analysis</h2>
+        
+        <div class="test-section">
+            <h3>Admin Panel Mock Data</h3>
+            <button onclick="analyzeAdminMockData()">Analyze Admin Participants</button>
+            <div id="admin-mock-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Participant Space Mock Data</h3>
+            <button onclick="analyzeParticipantMockData()">Analyze Participant Data</button>
+            <div id="participant-mock-result"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 Root Cause Analysis</h2>
+        <div id="root-cause-analysis" class="test-section warning">
+            <h3>Preliminary Findings:</h3>
+            <ol>
+                <li><strong>No Backend Integration:</strong> Participant system uses only localStorage/mock data</li>
+                <li><strong>No API Routes:</strong> No dedicated /api/participants endpoints found</li>
+                <li><strong>Data Isolation Issue:</strong> All participants share same localStorage/mock data pool</li>
+                <li><strong>No Owner Field:</strong> No participantId/ownerId field in data structures</li>
+                <li><strong>No Authentication:</strong> No real authentication system for participants</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+
+        async function testBackendHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = '<p>Testing backend health...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Backend Health Check</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Backend Health Check Failed</h4>
+                        <pre>Error: ${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testParticipantEndpoints() {
+            const resultDiv = document.getElementById('participant-endpoints-result');
+            resultDiv.innerHTML = '<p>Testing participant endpoints...</p>';
+            
+            const endpoints = [
+                '/api/participants',
+                '/api/participants/PART-2024-001',
+                '/api/participants/PART-2024-001/formations',
+                '/api/participants/PART-2024-001/projects'
+            ];
+            
+            let results = '<h4>Participant Endpoint Tests:</h4>';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${API_BASE}${endpoint}`);
+                    const data = await response.json();
+                    
+                    results += `
+                        <div class="test-section ${response.ok ? 'success' : 'error'}">
+                            <strong>${response.status}</strong> <span class="endpoint">${endpoint}</span>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } catch (error) {
+                    results += `
+                        <div class="test-section error">
+                            <strong>ERROR</strong> <span class="endpoint">${endpoint}</span>
+                            <pre>Error: ${error.message}</pre>
+                        </div>
+                    `;
+                }
+            }
+            
+            resultDiv.innerHTML = results;
+        }
+
+        async function testPartnerRoutes() {
+            const resultDiv = document.getElementById('partner-routes-result');
+            resultDiv.innerHTML = '<p>Testing partner routes...</p>';
+            
+            try {
+                // Test getting all partners
+                const response = await fetch(`${API_BASE}/api/partners`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-section ${response.ok ? 'success' : 'error'}">
+                        <h4>Partners API Response</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Partner Routes Test Failed</h4>
+                        <pre>Error: ${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDataCreation() {
+            const resultDiv = document.getElementById('data-creation-result');
+            resultDiv.innerHTML = '<p>Testing data creation flow...</p>';
+            
+            // Simulate creating a participant via admin
+            const testParticipant = {
+                fullName: 'Test Participant Analysis',
+                email: 'test.analysis@example.com',
+                phone: '+1234567890',
+                type: 'participant'
+            };
+            
+            try {
+                // Try to create via partners endpoint
+                const response = await fetch(`${API_BASE}/api/partners`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testParticipant)
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-section ${response.ok ? 'success' : 'error'}">
+                        <h4>Data Creation Test</h4>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Data Creation Test Failed</h4>
+                        <pre>Error: ${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        function analyzeAdminMockData() {
+            const resultDiv = document.getElementById('admin-mock-result');
+            
+            // Get admin panel mock data from localStorage
+            const adminParticipants = JSON.parse(localStorage.getItem('matc_participants') || '[]');
+            
+            resultDiv.innerHTML = `
+                <div class="test-section info">
+                    <h4>Admin Panel Participants (localStorage)</h4>
+                    <p><strong>Count:</strong> ${adminParticipants.length}</p>
+                    <p><strong>Storage Key:</strong> matc_participants</p>
+                    <pre>${JSON.stringify(adminParticipants, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        function analyzeParticipantMockData() {
+            const resultDiv = document.getElementById('participant-mock-result');
+            
+            // Simulate the mock data structure from participantData.ts
+            const mockParticipants = {
+                'PART-2024-001': {
+                    id: 'PART-2024-001',
+                    name: 'Ahmed Benali',
+                    email: 'ahmed.benali@email.com',
+                    totalProgress: 75
+                },
+                'PART-2024-002': {
+                    id: 'PART-2024-002',
+                    name: 'Fatima El Mansouri',
+                    email: 'fatima.elmansouri@email.com',
+                    totalProgress: 60
+                },
+                'PART-2024-003': {
+                    id: 'PART-2024-003',
+                    name: 'Youssef Trabelsi',
+                    email: 'youssef.trabelsi@example.com',
+                    totalProgress: 42
+                }
+            };
+            
+            resultDiv.innerHTML = `
+                <div class="test-section info">
+                    <h4>Participant Space Mock Data</h4>
+                    <p><strong>Source:</strong> Static mock data in participantData.ts</p>
+                    <p><strong>Count:</strong> ${Object.keys(mockParticipants).length}</p>
+                    <p><strong>Issue:</strong> Same data visible to all participants</p>
+                    <pre>${JSON.stringify(mockParticipants, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Auto-run basic analysis on page load
+        window.onload = function() {
+            analyzeAdminMockData();
+            analyzeParticipantMockData();
+        };
+    </script>
+</body>
+</html>

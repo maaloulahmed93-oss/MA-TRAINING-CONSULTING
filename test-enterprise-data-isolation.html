@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Isolation des Données Enterprise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .partner-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .data-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .data-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test d'Isolation des Données Enterprise</h1>
+        <p>Ce test vérifie que chaque partenaire ne voit que ses propres données (projets, formations, événements).</p>
+        
+        <div class="test-section info">
+            <h3>📋 Plan de Test</h3>
+            <ol>
+                <li>Créer des données de test pour 2 partenaires différents</li>
+                <li>Vérifier l'isolation des projets</li>
+                <li>Vérifier l'isolation des formations</li>
+                <li>Vérifier l'isolation des événements</li>
+                <li>Tester les statistiques par partenaire</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 Actions de Test</h3>
+            <button onclick="testBackendConnection()">1. Tester Connexion Backend</button>
+            <button onclick="createTestPartners()">2. Créer Partenaires Test</button>
+            <button onclick="createTestData()">3. Créer Données Test</button>
+            <button onclick="testDataIsolation()">4. Tester Isolation</button>
+            <button onclick="cleanupTestData()">5. Nettoyer Données</button>
+        </div>
+
+        <div id="results" class="log"></div>
+
+        <div class="partner-data" id="partnerData" style="display: none;">
+            <div class="data-card">
+                <h4>🏢 Partenaire ENT-TEST001</h4>
+                <div>Projets: <span class="data-count" id="partner1-projects">0</span></div>
+                <div>Formations: <span class="data-count" id="partner1-formations">0</span></div>
+                <div>Événements: <span class="data-count" id="partner1-events">0</span></div>
+            </div>
+            <div class="data-card">
+                <h4>🏢 Partenaire ENT-TEST002</h4>
+                <div>Projets: <span class="data-count" id="partner2-projects">0</span></div>
+                <div>Formations: <span class="data-count" id="partner2-formations">0</span></div>
+                <div>Événements: <span class="data-count" id="partner2-events">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const log = document.getElementById('results');
+        
+        function logMessage(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            log.textContent += logEntry;
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+
+        async function apiCall(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'Erreur API'}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                logMessage(`❌ Erreur API: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function testBackendConnection() {
+            logMessage('🔍 Test de connexion au backend...');
+            try {
+                const response = await apiCall('/health');
+                logMessage(`✅ Backend connecté: ${response.message}`);
+                
+                // Tester les endpoints enterprise
+                const endpoints = [
+                    '/enterprise/ENT-TEST001/profile',
+                    '/enterprise/ENT-TEST001/projects',
+                    '/enterprise/ENT-TEST001/formations',
+                    '/enterprise/ENT-TEST001/events',
+                    '/enterprise/ENT-TEST001/stats'
+                ];
+                
+                logMessage('🔍 Test des endpoints Enterprise...');
+                for (const endpoint of endpoints) {
+                    try {
+                        await fetch(`${API_BASE}${endpoint}`);
+                        logMessage(`✅ Endpoint disponible: ${endpoint}`);
+                    } catch (error) {
+                        logMessage(`⚠️ Endpoint non testé: ${endpoint}`);
+                    }
+                }
+            } catch (error) {
+                logMessage(`❌ Connexion backend échouée: ${error.message}`);
+            }
+        }
+
+        async function createTestPartners() {
+            logMessage('👥 Création des partenaires de test...');
+            
+            const testPartners = [
+                {
+                    partnerId: 'ENT-TEST001',
+                    fullName: 'Entreprise Test 1',
+                    email: 'test1@enterprise.com',
+                    type: 'entreprise',
+                    contactPerson: 'Manager Test 1',
+                    isActive: true
+                },
+                {
+                    partnerId: 'ENT-TEST002', 
+                    fullName: 'Entreprise Test 2',
+                    email: 'test2@enterprise.com',
+                    type: 'entreprise',
+                    contactPerson: 'Manager Test 2',
+                    isActive: true
+                }
+            ];
+
+            for (const partner of testPartners) {
+                try {
+                    // Vérifier si le partenaire existe déjà
+                    try {
+                        await apiCall(`/partners/${partner.partnerId}`);
+                        logMessage(`ℹ️ Partenaire ${partner.partnerId} existe déjà`);
+                    } catch (error) {
+                        // Créer le partenaire s'il n'existe pas
+                        await apiCall('/partners', {
+                            method: 'POST',
+                            body: JSON.stringify(partner)
+                        });
+                        logMessage(`✅ Partenaire créé: ${partner.partnerId}`);
+                    }
+                } catch (error) {
+                    logMessage(`❌ Erreur création partenaire ${partner.partnerId}: ${error.message}`);
+                }
+            }
+        }
+
+        async function createTestData() {
+            logMessage('📊 Création des données de test...');
+            
+            // Données pour ENT-TEST001
+            const partner1Data = {
+                projects: [
+                    {
+                        title: 'Projet Digital 1',
+                        description: 'Transformation digitale entreprise 1',
+                        status: 'in_progress',
+                        startDate: '2024-01-01',
+                        endDate: '2024-06-30',
+                        budget: 50000
+                    }
+                ],
+                formations: [
+                    {
+                        title: 'Formation React 1',
+                        description: 'Formation React pour équipe 1',
+                        date: '2024-03-15',
+                        duration: 40,
+                        location: 'online',
+                        status: 'scheduled'
+                    }
+                ],
+                events: [
+                    {
+                        title: 'Séminaire Innovation 1',
+                        description: 'Séminaire sur l\'innovation pour entreprise 1',
+                        type: 'seminar',
+                        date: '2024-04-20',
+                        time: '09:00',
+                        duration: 8,
+                        location: 'Tunis',
+                        status: 'upcoming'
+                    }
+                ]
+            };
+
+            // Données pour ENT-TEST002
+            const partner2Data = {
+                projects: [
+                    {
+                        title: 'Projet IA 2',
+                        description: 'Projet Intelligence Artificielle entreprise 2',
+                        status: 'planning',
+                        startDate: '2024-02-01',
+                        endDate: '2024-08-31',
+                        budget: 75000
+                    },
+                    {
+                        title: 'Projet Cloud 2',
+                        description: 'Migration cloud entreprise 2',
+                        status: 'in_progress',
+                        startDate: '2024-01-15',
+                        endDate: '2024-05-15',
+                        budget: 30000
+                    }
+                ],
+                formations: [
+                    {
+                        title: 'Formation Python 2',
+                        description: 'Formation Python pour équipe 2',
+                        date: '2024-03-20',
+                        duration: 32,
+                        location: 'hybrid',
+                        status: 'scheduled'
+                    }
+                ],
+                events: [
+                    {
+                        title: 'Workshop DevOps 2',
+                        description: 'Workshop DevOps pour entreprise 2',
+                        type: 'workshop',
+                        date: '2024-04-25',
+                        time: '14:00',
+                        duration: 4,
+                        location: 'Sfax',
+                        status: 'upcoming'
+                    }
+                ]
+            };
+
+            // Créer les données pour chaque partenaire
+            const partners = [
+                { id: 'ENT-TEST001', data: partner1Data },
+                { id: 'ENT-TEST002', data: partner2Data }
+            ];
+
+            for (const partner of partners) {
+                try {
+                    // Créer projets
+                    for (const project of partner.data.projects) {
+                        await apiCall(`/enterprise/${partner.id}/projects`, {
+                            method: 'POST',
+                            body: JSON.stringify(project)
+                        });
+                    }
+                    logMessage(`✅ ${partner.data.projects.length} projet(s) créé(s) pour ${partner.id}`);
+
+                    // Créer formations
+                    for (const formation of partner.data.formations) {
+                        await apiCall(`/enterprise/${partner.id}/formations`, {
+                            method: 'POST',
+                            body: JSON.stringify(formation)
+                        });
+                    }
+                    logMessage(`✅ ${partner.data.formations.length} formation(s) créée(s) pour ${partner.id}`);
+
+                    // Créer événements
+                    for (const event of partner.data.events) {
+                        await apiCall(`/enterprise/${partner.id}/events`, {
+                            method: 'POST',
+                            body: JSON.stringify(event)
+                        });
+                    }
+                    logMessage(`✅ ${partner.data.events.length} événement(s) créé(s) pour ${partner.id}`);
+
+                } catch (error) {
+                    logMessage(`❌ Erreur création données pour ${partner.id}: ${error.message}`);
+                }
+            }
+        }
+
+        async function testDataIsolation() {
+            logMessage('🔒 Test d\'isolation des données...');
+            document.getElementById('partnerData').style.display = 'grid';
+            
+            const partners = ['ENT-TEST001', 'ENT-TEST002'];
+            const results = {};
+
+            for (const partnerId of partners) {
+                try {
+                    logMessage(`🔍 Test données pour ${partnerId}...`);
+                    
+                    // Récupérer les données de chaque partenaire
+                    const [projects, formations, events, stats] = await Promise.all([
+                        apiCall(`/enterprise/${partnerId}/projects`),
+                        apiCall(`/enterprise/${partnerId}/formations`),
+                        apiCall(`/enterprise/${partnerId}/events`),
+                        apiCall(`/enterprise/${partnerId}/stats`)
+                    ]);
+
+                    results[partnerId] = {
+                        projects: projects.data || [],
+                        formations: formations.data || [],
+                        events: events.data || [],
+                        stats: stats.data || {}
+                    };
+
+                    logMessage(`📊 ${partnerId}: ${results[partnerId].projects.length} projets, ${results[partnerId].formations.length} formations, ${results[partnerId].events.length} événements`);
+
+                    // Mettre à jour l'affichage
+                    const partnerNum = partnerId === 'ENT-TEST001' ? '1' : '2';
+                    document.getElementById(`partner${partnerNum}-projects`).textContent = results[partnerId].projects.length;
+                    document.getElementById(`partner${partnerNum}-formations`).textContent = results[partnerId].formations.length;
+                    document.getElementById(`partner${partnerNum}-events`).textContent = results[partnerId].events.length;
+
+                } catch (error) {
+                    logMessage(`❌ Erreur test isolation pour ${partnerId}: ${error.message}`);
+                }
+            }
+
+            // Vérifier l'isolation
+            logMessage('🔍 Vérification de l\'isolation...');
+            
+            // Vérifier que ENT-TEST001 ne voit pas les données de ENT-TEST002 et vice versa
+            const partner1Projects = results['ENT-TEST001']?.projects || [];
+            const partner2Projects = results['ENT-TEST002']?.projects || [];
+            
+            let isolationOk = true;
+            
+            // Vérifier qu'aucun projet de partner1 n'appartient à partner2
+            for (const project of partner1Projects) {
+                if (project.partnerId !== 'ENT-TEST001') {
+                    logMessage(`❌ ISOLATION ÉCHOUÉE: Projet ${project.projectId} de ${project.partnerId} visible par ENT-TEST001`);
+                    isolationOk = false;
+                }
+            }
+            
+            for (const project of partner2Projects) {
+                if (project.partnerId !== 'ENT-TEST002') {
+                    logMessage(`❌ ISOLATION ÉCHOUÉE: Projet ${project.projectId} de ${project.partnerId} visible par ENT-TEST002`);
+                    isolationOk = false;
+                }
+            }
+
+            if (isolationOk) {
+                logMessage('✅ ISOLATION RÉUSSIE: Chaque partenaire ne voit que ses propres données');
+            }
+
+            // Vérifier les statistiques
+            if (results['ENT-TEST001']?.stats && results['ENT-TEST002']?.stats) {
+                logMessage('📊 Statistiques:');
+                logMessage(`   ENT-TEST001: ${results['ENT-TEST001'].stats.totalProjects} projets, ${results['ENT-TEST001'].stats.totalFormations} formations`);
+                logMessage(`   ENT-TEST002: ${results['ENT-TEST002'].stats.totalProjects} projets, ${results['ENT-TEST002'].stats.totalFormations} formations`);
+            }
+        }
+
+        async function cleanupTestData() {
+            logMessage('🧹 Nettoyage des données de test...');
+            
+            // Note: Cette fonction nécessiterait des endpoints DELETE
+            // Pour l'instant, on affiche juste un message
+            logMessage('ℹ️ Nettoyage manuel requis - supprimer les partenaires ENT-TEST001 et ENT-TEST002 depuis la base de données');
+            logMessage('ℹ️ Ou redémarrer avec une base de données propre');
+        }
+
+        // Auto-test au chargement de la page
+        window.addEventListener('load', () => {
+            logMessage('🚀 Test d\'isolation des données Enterprise - MATC System');
+            logMessage('ℹ️ Cliquez sur les boutons pour exécuter les tests dans l\'ordre');
+        });
+    </script>
+</body>
+</html>

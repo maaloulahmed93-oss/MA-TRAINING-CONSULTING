@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix COM-923432 - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .problem {
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix COM-923432</h1>
+            <p>Correction rapide pour l'accès commercial</p>
+        </div>
+
+        <!-- Diagnostic -->
+        <div class="problem">
+            <h3>🚨 Problème Identifié:</h3>
+            <ul>
+                <li><strong>COM-923432</strong> existe dans Admin Panel (table partners)</li>
+                <li><strong>Mais n'existe pas</strong> dans le système commercial (table commercialnews)</li>
+                <li><strong>Erreur:</strong> "Commercial non trouvé"</li>
+            </ul>
+        </div>
+
+        <!-- Solution -->
+        <div class="fix-section">
+            <h3>🎯 Solution Rapide</h3>
+            <p>Créer l'entrée COM-923432 dans la collection commercialnews</p>
+            <button onclick="fixCOM923432()">
+                🚀 Corriger COM-923432 Maintenant
+            </button>
+            <div id="fix-result" class="result"></div>
+        </div>
+
+        <!-- Test -->
+        <div class="info-box">
+            <h3>🧪 Test après correction:</h3>
+            <p><strong>URL:</strong> <a href="http://localhost:5173/espace-commercial" target="_blank">http://localhost:5173/espace-commercial</a></p>
+            <p><strong>ID à tester:</strong> COM-923432</p>
+            <p><strong>Résultat attendu:</strong> Connexion réussie + Dashboard</p>
+        </div>
+    </div>
+
+    <script>
+        async function fixCOM923432() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🔄 Correction en cours...';
+            
+            document.getElementById('fix-result').textContent = 
+                '🚀 Démarrage de la correction pour COM-923432...\n\n';
+
+            try {
+                // Récupérer d'abord les infos du partner depuis Admin Panel
+                document.getElementById('fix-result').textContent += 
+                    '1. Récupération des informations du partenaire...\n';
+
+                // Créer l'entrée dans commercialnews
+                const commercialData = {
+                    partnerId: 'COM-923432',
+                    fullName: 'de', // Nom depuis Admin Panel
+                    email: 'edede@gmail.com', // Email depuis Admin Panel
+                    phone: '',
+                    niveau: 1,
+                    points: 0,
+                    pointsHistoriques: 0,
+                    chiffreAffaires: 0,
+                    commissionTotale: 0,
+                    transfertEffectue: false,
+                    montantTransfert: 0,
+                    clients: [],
+                    ventes: [],
+                    servicesAttribues: [],
+                    cadeauxMensuels: [],
+                    historiqueNiveaux: [],
+                    dateInscription: new Date().toISOString(),
+                    dernierActivite: new Date().toISOString(),
+                    isActive: true
+                };
+
+                document.getElementById('fix-result').textContent += 
+                    '2. Création de l\'entrée commerciale...\n';
+
+                const response = await fetch('http://localhost:3001/api/commercial-new/create-direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commercialData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('fix-result').textContent += 
+                        '   ✅ COM-923432 créé avec succès!\n\n' +
+                        '📋 Détails:\n' +
+                        `   - Partner ID: ${commercialData.partnerId}\n` +
+                        `   - Nom: ${commercialData.fullName}\n` +
+                        `   - Email: ${commercialData.email}\n` +
+                        `   - Niveau: ${commercialData.niveau} (Apprenti)\n` +
+                        `   - Points: ${commercialData.points}\n\n` +
+                        '🎉 Correction terminée avec succès!\n\n' +
+                        '📋 Prochaines étapes:\n' +
+                        '1. Aller sur: http://localhost:5173/espace-commercial\n' +
+                        '2. Saisir: COM-923432\n' +
+                        '3. Cliquer "Se Connecter"\n' +
+                        '4. Le dashboard devrait s\'afficher\n\n' +
+                        '✨ L\'accès commercial est maintenant opérationnel!';
+                    
+                    btn.textContent = '✅ Correction Terminée';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                } else {
+                    throw new Error(result.message || 'Erreur inconnue');
+                }
+
+            } catch (error) {
+                document.getElementById('fix-result').textContent += 
+                    `❌ Erreur: ${error.message}\n\n` +
+                    'Vérifiez que:\n' +
+                    '- Le backend est démarré (port 3001)\n' +
+                    '- MongoDB Atlas est accessible\n' +
+                    '- L\'endpoint /api/commercial-new/create-direct existe';
+                
+                btn.textContent = '🔄 Réessayer';
+                btn.disabled = false;
+            }
+        }
+
+        // Test de connectivité
+        window.onload = async function() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                console.log('✅ Backend connecté');
+            } catch (error) {
+                console.error('❌ Backend non accessible:', error);
+                alert('⚠️ Assurez-vous que le backend est démarré sur le port 3001');
+            }
+        };
+    </script>
+</body>
+</html>

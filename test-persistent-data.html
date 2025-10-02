@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Persistent Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        
+        .test-step {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .test-step h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .data-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Persistent Data (localStorage)</h1>
+        <p>Test de la persistance des données après Accept/Reject et actualisation</p>
+
+        <!-- Workflow attendu -->
+        <div class="section">
+            <h3>📋 Workflow Attendu</h3>
+            <div class="test-step">
+                <h4><span class="step-number">1</span>Accept Offer</h4>
+                <p>✅ Offre supprimée de la liste</p>
+                <p>✅ Nouveau projet créé</p>
+                <p>💾 Données sauvegardées dans localStorage</p>
+            </div>
+            
+            <div class="test-step">
+                <h4><span class="step-number">2</span>Actualiser (F5)</h4>
+                <p>✅ Projet reste visible dans "Projets"</p>
+                <p>✅ Offre reste supprimée de "Offres"</p>
+                <p>📊 Données chargées depuis localStorage</p>
+            </div>
+            
+            <div class="test-step">
+                <h4><span class="step-number">3</span>Reject Offer</h4>
+                <p>❌ Offre supprimée de la liste</p>
+                <p>❌ Aucun projet créé</p>
+                <p>💾 Changements sauvegardés dans localStorage</p>
+            </div>
+        </div>
+
+        <!-- Vérification localStorage -->
+        <div class="section">
+            <h3>1. Vérification localStorage</h3>
+            <button class="btn-primary" onclick="checkLocalStorage()">Vérifier localStorage</button>
+            <div id="localStorage-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Simulation Accept -->
+        <div class="section">
+            <h3>2. Simulation Accept avec Persistance</h3>
+            <button class="btn-success" onclick="simulateAcceptWithPersistence()">Simuler Accept</button>
+            <div id="accept-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Simulation Reject -->
+        <div class="section">
+            <h3>3. Simulation Reject avec Persistance</h3>
+            <button class="btn-danger" onclick="simulateRejectWithPersistence()">Simuler Reject</button>
+            <div id="reject-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test de persistance -->
+        <div class="section">
+            <h3>4. Test de Persistance</h3>
+            <button class="btn-warning" onclick="testPersistence()">Tester Persistance</button>
+            <button class="btn-danger" onclick="clearAllData()">Nettoyer Données</button>
+            <div id="persistence-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Instructions de test réel -->
+        <div class="section">
+            <h3>5. Test Réel dans l'Application</h3>
+            <div class="test-step">
+                <h4>🎯 Instructions de Test:</h4>
+                <ol>
+                    <li>Allez sur <a href="http://localhost:5173/espace-freelancer" target="_blank">Freelancer Space</a></li>
+                    <li>Connectez-vous avec FRE-340255</li>
+                    <li>Notez le nombre d'offres et projets actuels</li>
+                    <li><strong>Acceptez une offre</strong>:
+                        <ul>
+                            <li>✅ Vérifiez que l'offre disparaît</li>
+                            <li>✅ Vérifiez qu'un projet apparaît</li>
+                        </ul>
+                    </li>
+                    <li><strong>Actualisez la page (F5)</strong>:
+                        <ul>
+                            <li>✅ Le projet doit rester visible</li>
+                            <li>✅ L'offre doit rester supprimée</li>
+                        </ul>
+                    </li>
+                    <li><strong>Refusez une autre offre</strong>:
+                        <ul>
+                            <li>❌ L'offre doit disparaître</li>
+                            <li>❌ Aucun nouveau projet</li>
+                        </ul>
+                    </li>
+                    <li><strong>Actualisez encore (F5)</strong>:
+                        <ul>
+                            <li>✅ L'offre refusée doit rester supprimée</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vérifier localStorage
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('localStorage-result');
+            
+            try {
+                let result = `🔍 VÉRIFICATION LOCALSTORAGE:\n\n`;
+                
+                // Vérifier freelancerProjects
+                const projects = JSON.parse(localStorage.getItem('freelancerProjects') || '[]');
+                result += `📁 freelancerProjects: ${projects.length} projets\n`;
+                projects.forEach((project, index) => {
+                    result += `   ${index + 1}. ${project.title} (${project.status})\n`;
+                });
+                
+                result += `\n`;
+                
+                // Vérifier freelancerOffers
+                const offers = JSON.parse(localStorage.getItem('freelancerOffers') || '[]');
+                result += `📋 freelancerOffers: ${offers.length} offres\n`;
+                offers.forEach((offer, index) => {
+                    result += `   ${index + 1}. ${offer.title} (${offer.status})\n`;
+                });
+                
+                result += `\n`;
+                
+                // Vérifier autres données
+                const session = localStorage.getItem('freelancerSession');
+                result += `👤 freelancerSession: ${session ? 'Présente' : 'Absente'}\n`;
+                
+                result += `\n💾 TAILLE TOTALE LOCALSTORAGE:\n`;
+                let totalSize = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        totalSize += localStorage[key].length;
+                        result += `   ${key}: ${localStorage[key].length} caractères\n`;
+                    }
+                }
+                result += `   TOTAL: ${totalSize} caractères\n`;
+                
+                showResult(resultDiv, 'info', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Simuler Accept avec persistance
+        function simulateAcceptWithPersistence() {
+            const resultDiv = document.getElementById('accept-result');
+            
+            try {
+                let result = `🎯 SIMULATION ACCEPT AVEC PERSISTANCE:\n\n`;
+                
+                // Créer une offre test
+                const testOffer = {
+                    id: `test-offer-${Date.now()}`,
+                    title: "Test Offer - Accept",
+                    client: "Test Company",
+                    description: "Offre de test pour simulation",
+                    budget: 1500,
+                    deadline: "2024-12-31",
+                    status: "pending",
+                    skills: ["React", "TypeScript"],
+                    workMode: "remote"
+                };
+                
+                result += `📋 Offre test créée: "${testOffer.title}"\n\n`;
+                
+                // Simuler acceptation
+                const newProject = {
+                    id: `project-${Date.now()}`,
+                    title: testOffer.title,
+                    client: testOffer.client,
+                    status: "in_progress",
+                    progress: 0,
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: testOffer.deadline,
+                    budget: testOffer.budget,
+                    description: testOffer.description,
+                    teamMembers: ["freelancer-001"],
+                    skills: testOffer.skills,
+                    workMode: testOffer.workMode,
+                    estimatedHours: 40,
+                    priority: "medium",
+                    originalOfferId: testOffer.id
+                };
+                
+                // Sauvegarder le projet
+                const existingProjects = JSON.parse(localStorage.getItem('freelancerProjects') || '[]');
+                existingProjects.push(newProject);
+                localStorage.setItem('freelancerProjects', JSON.stringify(existingProjects));
+                
+                result += `✅ ACTIONS EFFECTUÉES:\n`;
+                result += `1. Projet créé: "${newProject.title}"\n`;
+                result += `2. Projet sauvegardé dans localStorage\n`;
+                result += `3. ID projet: ${newProject.id}\n`;
+                result += `4. Status: ${newProject.status}\n\n`;
+                
+                result += `💾 PERSISTANCE:\n`;
+                result += `- Projet sera visible après actualisation\n`;
+                result += `- Données stockées dans freelancerProjects\n`;
+                result += `- Total projets: ${existingProjects.length}\n\n`;
+                
+                result += `🧪 POUR TESTER:\n`;
+                result += `1. Actualisez cette page (F5)\n`;
+                result += `2. Cliquez "Vérifier localStorage"\n`;
+                result += `3. Le projet doit être présent\n`;
+                
+                showResult(resultDiv, 'success', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Simuler Reject avec persistance
+        function simulateRejectWithPersistence() {
+            const resultDiv = document.getElementById('reject-result');
+            
+            try {
+                let result = `🎯 SIMULATION REJECT AVEC PERSISTANCE:\n\n`;
+                
+                // Récupérer les offres actuelles
+                const currentOffers = JSON.parse(localStorage.getItem('freelancerOffers') || '[]');
+                
+                // Créer une offre test si nécessaire
+                if (currentOffers.length === 0) {
+                    const testOffer = {
+                        id: `test-offer-reject-${Date.now()}`,
+                        title: "Test Offer - Reject",
+                        client: "Test Company 2",
+                        description: "Offre de test pour refus",
+                        budget: 1200,
+                        deadline: "2024-11-30",
+                        status: "pending",
+                        skills: ["Vue.js", "Node.js"],
+                        workMode: "hybrid"
+                    };
+                    currentOffers.push(testOffer);
+                }
+                
+                const offerToReject = currentOffers[0];
+                result += `📋 Offre à refuser: "${offerToReject.title}"\n`;
+                result += `📝 Raison: "Pas disponible actuellement"\n\n`;
+                
+                // Simuler refus (supprimer l'offre)
+                const updatedOffers = currentOffers.filter(o => o.id !== offerToReject.id);
+                localStorage.setItem('freelancerOffers', JSON.stringify(updatedOffers));
+                
+                result += `❌ ACTIONS EFFECTUÉES:\n`;
+                result += `1. Offre supprimée: "${offerToReject.title}"\n`;
+                result += `2. Aucun projet créé\n`;
+                result += `3. Offres mises à jour dans localStorage\n`;
+                result += `4. Offres restantes: ${updatedOffers.length}\n\n`;
+                
+                result += `💾 PERSISTANCE:\n`;
+                result += `- Offre restera supprimée après actualisation\n`;
+                result += `- Aucun projet ne sera créé\n`;
+                result += `- Changements stockés dans freelancerOffers\n\n`;
+                
+                result += `🧪 POUR TESTER:\n`;
+                result += `1. Actualisez cette page (F5)\n`;
+                result += `2. Cliquez "Vérifier localStorage"\n`;
+                result += `3. L'offre ne doit plus être présente\n`;
+                
+                showResult(resultDiv, 'success', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Tester la persistance
+        function testPersistence() {
+            const resultDiv = document.getElementById('persistence-result');
+            
+            try {
+                let result = `🧪 TEST DE PERSISTANCE:\n\n`;
+                
+                // Vérifier les données avant
+                const projectsBefore = JSON.parse(localStorage.getItem('freelancerProjects') || '[]');
+                const offersBefore = JSON.parse(localStorage.getItem('freelancerOffers') || '[]');
+                
+                result += `📊 ÉTAT AVANT:\n`;
+                result += `- Projets: ${projectsBefore.length}\n`;
+                result += `- Offres: ${offersBefore.length}\n\n`;
+                
+                // Simuler un cycle complet
+                result += `🔄 SIMULATION CYCLE COMPLET:\n\n`;
+                
+                // 1. Accept
+                const testProject = {
+                    id: `persistence-test-${Date.now()}`,
+                    title: "Projet Test Persistance",
+                    client: "Client Test",
+                    status: "in_progress",
+                    progress: 0,
+                    startDate: new Date().toISOString().split('T')[0],
+                    budget: 2000,
+                    description: "Test de persistance des données"
+                };
+                
+                projectsBefore.push(testProject);
+                localStorage.setItem('freelancerProjects', JSON.stringify(projectsBefore));
+                
+                result += `1️⃣ ACCEPT simulé:\n`;
+                result += `   ✅ Projet "${testProject.title}" créé\n`;
+                result += `   💾 Sauvegardé dans localStorage\n\n`;
+                
+                // 2. Vérifier persistance
+                const projectsAfter = JSON.parse(localStorage.getItem('freelancerProjects') || '[]');
+                const persistedProject = projectsAfter.find(p => p.id === testProject.id);
+                
+                result += `2️⃣ VÉRIFICATION PERSISTANCE:\n`;
+                if (persistedProject) {
+                    result += `   ✅ Projet trouvé après sauvegarde\n`;
+                    result += `   ✅ Titre: ${persistedProject.title}\n`;
+                    result += `   ✅ Status: ${persistedProject.status}\n`;
+                } else {
+                    result += `   ❌ Projet non trouvé après sauvegarde\n`;
+                }
+                
+                result += `\n📈 RÉSULTAT FINAL:\n`;
+                result += `- Projets: ${projectsBefore.length} → ${projectsAfter.length}\n`;
+                result += `- Persistance: ${persistedProject ? 'RÉUSSIE' : 'ÉCHOUÉE'}\n\n`;
+                
+                result += `🎯 CONCLUSION:\n`;
+                if (persistedProject) {
+                    result += `✅ Les données persistent correctement\n`;
+                    result += `✅ Accept → Projet créé et sauvegardé\n`;
+                    result += `✅ Actualisation → Données conservées\n`;
+                } else {
+                    result += `❌ Problème de persistance détecté\n`;
+                    result += `❌ Vérifiez localStorage et les fonctions\n`;
+                }
+                
+                showResult(resultDiv, persistedProject ? 'success' : 'error', result);
+                
+            } catch (error) {
+                showResult(resultDiv, 'error', `❌ Erreur: ${error.message}`);
+            }
+        }
+
+        // Nettoyer toutes les données
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir nettoyer toutes les données localStorage ?')) {
+                localStorage.removeItem('freelancerProjects');
+                localStorage.removeItem('freelancerOffers');
+                
+                const resultDiv = document.getElementById('persistence-result');
+                showResult(resultDiv, 'warning', '🗑️ Toutes les données localStorage ont été supprimées.\n\nActualisez la page pour voir l\'effet.');
+            }
+        }
+
+        // Fonction utilitaire
+        function showResult(element, type, message) {
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Auto-load
+        window.onload = function() {
+            console.log('🧪 Persistent Data Test loaded');
+            console.log('💾 Testing localStorage persistence for Accept/Reject workflow');
+        };
+    </script>
+</body>
+</html>

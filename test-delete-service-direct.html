@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗑️ Test Delete Service - Direct</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #dc2626;
+            border-bottom: 3px solid #fecaca;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .service-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .service-info {
+            flex: 1;
+        }
+        .service-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        .service-details {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .delete-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+        .delete-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        button:hover { background: #2563eb; }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { background: #065f46; color: #d1fae5; border: 2px solid #10b981; }
+        .error { background: #7f1d1d; color: #fecaca; border: 2px solid #ef4444; }
+        .warning { background: #92400e; color: #fef3c7; border: 2px solid #f59e0b; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0ea5e9;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗑️ Test Delete Service</h1>
+            <p>اختبار مباشر لحذف الخدمات من Admin Panel</p>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-services">--</div>
+                <div class="stat-label">Services Totaux</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-services">--</div>
+                <div class="stat-label">Services Actifs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="deleted-count">0</div>
+                <div class="stat-label">Services Supprimés</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="loadServices()">📋 Charger Services</button>
+            <button onclick="createTestService()">➕ Créer Service Test</button>
+            <button onclick="deleteAllTestServices()" style="background: #dc2626;">🗑️ Supprimer Tous Tests</button>
+        </div>
+
+        <!-- Liste des services -->
+        <div id="services-container">
+            <p style="text-align: center; color: #6b7280;">Cliquez sur "Charger Services" pour voir la liste</p>
+        </div>
+
+        <!-- Résultats -->
+        <div id="results" class="result">
+            🧪 Test Delete Service chargé\n
+            Prêt à tester la suppression des services...
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/commercial-services';
+        let currentServices = [];
+        let deletedCount = 0;
+
+        async function loadServices() {
+            const resultsDiv = document.getElementById('results');
+            const servicesContainer = document.getElementById('services-container');
+            
+            resultsDiv.className = 'result';
+            resultsDiv.textContent = '📋 Chargement des services...\n\n';
+
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                resultsDiv.textContent += `Status: ${response.status}\n`;
+                resultsDiv.textContent += `Success: ${result.success}\n`;
+                resultsDiv.textContent += `Data type: ${Array.isArray(result.data) ? 'Array' : typeof result.data}\n`;
+                resultsDiv.textContent += `Count: ${result.data?.length || 0}\n\n`;
+
+                if (result.success && result.data) {
+                    currentServices = result.data;
+                    
+                    // Mettre à jour les stats
+                    document.getElementById('total-services').textContent = result.data.length;
+                    document.getElementById('active-services').textContent = result.data.filter(s => s.isActive).length;
+                    
+                    // Afficher les services
+                    displayServices(result.data);
+                    
+                    resultsDiv.className = 'result success';
+                    resultsDiv.textContent += `✅ ${result.data.length} services chargés avec succès!\n\n`;
+                    
+                    if (result.data.length > 0) {
+                        resultsDiv.textContent += 'SERVICES DISPONIBLES:\n';
+                        result.data.forEach((service, index) => {
+                            resultsDiv.textContent += `${index + 1}. ${service.titre} (${service.commission}€)\n`;
+                        });
+                    } else {
+                        resultsDiv.textContent += '⚠️ Aucun service trouvé. Créez un service test d\'abord.';
+                    }
+                } else {
+                    servicesContainer.innerHTML = '<p style="text-align: center; color: #ef4444;">❌ Erreur de chargement</p>';
+                    resultsDiv.className = 'result error';
+                    resultsDiv.textContent += `❌ Erreur: ${result.message || 'Format de réponse invalide'}`;
+                }
+
+            } catch (error) {
+                servicesContainer.innerHTML = '<p style="text-align: center; color: #ef4444;">❌ Erreur de connexion</p>';
+                resultsDiv.className = 'result error';
+                resultsDiv.textContent += `❌ Erreur de connexion: ${error.message}`;
+            }
+        }
+
+        function displayServices(services) {
+            const container = document.getElementById('services-container');
+            
+            if (!services || services.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">Aucun service disponible</p>';
+                return;
+            }
+
+            let html = '<h3>📋 Services Disponibles:</h3>';
+            
+            services.forEach(service => {
+                html += `
+                    <div class="service-card">
+                        <div class="service-info">
+                            <div class="service-title">${service.titre}</div>
+                            <div class="service-details">
+                                Commission: ${service.commission}€ | 
+                                Prix: ${service.prixPublic}€ | 
+                                Catégorie: ${service.categorie} |
+                                Actif: ${service.isActive ? 'Oui' : 'Non'}
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteService('${service._id}', '${service.titre}')">
+                            🗑️ Supprimer
+                        </button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        async function deleteService(serviceId, serviceTitle) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Confirmation
+            const confirmed = confirm(
+                `Êtes-vous sûr de vouloir supprimer le service "${serviceTitle}" ?\n\n` +
+                `Cette action est irréversible!`
+            );
+            
+            if (!confirmed) {
+                resultsDiv.className = 'result warning';
+                resultsDiv.textContent = `❌ Suppression de "${serviceTitle}" annulée par l'utilisateur.`;
+                return;
+            }
+
+            resultsDiv.className = 'result';
+            resultsDiv.textContent = `🗑️ Suppression de "${serviceTitle}"...\n\n`;
+
+            try {
+                resultsDiv.textContent += `📡 DELETE ${API_BASE}/${serviceId}\n`;
+                
+                const response = await fetch(`${API_BASE}/${serviceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                
+                resultsDiv.textContent += `Status: ${response.status}\n`;
+                resultsDiv.textContent += `Response: ${JSON.stringify(result, null, 2)}\n\n`;
+
+                if (response.ok && result.success) {
+                    deletedCount++;
+                    document.getElementById('deleted-count').textContent = deletedCount;
+                    
+                    resultsDiv.className = 'result success';
+                    resultsDiv.textContent += `✅ Service "${serviceTitle}" supprimé avec succès!\n\n`;
+                    resultsDiv.textContent += `🔄 Rechargement de la liste...`;
+                    
+                    // Recharger la liste automatiquement
+                    setTimeout(() => {
+                        loadServices();
+                    }, 1000);
+                    
+                } else {
+                    resultsDiv.className = 'result error';
+                    resultsDiv.textContent += `❌ Échec de la suppression: ${result.message || 'Erreur inconnue'}`;
+                }
+
+            } catch (error) {
+                resultsDiv.className = 'result error';
+                resultsDiv.textContent += `❌ Erreur de connexion: ${error.message}`;
+            }
+        }
+
+        async function createTestService() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = 'result';
+            resultsDiv.textContent = '➕ Création d\'un service test...\n\n';
+
+            const testService = {
+                titre: `Service Test ${Date.now()}`,
+                description: 'Service créé pour test de suppression',
+                categorie: 'Test',
+                prixPublic: 100,
+                prixCommercial: 80,
+                commission: 20,
+                duree: '1h',
+                isActive: true
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testService)
+                });
+
+                const result = await response.json();
+                
+                resultsDiv.textContent += `Status: ${response.status}\n`;
+                resultsDiv.textContent += `Success: ${result.success}\n\n`;
+
+                if (result.success) {
+                    resultsDiv.className = 'result success';
+                    resultsDiv.textContent += `✅ Service test "${testService.titre}" créé!\n\n`;
+                    resultsDiv.textContent += `🔄 Rechargement de la liste...`;
+                    
+                    setTimeout(() => {
+                        loadServices();
+                    }, 1000);
+                } else {
+                    resultsDiv.className = 'result error';
+                    resultsDiv.textContent += `❌ Échec création: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultsDiv.className = 'result error';
+                resultsDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function deleteAllTestServices() {
+            const confirmed = confirm(
+                'Supprimer TOUS les services de test ?\n\n' +
+                'Cette action supprimera tous les services contenant "Test" dans le titre.'
+            );
+            
+            if (!confirmed) return;
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = 'result';
+            resultsDiv.textContent = '🗑️ Suppression des services test...\n\n';
+
+            try {
+                // Charger les services d'abord
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                if (!result.success || !result.data) {
+                    throw new Error('Impossible de charger les services');
+                }
+
+                const testServices = result.data.filter(s => 
+                    s.titre.toLowerCase().includes('test') || 
+                    s.categorie.toLowerCase().includes('test')
+                );
+
+                if (testServices.length === 0) {
+                    resultsDiv.className = 'result warning';
+                    resultsDiv.textContent += '⚠️ Aucun service test trouvé.';
+                    return;
+                }
+
+                resultsDiv.textContent += `Trouvé ${testServices.length} services test à supprimer:\n`;
+                testServices.forEach(s => {
+                    resultsDiv.textContent += `- ${s.titre}\n`;
+                });
+                resultsDiv.textContent += '\n';
+
+                // Supprimer chaque service test
+                let deleted = 0;
+                for (const service of testServices) {
+                    try {
+                        const deleteResponse = await fetch(`${API_BASE}/${service._id}`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        const deleteResult = await deleteResponse.json();
+                        
+                        if (deleteResponse.ok && deleteResult.success) {
+                            deleted++;
+                            resultsDiv.textContent += `✅ ${service.titre} supprimé\n`;
+                        } else {
+                            resultsDiv.textContent += `❌ ${service.titre} échec: ${deleteResult.message}\n`;
+                        }
+                    } catch (error) {
+                        resultsDiv.textContent += `❌ ${service.titre} erreur: ${error.message}\n`;
+                    }
+                }
+
+                deletedCount += deleted;
+                document.getElementById('deleted-count').textContent = deletedCount;
+
+                resultsDiv.className = deleted > 0 ? 'result success' : 'result error';
+                resultsDiv.textContent += `\n🎯 ${deleted}/${testServices.length} services test supprimés\n\n`;
+                resultsDiv.textContent += '🔄 Rechargement de la liste...';
+
+                setTimeout(() => {
+                    loadServices();
+                }, 2000);
+
+            } catch (error) {
+                resultsDiv.className = 'result error';
+                resultsDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-load services on page load
+        window.onload = function() {
+            console.log('🧪 Test Delete Service chargé');
+            loadServices();
+        };
+    </script>
+</body>
+</html>

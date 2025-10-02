@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Isolation by PartnerId - MATC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .partner-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .partner-id {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .console {
+            background: #1e1e1e;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        
+        .log-entry.success { color: #28a745; }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.warning { color: #ffc107; }
+        .log-entry.info { color: #17a2b8; }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .data-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+        
+        .data-count {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+        }
+        
+        .isolation-test {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .isolation-test.success {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .isolation-test.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Test Data Isolation by PartnerId</h1>
+            <p>Vérification que chaque partenaire ne voit que ses propres données</p>
+        </div>
+        
+        <!-- Controls -->
+        <div style="padding: 0 30px;">
+            <div class="controls">
+                <button onclick="createTestPartners()" id="create-btn">👥 Créer Partenaires Test</button>
+                <button onclick="createTestData()" id="data-btn">📊 Créer Données Test</button>
+                <button onclick="testDataIsolation()" id="isolation-btn">🔒 Test Isolation</button>
+                <button onclick="testCrossAccess()" id="cross-btn">⚠️ Test Accès Croisé</button>
+                <button onclick="clearConsole()">🧹 Clear Console</button>
+            </div>
+        </div>
+        
+        <!-- Test Partners -->
+        <div class="test-grid">
+            <div class="test-section">
+                <div class="section-title">
+                    👥 Partenaires Test
+                </div>
+                <div id="test-partners"></div>
+            </div>
+            
+            <div class="test-section">
+                <div class="section-title">
+                    📊 Données par Partenaire
+                </div>
+                <div id="partner-data"></div>
+            </div>
+        </div>
+        
+        <!-- Isolation Test Results -->
+        <div style="padding: 0 30px;">
+            <div class="isolation-test" id="isolation-results" style="display: none;">
+                <h3>🔒 Résultats Test d'Isolation</h3>
+                <div id="isolation-details"></div>
+            </div>
+        </div>
+        
+        <!-- Console -->
+        <div style="padding: 0 30px;">
+            <div class="console" id="console">
+                <div class="log-entry info">[SYSTEM] Test d'isolation des données par partnerId initialisé</div>
+                <div class="log-entry info">[INFO] Prêt à tester l'isolation des données</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Partenaires de test
+        const TEST_PARTNERS = [
+            {
+                partnerId: 'ENT-TEST001',
+                fullName: 'Entreprise Alpha Test',
+                email: 'alpha@test-isolation.com',
+                type: 'entreprise',
+                contactPerson: 'Ahmed Alpha',
+                phone: '+216 20 111 111'
+            },
+            {
+                partnerId: 'ENT-TEST002', 
+                fullName: 'Entreprise Beta Test',
+                email: 'beta@test-isolation.com',
+                type: 'entreprise',
+                contactPerson: 'Sarah Beta',
+                phone: '+216 20 222 222'
+            },
+            {
+                partnerId: 'FOR-TEST001',
+                fullName: 'Formateur Gamma Test',
+                email: 'gamma@test-isolation.com',
+                type: 'formateur',
+                contactPerson: 'Mohamed Gamma',
+                phone: '+216 20 333 333'
+            }
+        ];
+        
+        let createdPartners = [];
+        let testData = {};
+
+        function log(message, type = 'info') {
+            const console = document.getElementById('console');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function createTestPartners() {
+            log('👥 Création des partenaires de test...', 'info');
+            const btn = document.getElementById('create-btn');
+            btn.disabled = true;
+            
+            createdPartners = [];
+            
+            for (const partner of TEST_PARTNERS) {
+                try {
+                    const result = await apiCall('/partners', {
+                        method: 'POST',
+                        body: JSON.stringify(partner)
+                    });
+                    
+                    if (result.success) {
+                        createdPartners.push(result.data);
+                        log(`✅ Partenaire créé: ${result.data.partnerId} - ${result.data.fullName}`, 'success');
+                    }
+                } catch (error) {
+                    if (error.message.includes('duplicate') || error.message.includes('existe')) {
+                        log(`⚠️ Partenaire existe déjà: ${partner.partnerId}`, 'warning');
+                        // Récupérer le partenaire existant
+                        try {
+                            const existing = await apiCall(`/partners/${partner.partnerId}`);
+                            if (existing.success) {
+                                createdPartners.push(existing.data);
+                            }
+                        } catch (e) {
+                            log(`❌ Erreur récupération partenaire existant: ${e.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ Erreur création ${partner.partnerId}: ${error.message}`, 'error');
+                    }
+                }
+            }
+            
+            displayTestPartners();
+            btn.disabled = false;
+            log(`📊 ${createdPartners.length} partenaires prêts pour les tests`, 'success');
+        }
+
+        function displayTestPartners() {
+            const container = document.getElementById('test-partners');
+            container.innerHTML = '';
+            
+            createdPartners.forEach(partner => {
+                const card = document.createElement('div');
+                card.className = 'partner-card';
+                card.innerHTML = `
+                    <div class="partner-id">${partner.partnerId}</div>
+                    <div><strong>${partner.fullName}</strong></div>
+                    <div>Type: ${partner.type}</div>
+                    <div>Email: ${partner.email}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function createTestData() {
+            log('📊 Création des données de test pour chaque partenaire...', 'info');
+            const btn = document.getElementById('data-btn');
+            btn.disabled = true;
+            
+            testData = {};
+            
+            for (const partner of createdPartners) {
+                if (partner.type === 'entreprise') {
+                    await createEnterpriseData(partner.partnerId);
+                } else if (partner.type === 'formateur') {
+                    await createFormateurData(partner.partnerId);
+                }
+            }
+            
+            displayPartnerData();
+            btn.disabled = false;
+            log('✅ Données de test créées pour tous les partenaires', 'success');
+        }
+
+        async function createEnterpriseData(partnerId) {
+            try {
+                // Créer des projets
+                const projectData = {
+                    title: `Projet Test ${partnerId}`,
+                    description: `Projet de test pour ${partnerId}`,
+                    startDate: new Date().toISOString(),
+                    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    budget: 5000
+                };
+                
+                const project = await apiCall(`/enterprise/${partnerId}/projects`, {
+                    method: 'POST',
+                    body: JSON.stringify(projectData)
+                });
+                
+                // Créer des formations
+                const formationData = {
+                    title: `Formation Test ${partnerId}`,
+                    description: `Formation de test pour ${partnerId}`,
+                    date: new Date().toISOString(),
+                    duration: 8,
+                    location: 'online',
+                    maxParticipants: 20
+                };
+                
+                const formation = await apiCall(`/enterprise/${partnerId}/formations`, {
+                    method: 'POST',
+                    body: JSON.stringify(formationData)
+                });
+                
+                // Créer des participants
+                const participantData = {
+                    fullName: `Participant Test ${partnerId}`,
+                    email: `participant-${partnerId.toLowerCase()}@test.com`,
+                    phone: '+216 20 999 999',
+                    position: 'Employé Test'
+                };
+                
+                const participant = await apiCall(`/enterprise/${partnerId}/participants`, {
+                    method: 'POST',
+                    body: JSON.stringify(participantData)
+                });
+                
+                testData[partnerId] = {
+                    projects: [project.data],
+                    formations: [formation.data],
+                    participants: [participant.data]
+                };
+                
+                log(`✅ Données créées pour entreprise ${partnerId}`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur création données ${partnerId}: ${error.message}`, 'error');
+            }
+        }
+
+        async function createFormateurData(partnerId) {
+            try {
+                // Créer un programme formateur
+                const programmeData = {
+                    titre: `Programme Test ${partnerId}`,
+                    description: `Programme de test pour ${partnerId}`,
+                    dateDebut: new Date().toISOString(),
+                    dateFin: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    prix: 1500,
+                    lieu: 'Tunis'
+                };
+                
+                const programme = await apiCall(`/formateur-programmes/${partnerId}`, {
+                    method: 'POST',
+                    body: JSON.stringify(programmeData)
+                });
+                
+                testData[partnerId] = {
+                    programmes: [programme.data]
+                };
+                
+                log(`✅ Données créées pour formateur ${partnerId}`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur création données formateur ${partnerId}: ${error.message}`, 'error');
+            }
+        }
+
+        async function displayPartnerData() {
+            const container = document.getElementById('partner-data');
+            container.innerHTML = '';
+            
+            for (const partner of createdPartners) {
+                try {
+                    let dataCount = 0;
+                    let dataTypes = [];
+                    
+                    if (partner.type === 'entreprise') {
+                        // Récupérer les données de l'entreprise
+                        const projects = await apiCall(`/enterprise/${partner.partnerId}/projects`);
+                        const formations = await apiCall(`/enterprise/${partner.partnerId}/formations`);
+                        const participants = await apiCall(`/enterprise/${partner.partnerId}/participants`);
+                        
+                        dataCount = projects.count + formations.count + participants.count;
+                        dataTypes = [`${projects.count} projets`, `${formations.count} formations`, `${participants.count} participants`];
+                    } else if (partner.type === 'formateur') {
+                        const programmes = await apiCall(`/formateur-programmes/${partner.partnerId}`);
+                        dataCount = programmes.count || programmes.data.length;
+                        dataTypes = [`${dataCount} programmes`];
+                    }
+                    
+                    const card = document.createElement('div');
+                    card.className = 'data-card';
+                    card.innerHTML = `
+                        <div class="partner-id">${partner.partnerId}</div>
+                        <div class="data-count">${dataCount}</div>
+                        <div>${dataTypes.join(', ')}</div>
+                    `;
+                    container.appendChild(card);
+                    
+                } catch (error) {
+                    log(`❌ Erreur récupération données ${partner.partnerId}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testDataIsolation() {
+            log('🔒 Test d\'isolation des données...', 'info');
+            const btn = document.getElementById('isolation-btn');
+            btn.disabled = true;
+            
+            const results = document.getElementById('isolation-results');
+            const details = document.getElementById('isolation-details');
+            results.style.display = 'block';
+            results.className = 'isolation-test';
+            
+            let isolationPassed = true;
+            let testResults = [];
+            
+            // Test 1: Chaque partenaire ne voit que ses données
+            for (const partner of createdPartners) {
+                try {
+                    if (partner.type === 'entreprise') {
+                        const projects = await apiCall(`/enterprise/${partner.partnerId}/projects`);
+                        const formations = await apiCall(`/enterprise/${partner.partnerId}/formations`);
+                        
+                        // Vérifier que toutes les données appartiennent bien au partenaire
+                        const allProjectsValid = projects.data.every(p => p.partnerId === partner.partnerId);
+                        const allFormationsValid = formations.data.every(f => f.partnerId === partner.partnerId);
+                        
+                        if (allProjectsValid && allFormationsValid) {
+                            testResults.push(`✅ ${partner.partnerId}: Isolation OK`);
+                            log(`✅ Isolation validée pour ${partner.partnerId}`, 'success');
+                        } else {
+                            testResults.push(`❌ ${partner.partnerId}: Données mélangées détectées`);
+                            isolationPassed = false;
+                            log(`❌ Isolation échouée pour ${partner.partnerId}`, 'error');
+                        }
+                    }
+                } catch (error) {
+                    testResults.push(`❌ ${partner.partnerId}: Erreur test - ${error.message}`);
+                    isolationPassed = false;
+                    log(`❌ Erreur test isolation ${partner.partnerId}: ${error.message}`, 'error');
+                }
+            }
+            
+            // Afficher les résultats
+            details.innerHTML = `
+                <div><strong>Résultat Global:</strong> ${isolationPassed ? '✅ SUCCÈS' : '❌ ÉCHEC'}</div>
+                <div style="margin-top: 15px;"><strong>Détails:</strong></div>
+                <ul style="margin-left: 20px;">
+                    ${testResults.map(result => `<li>${result}</li>`).join('')}
+                </ul>
+            `;
+            
+            results.className = `isolation-test ${isolationPassed ? 'success' : 'error'}`;
+            
+            btn.disabled = false;
+            log(`🏁 Test d'isolation terminé: ${isolationPassed ? 'SUCCÈS' : 'ÉCHEC'}`, isolationPassed ? 'success' : 'error');
+        }
+
+        async function testCrossAccess() {
+            log('⚠️ Test d\'accès croisé (doit échouer)...', 'info');
+            const btn = document.getElementById('cross-btn');
+            btn.disabled = true;
+            
+            if (createdPartners.length < 2) {
+                log('❌ Besoin d\'au moins 2 partenaires pour le test d\'accès croisé', 'error');
+                btn.disabled = false;
+                return;
+            }
+            
+            const partner1 = createdPartners[0];
+            const partner2 = createdPartners[1];
+            
+            try {
+                // Essayer d'accéder aux données du partner2 avec l'ID du partner1
+                log(`🔍 Tentative d'accès aux données de ${partner2.partnerId} via ${partner1.partnerId}...`, 'info');
+                
+                if (partner2.type === 'entreprise') {
+                    try {
+                        const crossData = await apiCall(`/enterprise/${partner2.partnerId}/projects`);
+                        log(`❌ SÉCURITÉ COMPROMISE: Accès croisé réussi!`, 'error');
+                    } catch (error) {
+                        if (error.message.includes('404') || error.message.includes('non trouvé') || error.message.includes('non autorisé')) {
+                            log(`✅ Accès croisé correctement bloqué: ${error.message}`, 'success');
+                        } else {
+                            log(`⚠️ Erreur inattendue: ${error.message}`, 'warning');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur test accès croisé: ${error.message}`, 'error');
+            }
+            
+            btn.disabled = false;
+            log('🏁 Test d\'accès croisé terminé', 'info');
+        }
+
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '';
+            log('Console cleared', 'info');
+        }
+
+        // Auto-start
+        window.onload = function() {
+            log('🔧 Système de test d\'isolation prêt', 'success');
+            log('💡 Cliquez sur "Créer Partenaires Test" pour commencer', 'info');
+        };
+    </script>
+</body>
+</html>

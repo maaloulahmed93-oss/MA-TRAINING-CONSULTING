@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Notifications Issue - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 400px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Notifications Issue - MATC</h1>
+        
+        <div class="error">
+            <h3>❌ Problème identifié</h3>
+            <p><strong>Symptôme:</strong> Admin Panel a des notifications, mais espace participant affiche "Aucune notification"</p>
+            <p><strong>Cause probable:</strong> Problème de communication Backend API ou données non synchronisées</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests de diagnostic</h3>
+            <button onclick="testBackendConnection()">1. Test Backend</button>
+            <button onclick="testParticipantAPI()">2. Test Participant API</button>
+            <button onclick="testNotificationsAPI()">3. Test Notifications API</button>
+            <button onclick="testParticipantData()">4. Test Participant Data</button>
+            <button onclick="runFullDiagnostic()">🚀 Diagnostic complet</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Diagnostic étape par étape</h3>
+            <div id="diagnosticSteps"></div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function logStep(step, message, status = 'info') {
+            const diagnosticSteps = document.getElementById('diagnosticSteps');
+            const div = document.createElement('div');
+            div.className = `result ${status}`;
+            div.innerHTML = `<strong>Étape ${step}:</strong> ${message}`;
+            diagnosticSteps.appendChild(div);
+        }
+
+        async function testBackendConnection() {
+            log('🔄 Test de connexion Backend...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants');
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend accessible', 'success');
+                    log(`📊 ${data.data?.length || 0} participants trouvés`, 'info');
+                    return true;
+                } else {
+                    log(`❌ Backend erreur: ${response.status} ${response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Backend inaccessible: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testParticipantAPI() {
+            log('👤 Test API Participant PART-550776...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        log('✅ Participant trouvé', 'success');
+                        log(`📊 Nom: ${data.data.fullName}`, 'info');
+                        log(`📧 Email: ${data.data.email}`, 'info');
+                        
+                        // Check notifications in participant data
+                        const notifications = data.data.notifications;
+                        if (notifications && Array.isArray(notifications)) {
+                            log(`🔔 Notifications dans participant data: ${notifications.length}`, notifications.length > 0 ? 'success' : 'warning');
+                            if (notifications.length > 0) {
+                                log(`<pre>Notifications data:
+${JSON.stringify(notifications, null, 2)}</pre>`, 'info');
+                            }
+                        } else {
+                            log('⚠️ Pas de champ notifications dans participant data', 'warning');
+                        }
+                        
+                        return data.data;
+                    } else {
+                        log('❌ Participant non trouvé dans response', 'error');
+                        return null;
+                    }
+                } else {
+                    log(`❌ Erreur API participant: ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testNotificationsAPI() {
+            log('🔔 Test API Notifications dédiée...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const notifications = data.data;
+                        log(`✅ API notifications: ${notifications.length} trouvées`, notifications.length > 0 ? 'success' : 'warning');
+                        
+                        if (notifications.length > 0) {
+                            log(`<pre>API Notifications:
+${JSON.stringify(notifications, null, 2)}</pre>`, 'info');
+                            
+                            notifications.forEach((notif, index) => {
+                                log(`${index + 1}. ${notif.title || notif.message} (${notif.type}) - ${notif.isRead ? 'Lu' : 'Non lu'}`, 'info');
+                            });
+                        } else {
+                            log('⚠️ API notifications retourne un tableau vide', 'warning');
+                        }
+                        
+                        return notifications;
+                    } else {
+                        log('❌ API notifications response non successful', 'error');
+                        return null;
+                    }
+                } else {
+                    log(`❌ Erreur API notifications: ${response.status}`, 'error');
+                    const errorText = await response.text();
+                    log(`❌ Détails erreur: ${errorText}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Erreur API notifications: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testParticipantData() {
+            log('📊 Analyse complète des données participant...', 'info');
+            
+            const participant = await testParticipantAPI();
+            if (!participant) {
+                log('❌ Impossible d\'analyser - participant non trouvé', 'error');
+                return;
+            }
+            
+            log('🔍 Analyse des champs participant:', 'info');
+            log(`- fullName: ${participant.fullName || 'N/A'}`, 'info');
+            log(`- email: ${participant.email || 'N/A'}`, 'info');
+            log(`- formations: ${participant.formations?.length || 0}`, 'info');
+            log(`- projects: ${participant.projects?.length || 0}`, 'info');
+            log(`- coachingResources: ${participant.coachingResources?.length || 0}`, 'info');
+            log(`- notifications: ${participant.notifications?.length || 0}`, 'info');
+            
+            // Check if notifications field exists but is empty
+            if (participant.hasOwnProperty('notifications')) {
+                if (Array.isArray(participant.notifications)) {
+                    if (participant.notifications.length === 0) {
+                        log('⚠️ Le champ notifications existe mais est vide', 'warning');
+                        log('💡 Cela suggère que les notifications ne sont pas sauvegardées correctement', 'warning');
+                    }
+                } else {
+                    log('⚠️ Le champ notifications n\'est pas un tableau', 'warning');
+                    log(`Type: ${typeof participant.notifications}`, 'info');
+                }
+            } else {
+                log('⚠️ Le champ notifications n\'existe pas dans les données participant', 'warning');
+            }
+        }
+
+        async function runFullDiagnostic() {
+            log('🚀 Lancement du diagnostic complet...', 'info');
+            
+            // Clear previous results
+            document.getElementById('diagnosticSteps').innerHTML = '';
+            
+            logStep(1, 'Test de connexion Backend...', 'info');
+            const backendOk = await testBackendConnection();
+            
+            if (!backendOk) {
+                logStep(1, 'Backend inaccessible - arrêt du diagnostic', 'error');
+                return;
+            }
+            logStep(1, 'Backend accessible ✅', 'success');
+            
+            logStep(2, 'Test API Participant...', 'info');
+            const participant = await testParticipantAPI();
+            
+            if (!participant) {
+                logStep(2, 'Participant non trouvé - problème critique', 'error');
+                return;
+            }
+            logStep(2, 'Participant trouvé ✅', 'success');
+            
+            logStep(3, 'Test API Notifications dédiée...', 'info');
+            const apiNotifications = await testNotificationsAPI();
+            
+            logStep(4, 'Analyse des résultats...', 'info');
+            
+            // Analyze results
+            const participantNotifications = participant.notifications || [];
+            const apiNotificationsCount = apiNotifications ? apiNotifications.length : 0;
+            
+            log('📊 Résumé du diagnostic:', 'info');
+            log(`- Notifications dans participant data: ${participantNotifications.length}`, 'info');
+            log(`- Notifications via API dédiée: ${apiNotificationsCount}`, 'info');
+            
+            if (participantNotifications.length === 0 && apiNotificationsCount === 0) {
+                logStep(4, 'PROBLÈME IDENTIFIÉ: Aucune notification trouvée nulle part', 'error');
+                log('💡 Solutions possibles:', 'warning');
+                log('1. Les notifications ne sont pas sauvegardées correctement dans Admin Panel', 'info');
+                log('2. Le backend ne traite pas les notifications lors du PUT', 'info');
+                log('3. Les notifications sont sauvegardées mais pas récupérées', 'info');
+                log('4. Problème de synchronisation entre Admin Panel et Backend', 'info');
+            } else if (participantNotifications.length > 0 && apiNotificationsCount === 0) {
+                logStep(4, 'PROBLÈME: Notifications dans participant data mais pas via API', 'warning');
+                log('💡 L\'API dédiée ne fonctionne pas correctement', 'warning');
+            } else if (participantNotifications.length === 0 && apiNotificationsCount > 0) {
+                logStep(4, 'PROBLÈME: Notifications via API mais pas dans participant data', 'warning');
+                log('💡 Problème de synchronisation des données', 'warning');
+            } else {
+                logStep(4, 'Données cohérentes trouvées ✅', 'success');
+                log('💡 Le problème pourrait être dans le frontend', 'info');
+            }
+            
+            logStep(5, 'Diagnostic terminé', 'success');
+            log('🔍 Consultez les résultats ci-dessus pour identifier la cause exacte', 'info');
+        }
+
+        // Auto-run diagnostic on load
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement du diagnostic...', 'info');
+                log('📋 Ce diagnostic va identifier pourquoi les notifications ne s\'affichent pas', 'info');
+                log('🎯 Cliquez sur "Diagnostic complet" pour commencer', 'warning');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

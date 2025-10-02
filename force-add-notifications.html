@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force Add Notifications - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+        .urgent { background: #ff6b6b; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Force Add Notifications - MATC</h1>
+        
+        <div class="error">
+            <h3>🚨 Solution d'urgence</h3>
+            <p><strong>Problème:</strong> Console logs montrent "No notifications found"</p>
+            <p><strong>Solution:</strong> Forcer l'ajout de notifications via API POST directe</p>
+        </div>
+
+        <div class="warning">
+            <h4>📋 Plan d'action:</h4>
+            <ol>
+                <li><strong>Ajouter notifications via POST API</strong> (contourne Admin Panel)</li>
+                <li><strong>Vérifier qu'elles sont sauvegardées</strong> dans MongoDB</li>
+                <li><strong>Tester dans espace participant</strong></li>
+                <li><strong>Identifier la source du problème</strong></li>
+            </ol>
+        </div>
+
+        <button onclick="forceAddNotifications()" class="urgent">⚡ FORCER AJOUT NOTIFICATIONS</button>
+        <button onclick="verifyNotifications()">🔍 Vérifier</button>
+        <button onclick="testEspaceParticipant()">🖥️ Test Espace Participant</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function forceAddNotifications() {
+            log('⚡ FORÇAGE AJOUT NOTIFICATIONS...', 'error');
+            
+            const notifications = [
+                {
+                    title: 'URGENT - Test Force Add',
+                    message: 'Cette notification a été ajoutée en force pour résoudre le problème.',
+                    type: 'information',
+                    description: 'Notification de test ajoutée directement via API POST',
+                    link: 'https://example.com/urgent-test'
+                },
+                {
+                    title: 'URGENT - Offre Test',
+                    message: 'Offre d\'emploi test ajoutée en force.',
+                    type: 'offre_emploi',
+                    description: 'Développeur urgently needed',
+                    company: 'MATC Emergency',
+                    phone: '+33999999999',
+                    email: 'urgent@matc.com'
+                }
+            ];
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < notifications.length; i++) {
+                const notification = notifications[i];
+                log(`📤 Force adding notification ${i + 1}: ${notification.title}`, 'warning');
+                
+                try {
+                    const response = await fetch('http://localhost:3001/api/participants/PART-550776/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(notification)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            log(`✅ FORCE ADD SUCCESS ${i + 1}: ${data.data._id}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`❌ Force add failed ${i + 1}: ${data.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ HTTP Error ${i + 1}: ${response.status}`, 'error');
+                        const errorText = await response.text();
+                        log(`Details: ${errorText}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Network Error ${i + 1}: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            log(`📊 FORCE ADD RESULT: ${successCount}/${notifications.length} notifications added`, 
+                successCount > 0 ? 'success' : 'error');
+            
+            if (successCount > 0) {
+                log('🎉 NOTIFICATIONS FORCÉES! Vérification dans 3 secondes...', 'success');
+                setTimeout(() => verifyNotifications(), 3000);
+            } else {
+                log('❌ ÉCHEC TOTAL - Problème critique dans le backend!', 'error');
+            }
+        }
+
+        async function verifyNotifications() {
+            log('🔍 Vérification des notifications forcées...', 'info');
+            
+            try {
+                // Test 1: Notifications API
+                log('📋 Test 1: API Notifications dédiée...', 'info');
+                const apiResponse = await fetch('http://localhost:3001/api/participants/PART-550776/notifications');
+                
+                if (apiResponse.ok) {
+                    const apiData = await apiResponse.json();
+                    if (apiData.success) {
+                        log(`✅ API Notifications: ${apiData.data.length} trouvées`, 
+                            apiData.data.length > 0 ? 'success' : 'error');
+                        
+                        if (apiData.data.length > 0) {
+                            apiData.data.forEach((notif, index) => {
+                                log(`${index + 1}. ${notif.title} (${notif.type})`, 'info');
+                            });
+                        }
+                    }
+                } else {
+                    log(`❌ API Notifications error: ${apiResponse.status}`, 'error');
+                }
+                
+                // Test 2: Participant API
+                log('📋 Test 2: API Participant...', 'info');
+                const participantResponse = await fetch('http://localhost:3001/api/participants/PART-550776');
+                
+                if (participantResponse.ok) {
+                    const participantData = await participantResponse.json();
+                    if (participantData.success && participantData.data) {
+                        const notifications = participantData.data.notifications;
+                        log(`✅ API Participant: ${notifications?.length || 0} notifications`, 
+                            notifications?.length > 0 ? 'success' : 'error');
+                        
+                        if (notifications && notifications.length > 0) {
+                            log('🎉 SUCCESS! Participant API retourne les notifications!', 'success');
+                            log('💡 Le problème était que MongoDB était vide', 'warning');
+                        } else {
+                            log('❌ PROBLÈME PERSISTE: Participant API retourne toujours 0 notifications', 'error');
+                            log('💡 Cela indique un problème dans le backend GET endpoint', 'warning');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEspaceParticipant() {
+            log('🖥️ Test Espace Participant...', 'info');
+            
+            log('📋 Instructions pour test manuel:', 'warning');
+            log('1. Allez sur: http://localhost:5173/espace-participant', 'info');
+            log('2. Connectez-vous: PART-550776 / gharbi@gmail.com', 'info');
+            log('3. Cliquez sur bouton Notifications (🔔)', 'info');
+            log('4. Vérifiez si les notifications forcées apparaissent', 'info');
+            log('5. Ouvrez Console (F12) et cherchez les logs', 'info');
+            
+            log('🔍 Logs à chercher dans Console:', 'warning');
+            log('- "✅ Loaded X notifications from API" (succès)', 'info');
+            log('- "ℹ️ No notifications found" (échec)', 'info');
+            log('- Erreurs JavaScript en rouge', 'info');
+            
+            // Simulate what the component does
+            log('🎭 Simulation du component Notifications...', 'info');
+            await verifyNotifications();
+        }
+
+        // Auto-run
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Chargement...', 'info');
+                log('🚨 SOLUTION D\'URGENCE pour résoudre le problème', 'error');
+                log('📋 Cette méthode va forcer l\'ajout de notifications', 'warning');
+                log('💡 Si ça marche, le problème était que MongoDB était vide', 'info');
+                log('💡 Si ça ne marche pas, le problème est dans le backend', 'info');
+                log('⚡ Cliquez sur "FORCER AJOUT NOTIFICATIONS" pour commencer', 'warning');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

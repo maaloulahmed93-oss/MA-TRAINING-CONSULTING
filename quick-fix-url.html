@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick Fix Project URL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px 0; }
+        .button:hover { background: #2563eb; }
+        .result { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; margin: 10px 0; border-radius: 6px; font-family: monospace; font-size: 12px; }
+        .success { background: #ecfdf5; border-color: #10b981; color: #065f46; }
+        .error { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Quick Fix Project URL</h1>
+        <p>Fix the projectUrl for participant PART-177037</p>
+        
+        <button class="button" onclick="fixProjectUrl()">Fix Project URL Now</button>
+        <div id="result" class="result"></div>
+        
+        <h3>Expected Result:</h3>
+        <p>After fixing, you should see in Frontend console:</p>
+        <pre>🔍 Analyzing project data: {projectUrl: "https://tv.animerco.org/", hasProjectUrl: true}
+✅ Transformed project: {projectUrl: "https://tv.animerco.org/", hasUrl: true}
+🔗 Ouverture du lien projet: https://tv.animerco.org/</pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTICIPANT_ID = 'PART-177037';
+        const TEST_URL = 'https://tv.animerco.org/';
+
+        async function fixProjectUrl() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Fixing project URL...';
+            resultDiv.className = 'result';
+            
+            try {
+                console.log('🔄 Starting fix...');
+                
+                // 1. Test backend
+                console.log('1. Testing backend...');
+                const healthResponse = await fetch(`${API_BASE}/participants`);
+                if (!healthResponse.ok) {
+                    throw new Error(`Backend not available - Status: ${healthResponse.status}`);
+                }
+                
+                // 2. Get participant
+                console.log('2. Getting participant data...');
+                const getResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`);
+                const participantData = await getResponse.json();
+                
+                if (!participantData.success) {
+                    throw new Error('Participant not found');
+                }
+                
+                console.log('✅ Participant found:', participantData.data.fullName);
+                
+                // 3. Find and update project
+                let targetProject = participantData.data.projects.find(p => 
+                    p.title.toLowerCase().includes('cima')
+                );
+                
+                if (!targetProject) {
+                    targetProject = participantData.data.projects[0];
+                }
+                
+                console.log('🎯 Target project:', targetProject.title);
+                console.log('📝 Current URL:', targetProject.projectUrl || 'EMPTY');
+                
+                const updatedProjects = participantData.data.projects.map(project => {
+                    if (project.title === targetProject.title) {
+                        return { ...project, projectUrl: TEST_URL };
+                    }
+                    return project;
+                });
+
+                // 4. Send update
+                console.log('4. Sending update...');
+                const updateResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...participantData.data,
+                        projects: updatedProjects
+                    })
+                });
+
+                const updateResult = await updateResponse.json();
+                
+                if (updateResult.success) {
+                    // 5. Verify
+                    const verifyResponse = await fetch(`${API_BASE}/participants/${PARTICIPANT_ID}/projects`);
+                    const verifyData = await verifyResponse.json();
+                    
+                    const updatedProject = verifyData.data.find(p => p.title === targetProject.title);
+                    
+                    if (updatedProject && updatedProject.projectUrl === TEST_URL) {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = `
+                            <strong>🎉 SUCCESS!</strong><br><br>
+                            Project: ${updatedProject.title}<br>
+                            URL: ${updatedProject.projectUrl}<br><br>
+                            
+                            <strong>Next Steps:</strong><br>
+                            1. Refresh Frontend page (F5)<br>
+                            2. Check participant space<br>
+                            3. Look for blue "Lien du projet" section<br>
+                            4. Click the link to test<br><br>
+                            
+                            <strong>Expected Console Logs:</strong><br>
+                            🔍 Analyzing project data: {projectUrl: "${TEST_URL}", hasProjectUrl: true}<br>
+                            ✅ Transformed project: {projectUrl: "${TEST_URL}", hasUrl: true}<br>
+                            🔗 Ouverture du lien projet: ${TEST_URL}
+                        `;
+                    } else {
+                        throw new Error('Verification failed - URL not updated');
+                    }
+                } else {
+                    throw new Error(updateResult.message || 'Update failed');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ ERROR</strong><br><br>
+                    ${error.message}<br><br>
+                    
+                    <strong>Solutions:</strong><br>
+                    • Make sure Backend is running on localhost:3001<br>
+                    • Restart Backend: npm run dev<br>
+                    • Check Backend console for errors<br>
+                    • Try again in a minute
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

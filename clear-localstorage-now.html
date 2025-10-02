@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسح البيانات التجريبية من localStorage</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .error { background: #fee; border-color: #fcc; color: #c33; }
+        .success { background: #efe; border-color: #cfc; color: #363; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #e3f2fd; border-color: #bbdefb; color: #0d47a1; }
+        button { padding: 12px 24px; margin: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-primary { background: #007bff; color: white; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 مسح البيانات التجريبية من localStorage</h1>
+        
+        <div class="section info">
+            <h3>📋 البيانات المحفوظة حالياً:</h3>
+            <div id="currentData"></div>
+        </div>
+
+        <div class="section warning">
+            <h3>🎯 العمليات المتاحة:</h3>
+            <button class="btn-primary" onclick="scanLocalStorage()">🔍 فحص localStorage</button>
+            <button class="btn-danger" onclick="clearMockData()">🗑️ مسح البيانات التجريبية</button>
+            <button class="btn-danger" onclick="clearAllData()">💥 مسح جميع البيانات</button>
+            <button class="btn-success" onclick="refreshPage()">🔄 تحديث الصفحة</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scanLocalStorage() {
+            log('🔍 فحص localStorage...', 'info');
+            
+            const keys = Object.keys(localStorage);
+            let foundData = [];
+            
+            // البحث عن البيانات المتعلقة بـ MATC
+            keys.forEach(key => {
+                if (key.includes('matc') || key.includes('participant') || key.includes('partner')) {
+                    try {
+                        const data = localStorage.getItem(key);
+                        const parsed = JSON.parse(data);
+                        foundData.push({
+                            key: key,
+                            data: parsed,
+                            size: data.length
+                        });
+                    } catch (e) {
+                        foundData.push({
+                            key: key,
+                            data: localStorage.getItem(key),
+                            size: localStorage.getItem(key).length
+                        });
+                    }
+                }
+            });
+            
+            if (foundData.length > 0) {
+                let html = `<h4>📦 تم العثور على ${foundData.length} مفاتيح:</h4>`;
+                foundData.forEach(item => {
+                    html += `<div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">`;
+                    html += `<strong>🔑 ${item.key}</strong> (${item.size} حرف)<br>`;
+                    
+                    if (typeof item.data === 'object' && Array.isArray(item.data)) {
+                        html += `📊 مصفوفة تحتوي على ${item.data.length} عنصر<br>`;
+                        if (item.data.length > 0 && item.data[0].id) {
+                            html += `🆔 أول عنصر: ${item.data[0].id} - ${item.data[0].fullName || item.data[0].name || 'غير محدد'}<br>`;
+                        }
+                    } else {
+                        html += `📄 نص: ${String(item.data).substring(0, 100)}...<br>`;
+                    }
+                    html += `</div>`;
+                });
+                log(html, 'warning');
+            } else {
+                log('✅ لا توجد بيانات MATC في localStorage', 'success');
+            }
+            
+            // عرض جميع المفاتيح
+            document.getElementById('currentData').innerHTML = `
+                <strong>إجمالي المفاتيح في localStorage: ${keys.length}</strong><br>
+                <pre>${keys.join('\n')}</pre>
+            `;
+        }
+
+        function clearMockData() {
+            if (!confirm('هل أنت متأكد من مسح البيانات التجريبية؟')) {
+                return;
+            }
+            
+            log('🗑️ مسح البيانات التجريبية...', 'warning');
+            
+            const keysToRemove = [
+                'matc_participants',
+                'participants',
+                'partners',
+                'freelancer_offers',
+                'mockParticipants',
+                'mockPartners'
+            ];
+            
+            let removedCount = 0;
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    removedCount++;
+                    log(`✅ تم حذف: ${key}`, 'success');
+                }
+            });
+            
+            // البحث عن مفاتيح أخرى تحتوي على بيانات تجريبية
+            const allKeys = Object.keys(localStorage);
+            allKeys.forEach(key => {
+                try {
+                    const data = localStorage.getItem(key);
+                    if (data && (
+                        data.includes('PART-2024-') || 
+                        data.includes('ahmed.benali@email.com') ||
+                        data.includes('fatima.elmansouri@email.com') ||
+                        data.includes('participant')
+                    )) {
+                        localStorage.removeItem(key);
+                        removedCount++;
+                        log(`✅ تم حذف بيانات تجريبية من: ${key}`, 'success');
+                    }
+                } catch (e) {
+                    // تجاهل الأخطاء
+                }
+            });
+            
+            if (removedCount > 0) {
+                log(`🎉 تم حذف ${removedCount} مفتاح يحتوي على بيانات تجريبية`, 'success');
+            } else {
+                log('ℹ️ لم يتم العثور على بيانات تجريبية للحذف', 'info');
+            }
+            
+            scanLocalStorage();
+        }
+
+        function clearAllData() {
+            if (!confirm('⚠️ هذا سيحذف جميع البيانات من localStorage!\nهل أنت متأكد؟')) {
+                return;
+            }
+            
+            if (!confirm('⚠️ تأكيد نهائي: سيتم حذف جميع البيانات المحفوظة محلياً!')) {
+                return;
+            }
+            
+            const keysCount = Object.keys(localStorage).length;
+            localStorage.clear();
+            
+            log(`💥 تم حذف جميع البيانات (${keysCount} مفتاح)`, 'success');
+            scanLocalStorage();
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        // فحص تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            log('🚀 بدء فحص localStorage...', 'info');
+            scanLocalStorage();
+        };
+    </script>
+</body>
+</html>

@@ -19,10 +19,8 @@ import {
 } from "../services/partnershipAuth";
 import {
   getPartnerById,
-} from "../services/partnershipData";
-import {
   getProjectsStats,
-} from "../services/partnershipProjectsService";
+} from "../services/enterpriseApiService";
 import { Partner, PartnershipStats } from "../types/partnership";
 
 const EspacePartenaireePage: React.FC = () => {
@@ -45,25 +43,36 @@ const EspacePartenaireePage: React.FC = () => {
       if (authenticated) {
         const partnerId = getCurrentPartnerId();
         if (partnerId) {
-          const partnerData = getPartnerById(partnerId);
-          const projectStats = getProjectsStats(partnerId);
-          
-          // Créer les stats compatibles avec PartnershipStats
-          const partnerStats: PartnershipStats = {
-            totalProjects: projectStats.totalProjects,
-            activeProjects: projectStats.activeProjects,
-            completedProjects: projectStats.completedProjects,
-            totalFormations: 5, // Valeur fixe pour l'instant
-            upcomingEvents: projectStats.upcomingDeadlines,
-            totalParticipants: projectStats.totalParticipants,
-            partnershipDuration: 12, // Valeur fixe pour l'instant
-            satisfactionRate: Math.min(95, Math.max(75, projectStats.averageProgress)) // Basé sur la progression
-          };
+          try {
+            // Appels API asynchrones pour récupérer les données réelles
+            const partnerData = await getPartnerById(partnerId);
+            const projectStats = await getProjectsStats(partnerId);
+            
+            if (partnerData) {
+              // Créer les stats compatibles avec PartnershipStats
+              const partnerStats: PartnershipStats = {
+                totalProjects: projectStats.totalProjects,
+                activeProjects: projectStats.activeProjects,
+                completedProjects: projectStats.completedProjects,
+                totalFormations: 5, // Valeur fixe pour l'instant
+                upcomingEvents: projectStats.upcomingDeadlines,
+                totalParticipants: projectStats.totalParticipants,
+                partnershipDuration: 12, // Valeur fixe pour l'instant
+                satisfactionRate: Math.min(95, Math.max(75, projectStats.averageProgress)) // Basé sur la progression
+              };
 
-          setPartner(partnerData || null);
-          setStats(partnerStats);
-          setIsAuthenticated(true);
-          console.log("✅ Partenaire authentifié:", partnerData?.name);
+              setPartner(partnerData);
+              setStats(partnerStats);
+              setIsAuthenticated(true);
+              console.log("✅ Partenaire authentifié:", partnerData.name);
+            } else {
+              console.log("❌ Partenaire non trouvé");
+              setIsAuthenticated(false);
+            }
+          } catch (apiError) {
+            console.error("❌ Erreur API:", apiError);
+            setIsAuthenticated(false);
+          }
         }
       }
     } catch (error) {
@@ -81,7 +90,29 @@ const EspacePartenaireePage: React.FC = () => {
 
   const handleAuthenticated = (partnerId: string) => {
     console.log("🔐 Partenaire authentifié:", partnerId);
-    checkAuthentication();
+    // Don't re-check authentication immediately to avoid loop
+    // Instead, directly set the authenticated state
+    setIsAuthenticated(true);
+    setIsLoading(false);
+    // Load partner data after successful authentication
+    loadPartnerData(partnerId);
+  };
+
+  const loadPartnerData = async (partnerId: string) => {
+    try {
+      const partnerData = await getPartnerById(partnerId);
+      const projectStats = await getProjectsStats(partnerId);
+      
+      if (partnerData) {
+        setPartner(partnerData);
+      }
+      
+      if (projectStats) {
+        setStats(projectStats);
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors du chargement des données:", error);
+    }
   };
 
   const handleLogout = () => {

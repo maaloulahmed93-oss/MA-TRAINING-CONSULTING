@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 اختبار النظام الكامل للقرارات</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #4f46e5;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        
+        .decision {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .decision-success {
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
+        }
+        
+        .decision-error {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            grid-column: 1 / -1;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 اختبار النظام الكامل للقرارات</h1>
+            <p>Backend API + Frontend Integration + localStorage Fallback</p>
+            <div style="margin-top: 15px;">
+                <span>Backend Status: </span>
+                <span id="backendStatus">🔄 جاري الفحص...</span>
+                <span class="status-indicator" id="statusIndicator"></span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Admin Panel Section -->
+            <div class="section">
+                <h2>🏢 Admin Panel - إرسال القرارات</h2>
+                <div class="form-group">
+                    <label>الفريلانسر:</label>
+                    <select id="adminFreelancerId">
+                        <option value="FRE-340255">FRE-340255 (ismail)</option>
+                        <option value="FRE-269251">FRE-269251 (azmd)</option>
+                        <option value="FRE-123456">FRE-123456 (test)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>عنوان الـ Livrable:</label>
+                    <input type="text" id="adminDeliverableTitle" value="Fiche technique - Phase 1">
+                </div>
+                <div class="form-group">
+                    <label>القرار:</label>
+                    <select id="adminDecision">
+                        <option value="approved">مقبول (Accepté)</option>
+                        <option value="rejected">مرفوض (Refusé)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>الملاحظات:</label>
+                    <textarea id="adminObservation" rows="3">عمل ممتاز! تم قبول الـ Livrable بنجاح.</textarea>
+                </div>
+                <button class="btn" onclick="sendDecisionViaAPI()">📤 إرسال عبر API</button>
+                <button class="btn btn-info" onclick="sendDecisionViaLocalStorage()">💾 إرسال عبر localStorage</button>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSent">0</div>
+                        <div>قرارات مرسلة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="apiSuccess">0</div>
+                        <div>نجح API</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="localStorageUsed">0</div>
+                        <div>localStorage</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Espace Freelancer Section -->
+            <div class="section">
+                <h2>👤 Espace Freelancer - عرض القرارات</h2>
+                <div class="form-group">
+                    <label>اختيار الفريلانسر:</label>
+                    <select id="freelancerViewId" onchange="loadFreelancerDecisions()">
+                        <option value="FRE-340255">FRE-340255 (ismail)</option>
+                        <option value="FRE-269251">FRE-269251 (azmd)</option>
+                        <option value="FRE-123456">FRE-123456 (test)</option>
+                    </select>
+                </div>
+                <button class="btn btn-info" onclick="loadFreelancerDecisions()">🔄 تحديث القرارات</button>
+                <button class="btn btn-success" onclick="testAPIConnection()">🧪 اختبار API</button>
+                <button class="btn btn-danger" onclick="clearFreelancerDecisions()">🗑️ حذف القرارات</button>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="freelancerTotal">0</div>
+                        <div>إجمالي القرارات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="freelancerUnread">0</div>
+                        <div>غير مقروءة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="freelancerApproved">0</div>
+                        <div>مقبولة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="freelancerRejected">0</div>
+                        <div>مرفوضة</div>
+                    </div>
+                </div>
+                
+                <div id="freelancerDecisionsList">
+                    <!-- سيتم ملؤها بـ JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="section">
+                <h2>📊 سجل العمليات والنتائج</h2>
+                <div class="results" id="results">🚀 بدء اختبار النظام الكامل...\n</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات عامة
+        let backendAvailable = false;
+        let totalSent = 0;
+        let apiSuccessCount = 0;
+        let localStorageCount = 0;
+
+        // تسجيل النتائج
+        function log(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+            console.log(message);
+        }
+
+        // فحص حالة Backend
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions/FRE-123456', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    backendAvailable = true;
+                    document.getElementById('backendStatus').textContent = '✅ متصل';
+                    document.getElementById('statusIndicator').className = 'status-indicator status-online';
+                    log('✅ Backend API متاح ويعمل بشكل صحيح');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                backendAvailable = false;
+                document.getElementById('backendStatus').textContent = '❌ غير متصل';
+                document.getElementById('statusIndicator').className = 'status-indicator status-offline';
+                log(`❌ Backend API غير متاح: ${error.message}`);
+                log('💾 سيتم استخدام localStorage كـ fallback');
+            }
+        }
+
+        // إرسال قرار عبر API
+        async function sendDecisionViaAPI() {
+            const freelancerId = document.getElementById('adminFreelancerId').value;
+            const freelancerName = freelancerId === 'FRE-340255' ? 'ismail' : 
+                                 freelancerId === 'FRE-269251' ? 'azmd' : 'test';
+            const deliverableTitle = document.getElementById('adminDeliverableTitle').value;
+            const decision = document.getElementById('adminDecision').value;
+            const observation = document.getElementById('adminObservation').value;
+
+            try {
+                log(`📤 محاولة إرسال قرار عبر API للفريلانسر ${freelancerId}...`);
+                
+                const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        freelancerId,
+                        freelancerName,
+                        deliverableTitle,
+                        decision,
+                        observation,
+                        adminId: 'admin'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ تم إرسال القرار بنجاح عبر API: ${result.data._id}`);
+                    apiSuccessCount++;
+                    updateStats();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ فشل إرسال القرار عبر API: ${error.message}`);
+                log('💾 التبديل إلى localStorage...');
+                await sendDecisionViaLocalStorage();
+            }
+            
+            totalSent++;
+            updateStats();
+            
+            // تحديث عرض الفريلانسر إذا كان نفس الشخص
+            const viewId = document.getElementById('freelancerViewId').value;
+            if (viewId === freelancerId) {
+                setTimeout(loadFreelancerDecisions, 500);
+            }
+        }
+
+        // إرسال قرار عبر localStorage
+        async function sendDecisionViaLocalStorage() {
+            const freelancerId = document.getElementById('adminFreelancerId').value;
+            const freelancerName = freelancerId === 'FRE-340255' ? 'ismail' : 
+                                 freelancerId === 'FRE-269251' ? 'azmd' : 'test';
+            const deliverableTitle = document.getElementById('adminDeliverableTitle').value;
+            const decision = document.getElementById('adminDecision').value;
+            const observation = document.getElementById('adminObservation').value;
+
+            try {
+                // إنشاء قرار محلي
+                const localDecision = {
+                    _id: `local-${Date.now()}`,
+                    freelancerId,
+                    freelancerName,
+                    deliverableTitle,
+                    decision,
+                    observation,
+                    adminId: 'admin',
+                    status: 'sent',
+                    readAt: null,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                // حفظ في localStorage
+                const key = `freelancerDecisions_${freelancerId}`;
+                const existingDecisions = JSON.parse(localStorage.getItem(key) || '[]');
+                existingDecisions.unshift(localDecision);
+                localStorage.setItem(key, JSON.stringify(existingDecisions));
+
+                log(`💾 تم حفظ القرار في localStorage للفريلانسر ${freelancerId}`);
+                localStorageCount++;
+                
+                if (!totalSent) totalSent = 0;
+                totalSent++;
+                updateStats();
+                
+            } catch (error) {
+                log(`❌ خطأ في حفظ القرار في localStorage: ${error.message}`);
+            }
+        }
+
+        // تحميل قرارات الفريلانسر
+        async function loadFreelancerDecisions() {
+            const freelancerId = document.getElementById('freelancerViewId').value;
+            
+            try {
+                log(`📬 تحميل قرارات الفريلانسر ${freelancerId}...`);
+                
+                let decisions = [];
+                
+                // محاولة جلب من API أولاً
+                if (backendAvailable) {
+                    try {
+                        const response = await fetch(`http://localhost:3001/api/freelancer-decisions/${freelancerId}`);
+                        if (response.ok) {
+                            const result = await response.json();
+                            decisions = result.data || [];
+                            log(`✅ تم جلب ${decisions.length} قرار من API`);
+                        }
+                    } catch (apiError) {
+                        log(`⚠️ فشل جلب من API: ${apiError.message}`);
+                    }
+                }
+                
+                // جلب من localStorage كـ fallback أو إضافة
+                const localKey = `freelancerDecisions_${freelancerId}`;
+                const localDecisions = JSON.parse(localStorage.getItem(localKey) || '[]');
+                
+                if (localDecisions.length > 0) {
+                    log(`💾 تم جلب ${localDecisions.length} قرار من localStorage`);
+                    // دمج القرارات وإزالة المكررات
+                    const allDecisions = [...decisions, ...localDecisions];
+                    const uniqueDecisions = allDecisions.filter((decision, index, self) => 
+                        index === self.findIndex(d => d._id === decision._id)
+                    );
+                    decisions = uniqueDecisions;
+                }
+                
+                displayFreelancerDecisions(decisions);
+                updateFreelancerStats(decisions);
+                
+            } catch (error) {
+                log(`❌ خطأ في تحميل قرارات الفريلانسر: ${error.message}`);
+            }
+        }
+
+        // عرض قرارات الفريلانسر
+        function displayFreelancerDecisions(decisions) {
+            const container = document.getElementById('freelancerDecisionsList');
+            
+            if (decisions.length === 0) {
+                container.innerHTML = `
+                    <div class="decision">
+                        <h4>📭 لا توجد قرارات</h4>
+                        <p>لم يتم إرسال أي قرارات لهذا الفريلانسر بعد.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = decisions.map(decision => `
+                <div class="decision ${decision.decision === 'approved' ? 'decision-success' : 'decision-error'}">
+                    <div style="display: flex; justify-content: between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h4>${decision.decision === 'approved' ? '✅ Livrable Accepté' : '❌ Livrable Refusé'} 
+                                ${decision.status === 'sent' ? '🔴 جديد' : '👁️ مقروء'}</h4>
+                            <p><strong>Livrable:</strong> ${decision.deliverableTitle}</p>
+                            <p><strong>Décision:</strong> ${decision.decision === 'approved' ? 'Accepté' : 'Refusé'}</p>
+                            ${decision.observation ? `<p><strong>Observation:</strong> ${decision.observation}</p>` : ''}
+                            <small style="color: #6b7280;">
+                                📅 ${new Date(decision.createdAt).toLocaleString('ar-SA')} | 
+                                👤 De: ${decision.adminId} |
+                                🆔 ${decision._id.startsWith('local-') ? 'localStorage' : 'API'}
+                            </small>
+                        </div>
+                        <div>
+                            ${decision.status === 'sent' ? `
+                                <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
+                                        onclick="markDecisionAsRead('${decision._id}', '${decision.freelancerId}')">
+                                    📖 تحديد كمقروء
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // تحديد قرار كمقروء
+        async function markDecisionAsRead(decisionId, freelancerId) {
+            try {
+                log(`📖 تحديد القرار ${decisionId} كمقروء...`);
+                
+                // محاولة تحديث عبر API
+                if (backendAvailable && !decisionId.startsWith('local-')) {
+                    try {
+                        const response = await fetch(`http://localhost:3001/api/freelancer-decisions/${decisionId}/read`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ freelancerId })
+                        });
+                        
+                        if (response.ok) {
+                            log(`✅ تم تحديث القرار عبر API`);
+                        }
+                    } catch (apiError) {
+                        log(`⚠️ فشل تحديث عبر API: ${apiError.message}`);
+                    }
+                }
+                
+                // تحديث في localStorage
+                const localKey = `freelancerDecisions_${freelancerId}`;
+                const localDecisions = JSON.parse(localStorage.getItem(localKey) || '[]');
+                const updatedDecisions = localDecisions.map(decision => 
+                    decision._id === decisionId 
+                        ? { ...decision, status: 'read', readAt: new Date().toISOString() }
+                        : decision
+                );
+                localStorage.setItem(localKey, JSON.stringify(updatedDecisions));
+                
+                log(`💾 تم تحديث القرار في localStorage`);
+                loadFreelancerDecisions();
+                
+            } catch (error) {
+                log(`❌ خطأ في تحديث القرار: ${error.message}`);
+            }
+        }
+
+        // حذف قرارات الفريلانسر
+        function clearFreelancerDecisions() {
+            const freelancerId = document.getElementById('freelancerViewId').value;
+            
+            if (confirm(`هل أنت متأكد من حذف جميع القرارات للفريلانسر ${freelancerId}؟`)) {
+                const localKey = `freelancerDecisions_${freelancerId}`;
+                localStorage.removeItem(localKey);
+                log(`🗑️ تم حذف جميع القرارات للفريلانسر ${freelancerId}`);
+                loadFreelancerDecisions();
+            }
+        }
+
+        // اختبار اتصال API
+        async function testAPIConnection() {
+            log('🧪 اختبار اتصال API...');
+            await checkBackendStatus();
+            
+            if (backendAvailable) {
+                // اختبار إرسال قرار تجريبي
+                try {
+                    const testDecision = {
+                        freelancerId: 'FRE-123456',
+                        freelancerName: 'Test User',
+                        deliverableTitle: 'Test Deliverable',
+                        decision: 'approved',
+                        observation: 'هذا قرار تجريبي للاختبار',
+                        adminId: 'test-admin'
+                    };
+                    
+                    const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testDecision)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        log(`✅ اختبار API نجح: تم إنشاء قرار تجريبي ${result.data._id}`);
+                    }
+                } catch (error) {
+                    log(`❌ فشل اختبار API: ${error.message}`);
+                }
+            }
+        }
+
+        // تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('totalSent').textContent = totalSent;
+            document.getElementById('apiSuccess').textContent = apiSuccessCount;
+            document.getElementById('localStorageUsed').textContent = localStorageCount;
+        }
+
+        // تحديث إحصائيات الفريلانسر
+        function updateFreelancerStats(decisions) {
+            const total = decisions.length;
+            const unread = decisions.filter(d => d.status === 'sent').length;
+            const approved = decisions.filter(d => d.decision === 'approved').length;
+            const rejected = decisions.filter(d => d.decision === 'rejected').length;
+            
+            document.getElementById('freelancerTotal').textContent = total;
+            document.getElementById('freelancerUnread').textContent = unread;
+            document.getElementById('freelancerApproved').textContent = approved;
+            document.getElementById('freelancerRejected').textContent = rejected;
+        }
+
+        // تحميل أولي
+        document.addEventListener('DOMContentLoaded', async function() {
+            log('🚀 بدء تحميل النظام...');
+            
+            // فحص Backend
+            await checkBackendStatus();
+            
+            // تحميل القرارات الأولية
+            await loadFreelancerDecisions();
+            
+            log('✅ تم تحميل النظام بنجاح');
+            log('📋 يمكنك الآن اختبار إرسال القرارات وعرضها');
+            log('🔄 النظام يدعم API + localStorage fallback');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Form Debug - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .error { background: #fef2f2; color: #dc2626; border: 2px solid #ef4444; }
+        .success { background: #f0fdf4; color: #166534; border: 2px solid #22c55e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Form Debug</h1>
+        <p>Test pour vérifier les données envoyées dans l'assignment</p>
+
+        <button onclick="testAssignmentData()">🔍 Test Assignment Data</button>
+        <button onclick="testFormValidation()">✅ Test Form Validation</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function testAssignmentData() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔍 Test Assignment Data...\n\n';
+
+            try {
+                // 1. Get services
+                const servicesResponse = await fetch('http://localhost:3001/api/commercial-services');
+                const servicesResult = await servicesResponse.json();
+                
+                // 2. Get commercials
+                const commercialsResponse = await fetch('http://localhost:3001/api/commercial-new/admin/commercials');
+                const commercialsResult = await commercialsResponse.json();
+                
+                resultDiv.textContent += `Services disponibles: ${servicesResult.data?.length || 0}\n`;
+                resultDiv.textContent += `Commerciaux disponibles: ${commercialsResult.data?.length || 0}\n\n`;
+
+                if (servicesResult.data?.length > 0 && commercialsResult.data?.length > 0) {
+                    const service = servicesResult.data[0];
+                    const commercial = commercialsResult.data[0];
+                    
+                    resultDiv.textContent += 'DONNÉES POUR ASSIGNMENT:\n';
+                    resultDiv.textContent += `serviceId: "${service._id}"\n`;
+                    resultDiv.textContent += `partnerId: "${commercial.partnerId}"\n`;
+                    resultDiv.textContent += `commercial._id: "${commercial._id}"\n\n`;
+                    
+                    resultDiv.textContent += 'VALIDATION:\n';
+                    resultDiv.textContent += `serviceId valid: ${!!service._id}\n`;
+                    resultDiv.textContent += `partnerId valid: ${!!commercial.partnerId}\n`;
+                    resultDiv.textContent += `partnerId format: ${commercial.partnerId?.startsWith('COM-') ? 'OK' : 'INVALID'}\n\n`;
+                    
+                    // Test assignment avec données correctes
+                    resultDiv.textContent += 'TEST ASSIGNMENT:\n';
+                    const assignmentData = {
+                        serviceId: service._id,
+                        partnerId: commercial.partnerId
+                    };
+                    
+                    resultDiv.textContent += `Payload: ${JSON.stringify(assignmentData, null, 2)}\n\n`;
+                    
+                    const assignResponse = await fetch('http://localhost:3001/api/commercial-new/admin/assign-service', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(assignmentData)
+                    });
+
+                    const assignResult = await assignResponse.json();
+                    
+                    resultDiv.textContent += `Response Status: ${assignResponse.status}\n`;
+                    resultDiv.textContent += `Response: ${JSON.stringify(assignResult, null, 2)}\n`;
+
+                    if (assignResult.success) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += '\n✅ ASSIGNMENT RÉUSSI!';
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.textContent += `\n❌ ASSIGNMENT ÉCHOUÉ: ${assignResult.message}`;
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ Données insuffisantes pour test';
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ ERREUR: ${error.message}`;
+            }
+        }
+
+        async function testFormValidation() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = '✅ Test Form Validation...\n\n';
+
+            // Simuler différents cas de validation
+            const testCases = [
+                { serviceId: '', partnerId: '', expected: 'Service ID et Partner ID requis' },
+                { serviceId: 'abc123', partnerId: '', expected: 'Partner ID requis' },
+                { serviceId: '', partnerId: 'COM-123', expected: 'Service ID requis' },
+                { serviceId: 'validId', partnerId: 'COM-123', expected: 'Valid' }
+            ];
+
+            testCases.forEach((testCase, index) => {
+                resultDiv.textContent += `TEST ${index + 1}:\n`;
+                resultDiv.textContent += `  serviceId: "${testCase.serviceId}"\n`;
+                resultDiv.textContent += `  partnerId: "${testCase.partnerId}"\n`;
+                
+                // Validation logic (comme dans le backend)
+                if (!testCase.serviceId || !testCase.partnerId) {
+                    resultDiv.textContent += `  Result: ❌ Service ID et Partner ID requis\n`;
+                } else {
+                    resultDiv.textContent += `  Result: ✅ Valid\n`;
+                }
+                resultDiv.textContent += `  Expected: ${testCase.expected}\n\n`;
+            });
+
+            resultDiv.textContent += 'RECOMMANDATIONS:\n';
+            resultDiv.textContent += '1. Vérifier que les dropdowns sont bien remplis\n';
+            resultDiv.textContent += '2. Vérifier que assignForm.serviceId et assignForm.partnerId ne sont pas vides\n';
+            resultDiv.textContent += '3. Ajouter console.log avant l\'envoi pour debug\n';
+            resultDiv.textContent += '4. Vérifier la cohérence entre state et form fields\n';
+
+            resultDiv.className = 'result success';
+        }
+
+        window.onload = function() {
+            console.log('🔧 Test Form Debug chargé');
+        };
+    </script>
+</body>
+</html>

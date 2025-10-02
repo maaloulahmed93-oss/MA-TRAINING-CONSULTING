@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick API Test - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #2563eb; }
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { background: #10b981; color: white; }
+        .error { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Quick API Test</h1>
+        <p>Test rapide de l'API Services</p>
+        
+        <button onclick="testGet()">📋 GET Services</button>
+        <button onclick="testPost()">➕ POST Service</button>
+        <button onclick="testBoth()">🔄 GET + POST + GET</button>
+        
+        <div id="result" class="result">Cliquez un bouton pour tester...</div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api/commercial-new/admin/services';
+        
+        async function testGet() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'GET Test en cours...\n\n';
+            
+            try {
+                const response = await fetch(API_URL);
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `OK: ${response.ok}\n\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.textContent += `Response:\n${JSON.stringify(data, null, 2)}\n\n`;
+                    
+                    if (data.success && data.data) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += `✅ SUCCÈS: ${data.data.length} services trouvés\n`;
+                        
+                        if (data.data.length > 0) {
+                            resultDiv.textContent += '\nServices:\n';
+                            data.data.forEach((service, i) => {
+                                resultDiv.textContent += `${i+1}. ${service.titre} (${service.commission}€)\n`;
+                            });
+                        }
+                    } else {
+                        resultDiv.textContent += '⚠️ API fonctionne mais aucun service';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    const errorText = await response.text();
+                    resultDiv.textContent += `❌ Erreur: ${errorText}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+        
+        async function testPost() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'POST Test en cours...\n\n';
+            
+            const testService = {
+                titre: `Quick Test ${new Date().toLocaleTimeString()}`,
+                description: 'Service créé via test rapide',
+                categorie: 'Test',
+                prixPublic: 100,
+                prixCommercial: 80,
+                commission: 20,
+                duree: '1h'
+            };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testService)
+                });
+                
+                resultDiv.textContent += `Status: ${response.status}\n`;
+                resultDiv.textContent += `OK: ${response.ok}\n\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.textContent += `Response:\n${JSON.stringify(data, null, 2)}\n\n`;
+                    
+                    if (data.success) {
+                        resultDiv.className = 'result success';
+                        resultDiv.textContent += `✅ SUCCÈS: Service "${data.data.titre}" créé\n`;
+                        resultDiv.textContent += `ID: ${data.data._id}`;
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.textContent += `❌ Échec: ${data.message}`;
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    const errorText = await response.text();
+                    resultDiv.textContent += `❌ Erreur: ${errorText}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+        
+        async function testBoth() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Test Complet en cours...\n\n';
+            
+            try {
+                // 1. GET initial
+                resultDiv.textContent += '1️⃣ GET initial...\n';
+                const getResponse1 = await fetch(API_URL);
+                const getData1 = await getResponse1.json();
+                const initialCount = getData1.data?.length || 0;
+                resultDiv.textContent += `Services initiaux: ${initialCount}\n\n`;
+                
+                // 2. POST nouveau service
+                resultDiv.textContent += '2️⃣ POST nouveau service...\n';
+                const newService = {
+                    titre: `Test Complet ${Date.now()}`,
+                    description: 'Service pour test complet',
+                    categorie: 'Test Complet',
+                    prixPublic: 200,
+                    prixCommercial: 160,
+                    commission: 40,
+                    duree: '2h'
+                };
+                
+                const postResponse = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newService)
+                });
+                
+                const postData = await postResponse.json();
+                if (postData.success) {
+                    resultDiv.textContent += `Service créé: ${postData.data.titre}\n\n`;
+                } else {
+                    resultDiv.textContent += `Échec création: ${postData.message}\n\n`;
+                }
+                
+                // 3. GET final
+                resultDiv.textContent += '3️⃣ GET final...\n';
+                const getResponse2 = await fetch(API_URL);
+                const getData2 = await getResponse2.json();
+                const finalCount = getData2.data?.length || 0;
+                resultDiv.textContent += `Services finaux: ${finalCount}\n`;
+                resultDiv.textContent += `Différence: +${finalCount - initialCount}\n\n`;
+                
+                if (finalCount > initialCount) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ TEST COMPLET RÉUSSI!\n';
+                    resultDiv.textContent += 'Backend fonctionne parfaitement.\n';
+                    resultDiv.textContent += 'Le problème est dans le Frontend!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ Service non sauvegardé!';
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

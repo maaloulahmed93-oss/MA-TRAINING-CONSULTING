@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Participant Fixed - MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        button { padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-pending { background-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Participant Fixed - MATC</h1>
+        
+        <div class="success">
+            <h3>✅ Fix Applied!</h3>
+            <p>Le problème <code>ReferenceError: notifications is not defined</code> a été corrigé dans le backend.</p>
+            <ul>
+                <li><strong>Problème:</strong> Variable <code>notifications</code> non définie ligne 286</li>
+                <li><strong>Solution:</strong> Ajout de <code>const notifications = [];</code> ligne 228</li>
+                <li><strong>Serveur:</strong> Redémarré avec succès sur port 3001</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests de vérification</h3>
+            <button onclick="testParticipantAPI()">Test API Participant</button>
+            <button onclick="testFormationsAPI()">Test API Formations</button>
+            <button onclick="testProjectsAPI()">Test API Projets</button>
+            <button onclick="testCompleteFlow()">Test Complet</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Statut des tests</h3>
+            <div id="test-status">
+                <p><span class="status-indicator status-pending"></span>Backend Connection: En attente...</p>
+                <p><span class="status-indicator status-pending"></span>Participant Load: En attente...</p>
+                <p><span class="status-indicator status-pending"></span>Formations Load: En attente...</p>
+                <p><span class="status-indicator status-pending"></span>Projects Load: En attente...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Liens rapides</h3>
+            <a href="http://localhost:5173/espace-participant" target="_blank" style="display: inline-block; padding: 10px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; margin: 5px;">
+                🚀 Tester Espace Participant
+            </a>
+            <p><small>ID à utiliser: <strong>PART-739438</strong></small></p>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        const PARTICIPANT_ID = 'PART-739438';
+
+        function updateStatus(test, status) {
+            const statusDiv = document.getElementById('test-status');
+            const statusClass = status === 'success' ? 'status-success' : status === 'error' ? 'status-error' : 'status-pending';
+            const statusText = status === 'success' ? 'Réussi' : status === 'error' ? 'Échec' : 'En cours...';
+            
+            const lines = statusDiv.innerHTML.split('\\n');
+            const updatedLines = lines.map(line => {
+                if (line.includes(test)) {
+                    return line.replace(/status-\\w+/, statusClass).replace(/: .+</, `: ${statusText}<`);
+                }
+                return line;
+            });
+            statusDiv.innerHTML = updatedLines.join('\\n');
+        }
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function testParticipantAPI() {
+            log('🔄 Test chargement participant...', 'info');
+            updateStatus('Participant Load', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Participant chargé: ${data.data.fullName}`, 'success');
+                    log(`📧 Email: ${data.data.email}`, 'info');
+                    log(`📚 Formations: ${data.data.formations?.length || 0}`, 'info');
+                    log(`📋 Projets: ${data.data.projects?.length || 0}`, 'info');
+                    log(`🔔 Notifications: ${data.data.notifications?.length || 0}`, 'info');
+                    updateStatus('Participant Load', 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Erreur ${response.status}: ${errorText}`, 'error');
+                    updateStatus('Participant Load', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                updateStatus('Participant Load', 'error');
+            }
+        }
+
+        async function testFormationsAPI() {
+            log('🔄 Test chargement formations...', 'info');
+            updateStatus('Formations Load', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/formations`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.data.length} formation(s) chargée(s)`, 'success');
+                    data.data.forEach(formation => {
+                        log(`📚 ${formation.title} - ${formation.progress}%`, 'info');
+                    });
+                    updateStatus('Formations Load', 'success');
+                } else {
+                    log(`❌ Erreur formations ${response.status}`, 'error');
+                    updateStatus('Formations Load', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur formations: ${error.message}`, 'error');
+                updateStatus('Formations Load', 'error');
+            }
+        }
+
+        async function testProjectsAPI() {
+            log('🔄 Test chargement projets...', 'info');
+            updateStatus('Projects Load', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/participants/${PARTICIPANT_ID}/projects`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.data.length} projet(s) chargé(s)`, 'success');
+                    data.data.forEach(project => {
+                        log(`📋 ${project.title} - ${project.progress}%`, 'info');
+                    });
+                    updateStatus('Projects Load', 'success');
+                } else {
+                    log(`❌ Erreur projets ${response.status}`, 'error');
+                    updateStatus('Projects Load', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur projets: ${error.message}`, 'error');
+                updateStatus('Projects Load', 'error');
+            }
+        }
+
+        async function testCompleteFlow() {
+            log('🚀 Démarrage test complet...', 'success');
+            
+            // Test backend connection
+            updateStatus('Backend Connection', 'pending');
+            try {
+                const healthResponse = await fetch(`${API_BASE}/api/health`);
+                if (healthResponse.ok) {
+                    log('✅ Backend connecté', 'success');
+                    updateStatus('Backend Connection', 'success');
+                } else {
+                    log('❌ Backend non accessible', 'error');
+                    updateStatus('Backend Connection', 'error');
+                    return;
+                }
+            } catch (error) {
+                log(`❌ Erreur connexion backend: ${error.message}`, 'error');
+                updateStatus('Backend Connection', 'error');
+                return;
+            }
+
+            // Run all tests
+            await testParticipantAPI();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testFormationsAPI();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testProjectsAPI();
+            
+            log('🎉 Test complet terminé!', 'success');
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            setTimeout(() => {
+                log('🔄 Démarrage test automatique...', 'info');
+                testCompleteFlow();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

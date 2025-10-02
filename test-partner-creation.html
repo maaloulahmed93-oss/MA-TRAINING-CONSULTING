@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partner Creation - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #2563eb;
+            border-bottom: 3px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        
+        input, select {
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Partner Creation</h1>
+            <p>Test du système de création de partenaires</p>
+        </div>
+
+        <!-- Warning -->
+        <div class="warning">
+            <h3>⚠️ Problème Identifié:</h3>
+            <p><strong>Erreur:</strong> "Un partenaire avec cet email existe déjà"</p>
+            <p><strong>Cause:</strong> Tentative de création avec un email déjà utilisé</p>
+            <p><strong>Solution:</strong> Validation côté client + messages d'erreur améliorés</p>
+        </div>
+
+        <!-- Test Création Partenaire -->
+        <div class="test-section">
+            <h3>➕ Test Création Nouveau Partenaire</h3>
+            <div>
+                <input type="text" id="fullName" placeholder="Nom Complet" value="Test Commercial">
+                <input type="email" id="email" placeholder="Email" value="">
+                <select id="type">
+                    <option value="formateur">Formateur</option>
+                    <option value="freelancer">Freelancer</option>
+                    <option value="commercial" selected>Commercial</option>
+                    <option value="entreprise">Entreprise</option>
+                </select>
+                <br>
+                <button onclick="testCreatePartner()">🚀 Créer Partenaire</button>
+                <button onclick="generateRandomEmail()">🎲 Email Aléatoire</button>
+            </div>
+            <div id="create-result" class="result"></div>
+        </div>
+
+        <!-- Test Emails Existants -->
+        <div class="test-section">
+            <h3>🔍 Test Emails Existants</h3>
+            <p>Tester avec des emails qui existent déjà</p>
+            <button onclick="testExistingEmail('youssefcommercial@example.com')">Test youssefcommercial@example.com</button>
+            <button onclick="testExistingEmail('admin@matc.com')">Test admin@matc.com</button>
+            <button onclick="testExistingEmail('geniges059@cpaus.com')">Test geniges059@cpaus.com</button>
+            <div id="existing-result" class="result"></div>
+        </div>
+
+        <!-- Liste Partenaires -->
+        <div class="test-section">
+            <h3>📋 Liste des Partenaires</h3>
+            <button onclick="loadPartners()">🔄 Charger Partenaires</button>
+            <button onclick="loadCommercials()">👥 Commerciaux Seulement</button>
+            <div id="partners-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/partners';
+
+        function generateRandomEmail() {
+            const domains = ['test.com', 'example.com', 'demo.fr', 'matc.tn'];
+            const randomId = Math.floor(Math.random() * 10000);
+            const domain = domains[Math.floor(Math.random() * domains.length)];
+            const email = `test${randomId}@${domain}`;
+            document.getElementById('email').value = email;
+        }
+
+        async function testCreatePartner() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const type = document.getElementById('type').value;
+            const resultDiv = document.getElementById('create-result');
+            
+            if (!fullName || !email) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Nom complet et email requis';
+                return;
+            }
+
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔄 Création du partenaire ${type}...\n\n`;
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fullName: fullName.trim(),
+                        email: email.toLowerCase().trim(),
+                        type: type
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ PARTENAIRE CRÉÉ AVEC SUCCÈS!\n\n` +
+                        `📋 Détails:\n` +
+                        `   ID: ${result.data.partnerId}\n` +
+                        `   Nom: ${result.data.fullName}\n` +
+                        `   Email: ${result.data.email}\n` +
+                        `   Type: ${result.data.type}\n` +
+                        `   Créé le: ${new Date(result.data.createdAt).toLocaleString()}\n\n` +
+                        `🎯 Le partenaire peut maintenant se connecter avec l'ID: ${result.data.partnerId}`;
+                    
+                    // Clear form
+                    document.getElementById('fullName').value = '';
+                    document.getElementById('email').value = '';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ ÉCHEC DE LA CRÉATION\n\n` +
+                        `Message: ${result.message}\n\n` +
+                        `Causes possibles:\n` +
+                        `- Email déjà utilisé\n` +
+                        `- Données invalides\n` +
+                        `- Erreur serveur`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 
+                    `❌ ERREUR TECHNIQUE\n\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Vérifiez:\n` +
+                    `- Backend démarré sur port 3001\n` +
+                    `- MongoDB Atlas accessible\n` +
+                    `- CORS configuré`;
+            }
+        }
+
+        async function testExistingEmail(email) {
+            const resultDiv = document.getElementById('existing-result');
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Test avec email existant: ${email}...\n\n`;
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fullName: 'Test Duplicate',
+                        email: email,
+                        type: 'commercial'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (!result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += 
+                        `✅ VALIDATION FONCTIONNE!\n\n` +
+                        `Message d'erreur: ${result.message}\n\n` +
+                        `🎯 Le système détecte correctement les emails dupliqués`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += 
+                        `❌ PROBLÈME: Email dupliqué accepté!\n\n` +
+                        `Cela ne devrait pas arriver`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function loadPartners() {
+            const resultDiv = document.getElementById('partners-result');
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔄 Chargement des partenaires...\n\n';
+
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ ${result.data.length} partenaires trouvés:\n\n`;
+                    
+                    result.data.forEach((partner, index) => {
+                        resultDiv.textContent += 
+                            `${index + 1}. ${partner.partnerId} - ${partner.fullName}\n` +
+                            `   Email: ${partner.email}\n` +
+                            `   Type: ${partner.type}\n` +
+                            `   Actif: ${partner.isActive ? 'Oui' : 'Non'}\n\n`;
+                    });
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Erreur: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        async function loadCommercials() {
+            const resultDiv = document.getElementById('partners-result');
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = '🔄 Chargement des commerciaux...\n\n';
+
+            try {
+                const response = await fetch(`${API_BASE}?type=commercial`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ ${result.data.length} commerciaux trouvés:\n\n`;
+                    
+                    result.data.forEach((partner, index) => {
+                        resultDiv.textContent += 
+                            `${index + 1}. ${partner.partnerId} - ${partner.fullName}\n` +
+                            `   Email: ${partner.email}\n` +
+                            `   Créé: ${new Date(partner.createdAt).toLocaleDateString()}\n\n`;
+                    });
+                    
+                    if (result.data.length === 0) {
+                        resultDiv.textContent += '📝 Aucun commercial trouvé';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += `❌ Erreur: ${result.message}`;
+                }
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Erreur: ${error.message}`;
+            }
+        }
+
+        // Auto-generate random email on load
+        window.onload = function() {
+            generateRandomEmail();
+        };
+    </script>
+</body>
+</html>

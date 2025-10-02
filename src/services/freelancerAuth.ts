@@ -16,7 +16,9 @@ const VALID_FREELANCER_IDS = new Map([
   [simpleHash('FREEL123'), 'FREEL123'],
   [simpleHash('FREEL456'), 'FREEL456'],
   [simpleHash('FREELANCER789'), 'FREELANCER789'],
-  [simpleHash('DEMO-FREELANCER'), 'DEMO-FREELANCER']
+  [simpleHash('DEMO-FREELANCER'), 'DEMO-FREELANCER'],
+  [simpleHash('FRE-340255'), 'FRE-340255'],
+  [simpleHash('FRE-289251'), 'FRE-289251']
 ]);
 
 // Clé de stockage pour la session
@@ -89,20 +91,61 @@ export const clearFreelancerSession = (): void => {
 };
 
 /**
- * Authentifie un freelancer avec son ID
+ * Authentifie un freelancer avec son ID via l'API Backend
  */
-export const authenticateFreelancer = async (freelancerId: string): Promise<boolean> => {
-  // Simulation d'une vérification asynchrone
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  const isValid = verifyFreelancerId(freelancerId);
-  
-  if (isValid) {
-    saveFreelancerSession(freelancerId);
-    return true;
+export const authenticateFreelancer = async (freelancerId: string, email?: string): Promise<boolean> => {
+  try {
+    // Si email est fourni, utiliser la nouvelle API avec email
+    if (email) {
+      const response = await fetch('http://localhost:3001/api/partners/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          partnerId: freelancerId,
+          email: email,
+          partnerType: 'freelancer'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        // Sauvegarder la session si l'authentification réussit
+        saveFreelancerSession(freelancerId);
+        return true;
+      }
+
+      return false;
+    }
+
+    // Fallback: vérification locale pour les sessions existantes
+    const isValid = verifyFreelancerId(freelancerId);
+    if (isValid) {
+      return true; // Ne pas sauvegarder à nouveau si c'est juste une vérification
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Erreur lors de l\'authentification freelancer:', error);
+    
+    // Fallback vers la validation locale en cas d'erreur réseau
+    const isValid = verifyFreelancerId(freelancerId);
+    if (isValid) {
+      return true;
+    }
+    
+    return false;
   }
-  
-  return false;
+};
+
+/**
+ * Authentifie et sauvegarde la session après connexion réussie
+ */
+export const authenticateAndSaveSession = (freelancerId: string): void => {
+  console.log('💾 Saving freelancer session for:', freelancerId);
+  saveFreelancerSession(freelancerId);
 };
 
 /**

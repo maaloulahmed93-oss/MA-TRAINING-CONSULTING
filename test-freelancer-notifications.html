@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔔 اختبار نظام الإشعارات للفريلانسرز</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4f46e5;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .control-group h3 {
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .results {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .notification-preview {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .notification-success {
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
+        }
+        
+        .notification-error {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 اختبار نظام الإشعارات للفريلانسرز</h1>
+            <p>اختبار التكامل بين Admin Panel و Espace Freelancer</p>
+        </div>
+        
+        <div class="content">
+            <!-- قسم إرسال القرارات -->
+            <div class="section">
+                <h2>📤 إرسال قرار من Admin Panel</h2>
+                <div class="test-controls">
+                    <div class="control-group">
+                        <h3>معلومات القرار</h3>
+                        <div class="form-group">
+                            <label>الفريلانسر:</label>
+                            <select id="freelancerId">
+                                <option value="FRE-340255">FRE-340255 (ismail)</option>
+                                <option value="FRE-269251">FRE-269251 (azmd)</option>
+                                <option value="FRE-123456">FRE-123456 (test)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>عنوان الـ Livrable:</label>
+                            <input type="text" id="deliverableTitle" value="Fiche technique - Phase 1" placeholder="عنوان الـ Livrable">
+                        </div>
+                        <div class="form-group">
+                            <label>القرار:</label>
+                            <select id="decision">
+                                <option value="approved">مقبول (Accepté)</option>
+                                <option value="rejected">مرفوض (Refusé)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الملاحظات:</label>
+                            <textarea id="observation" rows="3" placeholder="ملاحظات الإدارة...">عمل ممتاز! تم قبول الـ Livrable بنجاح.</textarea>
+                        </div>
+                        <button class="btn" onclick="sendDecision()">📤 إرسال القرار</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم عرض الإشعارات -->
+            <div class="section">
+                <h2>📬 عرض الإشعارات للفريلانسر</h2>
+                <div class="test-controls">
+                    <div class="control-group">
+                        <h3>اختيار الفريلانسر</h3>
+                        <div class="form-group">
+                            <label>الفريلانسر:</label>
+                            <select id="viewFreelancerId" onchange="loadNotifications()">
+                                <option value="FRE-340255">FRE-340255 (ismail)</option>
+                                <option value="FRE-269251">FRE-269251 (azmd)</option>
+                                <option value="FRE-123456">FRE-123456 (test)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-info" onclick="loadNotifications()">🔄 تحديث الإشعارات</button>
+                        <button class="btn btn-success" onclick="createTestNotification()">🧪 إنشاء إشعار تجريبي</button>
+                        <button class="btn btn-danger" onclick="clearNotifications()">🗑️ حذف جميع الإشعارات</button>
+                    </div>
+                </div>
+                
+                <!-- إحصائيات الإشعارات -->
+                <div class="stats-grid" id="notificationStats">
+                    <!-- سيتم ملؤها بـ JavaScript -->
+                </div>
+                
+                <!-- عرض الإشعارات -->
+                <div id="notificationsList">
+                    <!-- سيتم ملؤها بـ JavaScript -->
+                </div>
+            </div>
+            
+            <!-- قسم النتائج -->
+            <div class="section">
+                <h2>📊 نتائج الاختبار</h2>
+                <div class="results" id="results">جاري التحضير للاختبار...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // تسجيل النتائج
+        function log(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+            console.log(message);
+        }
+
+        // إرسال قرار من Admin Panel
+        function sendDecision() {
+            const freelancerId = document.getElementById('freelancerId').value;
+            const freelancerName = freelancerId === 'FRE-340255' ? 'ismail' : 
+                                 freelancerId === 'FRE-269251' ? 'azmd' : 'test';
+            const title = document.getElementById('deliverableTitle').value;
+            const decision = document.getElementById('decision').value;
+            const observation = document.getElementById('observation').value;
+
+            try {
+                // محاكاة إرسال القرار من Admin Panel
+                const freelancerNotificationsKey = `freelancerNotifications_${freelancerId}`;
+                const existingNotifications = JSON.parse(localStorage.getItem(freelancerNotificationsKey) || '[]');
+                
+                const notification = {
+                    id: `notif-${Date.now()}`,
+                    freelancerId: freelancerId,
+                    freelancerName: freelancerName,
+                    type: decision === 'approved' ? 'success' : 'error',
+                    title: decision === 'approved' ? '✅ Livrable Accepté' : '❌ Livrable Refusé',
+                    message: `Titre: ${title}\nStatut: ${decision === 'approved' ? 'Accepté' : 'Refusé'}\nObservation: ${observation}`,
+                    deliverableName: title,
+                    decision: decision,
+                    observation: observation,
+                    timestamp: new Date().toISOString(),
+                    read: false,
+                    from: 'admin'
+                };
+
+                existingNotifications.unshift(notification);
+                localStorage.setItem(freelancerNotificationsKey, JSON.stringify(existingNotifications));
+
+                log(`✅ تم إرسال قرار "${decision === 'approved' ? 'القبول' : 'الرفض'}" للفريلانسر ${freelancerId}`);
+                log(`📧 عنوان الـ Livrable: ${title}`);
+                log(`💬 الملاحظة: ${observation}`);
+                
+                // تحديث العرض إذا كان نفس الفريلانسر محدد
+                const viewFreelancerId = document.getElementById('viewFreelancerId').value;
+                if (viewFreelancerId === freelancerId) {
+                    loadNotifications();
+                }
+
+            } catch (error) {
+                log(`❌ خطأ في إرسال القرار: ${error.message}`);
+            }
+        }
+
+        // تحميل الإشعارات للفريلانسر
+        function loadNotifications() {
+            const freelancerId = document.getElementById('viewFreelancerId').value;
+            
+            try {
+                const freelancerNotificationsKey = `freelancerNotifications_${freelancerId}`;
+                const notifications = JSON.parse(localStorage.getItem(freelancerNotificationsKey) || '[]');
+                
+                log(`📬 تم تحميل ${notifications.length} إشعار للفريلانسر ${freelancerId}`);
+                
+                // عرض الإحصائيات
+                displayNotificationStats(notifications);
+                
+                // عرض الإشعارات
+                displayNotifications(notifications);
+                
+            } catch (error) {
+                log(`❌ خطأ في تحميل الإشعارات: ${error.message}`);
+            }
+        }
+
+        // عرض إحصائيات الإشعارات
+        function displayNotificationStats(notifications) {
+            const statsContainer = document.getElementById('notificationStats');
+            
+            const total = notifications.length;
+            const unread = notifications.filter(n => !n.read).length;
+            const approved = notifications.filter(n => n.decision === 'approved').length;
+            const rejected = notifications.filter(n => n.decision === 'rejected').length;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${total}</div>
+                    <div class="stat-label">إجمالي الإشعارات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${unread}</div>
+                    <div class="stat-label">غير مقروءة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${approved}</div>
+                    <div class="stat-label">مقبولة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${rejected}</div>
+                    <div class="stat-label">مرفوضة</div>
+                </div>
+            `;
+        }
+
+        // عرض الإشعارات
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notificationsList');
+            
+            if (notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="notification-preview">
+                        <h4>📭 لا توجد إشعارات</h4>
+                        <p>لم يتم إرسال أي قرارات لهذا الفريلانسر بعد.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = notifications.map(notification => `
+                <div class="notification-preview ${notification.type === 'success' ? 'notification-success' : 'notification-error'}">
+                    <div style="display: flex; justify-content: between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h4>${notification.title} ${!notification.read ? '🔴' : ''}</h4>
+                            <p><strong>Livrable:</strong> ${notification.deliverableName}</p>
+                            <p><strong>Décision:</strong> ${notification.decision === 'approved' ? 'Accepté ✅' : 'Refusé ❌'}</p>
+                            <p><strong>Observation:</strong> ${notification.observation}</p>
+                            <small style="color: #6b7280;">
+                                📅 ${new Date(notification.timestamp).toLocaleString('ar-SA')} | 
+                                👤 De: ${notification.from}
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
+                                    onclick="markAsRead('${notification.id}')">
+                                ${notification.read ? '👁️ Lu' : '📖 Marquer lu'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // تحديد إشعار كمقروء
+        function markAsRead(notificationId) {
+            const freelancerId = document.getElementById('viewFreelancerId').value;
+            const freelancerNotificationsKey = `freelancerNotifications_${freelancerId}`;
+            const notifications = JSON.parse(localStorage.getItem(freelancerNotificationsKey) || '[]');
+            
+            const updatedNotifications = notifications.map(notification => 
+                notification.id === notificationId 
+                    ? { ...notification, read: true }
+                    : notification
+            );
+            
+            localStorage.setItem(freelancerNotificationsKey, JSON.stringify(updatedNotifications));
+            log(`✅ تم تحديد الإشعار ${notificationId} كمقروء`);
+            loadNotifications();
+        }
+
+        // إنشاء إشعار تجريبي
+        function createTestNotification() {
+            const freelancerId = document.getElementById('viewFreelancerId').value;
+            const freelancerName = freelancerId === 'FRE-340255' ? 'ismail' : 
+                                 freelancerId === 'FRE-269251' ? 'azmd' : 'test';
+            
+            const testNotification = {
+                id: `test-${Date.now()}`,
+                freelancerId: freelancerId,
+                freelancerName: freelancerName,
+                type: 'success',
+                title: '🧪 إشعار تجريبي',
+                message: 'هذا إشعار تجريبي للاختبار',
+                deliverableName: 'Test Deliverable',
+                decision: 'approved',
+                observation: 'تم القبول للاختبار',
+                timestamp: new Date().toISOString(),
+                read: false,
+                from: 'admin'
+            };
+            
+            const freelancerNotificationsKey = `freelancerNotifications_${freelancerId}`;
+            const notifications = JSON.parse(localStorage.getItem(freelancerNotificationsKey) || '[]');
+            notifications.unshift(testNotification);
+            
+            localStorage.setItem(freelancerNotificationsKey, JSON.stringify(notifications));
+            log(`🧪 تم إنشاء إشعار تجريبي للفريلانسر ${freelancerId}`);
+            loadNotifications();
+        }
+
+        // حذف جميع الإشعارات
+        function clearNotifications() {
+            const freelancerId = document.getElementById('viewFreelancerId').value;
+            const freelancerNotificationsKey = `freelancerNotifications_${freelancerId}`;
+            
+            if (confirm(`هل أنت متأكد من حذف جميع الإشعارات للفريلانسر ${freelancerId}؟`)) {
+                localStorage.removeItem(freelancerNotificationsKey);
+                log(`🗑️ تم حذف جميع الإشعارات للفريلانسر ${freelancerId}`);
+                loadNotifications();
+            }
+        }
+
+        // تحميل أولي
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 تم تحميل صفحة اختبار الإشعارات');
+            log('📋 يمكنك الآن اختبار إرسال القرارات وعرض الإشعارات');
+            loadNotifications();
+        });
+    </script>
+</body>
+</html>

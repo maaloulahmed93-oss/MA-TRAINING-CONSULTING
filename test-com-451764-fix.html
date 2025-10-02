@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix COM-451764 - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            color: #059669;
+            border-bottom: 3px solid #d1fae5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .fix-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #d1fae5;
+            border-radius: 12px;
+            background: #f0fdf4;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+        }
+        
+        .urgent-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .result {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .fix-info {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #10b981;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix COM-451764</h1>
+            <p>Correction du problème de validation partnerId</p>
+        </div>
+
+        <!-- Fix Info -->
+        <div class="fix-info">
+            <h3>🛠️ Problème Identifié et Corrigé:</h3>
+            <ul>
+                <li><strong>Erreur:</strong> <code>partnerId is invalid (COM-451764)</code></li>
+                <li><strong>Cause:</strong> Regex pattern <code>/^COMM-\d{6}$/</code> dans CommercialNew.js</li>
+                <li><strong>Solution:</strong> Changé en <code>/^COM-\d{6}$/</code></li>
+                <li><strong>Résultat:</strong> COM-451764 maintenant accepté</li>
+            </ul>
+        </div>
+
+        <!-- Test Login Immédiat -->
+        <div class="fix-section">
+            <h3>🧪 Test Login COM-451764</h3>
+            <button class="urgent-button" onclick="testLoginFixed()">
+                🚀 TESTER LOGIN MAINTENANT
+            </button>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- Vérification Complète -->
+        <div class="fix-section">
+            <h3>🔍 Vérification Complète</h3>
+            <button onclick="checkPartners()">📋 Vérifier Partners</button>
+            <button onclick="checkCommercialNew()">👥 Vérifier CommercialNew</button>
+            <button onclick="testCreateDirect()">➕ Test Création Directe</button>
+            <div id="check-result" class="result"></div>
+        </div>
+
+        <!-- Test Espace Commercial -->
+        <div class="fix-section">
+            <h3>🌐 Test Espace Commercial</h3>
+            <p>Après le fix, testez directement sur l'Espace Commercial:</p>
+            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>URL:</strong> <code>http://localhost:5173/espace-commercial</code><br>
+                <strong>ID:</strong> <code>COM-451764</code><br>
+                <strong>Résultat attendu:</strong> ✅ Connexion réussie + Dashboard
+            </div>
+            <button onclick="openEspaceCommercial()">🌐 Ouvrir Espace Commercial</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTNER_ID = 'COM-451764';
+
+        async function testLoginFixed() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🧪 Test login ${PARTNER_ID} après fix...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ FIX RÉUSSI! LOGIN OK!\n\n` +
+                        `📋 Données commercial:\n` +
+                        `   ID: ${result.data.partnerId}\n` +
+                        `   Nom: ${result.data.fullName}\n` +
+                        `   Email: ${result.data.email}\n` +
+                        `   Niveau: ${result.data.niveau}\n` +
+                        `   Points: ${result.data.points}\n` +
+                        `   CA: ${result.data.chiffreAffaires}€\n` +
+                        `   Commission: ${result.data.commissionTotale}€\n\n` +
+                        `🎉 PROBLÈME RÉSOLU!\n` +
+                        `Le regex pattern a été corrigé de COMM- vers COM-\n\n` +
+                        `🚀 Maintenant testez sur l'Espace Commercial:\n` +
+                        `http://localhost:5173/espace-commercial`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ Login échoué: ${result.message}\n\n` +
+                        `Vérifiez si le backend est redémarré après le fix.`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 
+                    `❌ Erreur: ${error.message}\n\n` +
+                    `Assurez-vous que:\n` +
+                    `1. Le backend est redémarré\n` +
+                    `2. MongoDB est accessible\n` +
+                    `3. Le fix est appliqué`;
+            }
+        }
+
+        async function checkPartners() {
+            const resultDiv = document.getElementById('check-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Vérification dans Partners...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/partners/${PARTNER_ID}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ Trouvé dans Partners:\n\n` +
+                        `ID: ${result.data.partnerId}\n` +
+                        `Nom: ${result.data.fullName}\n` +
+                        `Email: ${result.data.email}\n` +
+                        `Type: ${result.data.type}\n` +
+                        `Actif: ${result.data.isActive}\n\n` +
+                        `🎯 Source de données OK!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Non trouvé dans Partners: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur Partners: ${error.message}`;
+            }
+        }
+
+        async function checkCommercialNew() {
+            const resultDiv = document.getElementById('check-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `🔍 Vérification dans CommercialNew...\n\n`;
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/${PARTNER_ID}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ Trouvé dans CommercialNew:\n\n` +
+                        `ID: ${result.data.partnerId}\n` +
+                        `Nom: ${result.data.fullName}\n` +
+                        `Email: ${result.data.email}\n` +
+                        `Niveau: ${result.data.niveau}\n` +
+                        `Points: ${result.data.points}\n\n` +
+                        `🎯 Migration automatique réussie!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 
+                        `❌ Non trouvé dans CommercialNew: ${result.message}\n\n` +
+                        `Cela peut être normal si la migration automatique\n` +
+                        `n'a pas encore eu lieu.`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur CommercialNew: ${error.message}`;
+            }
+        }
+
+        async function testCreateDirect() {
+            const resultDiv = document.getElementById('check-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = `➕ Test création directe...\n\n`;
+
+            const testData = {
+                partnerId: 'COM-999999',
+                fullName: 'Test Commercial Fix',
+                email: 'test.fix@example.com',
+                phone: '0123456789',
+                niveau: 1,
+                points: 0,
+                chiffreAffaires: 0,
+                commissionTotale: 0
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/commercial-new/create-direct`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 
+                        `✅ Création directe réussie!\n\n` +
+                        `Le regex pattern COM-xxxxxx fonctionne maintenant.\n` +
+                        `Test ID: ${testData.partnerId}\n\n` +
+                        `🎯 Fix confirmé!`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Création échouée: ${result.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur création: ${error.message}`;
+            }
+        }
+
+        function openEspaceCommercial() {
+            window.open('http://localhost:5173/espace-commercial', '_blank');
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            console.log('🔧 Fix COM-451764 chargé - Regex pattern corrigé!');
+        };
+    </script>
+</body>
+</html>

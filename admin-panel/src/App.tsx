@@ -23,6 +23,7 @@ import PartnerTestimonialsPage from "./pages/PartnerTestimonialsPage";
 import FooterSettingsPage from "./pages/FooterSettingsPage";
 import UsersPage from "./pages/UsersPage";
 import PartnerManagementPage from './pages/PartnerManagementPage';
+import CommercialServicesPage from './pages/CommercialServicesPage';
 import ParticipantsPage from "./pages/ParticipantsPage";
 import FreeCoursesManager from "./components/free-courses/FreeCoursesManager";
 import AttestationsPage from "./pages/AttestationsPage";
@@ -131,6 +132,7 @@ const AppRoutes: React.FC = () => {
                 {/* User Management */}
                                 <Route path={ROUTES.USERS} element={<UsersPage />} />
                 <Route path={ROUTES.PARTNERS} element={<PartnerManagementPage />} />
+                <Route path="/commercial-services" element={<CommercialServicesPage />} />
                 <Route path={ROUTES.FREELANCER_OFFERS} element={<FreelancerOffersPage />} />
                 <Route path={ROUTES.FREELANCER_MEETINGS} element={<FreelancerMeetingsPage />} />
                 <Route

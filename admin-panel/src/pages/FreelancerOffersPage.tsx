@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FreelancerOffer, OfferStatus, OfferVisibility } from '../types/freelancers';
-import { listOffers, createOffer, updateOffer, deleteOffer, seedOffersIfEmpty } from '../services/freelancerOffersService';
+import { listOffers, createOffer, updateOffer, deleteOffer, seedOffersIfEmpty, getAvailableFreelancers } from '../services/freelancerOffersService';
 
 const defaultOffer = (): Omit<FreelancerOffer,'id'|'createdAt'|'updatedAt'> => ({
   title: '',
@@ -34,13 +34,39 @@ const FreelancerOffersPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<FreelancerOffer | null>(null);
   const [form, setForm] = useState<Omit<FreelancerOffer,'id'|'createdAt'|'updatedAt'>>(defaultOffer());
+  const [availableFreelancers, setAvailableFreelancers] = useState<{id: string, name: string, email: string}[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    seedOffersIfEmpty();
-    setItems(listOffers());
+    loadData();
   }, []);
 
-  const refresh = () => setItems(listOffers());
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await seedOffersIfEmpty();
+      const offers = await listOffers();
+      setItems(offers);
+      
+      // جلب قائمة الفريلانسرز المتاحين
+      const freelancers = await getAvailableFreelancers();
+      setAvailableFreelancers(freelancers);
+      
+    } catch (err) {
+      setError('خطأ في تحميل البيانات');
+      console.error('خطأ في تحميل البيانات:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refresh = async () => {
+    const offers = await listOffers();
+    setItems(offers);
+  };
 
   const filtered = useMemo(() => {
     return items.filter(o => {
@@ -66,33 +92,97 @@ const FreelancerOffersPage: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title || !form.company || !form.description || !form.contractType || !form.visibility) return;
-    if (form.visibility === 'assigned' && (!form.assignedFreelancerIds || form.assignedFreelancerIds.length === 0)) return;
-    if (editing) {
-      updateOffer(editing.id, form);
-    } else {
-      createOffer(form);
+    
+    if (!form.title || !form.company || !form.description || !form.contractType || !form.visibility) {
+      setError('يرجى ملء جميع الحقول المطلوبة');
+      return;
     }
-    setModalOpen(false);
-    refresh();
+    
+    // Check assigned freelancers for 'assigned' visibility
+    if (form.visibility === 'assigned') {
+      const assignedIds = typeof form.assignedFreelancerIds === 'string' 
+        ? form.assignedFreelancerIds.split(',').map(s => s.trim()).filter(Boolean)
+        : (form.assignedFreelancerIds || []);
+      
+      if (assignedIds.length === 0) {
+        setError('يرجى تحديد الفريلانسرز عند اختيار "مخصص"');
+        return;
+      }
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    // Ensure CSV fields are converted to arrays before saving
+    const formToSave = {
+      ...form,
+      skills: typeof form.skills === 'string' 
+        ? form.skills.split(',').map(s => s.trim()).filter(Boolean)
+        : (form.skills || []),
+      tags: typeof form.tags === 'string' 
+        ? form.tags.split(',').map(s => s.trim()).filter(Boolean)
+        : (form.tags || []),
+      assignedFreelancerIds: typeof form.assignedFreelancerIds === 'string' 
+        ? form.assignedFreelancerIds.split(',').map(s => s.trim()).filter(Boolean)
+        : (form.assignedFreelancerIds || [])
+    };
+    
+    try {
+      if (editing) {
+        await updateOffer(editing.id, formToSave);
+      } else {
+        await createOffer(formToSave);
+      }
+      
+      setModalOpen(false);
+      await refresh();
+      
+    } catch (err) {
+      setError('خطأ في حفظ العرض');
+      console.error('خطأ في حفظ العرض:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Supprimer cette offre ?')) {
-      deleteOffer(id);
-      refresh();
+      setLoading(true);
+      setError(null);
+      
+      try {
+        await deleteOffer(id);
+        await refresh();
+      } catch (err) {
+        setError('خطأ في حذف العرض');
+        console.error('خطأ في حذف العرض:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const parseCSVList = (v: string) => v.split(',').map(s => s.trim()).filter(Boolean);
 
   return (
     <div className="space-y-6">
+      {/* عرض رسائل الخطأ */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Freelancer Offers</h1>
-        <button onClick={openCreate} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Ajouter une Offre</button>
+        <button 
+          onClick={openCreate} 
+          disabled={loading}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'جاري التحميل...' : 'Ajouter une Offre'}
+        </button>
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow flex flex-wrap gap-3 items-center">
@@ -200,7 +290,23 @@ const FreelancerOffersPage: React.FC = () => {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium">Compétences (séparées par ,)</label>
-                <input value={(form.skills||[]).join(', ')} onChange={e=>setForm({...form, skills: parseCSVList(e.target.value)})} className="mt-1 w-full border rounded px-3 py-2"/>
+                <input 
+                  value={Array.isArray(form.skills) ? form.skills.join(', ') : (form.skills || '')} 
+                  onChange={e => {
+                    // Store as string to allow typing, convert to array on blur or save
+                    setForm({...form, skills: e.target.value});
+                  }}
+                  onBlur={e => {
+                    // Convert to array when user finishes typing
+                    const skillsArray = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                    setForm({...form, skills: skillsArray});
+                  }}
+                  placeholder="JavaScript, React, Node.js, TypeScript"
+                  className="mt-1 w-full border rounded px-3 py-2"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Séparez les compétences par des virgules (ex: JavaScript, React, Node.js)
+                </p>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium">Description</label>
@@ -227,8 +333,42 @@ const FreelancerOffersPage: React.FC = () => {
               </div>
               {form.visibility === 'assigned' && (
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium">Freelancer IDs (séparées par ,)</label>
-                  <input value={(form.assignedFreelancerIds||[]).join(', ')} onChange={e=>setForm({...form, assignedFreelancerIds: parseCSVList(e.target.value)})} className="mt-1 w-full border rounded px-3 py-2"/>
+                  <label className="block text-sm font-medium">Freelancers assignés</label>
+                  {availableFreelancers.length > 0 ? (
+                    <div className="space-y-2">
+                      <select 
+                        multiple 
+                        value={form.assignedFreelancerIds || []} 
+                        onChange={e => setForm({...form, assignedFreelancerIds: Array.from(e.target.selectedOptions, option => option.value)})}
+                        className="mt-1 w-full border rounded px-3 py-2 min-h-[120px]"
+                      >
+                        {availableFreelancers.map(freelancer => (
+                          <option key={freelancer.id} value={freelancer.id}>
+                            {freelancer.id} - {freelancer.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-sm text-gray-600">Maintenez Ctrl/Cmd pour sélectionner plusieurs freelancers</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <input 
+                        value={Array.isArray(form.assignedFreelancerIds) ? form.assignedFreelancerIds.join(', ') : (form.assignedFreelancerIds || '')} 
+                        onChange={e => {
+                          // Store as string to allow typing, convert to array on blur or save
+                          setForm({...form, assignedFreelancerIds: e.target.value});
+                        }}
+                        onBlur={e => {
+                          // Convert to array when user finishes typing
+                          const idsArray = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                          setForm({...form, assignedFreelancerIds: idsArray});
+                        }}
+                        placeholder="FRE-123456, FRE-789012, FRE-345678"
+                        className="mt-1 w-full border rounded px-3 py-2"
+                      />
+                      <p className="text-sm text-gray-600">Saisissez les IDs séparés par des virgules (ex: FRE-123456, FRE-789012)</p>
+                    </div>
+                  )}
                 </div>
               )}
               <div>
@@ -241,7 +381,23 @@ const FreelancerOffersPage: React.FC = () => {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium">Tags (séparées par ,)</label>
-                <input value={(form.tags||[]).join(', ')} onChange={e=>setForm({...form, tags: parseCSVList(e.target.value)})} className="mt-1 w-full border rounded px-3 py-2"/>
+                <input 
+                  value={Array.isArray(form.tags) ? form.tags.join(', ') : (form.tags || '')} 
+                  onChange={e => {
+                    // Store as string to allow typing, convert to array on blur or save
+                    setForm({...form, tags: e.target.value});
+                  }}
+                  onBlur={e => {
+                    // Convert to array when user finishes typing
+                    const tagsArray = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                    setForm({...form, tags: tagsArray});
+                  }}
+                  placeholder="remote, frontend, senior, urgent"
+                  className="mt-1 w-full border rounded px-3 py-2"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Séparez les tags par des virgules (ex: remote, frontend, senior)
+                </p>
               </div>
 
               <div className="md:col-span-2 flex justify-end gap-3 pt-2">
