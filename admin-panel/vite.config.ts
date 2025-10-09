@@ -5,10 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/',
-  define: {
-    // Force production API URL
-    __BACKEND_URL__: JSON.stringify('https://ma-training-consulting.onrender.com/api')
-  },
   server: {
     port: 8536,
     host: true,
@@ -16,12 +12,6 @@ export default defineConfig({
     hmr: {
       overlay: true
     },
-    allowedHosts: [
-      'ma-training-consulting.onrender.com',
-      'localhost',
-      '127.0.0.1',
-      '.vercel.app'
-    ],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
@@ -57,7 +47,8 @@ export default defineConfig({
     allowedHosts: [
       'ma-training-consulting.onrender.com',
       'localhost',
-      '127.0.0.1'
+      '127.0.0.1',
+      '.vercel.app'
     ]
   }
 })
