@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { coursesData as initialCoursesData } from '../../../../src/data/coursesData';
 import { Domain, Course, CourseModule } from '../../../../src/types/courses';
-import { PlusCircle, Edit, Trash2, ChevronDown, ChevronRight, X, Link, KeyRound } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, ChevronDown, ChevronRight, X, Link, KeyRound, Wifi, WifiOff } from 'lucide-react';
+import { freeCoursesApiService } from '../../services/freeCoursesApiService';
 
 const FreeCoursesManager: React.FC = () => {
-    const [domains, setDomains] = useState<Domain[]>(initialCoursesData.domains);
+  // API Connection State
+  const [isApiConnected, setIsApiConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  // Data State
+  const [domains, setDomains] = useState<Domain[]>(initialCoursesData.domains);
   const [accessIds, setAccessIds] = useState<string[]>(initialCoursesData.validAccessIds);
   const [newAccessId, setNewAccessId] = useState('');
   const [openDomainId, setOpenDomainId] = useState<string | null>(initialCoursesData.domains[0]?.id || null);
@@ -27,18 +34,148 @@ const FreeCoursesManager: React.FC = () => {
   const [moduleForm, setModuleForm] = useState<Omit<CourseModule, 'id'>>({ title: '', duration: '', url: '' });
   const [currentCourseId, setCurrentCourseId] = useState<string | null>(null);
 
+  // Initialize API connection and load data
+  useEffect(() => {
+    initializeData();
+  }, []);
 
-
-  // --- Access ID Handlers ---
-  const handleAddAccessId = () => {
-    if (newAccessId.trim() && !accessIds.includes(newAccessId.trim().toUpperCase())) {
-      setAccessIds(prev => [...prev, newAccessId.trim().toUpperCase()]);
-      setNewAccessId('');
+  const initializeData = async () => {
+    setIsLoading(true);
+    setApiError(null);
+    
+    try {
+      console.log('🔄 Initialisation connexion API...');
+      
+      // Test API connection
+      const connectionTest = await freeCoursesApiService.testConnection();
+      console.log('🔍 Test connexion:', connectionTest);
+      
+      if (connectionTest.api && connectionTest.domains) {
+        // API is working - load from API
+        setIsApiConnected(true);
+        await loadDataFromApi();
+        console.log('✅ Données chargées depuis l\'API');
+      } else {
+        // API not available - use localStorage fallback
+        setIsApiConnected(false);
+        loadDataFromLocalStorage();
+        console.log('📱 Fallback vers localStorage');
+      }
+    } catch (error) {
+      console.error('❌ Erreur initialisation:', error);
+      setApiError(error instanceof Error ? error.message : 'Erreur de connexion');
+      setIsApiConnected(false);
+      loadDataFromLocalStorage();
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteAccessId = (idToDelete: string) => {
-    setAccessIds(prev => prev.filter(id => id !== idToDelete));
+  const loadDataFromApi = async () => {
+    try {
+      const [apiDomains, apiAccessIds] = await Promise.all([
+        freeCoursesApiService.getDomains(),
+        freeCoursesApiService.getAccessIds()
+      ]);
+      
+      console.log('📊 Données API reçues:', { 
+        domains: apiDomains.length, 
+        accessIds: apiAccessIds.length 
+      });
+      
+      setDomains(apiDomains);
+      setAccessIds(apiAccessIds); // getAccessIds() returns string[] directly
+    } catch (error) {
+      console.error('❌ Erreur chargement API:', error);
+      throw error;
+    }
+  };
+
+  const loadDataFromLocalStorage = () => {
+    try {
+      const storedDomains = localStorage.getItem('free_courses_domains');
+      const storedAccessIds = localStorage.getItem('free_courses_access_ids');
+      
+      if (storedDomains) {
+        setDomains(JSON.parse(storedDomains));
+      }
+      
+      if (storedAccessIds) {
+        setAccessIds(JSON.parse(storedAccessIds));
+      }
+    } catch (error) {
+      console.error('❌ Erreur localStorage:', error);
+      // Keep initial data if localStorage fails
+    }
+  };
+
+  const saveToLocalStorage = (newDomains?: Domain[], newAccessIds?: string[]) => {
+    try {
+      if (newDomains) {
+        localStorage.setItem('free_courses_domains', JSON.stringify(newDomains));
+      }
+      if (newAccessIds) {
+        localStorage.setItem('free_courses_access_ids', JSON.stringify(newAccessIds));
+      }
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde localStorage:', error);
+    }
+  };
+
+
+
+  // --- Access ID Handlers ---
+  const handleAddAccessId = async () => {
+    const trimmedId = newAccessId.trim();
+    if (!trimmedId || accessIds.includes(trimmedId)) return;
+
+    try {
+      if (isApiConnected) {
+        // Try API first
+        await freeCoursesApiService.addAccessId(trimmedId);
+        console.log('✅ ID ajouté via API:', trimmedId);
+      }
+      
+      // Update local state
+      const newAccessIds = [...accessIds, trimmedId];
+      setAccessIds(newAccessIds);
+      setNewAccessId('');
+      
+      // Save to localStorage as backup
+      saveToLocalStorage(undefined, newAccessIds);
+      
+    } catch (error) {
+      console.error('❌ Erreur ajout ID:', error);
+      // Fallback to localStorage only
+      const newAccessIds = [...accessIds, trimmedId];
+      setAccessIds(newAccessIds);
+      setNewAccessId('');
+      saveToLocalStorage(undefined, newAccessIds);
+    }
+  };
+
+  const handleDeleteAccessId = async (idToDelete: string) => {
+    try {
+      if (isApiConnected) {
+        // Try API first
+        await freeCoursesApiService.deleteAccessId(idToDelete);
+        console.log('✅ ID supprimé via API:', idToDelete);
+      }
+      
+      // Update local state
+      const newAccessIds = accessIds.filter(id => id !== idToDelete);
+      setAccessIds(newAccessIds);
+      
+      // Save to localStorage as backup
+      saveToLocalStorage(undefined, newAccessIds);
+      
+    } catch (error) {
+      console.error('❌ Erreur suppression ID:', error);
+      // Fallback to localStorage only
+      const newAccessIds = accessIds.filter(id => id !== idToDelete);
+      setAccessIds(newAccessIds);
+      saveToLocalStorage(undefined, newAccessIds);
+    }
   };
 
   const toggleDomain = (id: string) => {
@@ -68,21 +205,108 @@ const FreeCoursesManager: React.FC = () => {
     setEditingDomain(null);
   };
 
-  const handleSaveDomain = () => {
+  const handleSaveDomain = async () => {
     if (!domainForm.title || !domainForm.icon || !domainForm.description) return;
 
-    if (editingDomain) {
-      setDomains(domains.map(d => d.id === editingDomain.id ? { ...d, ...domainForm } : d));
-    } else {
-      const newDomain: Domain = { ...domainForm, id: `domain-${Date.now()}`, courses: [] };
-      setDomains(prev => [...prev, newDomain]);
+    try {
+      if (editingDomain) {
+        // Update existing domain
+        if (isApiConnected) {
+          await freeCoursesApiService.updateDomain(editingDomain.id, domainForm);
+          console.log('✅ Domaine mis à jour via API:', domainForm.title);
+        }
+        
+        // Update local state
+        const updatedDomains = domains.map(d => d.id === editingDomain.id ? { ...d, ...domainForm } : d);
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+      } else {
+        // Create new domain
+        const newDomainData = {
+          domainId: domainForm.id || `domain-${Date.now()}`,
+          title: domainForm.title,
+          icon: domainForm.icon,
+          description: domainForm.description
+        };
+
+        if (isApiConnected) {
+          const savedDomain = await freeCoursesApiService.createDomain(newDomainData);
+          console.log('✅ Domaine créé via API:', savedDomain);
+          
+          // Use the domain returned from API
+          const newDomain: Domain = {
+            id: savedDomain.domainId || newDomainData.domainId,
+            title: savedDomain.title,
+            icon: savedDomain.icon,
+            description: savedDomain.description,
+            courses: []
+          };
+          
+          const updatedDomains = [...domains, newDomain];
+          setDomains(updatedDomains);
+          saveToLocalStorage(updatedDomains);
+        } else {
+          // Fallback to localStorage only
+          const newDomain: Domain = { 
+            ...domainForm, 
+            id: newDomainData.domainId, 
+            courses: [] 
+          };
+          const updatedDomains = [...domains, newDomain];
+          setDomains(updatedDomains);
+          saveToLocalStorage(updatedDomains);
+        }
+      }
+      
+      handleCloseDomainModal();
+      
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde domaine:', error);
+      
+      // Fallback to localStorage
+      if (editingDomain) {
+        const updatedDomains = domains.map(d => d.id === editingDomain.id ? { ...d, ...domainForm } : d);
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+      } else {
+        const newDomain: Domain = { 
+          ...domainForm, 
+          id: domainForm.id || `domain-${Date.now()}`, 
+          courses: [] 
+        };
+        const updatedDomains = [...domains, newDomain];
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+      }
+      
+      handleCloseDomainModal();
+      alert('⚠️ Domaine sauvegardé localement. Vérifiez la connexion API.');
     }
-    handleCloseDomainModal();
   };
 
-  const handleDeleteDomain = (domainId: string) => {
+  const handleDeleteDomain = async (domainId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce domaine ?')) {
-      setDomains(domains.filter(d => d.id !== domainId));
+      try {
+        if (isApiConnected) {
+          await freeCoursesApiService.deleteDomain(domainId);
+          console.log('✅ Domaine supprimé via API:', domainId);
+        }
+        
+        // Update local state
+        const updatedDomains = domains.filter(d => d.id !== domainId);
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+        
+      } catch (error) {
+        console.error('❌ Erreur suppression domaine:', error);
+        
+        // Fallback to localStorage only
+        const updatedDomains = domains.filter(d => d.id !== domainId);
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+        
+        alert('⚠️ Domaine supprimé localement. Vérifiez la connexion API.');
+      }
     }
   };
 
@@ -107,23 +331,105 @@ const FreeCoursesManager: React.FC = () => {
     setCurrentDomainId(null);
   };
 
-  const handleSaveCourse = () => {
+  const handleSaveCourse = async () => {
     if (!courseForm.title || !currentDomainId) return;
-    const courseAction = (courses: Course[]) => {
-      if (editingCourse) {
-        return courses.map(c => c.id === editingCourse.id ? { ...c, ...courseForm } : c);
-      } else {
-        const newCourse: Course = { ...courseForm, id: `course-${Date.now()}`, modules: [] };
-        return [...courses, newCourse];
+    
+    try {
+      const courseAction = (courses: Course[]) => {
+        if (editingCourse) {
+          return courses.map(c => c.id === editingCourse.id ? { ...c, ...courseForm } : c);
+        } else {
+          const newCourse: Course = { ...courseForm, id: `course-${Date.now()}`, modules: [] };
+          return [...courses, newCourse];
+        }
+      };
+      
+      // Update local state
+      const updatedDomains = domains.map(d => d.id === currentDomainId ? { ...d, courses: courseAction(d.courses) } : d);
+      setDomains(updatedDomains);
+      
+      // Save to localStorage as backup
+      saveToLocalStorage(updatedDomains);
+      
+      // Save to API if connected
+      if (isApiConnected) {
+        try {
+          if (editingCourse) {
+            await freeCoursesApiService.updateCourse(editingCourse.id, {
+              title: courseForm.title,
+              description: courseForm.description
+            });
+            console.log('✅ Course mis à jour via API:', courseForm.title);
+          } else {
+            const newCourseData = {
+              courseId: `course-${Date.now()}`,
+              title: courseForm.title,
+              description: courseForm.description
+            };
+            await freeCoursesApiService.createCourse(currentDomainId, newCourseData);
+            console.log('✅ Course créé via API:', courseForm.title);
+          }
+        } catch (apiError) {
+          console.error('❌ API Error for course:', apiError);
+          // Continue with localStorage fallback
+        }
       }
-    };
-    setDomains(domains.map(d => d.id === currentDomainId ? { ...d, courses: courseAction(d.courses) } : d));
-    handleCloseCourseModal();
+      
+      handleCloseCourseModal();
+      
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde course:', error);
+      
+      // Fallback to localStorage only
+      const courseAction = (courses: Course[]) => {
+        if (editingCourse) {
+          return courses.map(c => c.id === editingCourse.id ? { ...c, ...courseForm } : c);
+        } else {
+          const newCourse: Course = { ...courseForm, id: `course-${Date.now()}`, modules: [] };
+          return [...courses, newCourse];
+        }
+      };
+      
+      const updatedDomains = domains.map(d => d.id === currentDomainId ? { ...d, courses: courseAction(d.courses) } : d);
+      setDomains(updatedDomains);
+      saveToLocalStorage(updatedDomains);
+      
+      handleCloseCourseModal();
+      alert('⚠️ Cours sauvegardé localement. API integration à venir.');
+    }
   };
 
-  const handleDeleteCourse = (domainId: string, courseId: string) => {
+  const handleDeleteCourse = async (domainId: string, courseId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) {
-      setDomains(domains.map(d => d.id === domainId ? { ...d, courses: d.courses.filter(c => c.id !== courseId) } : d));
+      try {
+        // Update local state
+        const updatedDomains = domains.map(d => d.id === domainId ? { ...d, courses: d.courses.filter(c => c.id !== courseId) } : d);
+        setDomains(updatedDomains);
+        
+        // Save to localStorage as backup
+        saveToLocalStorage(updatedDomains);
+        
+        // Delete from API if connected
+        if (isApiConnected) {
+          try {
+            await freeCoursesApiService.deleteCourse(courseId);
+            console.log('✅ Course supprimé via API:', courseId);
+          } catch (apiError) {
+            console.error('❌ API Error for course deletion:', apiError);
+            // Continue with localStorage fallback
+          }
+        }
+        
+      } catch (error) {
+        console.error('❌ Erreur suppression course:', error);
+        
+        // Fallback to localStorage only
+        const updatedDomains = domains.map(d => d.id === domainId ? { ...d, courses: d.courses.filter(c => c.id !== courseId) } : d);
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+        
+        alert('⚠️ Cours supprimé localement. API integration à venir.');
+      }
     }
   };
 
@@ -151,42 +457,143 @@ const FreeCoursesManager: React.FC = () => {
     setCurrentCourseId(null);
   };
 
-  const handleSaveModule = () => {
+  const handleSaveModule = async () => {
     if (!moduleForm.title || !currentDomainId || !currentCourseId) return;
 
-    const moduleAction = (modules: CourseModule[]) => {
-      if (editingModule) {
-        return modules.map(m => m.id === editingModule.id ? { ...m, ...moduleForm } : m);
-      } else {
-        const newModule: CourseModule = { ...moduleForm, id: Date.now() };
-        return [...modules, newModule];
-      }
-    };
+    try {
+      const moduleAction = (modules: CourseModule[]) => {
+        if (editingModule) {
+          return modules.map(m => m.id === editingModule.id ? { ...m, ...moduleForm } : m);
+        } else {
+          const newModule: CourseModule = { ...moduleForm, id: Date.now() };
+          return [...modules, newModule];
+        }
+      };
 
-    setDomains(domains.map(d => 
-      d.id === currentDomainId 
-        ? { ...d, courses: d.courses.map(c => 
-            c.id === currentCourseId 
-              ? { ...c, modules: moduleAction(c.modules) } 
-              : c
-          ) }
-        : d
-    ));
-
-    handleCloseModuleModal();
-  };
-
-  const handleDeleteModule = (moduleId: number, courseId: string, domainId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
-      setDomains(domains.map(d => 
-        d.id === domainId 
+      // Update local state
+      const updatedDomains = domains.map(d => 
+        d.id === currentDomainId 
           ? { ...d, courses: d.courses.map(c => 
-              c.id === courseId 
-                ? { ...c, modules: c.modules.filter(m => m.id !== moduleId) }
+              c.id === currentCourseId 
+                ? { ...c, modules: moduleAction(c.modules) } 
                 : c
             ) }
           : d
-      ));
+      );
+      
+      setDomains(updatedDomains);
+      
+      // Save to localStorage as backup
+      saveToLocalStorage(updatedDomains);
+      
+      // Save to API if connected
+      if (isApiConnected) {
+        try {
+          if (editingModule) {
+            await freeCoursesApiService.updateModule(editingModule.id, currentCourseId, {
+              title: moduleForm.title,
+              duration: moduleForm.duration,
+              url: moduleForm.url
+            });
+            console.log('✅ Module mis à jour via API:', moduleForm.title);
+          } else {
+            const newModuleData = {
+              moduleId: Date.now(),
+              title: moduleForm.title,
+              duration: moduleForm.duration,
+              url: moduleForm.url
+            };
+            await freeCoursesApiService.createModule(currentCourseId, newModuleData);
+            console.log('✅ Module créé via API:', moduleForm.title);
+          }
+        } catch (apiError) {
+          console.error('❌ API Error for module:', apiError);
+          // Continue with localStorage fallback
+        }
+      }
+      
+      handleCloseModuleModal();
+      
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde module:', error);
+      
+      // Fallback to localStorage only
+      const moduleAction = (modules: CourseModule[]) => {
+        if (editingModule) {
+          return modules.map(m => m.id === editingModule.id ? { ...m, ...moduleForm } : m);
+        } else {
+          const newModule: CourseModule = { ...moduleForm, id: Date.now() };
+          return [...modules, newModule];
+        }
+      };
+
+      const updatedDomains = domains.map(d => 
+        d.id === currentDomainId 
+          ? { ...d, courses: d.courses.map(c => 
+              c.id === currentCourseId 
+                ? { ...c, modules: moduleAction(c.modules) } 
+                : c
+            ) }
+          : d
+      );
+      
+      setDomains(updatedDomains);
+      saveToLocalStorage(updatedDomains);
+      
+      handleCloseModuleModal();
+      alert('⚠️ Module sauvegardé localement. API integration à venir.');
+    }
+  };
+
+  const handleDeleteModule = async (moduleId: number, courseId: string, domainId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+      try {
+        // Update local state
+        const updatedDomains = domains.map(d => 
+          d.id === domainId 
+            ? { ...d, courses: d.courses.map(c => 
+                c.id === courseId 
+                  ? { ...c, modules: c.modules.filter(m => m.id !== moduleId) }
+                  : c
+              ) }
+            : d
+        );
+        
+        setDomains(updatedDomains);
+        
+        // Save to localStorage as backup
+        saveToLocalStorage(updatedDomains);
+        
+        // Delete from API if connected
+        if (isApiConnected) {
+          try {
+            await freeCoursesApiService.deleteModule(moduleId, courseId);
+            console.log('✅ Module supprimé via API:', moduleId);
+          } catch (apiError) {
+            console.error('❌ API Error for module deletion:', apiError);
+            // Continue with localStorage fallback
+          }
+        }
+        
+      } catch (error) {
+        console.error('❌ Erreur suppression module:', error);
+        
+        // Fallback to localStorage only
+        const updatedDomains = domains.map(d => 
+          d.id === domainId 
+            ? { ...d, courses: d.courses.map(c => 
+                c.id === courseId 
+                  ? { ...c, modules: c.modules.filter(m => m.id !== moduleId) }
+                  : c
+              ) }
+            : d
+        );
+        
+        setDomains(updatedDomains);
+        saveToLocalStorage(updatedDomains);
+        
+        alert('⚠️ Module supprimé localement. API integration à venir.');
+      }
     }
   };
 
@@ -194,9 +601,44 @@ const FreeCoursesManager: React.FC = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Gestion des Cours Gratuits</h1>
-        <div className="flex items-center space-x-4">
-
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+            Gestion des Cours Gratuits
+            {isLoading ? (
+              <div className="ml-3 animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            ) : (
+              <div className="ml-3 flex items-center">
+                {isApiConnected ? (
+                  <div className="flex items-center text-green-600">
+                    <Wifi className="h-5 w-5 mr-1" />
+                    <span className="text-sm font-medium">API MongoDB</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center text-orange-600">
+                    <WifiOff className="h-5 w-5 mr-1" />
+                    <span className="text-sm font-medium">Mode Local</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Gérez les domaines, cours, modules et IDs d'accès
+            {apiError && (
+              <span className="block text-red-500 text-sm mt-1">
+                ⚠️ {apiError}
+              </span>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={initializeData} 
+            className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 flex items-center text-sm"
+            disabled={isLoading}
+          >
+            🔄 Actualiser
+          </button>
           <button onClick={handleOpenAddDomainModal} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center shadow-md">
             <PlusCircle className="mr-2 h-5 w-5" />
             Ajouter un Domaine

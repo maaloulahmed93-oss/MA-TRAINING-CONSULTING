@@ -43,6 +43,11 @@ export default defineConfig({
   },
   preview: {
     port: 4174,
-    host: true
+    host: true,
+    allowedHosts: [
+      'ma-training-consulting.onrender.com',
+      'localhost',
+      '127.0.0.1'
+    ]
   }
 })

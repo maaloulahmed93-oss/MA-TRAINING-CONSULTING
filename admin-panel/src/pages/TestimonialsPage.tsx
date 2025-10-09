@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import TestimonialFormModal from "../components/testimonials/TestimonialFormModal";
 import {
   PlusIcon,
@@ -10,66 +10,63 @@ import {
   BriefcaseIcon,
   CommandLineIcon,
   SparklesIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Testimonial } from "../types";
+import { testimonialsApiService } from "../services/testimonialsApiService";
 
 const TestimonialsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-
-  // Mock data - Updated with new structure
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([
-    {
-      id: "1",
-      name: "Youssef Amrani",
-      position: "UI/UX Designer",
-      skills: "Figma, Design Thinking",
-      category: "Conception UI/UX",
-      level: "Avancé",
-      progress: 75,
-      content:
-        "J'ai appris à créer des interfaces modernes et ergonomiques qui améliorent l'expérience utilisateur...",
-      badge: "TOP des participants",
-      isPublished: true,
-      createdAt: new Date("2023-10-26"),
-      updatedAt: new Date("2023-10-26"),
-      rating: 5,
-    },
-    {
-      id: "2",
-      name: "Imane Khoury",
-      position: "Cloud Engineer",
-      skills: "AWS, Kubernetes",
-      category: "Architecture Cloud",
-      level: "Expert",
-      progress: 100,
-      content:
-        "Grâce aux projets pratiques, j'ai pu obtenir ma certification AWS Solutions Architect...",
-      isPublished: true,
-      createdAt: new Date("2023-09-15"),
-      updatedAt: new Date("2023-09-15"),
-      rating: 5,
-    },
-    {
-      id: "3",
-      name: "Hichem Mansouri",
-      position: "Marketing Digital",
-      skills: "SEO, SEA",
-      category: "Stratégie marketing",
-      level: "Intermédiaire",
-      progress: 50,
-      content:
-        "J'ai pu mettre en place des campagnes performantes qui ont doublé le trafic qualifié...",
-      isPublished: false,
-      createdAt: new Date("2023-08-01"),
-      updatedAt: new Date("2023-08-01"),
-      rating: 4,
-    },
-  ]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [apiConnected, setApiConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<Testimonial | null>(null);
+
+  // Charger les témoignages au démarrage
+  useEffect(() => {
+    loadTestimonials();
+    checkApiConnection();
+  }, []);
+
+  const checkApiConnection = async () => {
+    const connected = await testimonialsApiService.checkConnection();
+    setApiConnected(connected);
+    console.log(connected ? '🟢 API Backend connecté' : '🔴 API Backend déconnecté');
+  };
+
+  const loadTestimonials = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔄 Chargement des témoignages...');
+      
+      const data = await testimonialsApiService.getAllTestimonials({
+        status: filterStatus,
+        search: searchTerm
+      });
+      
+      setTestimonials(data);
+      console.log(`✅ ${data.length} témoignages chargés`);
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement:', error);
+      setError('Erreur lors du chargement des témoignages');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Recharger quand les filtres changent
+  useEffect(() => {
+    if (!loading) {
+      loadTestimonials();
+    }
+  }, [filterStatus, searchTerm]);
 
   const handleOpenModal = (testimonial: Testimonial | null) => {
     setSelectedTestimonial(testimonial);
@@ -81,22 +78,70 @@ const TestimonialsPage: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleSaveTestimonial = (testimonialToSave: Testimonial) => {
-    if (selectedTestimonial) {
-      setTestimonials(
-        testimonials.map((t) =>
-          t.id === testimonialToSave.id ? testimonialToSave : t
-        )
-      );
-    } else {
-      setTestimonials([testimonialToSave, ...testimonials]);
+  const handleSaveTestimonial = async (testimonialToSave: Testimonial) => {
+    try {
+      setLoading(true);
+      
+      if (selectedTestimonial) {
+        // Mise à jour
+        console.log('🔄 Mise à jour du témoignage...');
+        await testimonialsApiService.updateTestimonial(testimonialToSave.id, testimonialToSave);
+      } else {
+        // Création
+        console.log('➕ Création d\'un nouveau témoignage...');
+        await testimonialsApiService.createTestimonial(testimonialToSave);
+      }
+      
+      // Recharger la liste
+      await loadTestimonials();
+      handleCloseModal();
+      
+      console.log('✅ Témoignage sauvegardé avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la sauvegarde:', error);
+      setError('Erreur lors de la sauvegarde du témoignage');
+    } finally {
+      setLoading(false);
     }
-    handleCloseModal();
   };
 
-  const handleDeleteTestimonial = (testimonialId: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce partenaire ?")) {
-      setTestimonials(testimonials.filter((t) => t.id !== testimonialId));
+  const handleDeleteTestimonial = async (testimonialId: string) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce témoignage ?")) {
+      try {
+        setLoading(true);
+        console.log(`🗑️ Suppression du témoignage ${testimonialId}...`);
+        
+        await testimonialsApiService.deleteTestimonial(testimonialId);
+        
+        // Recharger la liste
+        await loadTestimonials();
+        
+        console.log('✅ Témoignage supprimé avec succès');
+      } catch (error) {
+        console.error('❌ Erreur lors de la suppression:', error);
+        setError('Erreur lors de la suppression du témoignage');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleTogglePublish = async (testimonialId: string) => {
+    try {
+      setLoading(true);
+      console.log(`📢 Basculement du statut de publication pour ${testimonialId}...`);
+      
+      await testimonialsApiService.togglePublishStatus(testimonialId);
+      
+      // Recharger la liste
+      await loadTestimonials();
+      
+      console.log('✅ Statut de publication mis à jour');
+    } catch (error) {
+      console.error('❌ Erreur lors du changement de statut:', error);
+      setError('Erreur lors du changement de statut');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -147,18 +192,41 @@ const TestimonialsPage: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
-            Gestion des Partenaires
+            Témoignages Participants
           </h1>
           <p className="text-gray-500 mt-1">
-            Gérez les partenaires de votre entreprise
+            Gérez les témoignages des participants aux programmes de formation
           </p>
+          <div className="flex items-center space-x-4 mt-2">
+            <div className="flex items-center space-x-2">
+              {apiConnected ? (
+                <CheckCircleIcon className="h-4 w-4 text-green-500" />
+              ) : (
+                <XCircleIcon className="h-4 w-4 text-red-500" />
+              )}
+              <span className={`text-xs ${apiConnected ? 'text-green-600' : 'text-red-600'}`}>
+                {apiConnected ? 'API Connectée' : 'Mode Local'}
+              </span>
+            </div>
+            {loading && (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                <span className="text-xs text-blue-600">Chargement...</span>
+              </div>
+            )}
+          </div>
+          {error && (
+            <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
+              {error}
+            </div>
+          )}
         </div>
         <button
           onClick={() => handleOpenModal(null)}
           className="btn-primary inline-flex items-center"
         >
           <PlusIcon className="h-4 w-4 mr-2" />
-          Nouveau Partenaire
+          Nouveau Témoignage
         </button>
       </div>
 
@@ -207,6 +275,17 @@ const TestimonialsPage: React.FC = () => {
                   aria-label="Modifier"
                 >
                   <PencilIcon className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleTogglePublish(testimonial.id)}
+                  className={`p-2 rounded-full ${
+                    testimonial.isPublished 
+                      ? 'bg-green-100 text-green-600 hover:bg-green-200' 
+                      : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                  }`}
+                  aria-label={testimonial.isPublished ? "Dépublier" : "Publier"}
+                >
+                  <EyeIcon className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => handleDeleteTestimonial(testimonial.id)}
@@ -304,10 +383,10 @@ const TestimonialsPage: React.FC = () => {
         <div className="text-center py-16 bg-white rounded-lg shadow-sm">
           <EyeIcon className="h-12 w-12 mx-auto text-gray-400" />
           <h3 className="mt-2 text-lg font-medium text-gray-900">
-            Aucun partenaire trouvé
+            Aucun témoignage trouvé
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            Essayez de modifier vos filtres ou d'ajouter un nouveau partenaire.
+            Essayez de modifier vos filtres ou d'ajouter un nouveau témoignage.
           </p>
         </div>
       )}

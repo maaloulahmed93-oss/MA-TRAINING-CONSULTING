@@ -46,6 +46,7 @@ export const ROUTES = {
   NOTIFICATIONS: '/notifications',
   // Finance
   FINANCE: '/finance',
+  FACTURATION: '/facturation',
   
   // Site Settings
   SETTINGS: '/settings',
@@ -182,6 +183,11 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'BanknotesIcon',
   },
   {
+    name: 'Facturation / Devis',
+    href: ROUTES.FACTURATION,
+    icon: 'DocumentTextIcon',
+  },
+  {
     name: 'Paramètres',
     href: ROUTES.SETTINGS,
     icon: 'CogIcon',
@@ -191,7 +197,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
         href: ROUTES.SITE_CONFIG,
       },
       {
-        name: 'Apparence',
+        name: 'Pages du Site',
         href: ROUTES.APPEARANCE,
       },
     ],

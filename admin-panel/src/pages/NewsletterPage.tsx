@@ -1,16 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import { getSubscribers, setSubscriberStatus, removeSubscriber, type Subscriber } from '../services/newsletterService';
-import { FunnelIcon, ArrowPathIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { getSubscribers, setSubscriberStatus, removeSubscriber } from '../services/newsletterService';
+import newsletterApiService from '../services/newsletterApiService';
+import { FunnelIcon, ArrowPathIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+
+// Unified interface for both local and API subscribers
+interface UnifiedSubscriber {
+  id: string;
+  email: string;
+  status: 'subscribed' | 'unsubscribed';
+  createdAt: string;
+  updatedAt: string;
+  source?: string;
+}
 
 const NewsletterPage: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<'all' | 'subscribed' | 'unsubscribed'>('all');
+  const [loading, setLoading] = useState(false);
+  const [apiAvailable, setApiAvailable] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [data, setData] = useState<Subscriber[]>([]);
+  const [data, setData] = useState<UnifiedSubscriber[]>([]);
+
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Try API first
+      const apiHealth = await newsletterApiService.checkHealth();
+      
+      if (apiHealth) {
+        console.log('📡 Loading newsletter data from API...');
+        const response = await newsletterApiService.getSubscribers({
+          status: status === 'all' ? undefined : status,
+          search: query || undefined
+        });
+        
+        if (response.success) {
+          // Transform API data to unified interface
+          const transformedData: UnifiedSubscriber[] = response.data.map(item => ({
+            id: item._id,
+            email: item.email,
+            status: item.status,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            source: item.source
+          }));
+          
+          setData(transformedData);
+          setApiAvailable(true);
+          console.log(`✅ Loaded ${response.data.length} subscribers from API`);
+        } else {
+          throw new Error('API response not successful');
+        }
+      } else {
+        throw new Error('API not available');
+      }
+    } catch (error) {
+      console.log('⚠️ API failed, using localStorage fallback:', error);
+      setApiAvailable(false);
+      setError('API non disponible - utilisation des données locales');
+      
+      // Fallback to localStorage - transform to unified interface
+      const localData = getSubscribers();
+      const transformedLocalData: UnifiedSubscriber[] = localData.map(item => ({
+        id: item.id,
+        email: item.email,
+        status: item.status,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        source: 'localStorage'
+      }));
+      setData(transformedLocalData);
+      console.log(`📦 Loaded ${localData.length} subscribers from localStorage`);
+    }
+    
+    setLoading(false);
+  };
 
   useEffect(() => {
-    setData(getSubscribers());
+    loadData();
   }, [refreshKey]);
 
   const filtered = data.filter(s => {
@@ -22,22 +93,45 @@ const NewsletterPage: React.FC = () => {
     return true;
   });
 
-  const onToggle = (s: Subscriber) => {
+  const onToggle = async (s: UnifiedSubscriber) => {
     const next = s.status === 'subscribed' ? 'unsubscribed' : 'subscribed';
-    setSubscriberStatus(s.id, next);
-    setRefreshKey(k => k + 1);
+    
+    try {
+      if (apiAvailable) {
+        await newsletterApiService.updateSubscriberStatus(s.id, next);
+        console.log(`✅ Updated ${s.email} status to ${next} via API`);
+      } else {
+        setSubscriberStatus(s.id, next);
+        console.log(`✅ Updated ${s.email} status to ${next} via localStorage`);
+      }
+      setRefreshKey(k => k + 1);
+    } catch (error) {
+      console.error('Error updating status:', error);
+      // Fallback to localStorage
+      setSubscriberStatus(s.id, next);
+      setRefreshKey(k => k + 1);
+    }
   };
 
-  const onRemove = (s: Subscriber) => {
+  const onRemove = async (s: UnifiedSubscriber) => {
     if (!confirm(`Supprimer ${s.email} ?`)) return;
-    removeSubscriber(s.id);
-    setRefreshKey(k => k + 1);
+    
+    try {
+      if (apiAvailable) {
+        await newsletterApiService.deleteSubscriber(s.id);
+        console.log(`✅ Deleted ${s.email} via API`);
+      } else {
+        removeSubscriber(s.id);
+        console.log(`✅ Deleted ${s.email} via localStorage`);
+      }
+      setRefreshKey(k => k + 1);
+    } catch (error) {
+      console.error('Error deleting subscriber:', error);
+      // Fallback to localStorage
+      removeSubscriber(s.id);
+      setRefreshKey(k => k + 1);
+    }
   };
-
-  useEffect(() => {
-    // initial load
-    setData(getSubscribers());
-  }, []);
 
   return (
     <div className="p-6">
@@ -45,13 +139,23 @@ const NewsletterPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Newsletter</h1>
           <p className="text-gray-600">Gestion des abonnés (Subscribed / Unsubscribed)</p>
+          {!apiAvailable && (
+            <div className="flex items-center gap-2 mt-2 text-amber-600">
+              <ExclamationTriangleIcon className="w-4 h-4" />
+              <span className="text-sm">Mode hors ligne - données locales</span>
+            </div>
+          )}
+          {error && (
+            <div className="text-sm text-red-600 mt-1">{error}</div>
+          )}
         </div>
         <button
           onClick={() => setRefreshKey(k => k + 1)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50"
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50"
         >
-          <ArrowPathIcon className="w-5 h-5 text-gray-600" />
-          Rafraîchir
+          <ArrowPathIcon className={`w-5 h-5 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? 'Chargement...' : 'Rafraîchir'}
         </button>
       </div>
 
@@ -95,11 +199,11 @@ const NewsletterPage: React.FC = () => {
                 <td className="px-4 py-3 text-sm text-gray-900">{s.email}</td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${s.status === 'subscribed' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                    {s.status}
+                    <span className={`status-${s.status === 'subscribed' ? 'subscribed' : 'unsubscribed'}`}>{s.status}</span>
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleString()}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.updatedAt).toLocaleString()}</td>
+                <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleString('fr-FR')}</td>
+                <td className="px-4 py-3 text-sm text-gray-500">{s.source || 'N/A'}</td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex items-center justify-end gap-2">
                     <button

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -8,12 +8,16 @@ import {
 } from '@heroicons/react/24/outline';
 import { Event, EventCategory } from '../types';
 import EventFormModal from '../components/events/EventFormModal';
+import { eventsApiService } from '../services/eventsApiService';
 
 const EventsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategory, setFilterCategory] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleOpenModal = (event: Event | null) => {
     setSelectedEvent(event);
@@ -25,33 +29,97 @@ const EventsPage: React.FC = () => {
     setIsModalOpen(false);
   };
 
-    const handleSaveEvent = (eventData: Event) => {
-    if (selectedEvent) {
-      // Update existing event
-      setEvents(events.map(e => 
-        e._id === selectedEvent._id 
-        ? { ...eventData, _id: e._id, updatedAt: new Date() } 
-        : e
-      ));
-    } else {
-      // Create new event
-      const newEvent: Event = {
-        ...eventData,
-        _id: new Date().toISOString(), // Use a simple unique ID for now
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        places: {
-          total: eventData.places?.total || 0,
-          registered: 0, // New events start with 0 registered
-        },
-      };
-      setEvents([newEvent, ...events]);
+    // جلب الأحداث من API
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const apiEvents = await eventsApiService.getEvents();
+      
+      // تحويل البيانات من API format إلى Admin Panel format
+      const transformedEvents = apiEvents.map(apiEvent => 
+        eventsApiService.transformFromApiFormat(apiEvent)
+      );
+      
+      setEvents(transformedEvents);
+      console.log(`✅ Events loaded: ${transformedEvents.length} events`);
+      
+    } catch (error) {
+      console.error('❌ Error loading events:', error);
+      setError('فشل في تحميل الأحداث. سيتم استخدام البيانات التجريبية.');
+      
+      // استخدام البيانات التجريبية كـ fallback
+      setEvents(mockEvents);
+    } finally {
+      setLoading(false);
     }
-    handleCloseModal();
   };
 
-  // Mock data for events - Replace with API calls
-  const [events, setEvents] = useState<Event[]>([
+  // تحميل الأحداث عند بداية التشغيل
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleSaveEvent = async (eventData: Event) => {
+    try {
+      setLoading(true);
+      
+      if (selectedEvent) {
+        // تحديث حدث موجود
+        const apiData = eventsApiService.transformToApiFormat(eventData);
+        const updatedEvent = await eventsApiService.updateEvent(selectedEvent._id, apiData);
+        const transformedEvent = eventsApiService.transformFromApiFormat(updatedEvent);
+        
+        setEvents(events.map(e => 
+          e._id === selectedEvent._id ? transformedEvent : e
+        ));
+        
+        console.log(`✅ Event updated: ${updatedEvent.title}`);
+      } else {
+        // إنشاء حدث جديد
+        const apiData = eventsApiService.transformToApiFormat(eventData);
+        const newEvent = await eventsApiService.createEvent(apiData);
+        const transformedEvent = eventsApiService.transformFromApiFormat(newEvent);
+        
+        setEvents([transformedEvent, ...events]);
+        
+        console.log(`✅ Event created: ${newEvent.title}`);
+      }
+      
+      handleCloseModal();
+      
+    } catch (error) {
+      console.error('❌ Error saving event:', error);
+      alert('حدث خطأ أثناء حفظ الحدث. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: string, eventTitle: string) => {
+    if (!window.confirm(`هل أنت متأكد من حذف الحدث "${eventTitle}"؟`)) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      await eventsApiService.deleteEvent(eventId);
+      setEvents(events.filter(e => e._id !== eventId));
+      
+      console.log(`✅ Event deleted: ${eventTitle}`);
+      
+    } catch (error) {
+      console.error('❌ Error deleting event:', error);
+      alert('حدث خطأ أثناء حذف الحدث. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mock data for fallback
+  const mockEvents: Event[] = [
     {
       _id: 'evt1',
       title: 'Webinaire sur la Transformation Digitale',
@@ -103,7 +171,7 @@ const EventsPage: React.FC = () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-  ]);
+  ];
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -130,15 +198,41 @@ const EventsPage: React.FC = () => {
     return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
+  if (loading && events.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">تحميل الأحداث...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gestion des Événements</h1>
           <p className="mt-2 text-gray-600">Créez et gérez vos événements, webinaires, et formations.</p>
         </div>
-                <button onClick={() => handleOpenModal(null)} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700">
+        <button 
+          onClick={() => handleOpenModal(null)} 
+          disabled={loading}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <PlusIcon className="h-4 w-4 mr-2" />
           Nouvel Événement
         </button>
@@ -208,9 +302,28 @@ const EventsPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-4">
-                      <button className="text-gray-400 hover:text-primary-600"><EyeIcon className="h-5 w-5" /></button>
-                      <button onClick={() => handleOpenModal(event)} className="text-gray-400 hover:text-primary-600"><PencilIcon className="h-5 w-5" /></button>
-                      <button className="text-gray-400 hover:text-red-600"><TrashIcon className="h-5 w-5" /></button>
+                      <button 
+                        className="text-gray-400 hover:text-primary-600"
+                        title="عرض الحدث"
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleOpenModal(event)} 
+                        className="text-gray-400 hover:text-primary-600"
+                        disabled={loading}
+                        title="تعديل الحدث"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteEvent(event._id, event.title)}
+                        className="text-gray-400 hover:text-red-600"
+                        disabled={loading}
+                        title="حذف الحدث"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
                     </div>
                   </td>
                 </tr>

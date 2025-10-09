@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { PartnerTestimonial } from '../../types';
+import { PartnerTestimonial } from '../../services/partnerTestimonialsApiService';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 
 interface PartnerTestimonialFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (testimonial: PartnerTestimonial) => void;
+  onSave: (testimonialData: Omit<PartnerTestimonial, '_id' | 'testimonialId' | 'createdAt' | 'updatedAt'>) => void;
   testimonial: PartnerTestimonial | null;
 }
 
@@ -31,15 +31,28 @@ const PartnerTestimonialFormModal: React.FC<PartnerTestimonialFormModalProps> = 
 
   useEffect(() => {
     if (testimonial) {
-      setFormData(testimonial);
+      setFormData({
+        companyName: testimonial.companyName,
+        position: testimonial.position,
+        authorName: testimonial.authorName,
+        testimonialText: testimonial.testimonialText,
+        rating: testimonial.rating,
+        initials: testimonial.initials,
+        isPublished: testimonial.isPublished,
+        displayOrder: testimonial.displayOrder,
+        metadata: testimonial.metadata
+      });
     } else {
       // Default values for a new testimonial
       setFormData({
-        name: '',
+        companyName: '',
         position: '',
-        content: '',
+        authorName: '',
+        testimonialText: '',
         rating: 5,
+        initials: '',
         isPublished: false,
+        displayOrder: 0
       });
     }
   }, [testimonial, isOpen]);
@@ -57,23 +70,31 @@ const PartnerTestimonialFormModal: React.FC<PartnerTestimonialFormModalProps> = 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.content) {
-      setError('Les champs Nom et Contenu sont obligatoires.');
+    if (!formData.companyName || !formData.testimonialText) {
+      setError('Les champs Nom de l\'entreprise et Témoignage sont obligatoires.');
       return;
     }
 
-    const finalTestimonial: PartnerTestimonial = {
-      _id: testimonial?._id || `pt-${Date.now()}`,
-      createdAt: testimonial?.createdAt || new Date(),
-      updatedAt: new Date(),
-      name: formData.name,
+    // Generate initials if not provided
+    let initials = formData.initials;
+    if (!initials && formData.companyName) {
+      const words = formData.companyName.split(' ');
+      initials = words.map(word => word.charAt(0)).join('').substring(0, 3).toUpperCase();
+    }
+
+    const testimonialData: Omit<PartnerTestimonial, '_id' | 'testimonialId' | 'createdAt' | 'updatedAt'> = {
+      companyName: formData.companyName!,
       position: formData.position || '',
-      content: formData.content,
+      authorName: formData.authorName,
+      testimonialText: formData.testimonialText!,
       rating: formData.rating || 5,
+      initials: initials || '',
       isPublished: formData.isPublished || false,
+      displayOrder: formData.displayOrder || 0,
+      metadata: formData.metadata
     };
 
-    onSave(finalTestimonial);
+    onSave(testimonialData);
     setError('');
   };
 
@@ -98,18 +119,29 @@ const PartnerTestimonialFormModal: React.FC<PartnerTestimonialFormModalProps> = 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nom du partenaire</label>
-              <input type="text" name="name" id="name" value={formData.name || ''} onChange={handleChange} className="form-input" placeholder="Ex: Nova Market" required />
+              <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">Nom de l'entreprise</label>
+              <input type="text" name="companyName" id="companyName" value={formData.companyName || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Nova Market" required />
             </div>
             <div>
               <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">Poste</label>
-              <input type="text" name="position" id="position" value={formData.position || ''} onChange={handleChange} className="form-input" placeholder="Ex: Directrice Marketing" />
+              <input type="text" name="position" id="position" value={formData.position || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Directrice Marketing" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="authorName" className="block text-sm font-medium text-gray-700 mb-1">Nom de l'auteur (optionnel)</label>
+              <input type="text" name="authorName" id="authorName" value={formData.authorName || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Sarah Mansouri" />
+            </div>
+            <div>
+              <label htmlFor="initials" className="block text-sm font-medium text-gray-700 mb-1">Initiales (auto-générées)</label>
+              <input type="text" name="initials" id="initials" value={formData.initials || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: NM" maxLength={3} />
             </div>
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">Contenu du témoignage</label>
-            <textarea name="content" id="content" value={formData.content || ''} onChange={handleChange} rows={5} className="form-textarea" required></textarea>
+            <label htmlFor="testimonialText" className="block text-sm font-medium text-gray-700 mb-1">Contenu du témoignage</label>
+            <textarea name="testimonialText" id="testimonialText" value={formData.testimonialText || ''} onChange={handleChange} rows={5} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Décrivez l'expérience du partenaire..." required></textarea>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
@@ -119,7 +151,7 @@ const PartnerTestimonialFormModal: React.FC<PartnerTestimonialFormModalProps> = 
             </div>
             <div className="flex items-center justify-end h-full">
               <label htmlFor="isPublished" className="flex items-center cursor-pointer">
-                <input type="checkbox" name="isPublished" id="isPublished" checked={formData.isPublished || false} onChange={handleChange} className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                <input type="checkbox" name="isPublished" id="isPublished" checked={formData.isPublished || false} onChange={handleChange} className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                 <span className="ml-3 text-sm font-medium text-gray-700">Publier le témoignage</span>
               </label>
             </div>
@@ -130,7 +162,7 @@ const PartnerTestimonialFormModal: React.FC<PartnerTestimonialFormModalProps> = 
           <button type="button" onClick={onClose} className="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all">
             Annuler
           </button>
-          <button type="submit" onClick={handleSubmit} className="px-6 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+          <button type="submit" onClick={handleSubmit} className="px-6 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
             {testimonial ? 'Enregistrer les modifications' : 'Créer le témoignage'}
           </button>
         </div>

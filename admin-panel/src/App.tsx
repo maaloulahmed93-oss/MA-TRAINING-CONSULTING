@@ -40,10 +40,11 @@ import RegistrationsPage from "./pages/RegistrationsPage";
 import NewsletterPage from "./pages/NewsletterPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import FinancePage from "./pages/FinancePage";
+import FacturationPage from "./pages/FacturationPage";
 import DigitalizationServicesPage from "./pages/DigitalizationServicesPage";
 import DigitalizationProductsPage from "./pages/DigitalizationProductsPage";
 import DigitalizationPortfolioPage from "./pages/DigitalizationPortfolioPage";
-import DigitalizationContactsPage from "./pages/DigitalizationContactsPage";
+import DigitalizationContactPage from "./pages/DigitalizationContactPage";
 import DigitalizationTestimonialsPage from "./pages/DigitalizationTestimonialsPage";
 
 /**
@@ -179,6 +180,9 @@ const AppRoutes: React.FC = () => {
 
                 {/* Finance */}
                 <Route path={ROUTES.FINANCE} element={<FinancePage />} />
+                
+                {/* Facturation */}
+                <Route path={ROUTES.FACTURATION} element={<FacturationPage />} />
 
                 {/* Digitalization Module */}
                 <Route
@@ -188,7 +192,7 @@ const AppRoutes: React.FC = () => {
                 <Route path={ROUTES.DIGITALIZATION_SERVICES} element={<DigitalizationServicesPage />} />
                 <Route path={ROUTES.DIGITALIZATION_PRODUCTS} element={<DigitalizationProductsPage />} />
                 <Route path={ROUTES.DIGITALIZATION_PORTFOLIO} element={<DigitalizationPortfolioPage />} />
-                <Route path={ROUTES.DIGITALIZATION_CONTACTS} element={<DigitalizationContactsPage />} />
+                <Route path={ROUTES.DIGITALIZATION_CONTACTS} element={<DigitalizationContactPage />} />
                 <Route path={ROUTES.DIGITALIZATION_TESTIMONIALS} element={<DigitalizationTestimonialsPage />} />
 
                 {/* Catch all - redirect to dashboard */}
