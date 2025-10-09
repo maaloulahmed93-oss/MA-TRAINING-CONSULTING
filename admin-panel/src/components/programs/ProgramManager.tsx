@@ -36,7 +36,10 @@ interface Program {
 }
 
 // Backend API URL - uses environment variable in production
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (window.location.hostname.includes('vercel.app') 
+    ? 'https://ma-training-consulting.onrender.com/api' 
+    : '/api');
 
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
 console.log('🌍 Environment:', import.meta.env.MODE);
