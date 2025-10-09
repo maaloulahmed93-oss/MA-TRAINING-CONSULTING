@@ -5,6 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/',
+  define: {
+    // Force production API URL
+    __BACKEND_URL__: JSON.stringify('https://ma-training-consulting.onrender.com/api')
+  },
   server: {
     port: 8536,
     host: true,

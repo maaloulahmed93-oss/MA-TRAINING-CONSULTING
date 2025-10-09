@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import { API_BASE_URL as BACKEND_API_URL } from '../../config/api';
 
 console.log('📦 ProgramManager module loaded');
 
@@ -35,25 +36,8 @@ interface Program {
   isActive?: boolean;
 }
 
-// Backend API URL - Production ready with multiple fallbacks
-const getApiBaseUrl = () => {
-  // 1. Environment variable (preferred)
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
-  
-  // 2. Production detection
-  if (window.location.hostname.includes('vercel.app') || 
-      window.location.hostname.includes('netlify.app') ||
-      import.meta.env.PROD) {
-    return 'https://ma-training-consulting.onrender.com/api';
-  }
-  
-  // 3. Development fallback
-  return '/api';
-};
-
-const API_BASE_URL = getApiBaseUrl();
+// Use centralized API configuration
+const API_BASE_URL = BACKEND_API_URL;
 
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
 console.log('🌍 Environment:', import.meta.env.MODE);
