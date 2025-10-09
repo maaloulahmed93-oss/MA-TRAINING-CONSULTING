@@ -17,6 +17,7 @@ export interface Event {
   price?: number;
   isUpcoming: boolean;
   registrationOpen: boolean;
+  url?: string; // رابط الحدث للعين
 }
 
 // Fonction pour générer des dates futures aléatoirement
@@ -53,7 +54,8 @@ export const eventsData: Event[] = [
     currentParticipants: 18,
     price: 850,
     isUpcoming: true,
-    registrationOpen: true
+    registrationOpen: true,
+    url: 'https://matc.tn/formations/leadership-transformation'
   },
   {
     id: 'evt-002',
@@ -69,7 +71,8 @@ export const eventsData: Event[] = [
     currentParticipants: 67,
     price: 0, // Gratuit
     isUpcoming: true,
-    registrationOpen: true
+    registrationOpen: true,
+    url: 'https://zoom.us/j/123456789'
   },
   {
     id: 'evt-003',
@@ -86,7 +89,8 @@ export const eventsData: Event[] = [
     currentParticipants: 32,
     price: 120,
     isUpcoming: true,
-    registrationOpen: true
+    registrationOpen: true,
+    url: 'https://matc.tn/events/team-building-innovation'
   },
   {
     id: 'evt-004',
@@ -103,7 +107,8 @@ export const eventsData: Event[] = [
     currentParticipants: 145,
     price: 50,
     isUpcoming: true,
-    registrationOpen: true
+    registrationOpen: true,
+    url: 'https://matc.tn/conferences/data-science-2024'
   },
   {
     id: 'evt-005',
@@ -119,7 +124,8 @@ export const eventsData: Event[] = [
     currentParticipants: 28,
     price: 75,
     isUpcoming: true,
-    registrationOpen: true
+    registrationOpen: true,
+    url: 'https://teams.microsoft.com/l/meetup-join/agilite-workshop'
   },
   {
     id: 'evt-006',
@@ -136,7 +142,8 @@ export const eventsData: Event[] = [
     currentParticipants: 12,
     price: 450,
     isUpcoming: true,
-    registrationOpen: true
+    registrationOpen: true,
+    url: 'https://matc.tn/voyages/djerba-team-building'
   }
 ];
 

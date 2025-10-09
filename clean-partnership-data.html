@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Partnership Data - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .button.danger {
+            background: #dc2626;
+        }
+        .button.danger:hover {
+            background: #b91c1c;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        .data-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clean Partnership Data</h1>
+        <p>Nettoyage des données de partenariat - Suppression des champs "Email de contact" et "Sujet de l'email"</p>
+
+        <div>
+            <button class="button" onclick="checkCurrentData()">Vérifier Données Actuelles</button>
+            <button class="button danger" onclick="cleanData()">Nettoyer les Données</button>
+            <button class="button" onclick="resetToCleanData()">Reset avec Données Propres</button>
+        </div>
+
+        <div id="results"></div>
+        <div id="data-preview"></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'partner_extra_info_v1';
+
+        const CLEAN_DATA = {
+            formateur: {
+                title: 'Formateur',
+                subtitle: 'Rejoignez notre équipe de formateurs experts',
+                intro: 'Rejoignez notre équipe de formateurs experts et partagez vos connaissances avec nos apprenants.',
+                icon: '📘',
+                color: 'blue',
+                gradient: 'from-blue-500 to-blue-600',
+                details: [
+                    'Encadrer des sessions en présentiel et à distance',
+                    'Concevoir des supports pédagogiques de qualité',
+                    'Évaluer et suivre la progression des apprenants'
+                ],
+                requirements: [
+                    'Minimum 3 ans d\'expérience dans votre domaine',
+                    'Diplôme ou certifications reconnues',
+                    'Excellentes compétences pédagogiques',
+                    'Disponibilité flexible pour les formations',
+                    'Maîtrise des outils numériques'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Formateur',
+                updatedAt: new Date().toISOString()
+            },
+            freelance: {
+                title: 'Freelance',
+                subtitle: 'Collaborez avec nous en tant que freelance',
+                intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+                icon: '💻',
+                color: 'green',
+                gradient: 'from-green-500 to-green-600',
+                details: [
+                    'Missions adaptées à votre expertise',
+                    'Collaboration flexible et agile',
+                    'Facturation simple et transparente'
+                ],
+                requirements: [
+                    'Portfolio démontrant vos compétences',
+                    'Expérience en freelancing ou projets indépendants',
+                    'Capacité à respecter les délais',
+                    'Communication professionnelle',
+                    'Spécialisation dans un domaine technique'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Freelancer',
+                updatedAt: new Date().toISOString()
+            },
+            commercial: {
+                title: 'Commercial / Affilié',
+                subtitle: 'Devenez notre partenaire commercial',
+                intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
+                icon: '📈',
+                color: 'orange',
+                gradient: 'from-orange-500 to-orange-600',
+                details: [
+                    'Programme de commissions motivant',
+                    'Outils marketing fournis',
+                    'Suivi et reporting dédiés'
+                ],
+                requirements: [
+                    'Expérience en vente ou marketing',
+                    'Réseau professionnel développé',
+                    'Compétences en négociation',
+                    'Motivation et esprit entrepreneurial',
+                    'Connaissance du secteur de la formation'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Commercial',
+                updatedAt: new Date().toISOString()
+            },
+            entreprise: {
+                title: 'Entreprise / École',
+                subtitle: 'Établissez un partenariat institutionnel',
+                intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
+                icon: '🏢',
+                color: 'purple',
+                gradient: 'from-purple-500 to-purple-600',
+                details: [
+                    'Programmes adaptés aux objectifs',
+                    'Accompagnement et suivi personnalisés',
+                    'Modalités intra/inter-entreprise'
+                ],
+                requirements: [
+                    'Entreprise ou institution éducative établie',
+                    'Besoin récurrent en formation',
+                    'Capacité de collaboration à long terme',
+                    'Budget dédié à la formation',
+                    'Engagement dans le développement des compétences'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Partenariat',
+                updatedAt: new Date().toISOString()
+            }
+        };
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function showDataPreview(data, title) {
+            const previewDiv = document.getElementById('data-preview');
+            previewDiv.innerHTML = `
+                <h3>${title}</h3>
+                <div class="data-preview">${JSON.stringify(data, null, 2)}</div>
+            `;
+        }
+
+        function checkCurrentData() {
+            updateStatus('🔍 Vérification des données actuelles...');
+            
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) {
+                updateStatus('❌ Aucune donnée trouvée dans localStorage', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(rawData);
+                let hasOldFields = false;
+                let fieldCount = 0;
+
+                Object.keys(data).forEach(key => {
+                    const partnership = data[key];
+                    if (partnership.contactEmail || partnership.mailSubject) {
+                        hasOldFields = true;
+                        if (partnership.contactEmail) fieldCount++;
+                        if (partnership.mailSubject) fieldCount++;
+                    }
+                });
+
+                if (hasOldFields) {
+                    updateStatus(`⚠️ Données contiennent ${fieldCount} anciens champs à nettoyer`, 'warning');
+                    showDataPreview(data, 'Données Actuelles (avec anciens champs)');
+                } else {
+                    updateStatus('✅ Données déjà propres - aucun ancien champ trouvé');
+                    showDataPreview(data, 'Données Actuelles (propres)');
+                }
+
+            } catch (error) {
+                updateStatus(`❌ Erreur parsing données: ${error.message}`, 'error');
+            }
+        }
+
+        function cleanData() {
+            updateStatus('🧹 Nettoyage des données en cours...');
+            
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) {
+                updateStatus('❌ Aucune donnée à nettoyer', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(rawData);
+                const cleanedData = {};
+                let removedFields = 0;
+
+                Object.keys(data).forEach(key => {
+                    const partnership = { ...data[key] };
+                    
+                    // Remove old fields
+                    if (partnership.contactEmail) {
+                        delete partnership.contactEmail;
+                        removedFields++;
+                    }
+                    if (partnership.mailSubject) {
+                        delete partnership.mailSubject;
+                        removedFields++;
+                    }
+                    
+                    // Update timestamp
+                    partnership.updatedAt = new Date().toISOString();
+                    
+                    cleanedData[key] = partnership;
+                });
+
+                // Save cleaned data
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanedData));
+                
+                updateStatus(`✅ Nettoyage terminé! ${removedFields} champs supprimés`);
+                showDataPreview(cleanedData, 'Données Nettoyées');
+
+            } catch (error) {
+                updateStatus(`❌ Erreur nettoyage: ${error.message}`, 'error');
+            }
+        }
+
+        function resetToCleanData() {
+            updateStatus('🔄 Reset avec données propres...');
+            
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(CLEAN_DATA));
+                updateStatus('✅ Reset terminé avec données propres complètes');
+                showDataPreview(CLEAN_DATA, 'Nouvelles Données Propres');
+                
+                updateStatus('🎉 Maintenant rechargez l\'Admin Panel pour voir les changements!', 'success');
+                
+            } catch (error) {
+                updateStatus(`❌ Erreur reset: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            updateStatus('🚀 Outil de nettoyage chargé');
+            checkCurrentData();
+        };
+    </script>
+</body>
+</html>

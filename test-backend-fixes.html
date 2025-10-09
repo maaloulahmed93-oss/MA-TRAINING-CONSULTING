@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Fixes - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .json-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test Backend Fixes - MATC</h1>
+            <p>Vérification des corrections appliquées au backend</p>
+        </div>
+
+        <!-- Status général -->
+        <div class="test-section">
+            <h3>📊 Status Général du Backend</h3>
+            <div id="generalStatus">
+                <div class="status info">Initialisation...</div>
+            </div>
+            <button onclick="checkGeneralStatus()">Vérifier Status</button>
+        </div>
+
+        <!-- Test APIs principales -->
+        <div class="test-section">
+            <h3>🔌 Test APIs Principales</h3>
+            <div class="grid">
+                <div>
+                    <h4>Footer Settings API</h4>
+                    <div id="footerApiStatus" class="status info">En attente...</div>
+                    <button onclick="testFooterApi()">Test Footer API</button>
+                </div>
+                <div>
+                    <h4>Free Courses API</h4>
+                    <div id="freeCoursesApiStatus" class="status info">En attente...</div>
+                    <button onclick="testFreeCoursesApi()">Test Free Courses API</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test MongoDB Connection -->
+        <div class="test-section">
+            <h3>🗄️ Test MongoDB Connection</h3>
+            <div id="mongoStatus" class="status info">En attente...</div>
+            <button onclick="testMongoConnection()">Test MongoDB</button>
+        </div>
+
+        <!-- Test Schema Fixes -->
+        <div class="test-section">
+            <h3>🔧 Vérification Schema Fixes</h3>
+            <div id="schemaStatus" class="status info">En attente...</div>
+            <button onclick="checkSchemaFixes()">Vérifier Schemas</button>
+        </div>
+
+        <!-- Logs des tests -->
+        <div class="test-section">
+            <h3>📝 Logs des Tests</h3>
+            <div id="testLogs" class="json-display">Logs des tests apparaîtront ici...</div>
+            <button onclick="clearLogs()">Effacer Logs</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        let testLogs = [];
+
+        // Fonction pour logger les messages
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            testLogs.push(logEntry);
+            
+            // Limiter à 50 logs
+            if (testLogs.length > 50) {
+                testLogs = testLogs.slice(-50);
+            }
+            
+            document.getElementById('testLogs').textContent = testLogs.join('\n');
+            console.log(logEntry);
+        }
+
+        // Vérifier le status général
+        async function checkGeneralStatus() {
+            const statusDiv = document.getElementById('generalStatus');
+            statusDiv.innerHTML = '<div class="status info">Vérification en cours...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = `
+                        <div class="status success">✅ Backend connecté</div>
+                        <div class="status info">Message: ${data.message}</div>
+                        <div class="status info">Timestamp: ${data.timestamp}</div>
+                    `;
+                    log('Backend health check réussi');
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ Backend inaccessible</div>';
+                    log('Backend health check échoué', 'error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="status error">❌ Erreur de connexion</div>';
+                log(`Erreur connexion backend: ${error.message}`, 'error');
+            }
+        }
+
+        // Test Footer API
+        async function testFooterApi() {
+            const statusDiv = document.getElementById('footerApiStatus');
+            statusDiv.className = 'status info';
+            statusDiv.textContent = 'Test en cours...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/footer-settings`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Footer API fonctionne';
+                    log('Footer API test réussi');
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ Footer API erreur';
+                    log(`Footer API erreur: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Footer API inaccessible';
+                log(`Footer API erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Test Free Courses API
+        async function testFreeCoursesApi() {
+            const statusDiv = document.getElementById('freeCoursesApiStatus');
+            statusDiv.className = 'status info';
+            statusDiv.textContent = 'Test en cours...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/free-courses/domains`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ Free Courses API (${data.data?.length || 0} domaines)`;
+                    log(`Free Courses API test réussi: ${data.data?.length || 0} domaines`);
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ Free Courses API erreur';
+                    log(`Free Courses API erreur: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Free Courses API inaccessible';
+                log(`Free Courses API erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Test MongoDB Connection
+        async function testMongoConnection() {
+            const statusDiv = document.getElementById('mongoStatus');
+            statusDiv.className = 'status info';
+            statusDiv.textContent = 'Test en cours...';
+            
+            try {
+                // Test via une API qui utilise MongoDB
+                const response = await fetch(`${API_BASE}/api/categories`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ MongoDB connecté (${data.data?.length || 0} catégories)`;
+                    log(`MongoDB test réussi: ${data.data?.length || 0} catégories trouvées`);
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ MongoDB erreur';
+                    log('MongoDB test échoué', 'error');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ MongoDB inaccessible';
+                log(`MongoDB erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Vérifier les corrections de schema
+        async function checkSchemaFixes() {
+            const statusDiv = document.getElementById('schemaStatus');
+            statusDiv.className = 'status info';
+            statusDiv.textContent = 'Vérification en cours...';
+            
+            try {
+                // Test plusieurs endpoints pour vérifier les schemas
+                const tests = [
+                    { name: 'Partners', url: `${API_BASE}/api/partners` },
+                    { name: 'Categories', url: `${API_BASE}/api/categories` },
+                    { name: 'Programs', url: `${API_BASE}/api/programs` }
+                ];
+                
+                let successCount = 0;
+                for (const test of tests) {
+                    try {
+                        const response = await fetch(test.url);
+                        if (response.ok) {
+                            successCount++;
+                            log(`Schema ${test.name}: OK`);
+                        } else {
+                            log(`Schema ${test.name}: Erreur ${response.status}`, 'warning');
+                        }
+                    } catch (error) {
+                        log(`Schema ${test.name}: Erreur ${error.message}`, 'error');
+                    }
+                }
+                
+                if (successCount === tests.length) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ Tous les schemas OK (${successCount}/${tests.length})`;
+                    log('Tous les schemas fonctionnent correctement');
+                } else {
+                    statusDiv.className = 'status warning';
+                    statusDiv.textContent = `⚠️ Schemas partiels (${successCount}/${tests.length})`;
+                    log(`Schemas partiellement fonctionnels: ${successCount}/${tests.length}`, 'warning');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Erreur vérification schemas';
+                log(`Erreur vérification schemas: ${error.message}`, 'error');
+            }
+        }
+
+        // Effacer les logs
+        function clearLogs() {
+            testLogs = [];
+            document.getElementById('testLogs').textContent = 'Logs effacés...';
+        }
+
+        // Test automatique au chargement
+        window.onload = function() {
+            log('Test Backend Fixes initialisé');
+            setTimeout(() => {
+                checkGeneralStatus();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

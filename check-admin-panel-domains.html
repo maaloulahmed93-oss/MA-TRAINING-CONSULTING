@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification Domaines Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .domain-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid #2196F3;
+        }
+        .new-domain {
+            border-left-color: #FF9800;
+            background: rgba(255, 152, 0, 0.2);
+        }
+        .missing-domain {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .add-button {
+            background: #FF9800;
+        }
+        .add-button:hover {
+            background: #F57C00;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .warning { background: rgba(255, 193, 7, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Vérification Domaines - Admin Panel vs Site Public</h1>
+        <p>Outil pour détecter les domaines ajoutés dans Admin Panel qui ne sont pas dans coursesData.ts</p>
+
+        <!-- Section 1: Domaines dans localStorage (Admin Panel) -->
+        <div class="section">
+            <h3>📋 Domaines dans Admin Panel (localStorage)</h3>
+            <button onclick="loadAdminDomains()">Charger Domaines Admin</button>
+            <div id="adminDomains"></div>
+        </div>
+
+        <!-- Section 2: Domaines dans coursesData.ts (Site Public) -->
+        <div class="section">
+            <h3>🌐 Domaines dans coursesData.ts (Site Public)</h3>
+            <button onclick="loadCoursesDataDomains()">Charger Domaines Site</button>
+            <div id="coursesDataDomains"></div>
+        </div>
+
+        <!-- Section 3: Comparaison et domaines manquants -->
+        <div class="section">
+            <h3>⚖️ Comparaison et Synchronisation</h3>
+            <button onclick="compareDomains()">Comparer Domaines</button>
+            <div id="comparison"></div>
+        </div>
+
+        <!-- Section 4: Générateur de code pour ajouter domaines manquants -->
+        <div class="section">
+            <h3>🛠️ Générateur de Code</h3>
+            <button onclick="generateCode()">Générer Code pour coursesData.ts</button>
+            <div id="generatedCode"></div>
+        </div>
+    </div>
+
+    <script>
+        // Données coursesData.ts (copie actuelle)
+        const currentCoursesData = {
+            domains: [
+                {
+                    id: 'marketing',
+                    title: 'Marketing',
+                    icon: '📊',
+                    description: 'Stratégies marketing modernes'
+                },
+                {
+                    id: 'management-iso',
+                    title: 'Management ISO',
+                    icon: '🏆',
+                    description: 'Normes et certifications ISO'
+                },
+                {
+                    id: 'design',
+                    title: 'Design & UX/UI',
+                    icon: '🎨',
+                    description: 'Design moderne et expérience utilisateur'
+                },
+                {
+                    id: 'business',
+                    title: 'Business & Entrepreneuriat',
+                    icon: '💼',
+                    description: 'Compétences entrepreneuriales et business'
+                },
+                {
+                    id: 'data-science',
+                    title: 'Data Science & IA',
+                    icon: '📊',
+                    description: 'Analyse de données et intelligence artificielle'
+                },
+                {
+                    id: 'web-development',
+                    title: 'Développement Web',
+                    icon: '💻',
+                    description: 'Technologies web modernes'
+                }
+            ]
+        };
+
+        let adminDomains = [];
+        let missingDomains = [];
+
+        function loadAdminDomains() {
+            console.log('🔍 Chargement domaines Admin Panel...');
+            
+            try {
+                // Essayer de récupérer depuis localStorage
+                const storedDomains = localStorage.getItem('free_courses_domains');
+                
+                if (storedDomains) {
+                    adminDomains = JSON.parse(storedDomains);
+                } else {
+                    // Fallback: essayer d'autres clés possibles
+                    const altKeys = [
+                        'freeCoursesData',
+                        'coursesData',
+                        'domains',
+                        'free_courses_data'
+                    ];
+                    
+                    for (const key of altKeys) {
+                        const data = localStorage.getItem(key);
+                        if (data) {
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.domains) {
+                                    adminDomains = parsed.domains;
+                                    break;
+                                } else if (Array.isArray(parsed)) {
+                                    adminDomains = parsed;
+                                    break;
+                                }
+                            } catch (e) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
+                let html = `
+                    <div class="status ${adminDomains.length > 0 ? 'success' : 'warning'}">
+                        ${adminDomains.length > 0 ? 
+                            `✅ ${adminDomains.length} domaines trouvés dans localStorage` : 
+                            '⚠️ Aucun domaine trouvé dans localStorage'
+                        }
+                    </div>
+                `;
+                
+                if (adminDomains.length > 0) {
+                    html += adminDomains.map((domain, index) => `
+                        <div class="domain-item">
+                            <strong>${domain.icon || '📁'} ${domain.title || domain.name || 'Sans titre'}</strong>
+                            <br>ID: <code>${domain.id || domain.domainId || 'N/A'}</code>
+                            <br>Description: ${domain.description || 'Aucune description'}
+                            ${domain.courses ? `<br>Cours: ${domain.courses.length}` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    html += `
+                        <div class="status warning">
+                            💡 <strong>Instructions:</strong>
+                            <br>1. Ouvrez l'Admin Panel dans un autre onglet
+                            <br>2. Allez dans "Cours Gratuits"
+                            <br>3. Ajoutez ou modifiez un domaine
+                            <br>4. Revenez ici et cliquez "Charger Domaines Admin"
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('adminDomains').innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Erreur chargement admin domains:', error);
+                document.getElementById('adminDomains').innerHTML = `
+                    <div class="status error">
+                        ❌ Erreur: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function loadCoursesDataDomains() {
+            console.log('🌐 Chargement domaines coursesData.ts...');
+            
+            let html = `
+                <div class="status success">
+                    ✅ ${currentCoursesData.domains.length} domaines dans coursesData.ts
+                </div>
+            `;
+            
+            html += currentCoursesData.domains.map(domain => `
+                <div class="domain-item">
+                    <strong>${domain.icon} ${domain.title}</strong>
+                    <br>ID: <code>${domain.id}</code>
+                    <br>Description: ${domain.description}
+                </div>
+            `).join('');
+            
+            document.getElementById('coursesDataDomains').innerHTML = html;
+        }
+
+        function compareDomains() {
+            console.log('⚖️ Comparaison des domaines...');
+            
+            if (adminDomains.length === 0) {
+                document.getElementById('comparison').innerHTML = `
+                    <div class="status warning">
+                        ⚠️ Chargez d'abord les domaines Admin Panel
+                    </div>
+                `;
+                return;
+            }
+            
+            const coursesDataIds = currentCoursesData.domains.map(d => d.id);
+            const adminIds = adminDomains.map(d => d.id || d.domainId);
+            
+            // Domaines dans Admin mais pas dans coursesData
+            missingDomains = adminDomains.filter(adminDomain => {
+                const adminId = adminDomain.id || adminDomain.domainId;
+                return !coursesDataIds.includes(adminId);
+            });
+            
+            // Domaines dans coursesData mais pas dans Admin
+            const extraInCoursesData = currentCoursesData.domains.filter(coursesDomain => {
+                return !adminIds.includes(coursesDomain.id);
+            });
+            
+            let html = `
+                <div class="status ${missingDomains.length === 0 ? 'success' : 'warning'}">
+                    ${missingDomains.length === 0 ? 
+                        '✅ Tous les domaines sont synchronisés!' : 
+                        `⚠️ ${missingDomains.length} domaine(s) manquant(s) dans coursesData.ts`
+                    }
+                </div>
+            `;
+            
+            if (missingDomains.length > 0) {
+                html += `
+                    <h4>🔴 Domaines manquants dans coursesData.ts:</h4>
+                `;
+                html += missingDomains.map(domain => `
+                    <div class="domain-item missing-domain">
+                        <strong>${domain.icon || '📁'} ${domain.title || 'Sans titre'}</strong>
+                        <br>ID: <code>${domain.id || domain.domainId}</code>
+                        <br>Description: ${domain.description || 'Aucune description'}
+                        <br><em>🚨 Ce domaine doit être ajouté à coursesData.ts</em>
+                    </div>
+                `).join('');
+            }
+            
+            if (extraInCoursesData.length > 0) {
+                html += `
+                    <h4>🔵 Domaines uniquement dans coursesData.ts:</h4>
+                `;
+                html += extraInCoursesData.map(domain => `
+                    <div class="domain-item">
+                        <strong>${domain.icon} ${domain.title}</strong>
+                        <br>ID: <code>${domain.id}</code>
+                        <br><em>ℹ️ Ce domaine n'est pas dans Admin Panel</em>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('comparison').innerHTML = html;
+        }
+
+        function generateCode() {
+            console.log('🛠️ Génération du code...');
+            
+            if (missingDomains.length === 0) {
+                document.getElementById('generatedCode').innerHTML = `
+                    <div class="status success">
+                        ✅ Aucun domaine manquant - pas de code à générer
+                    </div>
+                `;
+                return;
+            }
+            
+            let code = '';
+            
+            missingDomains.forEach(domain => {
+                const domainCode = `    {
+      id: '${domain.id || domain.domainId || 'nouveau-domaine'}',
+      title: '${domain.title || 'Nouveau Domaine'}',
+      icon: '${domain.icon || '📁'}',
+      description: '${domain.description || 'Description du nouveau domaine'}',
+      courses: [
+        // TODO: Ajouter les cours pour ce domaine
+      ]
+    }`;
+                
+                code += domainCode + ',\n';
+            });
+            
+            let html = `
+                <div class="status warning">
+                    🛠️ Code à ajouter dans coursesData.ts
+                </div>
+                <p><strong>Instructions:</strong></p>
+                <ol>
+                    <li>Ouvrez le fichier <code>src/data/coursesData.ts</code></li>
+                    <li>Trouvez le tableau <code>domains: [</code></li>
+                    <li>Ajoutez le code suivant avant la fermeture <code>]</code></li>
+                    <li>Sauvegardez le fichier</li>
+                </ol>
+                
+                <h4>Code à ajouter:</h4>
+                <div class="code-block">${code}</div>
+                
+                <button class="add-button" onclick="copyCode()">📋 Copier le Code</button>
+            `;
+            
+            document.getElementById('generatedCode').innerHTML = html;
+        }
+
+        function copyCode() {
+            const codeBlocks = document.querySelectorAll('.code-block');
+            if (codeBlocks.length > 0) {
+                const code = codeBlocks[0].textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('✅ Code copié dans le presse-papiers!');
+                }).catch(err => {
+                    console.error('❌ Erreur copie:', err);
+                    alert('❌ Erreur lors de la copie');
+                });
+            }
+        }
+
+        // Auto-load au démarrage
+        window.onload = function() {
+            console.log('🚀 Chargement automatique...');
+            loadAdminDomains();
+            loadCoursesDataDomains();
+        };
+    </script>
+</body>
+</html>

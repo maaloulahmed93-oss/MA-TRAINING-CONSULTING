@@ -12,6 +12,12 @@ export default defineConfig({
     hmr: {
       overlay: true
     },
+    allowedHosts: [
+      'ma-training-consulting.onrender.com',
+      'localhost',
+      '127.0.0.1',
+      '.vercel.app'
+    ],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

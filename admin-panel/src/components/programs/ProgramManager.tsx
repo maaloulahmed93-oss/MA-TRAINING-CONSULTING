@@ -35,11 +35,25 @@ interface Program {
   isActive?: boolean;
 }
 
-// Backend API URL - uses environment variable in production
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-  (window.location.hostname.includes('vercel.app') 
-    ? 'https://ma-training-consulting.onrender.com/api' 
-    : '/api');
+// Backend API URL - Production ready with multiple fallbacks
+const getApiBaseUrl = () => {
+  // 1. Environment variable (preferred)
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // 2. Production detection
+  if (window.location.hostname.includes('vercel.app') || 
+      window.location.hostname.includes('netlify.app') ||
+      import.meta.env.PROD) {
+    return 'https://ma-training-consulting.onrender.com/api';
+  }
+  
+  // 3. Development fallback
+  return '/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
 console.log('🌍 Environment:', import.meta.env.MODE);

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partnership Details - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .partnership-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .partnership-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+        .formateur { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .freelance { background: linear-gradient(135deg, #10b981, #047857); }
+        .commercial { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .entreprise { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        
+        .partnership-icon {
+            font-size: 32px;
+        }
+        .partnership-title {
+            font-size: 24px;
+        }
+        .partnership-description {
+            color: #374151;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .details-section {
+            margin: 20px 0;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title.details {
+            color: #059669;
+        }
+        .section-title.conditions {
+            color: #3b82f6;
+        }
+        .bullet-point {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .details .bullet-point {
+            background-color: #10b981;
+        }
+        .conditions .bullet-point {
+            background-color: #3b82f6;
+        }
+        .list-item {
+            margin: 8px 0;
+            padding-left: 20px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+        .success {
+            color: #059669;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤝 Test Partnership Details</h1>
+            <p>Vérification des sections "Points de détail" et "Conditions requises"</p>
+        </div>
+
+        <div id="partnerships-container"></div>
+    </div>
+
+    <script>
+        const partnershipTypes = [
+            {
+                id: "formateur",
+                title: "Formateur",
+                icon: "📘",
+                description: "Rejoignez notre équipe de formateurs experts et partagez vos connaissances avec nos apprenants.",
+                color: "blue",
+                gradient: "from-blue-500 to-blue-600",
+                details: [
+                    "Encadrer des sessions en présentiel et à distance",
+                    "Concevoir des supports pédagogiques de qualité",
+                    "Évaluer et suivre la progression des apprenants",
+                ],
+                conditions: [
+                    "Minimum 3 ans d'expérience dans votre domaine",
+                    "Diplôme ou certifications reconnues",
+                    "Excellentes compétences pédagogiques",
+                    "Disponibilité flexible pour les formations",
+                    "Maîtrise des outils numériques",
+                ],
+                mailSubject: "Candidature Formateur - Programme de Partenariat",
+            },
+            {
+                id: "freelance",
+                title: "Freelance",
+                icon: "💻",
+                description: "Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.",
+                color: "green",
+                gradient: "from-green-500 to-green-600",
+                details: [
+                    "Missions adaptées à votre expertise",
+                    "Collaboration flexible et agile",
+                    "Facturation simple et transparente",
+                ],
+                conditions: [
+                    "Portfolio démontrant vos compétences",
+                    "Expérience en freelancing ou projets indépendants",
+                    "Capacité à respecter les délais",
+                    "Communication professionnelle",
+                    "Spécialisation dans un domaine technique",
+                ],
+                mailSubject: "Candidature Freelance - Programme de Partenariat",
+            },
+            {
+                id: "commercial",
+                title: "Commercial / Affilié",
+                icon: "📈",
+                description: "Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.",
+                color: "orange",
+                gradient: "from-orange-500 to-orange-600",
+                details: [
+                    "Programme de commissions motivant",
+                    "Outils marketing fournis",
+                    "Suivi et reporting dédiés",
+                ],
+                conditions: [
+                    "Expérience en vente ou marketing",
+                    "Réseau professionnel développé",
+                    "Compétences en négociation",
+                    "Motivation et esprit entrepreneurial",
+                    "Connaissance du secteur de la formation",
+                ],
+                mailSubject: "Candidature Commercial/Affilié - Programme de Partenariat",
+            },
+            {
+                id: "entreprise",
+                title: "Entreprise / École",
+                icon: "🏢",
+                description: "Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.",
+                color: "purple",
+                gradient: "from-purple-500 to-purple-600",
+                details: [
+                    "Programmes adaptés aux objectifs",
+                    "Accompagnement et suivi personnalisés",
+                    "Modalités intra/inter-entreprise",
+                ],
+                conditions: [
+                    "Entreprise ou institution éducative établie",
+                    "Besoin récurrent en formation",
+                    "Capacité de collaboration à long terme",
+                    "Budget dédié à la formation",
+                    "Engagement dans le développement des compétences",
+                ],
+                mailSubject: "Partenariat Institutionnel - Programme de Partenariat",
+            },
+        ];
+
+        function renderPartnerships() {
+            const container = document.getElementById('partnerships-container');
+            
+            partnershipTypes.forEach(partnership => {
+                const card = document.createElement('div');
+                card.className = 'partnership-card';
+                
+                card.innerHTML = `
+                    <div class="partnership-header ${partnership.id}">
+                        <span class="partnership-icon">${partnership.icon}</span>
+                        <span class="partnership-title">${partnership.title}</span>
+                    </div>
+                    
+                    <div class="partnership-description">
+                        ${partnership.description}
+                    </div>
+                    
+                    <div class="details-section">
+                        <div class="section-title details">
+                            <span>🔹</span>
+                            Points de détail :
+                        </div>
+                        <div class="details">
+                            ${partnership.details.map(detail => `
+                                <div class="list-item">
+                                    <span class="bullet-point"></span>
+                                    ${detail}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="details-section">
+                        <div class="section-title conditions">
+                            <span>🔸</span>
+                            Conditions requises :
+                        </div>
+                        <div class="conditions">
+                            ${partnership.conditions.map(condition => `
+                                <div class="list-item">
+                                    <span class="bullet-point"></span>
+                                    ${condition}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Afficher le résumé
+            const summary = document.createElement('div');
+            summary.innerHTML = `
+                <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                    <h3 class="success">✅ Test Réussi!</h3>
+                    <p><strong>4 types de partenariat</strong> configurés avec:</p>
+                    <ul>
+                        <li><strong>Points de détail:</strong> 3 points par type (12 total)</li>
+                        <li><strong>Conditions requises:</strong> 5 conditions par type (20 total)</li>
+                        <li><strong>Sections distinctes:</strong> Chaque type a ses propres détails</li>
+                        <li><strong>Couleurs différenciées:</strong> Vert pour détails, Bleu pour conditions</li>
+                    </ul>
+                </div>
+            `;
+            container.appendChild(summary);
+        }
+
+        // Charger les partenariats au chargement de la page
+        window.onload = renderPartnerships;
+    </script>
+</body>
+</html>

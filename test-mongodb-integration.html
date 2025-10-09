@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MongoDB Integration - Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        .success {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        .warning {
+            border-left-color: #FF9800;
+            background: rgba(255, 152, 0, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .loading {
+            background: rgba(255, 193, 7, 0.3);
+            color: #fff;
+        }
+        .api-status {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .api-connected {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4CAF50;
+        }
+        .api-disconnected {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #f44336;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .data-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #2196F3;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Test MongoDB Integration - Admin Panel</h1>
+        <p>Test complet de l'intégration MongoDB avec le panneau d'administration</p>
+
+        <!-- Test 1: Backend Health Check -->
+        <div class="test-section" id="test1">
+            <h3>🏥 Test 1: Backend Health Check</h3>
+            <button onclick="testBackendHealth()">Tester Backend</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: API Endpoints Test -->
+        <div class="test-section" id="test2">
+            <h3>🌐 Test 2: API Endpoints</h3>
+            <button onclick="testApiEndpoints()">Tester Tous les Endpoints</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: Migration Data Check -->
+        <div class="test-section" id="test3">
+            <h3>📊 Test 3: Données Migrées</h3>
+            <button onclick="testMigrationData()">Vérifier Migration</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Test 4: CRUD Operations -->
+        <div class="test-section" id="test4">
+            <h3>⚙️ Test 4: Opérations CRUD</h3>
+            <button onclick="testCrudOperations()">Tester CRUD</button>
+            <div id="result4"></div>
+        </div>
+
+        <!-- Test 5: Admin Panel Integration -->
+        <div class="test-section" id="test5">
+            <h3>🎛️ Test 5: Intégration Admin Panel</h3>
+            <button onclick="testAdminPanelIntegration()">Tester Admin Panel</button>
+            <div id="result5"></div>
+        </div>
+
+        <!-- Test 6: Site Public Integration -->
+        <div class="test-section" id="test6">
+            <h3>🌍 Test 6: Intégration Site Public</h3>
+            <button onclick="testSitePublicIntegration()">Tester Site Public</button>
+            <div id="result6"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        let testResults = {};
+
+        function updateResult(testId, content, status = 'success') {
+            const resultDiv = document.getElementById(`result${testId}`);
+            resultDiv.innerHTML = content;
+            const testSection = document.getElementById(`test${testId}`);
+            testSection.className = `test-section ${status}`;
+        }
+
+        function showLoading(testId) {
+            updateResult(testId, '<div class="status loading"><div class="spinner"></div> Test en cours...</div>', 'warning');
+        }
+
+        async function testBackendHealth() {
+            console.log('🏥 Test 1: Backend Health Check...');
+            showLoading(1);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    testResults.backend = true;
+                    let html = `
+                        <div class="api-status api-connected">
+                            ✅ Backend connecté et fonctionnel
+                        </div>
+                        <div class="code-block">
+                            Status: ${response.status}
+                            Message: ${data.message}
+                            Environment: ${data.environment}
+                            Timestamp: ${data.timestamp}
+                        </div>
+                    `;
+                    updateResult(1, html, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.backend = false;
+                let html = `
+                    <div class="api-status api-disconnected">
+                        ❌ Backend non disponible
+                    </div>
+                    <div class="status error">
+                        Erreur: ${error.message}
+                    </div>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Démarrer le backend: <code>cd backend && npm start</code></li>
+                        <li>Vérifier le port 3001</li>
+                        <li>Vérifier MongoDB Atlas</li>
+                    </ul>
+                `;
+                updateResult(1, html, 'error');
+            }
+        }
+
+        async function testApiEndpoints() {
+            console.log('🌐 Test 2: API Endpoints...');
+            showLoading(2);
+            
+            if (!testResults.backend) {
+                updateResult(2, '<div class="status error">❌ Backend requis pour ce test</div>', 'error');
+                return;
+            }
+
+            const endpoints = [
+                { name: 'Domaines', url: '/api/free-courses/domains', method: 'GET' },
+                { name: 'Admin Domaines', url: '/api/free-courses/admin/domains', method: 'GET' },
+                { name: 'Access IDs', url: '/api/free-courses/admin/access-ids', method: 'GET' },
+                { name: 'Stats', url: '/api/free-courses/admin/stats', method: 'GET' }
+            ];
+
+            let results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${API_BASE}${endpoint.url}`);
+                    const data = await response.json();
+                    
+                    results.push({
+                        name: endpoint.name,
+                        status: response.ok ? '✅' : '❌',
+                        code: response.status,
+                        data: data.success ? `${Array.isArray(data.data) ? data.data.length : 'OK'} items` : 'Error'
+                    });
+                } catch (error) {
+                    results.push({
+                        name: endpoint.name,
+                        status: '❌',
+                        code: 'ERR',
+                        data: error.message
+                    });
+                }
+            }
+
+            let html = `
+                <div class="data-grid">
+                    ${results.map(result => `
+                        <div class="data-card">
+                            <strong>${result.status} ${result.name}</strong>
+                            <br>Status: ${result.code}
+                            <br>Data: ${result.data}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            const allSuccess = results.every(r => r.status === '✅');
+            updateResult(2, html, allSuccess ? 'success' : 'error');
+        }
+
+        async function testMigrationData() {
+            console.log('📊 Test 3: Données Migrées...');
+            showLoading(3);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/free-courses/admin/stats`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const stats = data.data;
+                    let html = `
+                        <div class="status success">
+                            ✅ Migration réussie - Données disponibles
+                        </div>
+                        <div class="data-grid">
+                            <div class="data-card">
+                                <strong>📁 Domaines</strong><br>
+                                Nombre: ${stats.domains}
+                            </div>
+                            <div class="data-card">
+                                <strong>📚 Cours</strong><br>
+                                Nombre: ${stats.courses}
+                            </div>
+                            <div class="data-card">
+                                <strong>📝 Modules</strong><br>
+                                Nombre: ${stats.modules}
+                            </div>
+                            <div class="data-card">
+                                <strong>🔑 IDs d'Accès</strong><br>
+                                Nombre: ${stats.accessIds}<br>
+                                Utilisations: ${stats.totalUsage}
+                            </div>
+                        </div>
+                    `;
+                    updateResult(3, html, 'success');
+                } else {
+                    throw new Error('Pas de données statistiques');
+                }
+            } catch (error) {
+                let html = `
+                    <div class="status error">
+                        ❌ Données de migration non trouvées
+                    </div>
+                    <p><strong>Solution:</strong> Exécuter le script de migration</p>
+                    <div class="code-block">
+                        cd backend
+                        node scripts/migrateFreeCoursesData.js
+                    </div>
+                `;
+                updateResult(3, html, 'error');
+            }
+        }
+
+        async function testCrudOperations() {
+            console.log('⚙️ Test 4: Opérations CRUD...');
+            showLoading(4);
+            
+            const testAccessId = `TEST-${Date.now()}`;
+            let operations = [];
+            
+            try {
+                // Test CREATE Access ID
+                const createResponse = await fetch(`${API_BASE}/api/free-courses/admin/access-ids`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        accessId: testAccessId,
+                        description: 'Test automatique'
+                    })
+                });
+                
+                operations.push({
+                    name: 'CREATE Access ID',
+                    status: createResponse.ok ? '✅' : '❌',
+                    details: createResponse.status
+                });
+
+                // Test READ Access IDs
+                const readResponse = await fetch(`${API_BASE}/api/free-courses/admin/access-ids`);
+                const readData = await readResponse.json();
+                
+                operations.push({
+                    name: 'READ Access IDs',
+                    status: readResponse.ok ? '✅' : '❌',
+                    details: `${readData.data?.length || 0} IDs trouvés`
+                });
+
+                // Test DELETE Access ID
+                const deleteResponse = await fetch(`${API_BASE}/api/free-courses/admin/access-ids/${testAccessId}`, {
+                    method: 'DELETE'
+                });
+                
+                operations.push({
+                    name: 'DELETE Access ID',
+                    status: deleteResponse.ok ? '✅' : '❌',
+                    details: deleteResponse.status
+                });
+
+                let html = `
+                    <div class="status success">
+                        ✅ Tests CRUD terminés
+                    </div>
+                    <div class="data-grid">
+                        ${operations.map(op => `
+                            <div class="data-card">
+                                <strong>${op.status} ${op.name}</strong><br>
+                                Détails: ${op.details}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                const allSuccess = operations.every(op => op.status === '✅');
+                updateResult(4, html, allSuccess ? 'success' : 'error');
+                
+            } catch (error) {
+                updateResult(4, `<div class="status error">❌ Erreur CRUD: ${error.message}</div>`, 'error');
+            }
+        }
+
+        async function testAdminPanelIntegration() {
+            console.log('🎛️ Test 5: Intégration Admin Panel...');
+            showLoading(5);
+            
+            try {
+                // Simuler le test de connexion du service API
+                const testConnection = async () => {
+                    const healthResponse = await fetch(`${API_BASE}/api/health`);
+                    const domainsResponse = await fetch(`${API_BASE}/api/free-courses/domains`);
+                    const accessResponse = await fetch(`${API_BASE}/api/free-courses/admin/access-ids`);
+                    
+                    return {
+                        api: healthResponse.ok,
+                        domains: domainsResponse.ok,
+                        accessIds: accessResponse.ok
+                    };
+                };
+                
+                const connection = await testConnection();
+                
+                let html = `
+                    <div class="status ${connection.api && connection.domains && connection.accessIds ? 'success' : 'error'}">
+                        ${connection.api && connection.domains && connection.accessIds ? 
+                            '✅ Admin Panel peut se connecter à l\'API' : 
+                            '❌ Problème de connexion Admin Panel'
+                        }
+                    </div>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <strong>${connection.api ? '✅' : '❌'} API Health</strong><br>
+                            Backend disponible
+                        </div>
+                        <div class="data-card">
+                            <strong>${connection.domains ? '✅' : '❌'} Domaines</strong><br>
+                            Endpoint fonctionnel
+                        </div>
+                        <div class="data-card">
+                            <strong>${connection.accessIds ? '✅' : '❌'} Access IDs</strong><br>
+                            Endpoint fonctionnel
+                        </div>
+                    </div>
+                    <p><strong>Instructions Admin Panel:</strong></p>
+                    <ol>
+                        <li>Ouvrir Admin Panel dans un nouvel onglet</li>
+                        <li>Aller dans "Cours Gratuits"</li>
+                        <li>Vérifier l'indicateur "API MongoDB" en vert</li>
+                        <li>Tester ajout/suppression d'un ID d'accès</li>
+                    </ol>
+                `;
+                
+                const allConnected = connection.api && connection.domains && connection.accessIds;
+                updateResult(5, html, allConnected ? 'success' : 'error');
+                
+            } catch (error) {
+                updateResult(5, `<div class="status error">❌ Erreur test Admin Panel: ${error.message}</div>`, 'error');
+            }
+        }
+
+        async function testSitePublicIntegration() {
+            console.log('🌍 Test 6: Intégration Site Public...');
+            showLoading(6);
+            
+            try {
+                // Test validation d'un ID d'accès
+                const testIds = ['DEMO2024', 'FREE-ACCESS', 'STUDENT-2024'];
+                let validationResults = [];
+                
+                for (const testId of testIds) {
+                    try {
+                        const response = await fetch(`${API_BASE}/api/free-courses/validate-access`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ accessId: testId })
+                        });
+                        
+                        const data = await response.json();
+                        validationResults.push({
+                            id: testId,
+                            status: data.success ? '✅' : '❌',
+                            message: data.message
+                        });
+                    } catch (error) {
+                        validationResults.push({
+                            id: testId,
+                            status: '❌',
+                            message: error.message
+                        });
+                    }
+                }
+                
+                let html = `
+                    <div class="status success">
+                        ✅ Test validation IDs terminé
+                    </div>
+                    <div class="data-grid">
+                        ${validationResults.map(result => `
+                            <div class="data-card">
+                                <strong>${result.status} ${result.id}</strong><br>
+                                ${result.message}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p><strong>Instructions Site Public:</strong></p>
+                    <ol>
+                        <li>Ouvrir le site principal</li>
+                        <li>Cliquer "Accès Cours Gratuit"</li>
+                        <li>Tester avec un ID validé ci-dessus</li>
+                        <li>Vérifier que les domaines s'affichent</li>
+                    </ol>
+                `;
+                
+                updateResult(6, html, 'success');
+                
+            } catch (error) {
+                updateResult(6, `<div class="status error">❌ Erreur test Site Public: ${error.message}</div>`, 'error');
+            }
+        }
+
+        // Auto-run backend test on load
+        window.onload = function() {
+            console.log('🚀 Auto-test backend au chargement...');
+            setTimeout(testBackendHealth, 1000);
+        };
+    </script>
+</body>
+</html>

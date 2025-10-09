@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tabs Fix - MATC Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .button.active {
+            background: #059669;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .data-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .tab-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: #f9fafb;
+        }
+        .tab-header {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        .field {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #d1d5db;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #374151;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .field-value {
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Tabs Fix - Admin Panel</h1>
+        <p>Test pour vérifier que les 4 tabs (Formateur, Freelance, Commercial, Entreprise) fonctionnent correctement</p>
+
+        <div>
+            <button class="button" onclick="resetLocalStorage()">Reset localStorage</button>
+            <button class="button" onclick="loadAllTabs()">Charger toutes les données</button>
+            <button class="button" onclick="testTabSwitching()">Test changement de tabs</button>
+        </div>
+
+        <div id="results"></div>
+
+        <div id="tabs-preview"></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'partner_extra_info_v1';
+        
+        const DEFAULT_DATA = {
+            formateur: {
+                title: 'Formateur',
+                subtitle: 'Rejoignez notre équipe de formateurs experts',
+                intro: 'Rejoignez notre équipe de formateurs experts et partagez vos connaissances avec nos apprenants.',
+                icon: '📘',
+                color: 'blue',
+                gradient: 'from-blue-500 to-blue-600',
+                details: [
+                    'Encadrer des sessions en présentiel et à distance',
+                    'Concevoir des supports pédagogiques de qualité',
+                    'Évaluer et suivre la progression des apprenants'
+                ],
+                requirements: [
+                    'Minimum 3 ans d\'expérience dans votre domaine',
+                    'Diplôme ou certifications reconnues',
+                    'Excellentes compétences pédagogiques',
+                    'Disponibilité flexible pour les formations',
+                    'Maîtrise des outils numériques'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Formateur',
+                contactEmail: 'formateur@matc.com',
+                mailSubject: 'Candidature Formateur - Programme de Partenariat',
+                updatedAt: new Date().toISOString()
+            },
+            freelance: {
+                title: 'Freelance',
+                subtitle: 'Collaborez avec nous en tant que freelance',
+                intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+                icon: '💻',
+                color: 'green',
+                gradient: 'from-green-500 to-green-600',
+                details: [
+                    'Missions adaptées à votre expertise',
+                    'Collaboration flexible et agile',
+                    'Facturation simple et transparente'
+                ],
+                requirements: [
+                    'Portfolio démontrant vos compétences',
+                    'Expérience en freelancing ou projets indépendants',
+                    'Capacité à respecter les délais',
+                    'Communication professionnelle',
+                    'Spécialisation dans un domaine technique'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Freelancer',
+                contactEmail: 'freelance@matc.com',
+                mailSubject: 'Candidature Freelance - Programme de Partenariat',
+                updatedAt: new Date().toISOString()
+            },
+            commercial: {
+                title: 'Commercial / Affilié',
+                subtitle: 'Devenez notre partenaire commercial',
+                intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
+                icon: '📈',
+                color: 'orange',
+                gradient: 'from-orange-500 to-orange-600',
+                details: [
+                    'Programme de commissions motivant',
+                    'Outils marketing fournis',
+                    'Suivi et reporting dédiés'
+                ],
+                requirements: [
+                    'Expérience en vente ou marketing',
+                    'Réseau professionnel développé',
+                    'Compétences en négociation',
+                    'Motivation et esprit entrepreneurial',
+                    'Connaissance du secteur de la formation'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Commercial',
+                contactEmail: 'commercial@matc.com',
+                mailSubject: 'Candidature Commercial/Affilié - Programme de Partenariat',
+                updatedAt: new Date().toISOString()
+            },
+            entreprise: {
+                title: 'Entreprise / École',
+                subtitle: 'Établissez un partenariat institutionnel',
+                intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
+                icon: '🏢',
+                color: 'purple',
+                gradient: 'from-purple-500 to-purple-600',
+                details: [
+                    'Programmes adaptés aux objectifs',
+                    'Accompagnement et suivi personnalisés',
+                    'Modalités intra/inter-entreprise'
+                ],
+                requirements: [
+                    'Entreprise ou institution éducative établie',
+                    'Besoin récurrent en formation',
+                    'Capacité de collaboration à long terme',
+                    'Budget dédié à la formation',
+                    'Engagement dans le développement des compétences'
+                ],
+                ctaLabel: 'Accéder à l\'Espace Partenariat',
+                contactEmail: 'entreprise@matc.com',
+                mailSubject: 'Partenariat Institutionnel - Programme de Partenariat',
+                updatedAt: new Date().toISOString()
+            }
+        };
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const statusClass = type === 'error' ? 'error' : 'success';
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function resetLocalStorage() {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
+            log('✅ localStorage reset avec les nouvelles données par défaut');
+            loadAllTabs();
+        }
+
+        function loadAllTabs() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            const previewDiv = document.getElementById('tabs-preview');
+            
+            if (Object.keys(data).length === 0) {
+                log('❌ Aucune donnée trouvée dans localStorage', 'error');
+                return;
+            }
+
+            log(`✅ ${Object.keys(data).length} tabs trouvées dans localStorage`);
+            
+            let html = '<h3>Aperçu des 4 tabs:</h3>';
+            
+            Object.keys(data).forEach(tabKey => {
+                const tabData = data[tabKey];
+                html += `
+                    <div class="tab-section">
+                        <div class="tab-header">${tabData.icon} ${tabData.title}</div>
+                        <div class="field-group">
+                            <div class="field">
+                                <div class="field-label">Sous-titre</div>
+                                <div class="field-value">${tabData.subtitle}</div>
+                            </div>
+                            <div class="field">
+                                <div class="field-label">Email de contact</div>
+                                <div class="field-value">${tabData.contactEmail}</div>
+                            </div>
+                            <div class="field">
+                                <div class="field-label">Sujet de l'email</div>
+                                <div class="field-value">${tabData.mailSubject}</div>
+                            </div>
+                            <div class="field">
+                                <div class="field-label">Couleur</div>
+                                <div class="field-value">${tabData.color}</div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Introduction</div>
+                            <div class="field-value">${tabData.intro}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Points de détail (${tabData.details.length})</div>
+                            <div class="field-value">${tabData.details.join(', ')}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Conditions requises (${tabData.requirements.length})</div>
+                            <div class="field-value">${tabData.requirements.join(', ')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            previewDiv.innerHTML = html;
+        }
+
+        function testTabSwitching() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            
+            if (Object.keys(data).length !== 4) {
+                log('❌ Données incomplètes: seulement ' + Object.keys(data).length + ' tabs trouvées', 'error');
+                return;
+            }
+
+            let allGood = true;
+            const requiredFields = ['title', 'subtitle', 'contactEmail', 'mailSubject', 'intro', 'details', 'requirements'];
+            
+            Object.keys(data).forEach(tabKey => {
+                const tabData = data[tabKey];
+                const missingFields = requiredFields.filter(field => !tabData[field] || (Array.isArray(tabData[field]) && tabData[field].length === 0));
+                
+                if (missingFields.length > 0) {
+                    log(`❌ ${tabKey}: Champs manquants - ${missingFields.join(', ')}`, 'error');
+                    allGood = false;
+                } else {
+                    log(`✅ ${tabKey}: Tous les champs OK`);
+                }
+            });
+
+            // Test emails uniques
+            const emails = Object.values(data).map(tab => tab.contactEmail);
+            const uniqueEmails = [...new Set(emails)];
+            
+            if (emails.length === uniqueEmails.length) {
+                log('✅ Tous les emails sont uniques');
+            } else {
+                log('❌ Des emails sont dupliqués', 'error');
+                allGood = false;
+            }
+
+            if (allGood) {
+                log('🎉 Tous les tests réussis! Les 4 tabs sont correctement configurées.');
+            } else {
+                log('⚠️ Certains tests ont échoué. Vérifiez les erreurs ci-dessus.', 'error');
+            }
+        }
+
+        // Auto-load on page load
+        window.onload = function() {
+            log('🚀 Test Tool chargé');
+            loadAllTabs();
+        };
+    </script>
+</body>
+</html>

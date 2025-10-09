@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Server Fix - Partner Testimonials</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        .results {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Server Fix - Partner Testimonials</h1>
+        <p>Test rapide pour vérifier que le serveur fonctionne après les corrections ES6 modules.</p>
+
+        <div id="server-status" class="status info">
+            🔄 Vérification du serveur...
+        </div>
+
+        <div>
+            <button class="btn" onclick="testServerHealth()">🏥 Test Server Health</button>
+            <button class="btn" onclick="testPartnerTestimonials()">🎯 Test Partner Testimonials API</button>
+            <button class="btn" onclick="testCreateDefaults()">🔄 Test Create Defaults</button>
+        </div>
+
+        <div id="results" class="results">Prêt pour les tests...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const results = document.getElementById('results');
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('server-status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        // Test server health on load
+        window.onload = function() {
+            testServerHealth();
+        };
+
+        async function testServerHealth() {
+            log('🔄 Testing server health...');
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Server is healthy');
+                    log(`📄 Response: ${JSON.stringify(data, null, 2)}`);
+                    updateStatus('✅ Serveur connecté et fonctionnel', 'success');
+                } else {
+                    log(`❌ Server responded with status: ${response.status}`);
+                    updateStatus('❌ Serveur répond mais avec erreur', 'error');
+                }
+            } catch (error) {
+                log(`❌ Server connection failed: ${error.message}`);
+                updateStatus('❌ Impossible de se connecter au serveur', 'error');
+            }
+        }
+
+        async function testPartnerTestimonials() {
+            log('🔄 Testing Partner Testimonials API...');
+            try {
+                // Test GET published testimonials
+                const response = await fetch(`${API_BASE}/api/partner-testimonials/published`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Partner Testimonials API working');
+                    log(`📊 Found ${data.count} published testimonials`);
+                    if (data.data && data.data.length > 0) {
+                        log(`📄 Sample testimonial: ${JSON.stringify(data.data[0], null, 2)}`);
+                    }
+                } else {
+                    log(`❌ API responded with status: ${response.status}`);
+                    const errorData = await response.text();
+                    log(`📄 Error response: ${errorData}`);
+                }
+            } catch (error) {
+                log(`❌ API test failed: ${error.message}`);
+            }
+        }
+
+        async function testCreateDefaults() {
+            log('🔄 Testing create defaults...');
+            try {
+                const response = await fetch(`${API_BASE}/api/partner-testimonials/reset`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Defaults created successfully');
+                    log(`📊 Created ${data.data.length} default testimonials`);
+                    log(`📄 Sample: ${JSON.stringify(data.data[0], null, 2)}`);
+                } else {
+                    log(`❌ Reset failed with status: ${response.status}`);
+                    const errorData = await response.text();
+                    log(`📄 Error: ${errorData}`);
+                }
+            } catch (error) {
+                log(`❌ Reset test failed: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

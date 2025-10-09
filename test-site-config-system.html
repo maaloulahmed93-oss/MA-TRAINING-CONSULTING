@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système Configuration Site MATC</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-section h3 { margin-top: 0; color: #333; }
+        .status { padding: 5px 10px; border-radius: 3px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .config-preview { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .api-status { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .online { background: #28a745; }
+        .offline { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test Système Configuration Site MATC</h1>
+            <p>Test complet du système de configuration du site avec Backend API</p>
+            <div id="apiStatus">
+                <span class="api-status offline"></span>
+                <span>Vérification de l'API...</span>
+            </div>
+        </div>
+
+        <!-- Test 1: Connexion API -->
+        <div class="test-section">
+            <h3>🌐 Test 1: Connexion Backend API</h3>
+            <button class="btn-primary" onclick="testApiConnection()">Tester Connexion API</button>
+            <div id="apiResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 2: Configuration par défaut -->
+        <div class="test-section">
+            <h3>⚙️ Test 2: Configuration par Défaut</h3>
+            <button class="btn-primary" onclick="testDefaultConfig()">Charger Config par Défaut</button>
+            <div id="defaultConfigResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 3: Mise à jour configuration -->
+        <div class="test-section">
+            <h3>💾 Test 3: Mise à Jour Configuration</h3>
+            <div class="grid">
+                <div>
+                    <label>Nom du Site:</label>
+                    <input type="text" id="siteName" value="MATC Test Site" style="width: 100%; padding: 8px; margin: 5px 0;">
+                </div>
+                <div>
+                    <label>Couleur Principale:</label>
+                    <input type="color" id="primaryColor" value="#FF6B35" style="width: 100%; padding: 8px; margin: 5px 0;">
+                </div>
+            </div>
+            <button class="btn-success" onclick="testUpdateConfig()">Mettre à Jour Configuration</button>
+            <div id="updateResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 4: Upload fichiers -->
+        <div class="test-section">
+            <h3>📁 Test 4: Upload Favicon/Logo</h3>
+            <div class="grid">
+                <div>
+                    <label>Favicon:</label>
+                    <input type="file" id="faviconFile" accept=".ico,.png,.jpg,.svg">
+                    <button class="btn-warning" onclick="testFaviconUpload()">Upload Favicon</button>
+                </div>
+                <div>
+                    <label>Logo:</label>
+                    <input type="file" id="logoFile" accept=".png,.jpg,.svg">
+                    <button class="btn-warning" onclick="testLogoUpload()">Upload Logo</button>
+                </div>
+            </div>
+            <div id="uploadResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 5: Configuration publique -->
+        <div class="test-section">
+            <h3>🌍 Test 5: Configuration Publique</h3>
+            <button class="btn-primary" onclick="testPublicConfig()">Charger Config Publique</button>
+            <div id="publicConfigResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 6: Réinitialisation -->
+        <div class="test-section">
+            <h3>🔄 Test 6: Réinitialisation</h3>
+            <button class="btn-danger" onclick="testResetConfig()">Réinitialiser Configuration</button>
+            <div id="resetResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Aperçu Configuration Actuelle -->
+        <div class="test-section">
+            <h3>👁️ Aperçu Configuration Actuelle</h3>
+            <button class="btn-primary" onclick="refreshConfigPreview()">Actualiser Aperçu</button>
+            <div id="configPreview" class="config-preview">
+                <p>Cliquez sur "Actualiser Aperçu" pour voir la configuration actuelle</p>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="test-section">
+            <h3>📊 Statistiques des Tests</h3>
+            <div id="testStats">
+                <p>Tests réussis: <span id="successCount">0</span></p>
+                <p>Tests échoués: <span id="errorCount">0</span></p>
+                <p>Total: <span id="totalCount">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/site-config';
+        let testStats = { success: 0, error: 0, total: 0 };
+
+        // Vérification initiale de l'API
+        window.onload = function() {
+            testApiConnection();
+            refreshConfigPreview();
+        };
+
+        function updateTestStats(success) {
+            testStats.total++;
+            if (success) testStats.success++;
+            else testStats.error++;
+            
+            document.getElementById('successCount').textContent = testStats.success;
+            document.getElementById('errorCount').textContent = testStats.error;
+            document.getElementById('totalCount').textContent = testStats.total;
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function testApiConnection() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('apiResult', '✅ API Backend connecté avec succès', 'success');
+                    document.querySelector('.api-status').className = 'api-status online';
+                    document.querySelector('#apiStatus span:last-child').textContent = 'API Connecté';
+                    updateTestStats(true);
+                } else {
+                    throw new Error('API non disponible');
+                }
+            } catch (error) {
+                showResult('apiResult', '❌ Erreur de connexion API: ' + error.message, 'error');
+                document.querySelector('.api-status').className = 'api-status offline';
+                document.querySelector('#apiStatus span:last-child').textContent = 'API Déconnecté';
+                updateTestStats(false);
+            }
+        }
+
+        async function testDefaultConfig() {
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    showResult('defaultConfigResult', 
+                        `✅ Configuration par défaut chargée:<br>
+                        - Nom: ${result.data.siteName}<br>
+                        - Titre: ${result.data.siteTitle}<br>
+                        - Email: ${result.data.contactEmail}`, 'success');
+                    updateTestStats(true);
+                } else {
+                    throw new Error(result.message || 'Erreur inconnue');
+                }
+            } catch (error) {
+                showResult('defaultConfigResult', '❌ Erreur: ' + error.message, 'error');
+                updateTestStats(false);
+            }
+        }
+
+        async function testUpdateConfig() {
+            const siteName = document.getElementById('siteName').value;
+            const primaryColor = document.getElementById('primaryColor').value;
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ siteName, primaryColor })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('updateResult', 
+                        `✅ Configuration mise à jour:<br>
+                        - Nouveau nom: ${result.data.siteName}<br>
+                        - Nouvelle couleur: ${result.data.primaryColor}`, 'success');
+                    updateTestStats(true);
+                    refreshConfigPreview();
+                } else {
+                    throw new Error(result.message || 'Erreur de mise à jour');
+                }
+            } catch (error) {
+                showResult('updateResult', '❌ Erreur: ' + error.message, 'error');
+                updateTestStats(false);
+            }
+        }
+
+        async function testFaviconUpload() {
+            const fileInput = document.getElementById('faviconFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('uploadResult', '⚠️ Veuillez sélectionner un fichier favicon', 'warning');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('favicon', file);
+            
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('uploadResult', `✅ Favicon uploadé: ${result.data.favicon}`, 'success');
+                    updateTestStats(true);
+                } else {
+                    throw new Error(result.message || 'Erreur upload');
+                }
+            } catch (error) {
+                showResult('uploadResult', '❌ Erreur upload favicon: ' + error.message, 'error');
+                updateTestStats(false);
+            }
+        }
+
+        async function testLogoUpload() {
+            const fileInput = document.getElementById('logoFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('uploadResult', '⚠️ Veuillez sélectionner un fichier logo', 'warning');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('logo', file);
+            
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('uploadResult', `✅ Logo uploadé: ${result.data.logo}`, 'success');
+                    updateTestStats(true);
+                } else {
+                    throw new Error(result.message || 'Erreur upload');
+                }
+            } catch (error) {
+                showResult('uploadResult', '❌ Erreur upload logo: ' + error.message, 'error');
+                updateTestStats(false);
+            }
+        }
+
+        async function testPublicConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/public`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    showResult('publicConfigResult', 
+                        `✅ Configuration publique récupérée:<br>
+                        - Nom: ${result.data.siteName}<br>
+                        - Description: ${result.data.siteDescription}<br>
+                        - Couleurs: ${result.data.primaryColor} / ${result.data.secondaryColor}`, 'success');
+                    updateTestStats(true);
+                } else {
+                    throw new Error(result.message || 'Erreur récupération config publique');
+                }
+            } catch (error) {
+                showResult('publicConfigResult', '❌ Erreur: ' + error.message, 'error');
+                updateTestStats(false);
+            }
+        }
+
+        async function testResetConfig() {
+            if (!confirm('Êtes-vous sûr de vouloir réinitialiser la configuration ?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('resetResult', '✅ Configuration réinitialisée avec succès', 'success');
+                    updateTestStats(true);
+                    refreshConfigPreview();
+                } else {
+                    throw new Error(result.message || 'Erreur réinitialisation');
+                }
+            } catch (error) {
+                showResult('resetResult', '❌ Erreur: ' + error.message, 'error');
+                updateTestStats(false);
+            }
+        }
+
+        async function refreshConfigPreview() {
+            try {
+                const response = await fetch(API_BASE);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const config = result.data;
+                    document.getElementById('configPreview').innerHTML = `
+                        <h4>Configuration Actuelle:</h4>
+                        <p><strong>Nom du Site:</strong> ${config.siteName}</p>
+                        <p><strong>Titre:</strong> ${config.siteTitle}</p>
+                        <p><strong>Description:</strong> ${config.siteDescription}</p>
+                        <p><strong>Favicon:</strong> ${config.favicon}</p>
+                        <p><strong>Logo:</strong> ${config.logo}</p>
+                        <p><strong>Couleur Principale:</strong> <span style="background:${config.primaryColor}; padding:2px 8px; color:white; border-radius:3px;">${config.primaryColor}</span></p>
+                        <p><strong>Couleur Secondaire:</strong> <span style="background:${config.secondaryColor}; padding:2px 8px; color:white; border-radius:3px;">${config.secondaryColor}</span></p>
+                        <p><strong>Email:</strong> ${config.contactEmail}</p>
+                        <p><strong>Téléphone:</strong> ${config.contactPhone}</p>
+                        <p><strong>Adresse:</strong> ${config.address}</p>
+                        <p><strong>Dernière mise à jour:</strong> ${new Date(config.updatedAt).toLocaleString()}</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('configPreview').innerHTML = 
+                    `<p class="status error">Erreur lors du chargement: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

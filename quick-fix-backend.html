@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Fix Backend - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+        }
+        .button:hover { background: #3730A3; }
+        .button.success { background: #059669; }
+        .button.danger { background: #dc2626; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: left;
+            border-left: 4px solid #4F46E5;
+        }
+        
+        .step h3 {
+            margin-top: 0;
+            color: #4F46E5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Quick Fix Backend</h1>
+        <p>Solution rapide pour le problème "Backend non disponible"</p>
+
+        <button class="button" onclick="checkBackend()">1. Vérifier Backend</button>
+        <button class="button success" onclick="showStartInstructions()">2. Démarrer Backend</button>
+        <button class="button" onclick="testAfterStart()">3. Test Après Démarrage</button>
+
+        <div id="results"></div>
+        
+        <div id="instructions" style="display: none;">
+            <div class="step">
+                <h3>🔧 Comment démarrer le Backend:</h3>
+                <ol>
+                    <li><strong>Ouvrir Terminal/PowerShell</strong></li>
+                    <li><strong>Naviguer vers le dossier:</strong><br>
+                        <code>cd "C:\Users\ahmed\Desktop\MATC SITE\backend"</code>
+                    </li>
+                    <li><strong>Démarrer le serveur:</strong><br>
+                        <code>npm start</code>
+                    </li>
+                    <li><strong>Attendre le message:</strong><br>
+                        "Server running on port 3001"
+                    </li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <h3>⚡ Alternative rapide:</h3>
+                <p>Double-cliquez sur le fichier <strong>start-backend.bat</strong> dans le dossier principal</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function checkBackend() {
+            updateStatus('🔍 Vérification du Backend...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus(`✅ Backend fonctionne! ${data.count} partnerships trouvées`);
+                    updateStatus('🎉 Problème résolu - vous pouvez maintenant sauvegarder', 'success');
+                } else {
+                    updateStatus('❌ Backend répond mais avec erreur', 'error');
+                }
+            } catch (error) {
+                updateStatus('❌ Backend non accessible', 'error');
+                updateStatus('💡 Le Backend doit être démarré', 'warning');
+                updateStatus('👇 Cliquez sur "Démarrer Backend" ci-dessous', 'warning');
+            }
+        }
+
+        function showStartInstructions() {
+            document.getElementById('instructions').style.display = 'block';
+            updateStatus('📋 Instructions affichées ci-dessous', 'warning');
+            updateStatus('⏳ Après avoir démarré le Backend, cliquez sur "Test Après Démarrage"', 'warning');
+        }
+
+        async function testAfterStart() {
+            updateStatus('🧪 Test après démarrage...');
+            
+            // Wait a bit for backend to start
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('🎉 Parfait! Backend fonctionne maintenant', 'success');
+                    updateStatus('✅ Vous pouvez retourner à l\'Admin Panel et sauvegarder', 'success');
+                    
+                    // Test freelance specifically
+                    await testFreelanceSave();
+                } else {
+                    updateStatus('⚠️ Backend répond mais avec problème', 'warning');
+                }
+            } catch (error) {
+                updateStatus('❌ Backend toujours non accessible', 'error');
+                updateStatus('🔄 Vérifiez que le Backend est bien démarré', 'warning');
+            }
+        }
+
+        async function testFreelanceSave() {
+            updateStatus('💾 Test sauvegarde Freelance...');
+            
+            const testData = {
+                type: 'freelance',
+                title: 'Test Freelance',
+                subtitle: 'Test subtitle',
+                intro: 'Test introduction',
+                icon: '💻',
+                color: 'green',
+                gradient: 'from-green-500 to-green-600',
+                details: ['Test detail'],
+                requirements: ['Test requirement'],
+                ctaLabel: 'Test CTA'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/partnerships/freelance`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    updateStatus('✅ Freelance sauvegarde fonctionne!', 'success');
+                } else {
+                    updateStatus(`❌ Freelance sauvegarde échoue: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur test Freelance: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            updateStatus('🚀 Quick Fix Backend chargé');
+            checkBackend();
+        };
+    </script>
+</body>
+</html>

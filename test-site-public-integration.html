@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Site Public Integration - MongoDB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        .success {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        .warning {
+            border-left-color: #FF9800;
+            background: rgba(255, 152, 0, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .loading {
+            background: rgba(255, 193, 7, 0.3);
+            color: #fff;
+        }
+        .api-status {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .api-connected {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4CAF50;
+        }
+        .api-disconnected {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #f44336;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .data-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #2196F3;
+        }
+        .domain-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #9C27B0;
+            margin: 10px 0;
+        }
+        .course-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 5px 0;
+            border-left: 2px solid #FF9800;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .comparison-table {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .comparison-header {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Test Site Public Integration - MongoDB</h1>
+        <p>Test complet de l'intégration MongoDB avec le site public (FreeCourseModal)</p>
+
+        <!-- Test 1: Service API Connection -->
+        <div class="test-section" id="test1">
+            <h3>🔗 Test 1: Service API Connection</h3>
+            <button onclick="testApiConnection()">Tester Connexion API</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: Domains Comparison -->
+        <div class="test-section" id="test2">
+            <h3>📚 Test 2: Comparaison Domaines (API vs Static)</h3>
+            <button onclick="testDomainsComparison()">Comparer Domaines</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: Access ID Validation -->
+        <div class="test-section" id="test3">
+            <h3>🔐 Test 3: Validation IDs d'Accès</h3>
+            <button onclick="testAccessValidation()">Tester Validation</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Test 4: Full Workflow Simulation -->
+        <div class="test-section" id="test4">
+            <h3>🎯 Test 4: Simulation Workflow Complet</h3>
+            <button onclick="testFullWorkflow()">Simuler Workflow</button>
+            <div id="result4"></div>
+        </div>
+
+        <!-- Test 5: Performance Comparison -->
+        <div class="test-section" id="test5">
+            <h3>⚡ Test 5: Performance API vs Static</h3>
+            <button onclick="testPerformance()">Tester Performance</button>
+            <div id="result5"></div>
+        </div>
+
+        <!-- Test 6: Error Handling -->
+        <div class="test-section" id="test6">
+            <h3>🛡️ Test 6: Gestion d'Erreurs</h3>
+            <button onclick="testErrorHandling()">Tester Erreurs</button>
+            <div id="result6"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/free-courses';
+        
+        // Static data for comparison
+        const staticData = {
+            domains: [
+                {
+                    id: 'marketing',
+                    title: 'Marketing',
+                    icon: '📊',
+                    description: 'Stratégies marketing modernes',
+                    courses: []
+                },
+                {
+                    id: 'management-iso',
+                    title: 'Management ISO',
+                    icon: '🏆',
+                    description: 'Normes et certifications ISO',
+                    courses: []
+                },
+                {
+                    id: 'design',
+                    title: 'Design & UX/UI',
+                    icon: '🎨',
+                    description: 'Design moderne et expérience utilisateur',
+                    courses: []
+                },
+                {
+                    id: 'business',
+                    title: 'Business & Entrepreneuriat',
+                    icon: '💼',
+                    description: 'Compétences entrepreneuriales et business',
+                    courses: []
+                },
+                {
+                    id: 'data-science',
+                    title: 'Data Science & IA',
+                    icon: '📊',
+                    description: 'Analyse de données et intelligence artificielle',
+                    courses: []
+                },
+                {
+                    id: 'web-development',
+                    title: 'Développement Web',
+                    icon: '💻',
+                    description: 'Technologies web modernes',
+                    courses: []
+                }
+            ],
+            validAccessIds: [
+                'DEMO2024',
+                'FREE-ACCESS',
+                'STUDENT-2024',
+                'TRIAL-COURSE',
+                'GRATUIT-2024'
+            ]
+        };
+
+        function updateResult(testId, content, status = 'success') {
+            const resultDiv = document.getElementById(`result${testId}`);
+            resultDiv.innerHTML = content;
+            const testSection = document.getElementById(`test${testId}`);
+            testSection.className = `test-section ${status}`;
+        }
+
+        function showLoading(testId) {
+            updateResult(testId, '<div class="status loading"><div class="spinner"></div> Test en cours...</div>', 'warning');
+        }
+
+        async function testApiConnection() {
+            console.log('🔗 Test 1: Service API Connection...');
+            showLoading(1);
+            
+            try {
+                // Simulate the freeCoursesService.testConnection() method
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                const domainsResponse = await fetch(`${API_BASE}/domains`);
+                const validationResponse = await fetch(`${API_BASE}/validate-access`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accessId: 'TEST-CONNECTION' })
+                });
+                
+                const connectionResults = {
+                    api: healthResponse.ok,
+                    domains: domainsResponse.ok,
+                    validation: validationResponse.ok || validationResponse.status === 401 // 401 is expected for invalid ID
+                };
+                
+                let html = `
+                    <div class="api-status ${connectionResults.api ? 'api-connected' : 'api-disconnected'}">
+                        ${connectionResults.api ? '✅ API Backend disponible' : '❌ API Backend indisponible'}
+                    </div>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <strong>${connectionResults.api ? '✅' : '❌'} Health Check</strong><br>
+                            Status: ${healthResponse.status}
+                        </div>
+                        <div class="data-card">
+                            <strong>${connectionResults.domains ? '✅' : '❌'} Domains Endpoint</strong><br>
+                            Status: ${domainsResponse.status}
+                        </div>
+                        <div class="data-card">
+                            <strong>${connectionResults.validation ? '✅' : '❌'} Validation Endpoint</strong><br>
+                            Status: ${validationResponse.status}
+                        </div>
+                    </div>
+                `;
+                
+                const allConnected = connectionResults.api && connectionResults.domains && connectionResults.validation;
+                updateResult(1, html, allConnected ? 'success' : 'error');
+                
+            } catch (error) {
+                let html = `
+                    <div class="api-status api-disconnected">
+                        ❌ Erreur de connexion API
+                    </div>
+                    <div class="status error">
+                        Erreur: ${error.message}
+                    </div>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Démarrer le backend: <code>cd backend && npm start</code></li>
+                        <li>Vérifier MongoDB Atlas</li>
+                        <li>Vérifier le port 3001</li>
+                    </ul>
+                `;
+                updateResult(1, html, 'error');
+            }
+        }
+
+        async function testDomainsComparison() {
+            console.log('📚 Test 2: Comparaison Domaines...');
+            showLoading(2);
+            
+            try {
+                const response = await fetch(`${API_BASE}/domains`);
+                
+                if (response.ok) {
+                    const apiData = await response.json();
+                    const apiDomains = apiData.data || [];
+                    
+                    let html = `
+                        <div class="status success">
+                            ✅ Comparaison réussie
+                        </div>
+                        <div class="comparison-table">
+                            <div class="comparison-row comparison-header">
+                                <div>Source</div>
+                                <div>Nombre Domaines</div>
+                                <div>Status</div>
+                            </div>
+                            <div class="comparison-row">
+                                <div>📊 Données Statiques</div>
+                                <div>${staticData.domains.length}</div>
+                                <div>✅ Disponible</div>
+                            </div>
+                            <div class="comparison-row">
+                                <div>🌐 API MongoDB</div>
+                                <div>${apiDomains.length}</div>
+                                <div>✅ Disponible</div>
+                            </div>
+                        </div>
+                        
+                        <h4>Domaines API MongoDB:</h4>
+                        <div class="data-grid">
+                            ${apiDomains.map(domain => `
+                                <div class="domain-card">
+                                    <strong>${domain.icon} ${domain.title}</strong><br>
+                                    ID: ${domain.id}<br>
+                                    Cours: ${domain.courses ? domain.courses.length : 0}<br>
+                                    Description: ${domain.description}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    updateResult(2, html, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                let html = `
+                    <div class="status error">
+                        ❌ Impossible de récupérer les domaines API
+                    </div>
+                    <p>Fallback vers données statiques:</p>
+                    <div class="data-grid">
+                        ${staticData.domains.map(domain => `
+                            <div class="domain-card">
+                                <strong>${domain.icon} ${domain.title}</strong><br>
+                                ID: ${domain.id}<br>
+                                Description: ${domain.description}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                updateResult(2, html, 'warning');
+            }
+        }
+
+        async function testAccessValidation() {
+            console.log('🔐 Test 3: Validation IDs d\'Accès...');
+            showLoading(3);
+            
+            const testIds = ['DEMO2024', 'FREE-ACCESS', 'INVALID-ID', 'STUDENT-2024'];
+            let results = [];
+            
+            for (const testId of testIds) {
+                try {
+                    const response = await fetch(`${API_BASE}/validate-access`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accessId: testId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    results.push({
+                        id: testId,
+                        apiStatus: response.ok ? '✅ Valide' : '❌ Invalide',
+                        staticStatus: staticData.validAccessIds.includes(testId) ? '✅ Valide' : '❌ Invalide',
+                        message: data.message || `HTTP ${response.status}`,
+                        match: (response.ok && staticData.validAccessIds.includes(testId)) || 
+                               (!response.ok && !staticData.validAccessIds.includes(testId))
+                    });
+                } catch (error) {
+                    results.push({
+                        id: testId,
+                        apiStatus: '❌ Erreur',
+                        staticStatus: staticData.validAccessIds.includes(testId) ? '✅ Valide' : '❌ Invalide',
+                        message: error.message,
+                        match: false
+                    });
+                }
+            }
+            
+            let html = `
+                <div class="status success">
+                    ✅ Tests de validation terminés
+                </div>
+                <div class="comparison-table">
+                    <div class="comparison-row comparison-header">
+                        <div>ID d'Accès</div>
+                        <div>API MongoDB</div>
+                        <div>Données Statiques</div>
+                    </div>
+                    ${results.map(result => `
+                        <div class="comparison-row">
+                            <div><strong>${result.id}</strong></div>
+                            <div>${result.apiStatus}</div>
+                            <div>${result.staticStatus}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <p><strong>Cohérence:</strong> ${results.filter(r => r.match).length}/${results.length} IDs cohérents</p>
+            `;
+            
+            const allMatch = results.every(r => r.match);
+            updateResult(3, html, allMatch ? 'success' : 'warning');
+        }
+
+        async function testFullWorkflow() {
+            console.log('🎯 Test 4: Simulation Workflow Complet...');
+            showLoading(4);
+            
+            const workflow = [
+                { step: 'Connexion API', status: 'pending' },
+                { step: 'Chargement Domaines', status: 'pending' },
+                { step: 'Validation ID', status: 'pending' },
+                { step: 'Sélection Domaine', status: 'pending' },
+                { step: 'Affichage Cours', status: 'pending' }
+            ];
+            
+            try {
+                // Step 1: API Connection
+                const healthCheck = await fetch('http://localhost:3001/api/health');
+                workflow[0].status = healthCheck.ok ? 'success' : 'error';
+                
+                // Step 2: Load Domains
+                const domainsResponse = await fetch(`${API_BASE}/domains`);
+                workflow[1].status = domainsResponse.ok ? 'success' : 'error';
+                
+                // Step 3: Validate ID
+                const validationResponse = await fetch(`${API_BASE}/validate-access`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accessId: 'DEMO2024' })
+                });
+                workflow[2].status = validationResponse.ok ? 'success' : 'error';
+                
+                // Step 4: Select Domain (simulate)
+                if (domainsResponse.ok) {
+                    const domainsData = await domainsResponse.json();
+                    workflow[3].status = domainsData.data && domainsData.data.length > 0 ? 'success' : 'error';
+                    
+                    // Step 5: Show Courses (simulate)
+                    const firstDomain = domainsData.data[0];
+                    workflow[4].status = firstDomain && firstDomain.courses ? 'success' : 'error';
+                }
+                
+            } catch (error) {
+                console.error('Workflow error:', error);
+            }
+            
+            let html = `
+                <div class="status success">
+                    🎯 Simulation workflow terminée
+                </div>
+                <div class="data-grid">
+                    ${workflow.map((step, index) => `
+                        <div class="data-card">
+                            <strong>${step.status === 'success' ? '✅' : step.status === 'error' ? '❌' : '⏳'} Étape ${index + 1}</strong><br>
+                            ${step.step}
+                        </div>
+                    `).join('')}
+                </div>
+                <p><strong>Résultat:</strong> ${workflow.filter(s => s.status === 'success').length}/${workflow.length} étapes réussies</p>
+            `;
+            
+            const allSuccess = workflow.every(s => s.status === 'success');
+            updateResult(4, html, allSuccess ? 'success' : 'warning');
+        }
+
+        async function testPerformance() {
+            console.log('⚡ Test 5: Performance API vs Static...');
+            showLoading(5);
+            
+            const results = {
+                api: { time: 0, success: false },
+                static: { time: 0, success: true }
+            };
+            
+            try {
+                // Test API Performance
+                const apiStart = performance.now();
+                const apiResponse = await fetch(`${API_BASE}/domains`);
+                const apiEnd = performance.now();
+                results.api.time = Math.round(apiEnd - apiStart);
+                results.api.success = apiResponse.ok;
+                
+                // Test Static Performance (simulate)
+                const staticStart = performance.now();
+                await new Promise(resolve => setTimeout(resolve, 10)); // Simulate static data access
+                const staticEnd = performance.now();
+                results.static.time = Math.round(staticEnd - staticStart);
+                
+            } catch (error) {
+                console.error('Performance test error:', error);
+            }
+            
+            let html = `
+                <div class="status success">
+                    ⚡ Tests de performance terminés
+                </div>
+                <div class="comparison-table">
+                    <div class="comparison-row comparison-header">
+                        <div>Source</div>
+                        <div>Temps (ms)</div>
+                        <div>Status</div>
+                    </div>
+                    <div class="comparison-row">
+                        <div>📊 Données Statiques</div>
+                        <div>${results.static.time}ms</div>
+                        <div>✅ Rapide</div>
+                    </div>
+                    <div class="comparison-row">
+                        <div>🌐 API MongoDB</div>
+                        <div>${results.api.time}ms</div>
+                        <div>${results.api.success ? (results.api.time < 500 ? '✅ Rapide' : '⚠️ Acceptable') : '❌ Erreur'}</div>
+                    </div>
+                </div>
+                <p><strong>Recommandation:</strong> ${results.api.time < 200 ? 'API performante' : 'Considérer le cache'}</p>
+            `;
+            
+            updateResult(5, html, 'success');
+        }
+
+        async function testErrorHandling() {
+            console.log('🛡️ Test 6: Gestion d\'Erreurs...');
+            showLoading(6);
+            
+            const errorTests = [
+                { name: 'Backend Offline', test: () => fetch('http://localhost:9999/api/health') },
+                { name: 'Invalid Endpoint', test: () => fetch(`${API_BASE}/invalid-endpoint`) },
+                { name: 'Invalid JSON', test: () => fetch(`${API_BASE}/validate-access`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: 'invalid-json'
+                }) },
+                { name: 'Missing Data', test: () => fetch(`${API_BASE}/validate-access`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                }) }
+            ];
+            
+            let results = [];
+            
+            for (const errorTest of errorTests) {
+                try {
+                    await errorTest.test();
+                    results.push({ name: errorTest.name, handled: false, error: 'No error thrown' });
+                } catch (error) {
+                    results.push({ name: errorTest.name, handled: true, error: error.message });
+                }
+            }
+            
+            let html = `
+                <div class="status success">
+                    🛡️ Tests de gestion d'erreurs terminés
+                </div>
+                <div class="data-grid">
+                    ${results.map(result => `
+                        <div class="data-card">
+                            <strong>${result.handled ? '✅' : '⚠️'} ${result.name}</strong><br>
+                            ${result.handled ? 'Erreur gérée correctement' : 'Erreur non gérée'}<br>
+                            <small>${result.error}</small>
+                        </div>
+                    `).join('')}
+                </div>
+                <p><strong>Robustesse:</strong> ${results.filter(r => r.handled).length}/${results.length} erreurs gérées</p>
+            `;
+            
+            updateResult(6, html, 'success');
+        }
+
+        // Auto-run connection test on load
+        window.onload = function() {
+            console.log('🚀 Auto-test connexion au chargement...');
+            setTimeout(testApiConnection, 1000);
+        };
+    </script>
+</body>
+</html>

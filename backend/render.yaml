@@ -1,0 +1,32 @@
+# Render Blueprint for MATC Backend API
+# This file can be used to deploy the backend automatically on Render
+
+services:
+  - type: web
+    name: matc-backend-api
+    env: node
+    region: oregon # or your preferred region
+    plan: starter # or your preferred plan
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      # Add other environment variables in Render dashboard
+      # MONGODB_URI, JWT_SECRET, SESSION_SECRET, etc.
+    
+    # Auto-deploy on git push
+    autoDeploy: true
+    
+    # Root directory (if backend is in subdirectory)
+    rootDir: backend
+    
+    # Scaling configuration
+    numInstances: 1
+    
+    # Custom domains (optional)
+    # domains:
+    #   - api.matc.com

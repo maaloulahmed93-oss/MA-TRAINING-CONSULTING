@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Digitalization Contact Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 5px; text-align: center; }
+        .loading { color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Test d'Intégration - Digitalization Contact System</h1>
+        <p>Test complet du système de gestion des contacts pour la page de digitalisation</p>
+
+        <!-- API Health Check -->
+        <div class="test-section">
+            <h2>🏥 État de Santé du Backend</h2>
+            <button class="btn-primary" onclick="checkBackendHealth()">Vérifier Backend</button>
+            <div id="health-status" class="loading">En attente...</div>
+        </div>
+
+        <!-- Contact API Tests -->
+        <div class="test-section">
+            <h2>📞 Tests API Contact</h2>
+            <div style="margin: 10px 0;">
+                <button class="btn-primary" onclick="testGetContact()">GET Contact</button>
+                <button class="btn-success" onclick="testUpdateContact()">PUT Update</button>
+                <button class="btn-warning" onclick="testLinksGeneration()">Test Liens</button>
+                <button class="btn-danger" onclick="testResetContact()">Reset Default</button>
+            </div>
+            <div id="contact-results"></div>
+        </div>
+
+        <!-- Live Contact Data -->
+        <div class="test-section">
+            <h2>📋 Données de Contact en Direct</h2>
+            <button class="btn-primary" onclick="loadContactData()">Charger Données</button>
+            <button class="btn-success" onclick="refreshContactData()">Actualiser</button>
+            <div id="contact-data"></div>
+        </div>
+
+        <!-- Links Testing -->
+        <div class="test-section">
+            <h2>🔗 Test des Liens Générés</h2>
+            <div id="links-testing"></div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="test-section">
+            <h2>📊 Statistiques</h2>
+            <button class="btn-primary" onclick="loadStats()">Charger Stats</button>
+            <div id="stats-display"></div>
+        </div>
+
+        <!-- Integration Test -->
+        <div class="test-section">
+            <h2>🧪 Test d'Intégration Complète</h2>
+            <button class="btn-success" onclick="runFullIntegrationTest()">Lancer Test Complet</button>
+            <div id="integration-results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/digitalization-contact';
+        let testResults = {
+            backendHealth: false,
+            contactAPI: false,
+            linksGeneration: false,
+            dataIntegrity: false
+        };
+
+        // Backend Health Check
+        async function checkBackendHealth() {
+            const statusDiv = document.getElementById('health-status');
+            statusDiv.innerHTML = '<div class="loading">🔄 Vérification du backend...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Backend opérationnel<br>
+                            <strong>Message:</strong> ${data.message}<br>
+                            <strong>Timestamp:</strong> ${data.timestamp}
+                        </div>
+                    `;
+                    testResults.backendHealth = true;
+                } else {
+                    throw new Error('Backend response not successful');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Backend non accessible<br>
+                        <strong>Erreur:</strong> ${error.message}
+                    </div>
+                `;
+                testResults.backendHealth = false;
+            }
+        }
+
+        // Test GET Contact
+        async function testGetContact() {
+            const resultsDiv = document.getElementById('contact-results');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Test GET contact...</div>';
+            
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            ✅ GET Contact réussi<br>
+                            <strong>Email:</strong> ${data.data.email}<br>
+                            <strong>Téléphone:</strong> ${data.data.phone}<br>
+                            <strong>WhatsApp:</strong> ${data.data.whatsapp}
+                        </div>
+                    `;
+                    testResults.contactAPI = true;
+                } else {
+                    throw new Error(data.message || 'Erreur API');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Erreur GET Contact: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Test Update Contact
+        async function testUpdateContact() {
+            const resultsDiv = document.getElementById('contact-results');
+            resultsDiv.innerHTML += '<div class="loading">🔄 Test PUT contact...</div>';
+            
+            const testData = {
+                email: 'test@matc-consulting.com',
+                phone: '+216 70 123 456',
+                whatsapp: '+216 70 123 456',
+                companyName: 'MATC Test',
+                supportHours: '24/7 Test',
+                responseTime: 'Test Response'
+            };
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultsDiv.innerHTML += `
+                        <div class="success">
+                            ✅ PUT Contact réussi<br>
+                            Contact mis à jour avec les données de test
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'Erreur PUT');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="error">
+                        ❌ Erreur PUT Contact: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Test Links Generation
+        async function testLinksGeneration() {
+            const resultsDiv = document.getElementById('contact-results');
+            resultsDiv.innerHTML += '<div class="loading">🔄 Test génération liens...</div>';
+            
+            const testData = {
+                email: 'test@matc-consulting.com',
+                phone: '+216 70 123 456',
+                whatsapp: '+216 70 123 456',
+                customSubject: 'Test Subject'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/test-links`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const linksDiv = document.getElementById('links-testing');
+                    linksDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Génération de liens réussie<br>
+                            <strong>Email:</strong> <a href="${data.data.links.email}" target="_blank">Tester Email</a><br>
+                            <strong>Téléphone:</strong> <a href="${data.data.links.phone}">Tester Téléphone</a><br>
+                            <strong>WhatsApp:</strong> <a href="${data.data.links.whatsapp}" target="_blank">Tester WhatsApp</a>
+                        </div>
+                    `;
+                    testResults.linksGeneration = true;
+                } else {
+                    throw new Error(data.message || 'Erreur génération liens');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="error">
+                        ❌ Erreur génération liens: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Test Reset to Default
+        async function testResetContact() {
+            const resultsDiv = document.getElementById('contact-results');
+            resultsDiv.innerHTML += '<div class="loading">🔄 Test reset contact...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/reset`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultsDiv.innerHTML += `
+                        <div class="success">
+                            ✅ Reset réussi - Contact restauré aux valeurs par défaut
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'Erreur reset');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="error">
+                        ❌ Erreur reset: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Load Contact Data
+        async function loadContactData() {
+            const dataDiv = document.getElementById('contact-data');
+            dataDiv.innerHTML = '<div class="loading">🔄 Chargement données contact...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    dataDiv.innerHTML = `
+                        <div class="success">
+                            <h3>📞 Données de Contact</h3>
+                            <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                        </div>
+                    `;
+                    testResults.dataIntegrity = true;
+                } else {
+                    throw new Error(data.message || 'Erreur chargement');
+                }
+            } catch (error) {
+                dataDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Erreur chargement: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Refresh Contact Data
+        async function refreshContactData() {
+            await loadContactData();
+        }
+
+        // Load Statistics
+        async function loadStats() {
+            const statsDiv = document.getElementById('stats-display');
+            statsDiv.innerHTML = '<div class="loading">🔄 Chargement statistiques...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.data;
+                    statsDiv.innerHTML = `
+                        <div class="stats">
+                            <div class="stat-card">
+                                <h4>Total Contacts</h4>
+                                <div style="font-size: 2em; color: #007bff;">${stats.totalContacts}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Contacts Actifs</h4>
+                                <div style="font-size: 2em; color: #28a745;">${stats.activeContacts}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Statut Système</h4>
+                                <div style="font-size: 1.5em; color: #17a2b8;">${stats.systemStatus}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Dernière MAJ</h4>
+                                <div style="font-size: 0.9em;">${stats.lastUpdate ? new Date(stats.lastUpdate.date).toLocaleString() : 'N/A'}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'Erreur stats');
+                }
+            } catch (error) {
+                statsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Erreur statistiques: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Full Integration Test
+        async function runFullIntegrationTest() {
+            const resultsDiv = document.getElementById('integration-results');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Lancement du test d\'intégration complet...</div>';
+            
+            // Reset test results
+            testResults = {
+                backendHealth: false,
+                contactAPI: false,
+                linksGeneration: false,
+                dataIntegrity: false
+            };
+            
+            // Run all tests
+            await checkBackendHealth();
+            await testGetContact();
+            await testLinksGeneration();
+            await loadContactData();
+            await loadStats();
+            
+            // Calculate success rate
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(result => result).length;
+            const successRate = Math.round((passedTests / totalTests) * 100);
+            
+            // Display results
+            const statusClass = successRate >= 75 ? 'success' : successRate >= 50 ? 'info' : 'error';
+            const statusIcon = successRate >= 75 ? '✅' : successRate >= 50 ? '⚠️' : '❌';
+            
+            resultsDiv.innerHTML = `
+                <div class="${statusClass}">
+                    <h3>${statusIcon} Résultats du Test d'Intégration</h3>
+                    <p><strong>Taux de Réussite:</strong> ${successRate}% (${passedTests}/${totalTests} tests réussis)</p>
+                    
+                    <h4>Détail des Tests:</h4>
+                    <ul>
+                        <li>Backend Health: ${testResults.backendHealth ? '✅' : '❌'}</li>
+                        <li>Contact API: ${testResults.contactAPI ? '✅' : '❌'}</li>
+                        <li>Génération Liens: ${testResults.linksGeneration ? '✅' : '❌'}</li>
+                        <li>Intégrité Données: ${testResults.dataIntegrity ? '✅' : '❌'}</li>
+                    </ul>
+                    
+                    ${successRate >= 75 ? 
+                        '<p><strong>🎉 Système prêt pour la production!</strong></p>' : 
+                        '<p><strong>⚠️ Des améliorations sont nécessaires.</strong></p>'
+                    }
+                </div>
+            `;
+        }
+
+        // Auto-run health check on page load
+        window.addEventListener('load', () => {
+            checkBackendHealth();
+        });
+    </script>
+</body>
+</html>

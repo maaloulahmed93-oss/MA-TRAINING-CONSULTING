@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Freelance Issue - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .button.freelance {
+            background: #059669;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .comparison-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .formateur-header {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .freelance-header {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Freelance Issue</h1>
+        <p>Diagnostic pour comprendre pourquoi le tab Freelance ne charge pas ses données</p>
+
+        <div>
+            <button class="button" onclick="checkLocalStorage()">Vérifier localStorage</button>
+            <button class="button" onclick="forceResetData()">Force Reset Données</button>
+            <button class="button freelance" onclick="testFreelanceData()">Test Données Freelance</button>
+            <button class="button" onclick="compareFormateur()">Comparer Formateur vs Freelance</button>
+        </div>
+
+        <div id="results"></div>
+        
+        <div id="comparison-section"></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'partner_extra_info_v1';
+        
+        const CORRECT_FREELANCE_DATA = {
+            title: 'Freelance',
+            subtitle: 'Collaborez avec nous en tant que freelance',
+            intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+            icon: '💻',
+            color: 'green',
+            gradient: 'from-green-500 to-green-600',
+            details: [
+                'Missions adaptées à votre expertise',
+                'Collaboration flexible et agile',
+                'Facturation simple et transparente'
+            ],
+            requirements: [
+                'Portfolio démontrant vos compétences',
+                'Expérience en freelancing ou projets indépendants',
+                'Capacité à respecter les délais',
+                'Communication professionnelle',
+                'Spécialisation dans un domaine technique'
+            ],
+            ctaLabel: 'Accéder à l\'Espace Freelancer',
+            contactEmail: 'freelance@matc.com',
+            mailSubject: 'Candidature Freelance - Programme de Partenariat',
+            updatedAt: new Date().toISOString()
+        };
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = 'success';
+            if (type === 'error') statusClass = 'error';
+            if (type === 'warning') statusClass = 'warning';
+            
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function checkLocalStorage() {
+            log('🔍 Vérification du localStorage...');
+            
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) {
+                log('❌ Aucune donnée trouvée dans localStorage', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(rawData);
+                const keys = Object.keys(data);
+                
+                log(`✅ localStorage contient ${keys.length} entrées: ${keys.join(', ')}`);
+                
+                if (data.freelance) {
+                    log('✅ Données Freelance trouvées');
+                    
+                    const freelanceData = data.freelance;
+                    const requiredFields = ['title', 'subtitle', 'contactEmail', 'mailSubject', 'intro'];
+                    const missingFields = requiredFields.filter(field => !freelanceData[field]);
+                    
+                    if (missingFields.length === 0) {
+                        log('✅ Tous les champs Freelance sont présents');
+                        log(`📧 Email Freelance: ${freelanceData.contactEmail}`);
+                        log(`📝 Sujet Freelance: ${freelanceData.mailSubject}`);
+                    } else {
+                        log(`❌ Champs manquants dans Freelance: ${missingFields.join(', ')}`, 'error');
+                    }
+                } else {
+                    log('❌ Aucune donnée Freelance trouvée', 'error');
+                }
+                
+                // Afficher les données brutes
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML += `<div class="data-display">Données brutes localStorage:\n${JSON.stringify(data, null, 2)}</div>`;
+                
+            } catch (error) {
+                log(`❌ Erreur parsing localStorage: ${error.message}`, 'error');
+            }
+        }
+
+        function forceResetData() {
+            log('🔄 Force reset des données...');
+            
+            const fullData = {
+                formateur: {
+                    title: 'Formateur',
+                    subtitle: 'Rejoignez notre équipe de formateurs experts',
+                    intro: 'Rejoignez notre équipe de formateurs experts et partagez vos connaissances avec nos apprenants.',
+                    icon: '📘',
+                    color: 'blue',
+                    gradient: 'from-blue-500 to-blue-600',
+                    details: [
+                        'Encadrer des sessions en présentiel et à distance',
+                        'Concevoir des supports pédagogiques de qualité',
+                        'Évaluer et suivre la progression des apprenants'
+                    ],
+                    requirements: [
+                        'Minimum 3 ans d\'expérience dans votre domaine',
+                        'Diplôme ou certifications reconnues',
+                        'Excellentes compétences pédagogiques',
+                        'Disponibilité flexible pour les formations',
+                        'Maîtrise des outils numériques'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Formateur',
+                    contactEmail: 'formateur@matc.com',
+                    mailSubject: 'Candidature Formateur - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                },
+                freelance: CORRECT_FREELANCE_DATA,
+                commercial: {
+                    title: 'Commercial / Affilié',
+                    subtitle: 'Devenez notre partenaire commercial',
+                    intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
+                    icon: '📈',
+                    color: 'orange',
+                    gradient: 'from-orange-500 to-orange-600',
+                    details: [
+                        'Programme de commissions motivant',
+                        'Outils marketing fournis',
+                        'Suivi et reporting dédiés'
+                    ],
+                    requirements: [
+                        'Expérience en vente ou marketing',
+                        'Réseau professionnel développé',
+                        'Compétences en négociation',
+                        'Motivation et esprit entrepreneurial',
+                        'Connaissance du secteur de la formation'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Commercial',
+                    contactEmail: 'commercial@matc.com',
+                    mailSubject: 'Candidature Commercial/Affilié - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                },
+                entreprise: {
+                    title: 'Entreprise / École',
+                    subtitle: 'Établissez un partenariat institutionnel',
+                    intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
+                    icon: '🏢',
+                    color: 'purple',
+                    gradient: 'from-purple-500 to-purple-600',
+                    details: [
+                        'Programmes adaptés aux objectifs',
+                        'Accompagnement et suivi personnalisés',
+                        'Modalités intra/inter-entreprise'
+                    ],
+                    requirements: [
+                        'Entreprise ou institution éducative établie',
+                        'Besoin récurrent en formation',
+                        'Capacité de collaboration à long terme',
+                        'Budget dédié à la formation',
+                        'Engagement dans le développement des compétences'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Partenariat',
+                    contactEmail: 'entreprise@matc.com',
+                    mailSubject: 'Partenariat Institutionnel - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                }
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(fullData));
+            log('✅ Données complètes sauvegardées dans localStorage');
+            log('🔄 Rechargez maintenant l\'Admin Panel pour voir les changements');
+        }
+
+        function testFreelanceData() {
+            log('🧪 Test spécifique des données Freelance...');
+            
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            const freelanceData = data.freelance;
+            
+            if (!freelanceData) {
+                log('❌ Aucune donnée Freelance trouvée', 'error');
+                return;
+            }
+
+            // Test chaque champ
+            const tests = [
+                { field: 'title', expected: 'Freelance', actual: freelanceData.title },
+                { field: 'contactEmail', expected: 'freelance@matc.com', actual: freelanceData.contactEmail },
+                { field: 'mailSubject', expected: 'Candidature Freelance - Programme de Partenariat', actual: freelanceData.mailSubject },
+                { field: 'color', expected: 'green', actual: freelanceData.color },
+                { field: 'icon', expected: '💻', actual: freelanceData.icon }
+            ];
+
+            let allPassed = true;
+            tests.forEach(test => {
+                if (test.actual === test.expected) {
+                    log(`✅ ${test.field}: OK (${test.actual})`);
+                } else {
+                    log(`❌ ${test.field}: Expected "${test.expected}", got "${test.actual}"`, 'error');
+                    allPassed = false;
+                }
+            });
+
+            if (allPassed) {
+                log('🎉 Tous les tests Freelance réussis!');
+            } else {
+                log('⚠️ Certains tests Freelance ont échoué', 'warning');
+            }
+        }
+
+        function compareFormateur() {
+            log('🔍 Comparaison Formateur vs Freelance...');
+            
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            const formateur = data.formateur;
+            const freelance = data.freelance;
+            
+            if (!formateur || !freelance) {
+                log('❌ Données manquantes pour la comparaison', 'error');
+                return;
+            }
+
+            const comparisonDiv = document.getElementById('comparison-section');
+            comparisonDiv.innerHTML = `
+                <h3>Comparaison des données:</h3>
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-header formateur-header">📘 FORMATEUR</div>
+                        <div><strong>Titre:</strong> ${formateur.title}</div>
+                        <div><strong>Email:</strong> ${formateur.contactEmail}</div>
+                        <div><strong>Sujet:</strong> ${formateur.mailSubject}</div>
+                        <div><strong>Couleur:</strong> ${formateur.color}</div>
+                        <div><strong>Icon:</strong> ${formateur.icon}</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-header freelance-header">💻 FREELANCE</div>
+                        <div><strong>Titre:</strong> ${freelance.title}</div>
+                        <div><strong>Email:</strong> ${freelance.contactEmail}</div>
+                        <div><strong>Sujet:</strong> ${freelance.mailSubject}</div>
+                        <div><strong>Couleur:</strong> ${freelance.color}</div>
+                        <div><strong>Icon:</strong> ${freelance.icon}</div>
+                    </div>
+                </div>
+            `;
+
+            // Vérifier si les données sont identiques (problème!)
+            if (formateur.contactEmail === freelance.contactEmail) {
+                log('❌ PROBLÈME: Les emails Formateur et Freelance sont identiques!', 'error');
+            } else {
+                log('✅ Les emails sont différents comme attendu');
+            }
+
+            if (formateur.mailSubject === freelance.mailSubject) {
+                log('❌ PROBLÈME: Les sujets Formateur et Freelance sont identiques!', 'error');
+            } else {
+                log('✅ Les sujets sont différents comme attendu');
+            }
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            log('🚀 Debug Tool chargé');
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

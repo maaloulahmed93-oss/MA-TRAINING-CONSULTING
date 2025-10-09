@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص مزامنة الدومينات - Admin Panel ↔ Site</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-right: 4px solid #4CAF50;
+        }
+        .test-section.error {
+            border-right-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        .test-section.warning {
+            border-right-color: #FF9800;
+            background: rgba(255, 152, 0, 0.2);
+        }
+        .test-section.success {
+            border-right-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .status {
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .loading {
+            background: rgba(255, 193, 7, 0.3);
+            color: #fff;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #fff;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            color: #fff;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .data-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border-right: 3px solid #2196F3;
+        }
+        .domain-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 3px solid #9C27B0;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .comparison-table {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .comparison-header {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .step.active {
+            background: #4CAF50;
+        }
+        .step.completed {
+            background: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 تشخيص مزامنة الدومينات</h1>
+            <p>فحص شامل للتأكد من مزامنة البيانات بين Admin Panel والموقع الرئيسي</p>
+            
+            <div class="step-indicator">
+                <div class="step" id="step1">1</div>
+                <div class="step" id="step2">2</div>
+                <div class="step" id="step3">3</div>
+                <div class="step" id="step4">4</div>
+                <div class="step" id="step5">5</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Backend Health Check -->
+        <div class="test-section" id="test1">
+            <h3>🏥 الخطوة 1: فحص صحة Backend</h3>
+            <p>التحقق من أن Backend يعمل على المنفذ 3001</p>
+            <button onclick="testBackendHealth()">فحص Backend</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Step 2: Admin Panel API Test -->
+        <div class="test-section" id="test2">
+            <h3>🔧 الخطوة 2: اختبار Admin Panel API</h3>
+            <p>التحقق من أن Admin Panel يرسل البيانات لـ MongoDB</p>
+            <button onclick="testAdminPanelAPI()">اختبار Admin Panel</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Step 3: MongoDB Data Check -->
+        <div class="test-section" id="test3">
+            <h3>🗄️ الخطوة 3: فحص بيانات MongoDB</h3>
+            <p>التحقق من وجود الدومين "ded" في قاعدة البيانات</p>
+            <button onclick="checkMongoDBData()">فحص قاعدة البيانات</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Step 4: Site API Test -->
+        <div class="test-section" id="test4">
+            <h3>🌐 الخطوة 4: اختبار Site API</h3>
+            <p>التحقق من أن الموقع الرئيسي يجلب البيانات من MongoDB</p>
+            <button onclick="testSiteAPI()">اختبار الموقع</button>
+            <div id="result4"></div>
+        </div>
+
+        <!-- Step 5: Complete Sync Test -->
+        <div class="test-section" id="test5">
+            <h3>🔄 الخطوة 5: اختبار المزامنة الكاملة</h3>
+            <p>اختبار شامل للمزامنة بين Admin Panel والموقع</p>
+            <button onclick="testCompleteSync()">اختبار المزامنة الكاملة</button>
+            <div id="result5"></div>
+        </div>
+
+        <!-- Quick Fix Section -->
+        <div class="test-section" id="quickfix">
+            <h3>⚡ حلول سريعة</h3>
+            <p>إذا كانت هناك مشاكل، جرب هذه الحلول:</p>
+            <button onclick="restartBackend()">إعادة تشغيل Backend</button>
+            <button onclick="clearCache()">مسح Cache</button>
+            <button onclick="forceRefresh()">تحديث قسري</button>
+            <div id="quickfix-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/free-courses';
+        let currentStep = 1;
+
+        function updateStep(step, status = 'active') {
+            const stepElement = document.getElementById(`step${step}`);
+            stepElement.className = `step ${status}`;
+            
+            if (status === 'completed') {
+                currentStep = Math.min(step + 1, 5);
+                if (currentStep <= 5) {
+                    updateStep(currentStep, 'active');
+                }
+            }
+        }
+
+        function updateResult(testId, content, status = 'success') {
+            const resultDiv = document.getElementById(`result${testId}`);
+            resultDiv.innerHTML = content;
+            const testSection = document.getElementById(`test${testId}`);
+            testSection.className = `test-section ${status}`;
+        }
+
+        function showLoading(testId) {
+            updateResult(testId, '<div class="status loading"><div class="spinner"></div> جاري الفحص...</div>', 'warning');
+        }
+
+        async function testBackendHealth() {
+            console.log('🏥 Step 1: Testing Backend Health...');
+            showLoading(1);
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    let html = `
+                        <div class="status success">✅ Backend يعمل بنجاح</div>
+                        <div class="code-block">
+                            Status: ${response.status}<br>
+                            Response: ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                    updateResult(1, html, 'success');
+                    updateStep(1, 'completed');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div class="status error">❌ Backend غير متاح</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                    <p><strong>الحل:</strong></p>
+                    <ul>
+                        <li>تأكد من تشغيل Backend: <code>cd backend && npm start</code></li>
+                        <li>تحقق من المنفذ 3001</li>
+                        <li>تأكد من اتصال MongoDB Atlas</li>
+                    </ul>
+                `;
+                updateResult(1, html, 'error');
+            }
+        }
+
+        async function testAdminPanelAPI() {
+            console.log('🔧 Step 2: Testing Admin Panel API...');
+            showLoading(2);
+            
+            try {
+                // Test creating a domain
+                const testDomain = {
+                    domainId: 'test-sync-' + Date.now(),
+                    title: 'Test Sync Domain',
+                    icon: '🧪',
+                    description: 'Domain for testing sync'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/domains`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testDomain)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    let html = `
+                        <div class="status success">✅ Admin Panel API يعمل</div>
+                        <div class="data-card">
+                            <strong>دومين تجريبي تم إنشاؤه:</strong><br>
+                            ID: ${testDomain.domainId}<br>
+                            Title: ${testDomain.title}<br>
+                            Icon: ${testDomain.icon}
+                        </div>
+                        <div class="code-block">
+                            Response: ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                    updateResult(2, html, 'success');
+                    updateStep(2, 'completed');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div class="status error">❌ Admin Panel API لا يعمل</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                    <p><strong>المشكلة المحتملة:</strong></p>
+                    <ul>
+                        <li>Admin Panel لا يرسل للـ API</li>
+                        <li>مشكلة في CORS</li>
+                        <li>مشكلة في routes</li>
+                    </ul>
+                `;
+                updateResult(2, html, 'error');
+            }
+        }
+
+        async function checkMongoDBData() {
+            console.log('🗄️ Step 3: Checking MongoDB Data...');
+            showLoading(3);
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/domains`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const domains = data.data || [];
+                    
+                    // Look for the "ded" domain
+                    const dedDomain = domains.find(d => d.domainId === 'ded' || d.title.toLowerCase().includes('ded'));
+                    
+                    let html = `
+                        <div class="status ${dedDomain ? 'success' : 'error'}">
+                            ${dedDomain ? '✅' : '❌'} دومين "ded" ${dedDomain ? 'موجود' : 'غير موجود'} في MongoDB
+                        </div>
+                        <div class="comparison-table">
+                            <div class="comparison-row comparison-header">
+                                <div>Domain ID</div>
+                                <div>Title</div>
+                                <div>Icon</div>
+                            </div>
+                            ${domains.map(domain => `
+                                <div class="comparison-row ${domain.domainId === 'ded' ? 'success' : ''}">
+                                    <div>${domain.domainId}</div>
+                                    <div>${domain.title}</div>
+                                    <div>${domain.icon}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p><strong>إجمالي الدومينات في MongoDB:</strong> ${domains.length}</p>
+                    `;
+                    
+                    updateResult(3, html, dedDomain ? 'success' : 'error');
+                    if (dedDomain) updateStep(3, 'completed');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div class="status error">❌ لا يمكن الوصول لبيانات MongoDB</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(3, html, 'error');
+            }
+        }
+
+        async function testSiteAPI() {
+            console.log('🌐 Step 4: Testing Site API...');
+            showLoading(4);
+            
+            try {
+                const response = await fetch(`${API_BASE}/domains`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const domains = data.data || [];
+                    
+                    // Look for the "ded" domain
+                    const dedDomain = domains.find(d => d.id === 'ded' || d.title.toLowerCase().includes('ded'));
+                    
+                    let html = `
+                        <div class="status ${dedDomain ? 'success' : 'error'}">
+                            ${dedDomain ? '✅' : '❌'} دومين "ded" ${dedDomain ? 'يظهر' : 'لا يظهر'} في Site API
+                        </div>
+                        <div class="data-grid">
+                            ${domains.map(domain => `
+                                <div class="domain-item ${domain.id === 'ded' ? 'success' : ''}">
+                                    <strong>${domain.icon} ${domain.title}</strong><br>
+                                    ID: ${domain.id}<br>
+                                    Courses: ${domain.courses ? domain.courses.length : 0}<br>
+                                    Description: ${domain.description}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p><strong>إجمالي الدومينات في Site API:</strong> ${domains.length}</p>
+                    `;
+                    
+                    updateResult(4, html, dedDomain ? 'success' : 'error');
+                    if (dedDomain) updateStep(4, 'completed');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div class="status error">❌ Site API لا يعمل</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(4, html, 'error');
+            }
+        }
+
+        async function testCompleteSync() {
+            console.log('🔄 Step 5: Testing Complete Sync...');
+            showLoading(5);
+            
+            try {
+                // Test the complete flow
+                const [adminResponse, siteResponse] = await Promise.all([
+                    fetch(`${API_BASE}/admin/domains`),
+                    fetch(`${API_BASE}/domains`)
+                ]);
+
+                if (adminResponse.ok && siteResponse.ok) {
+                    const adminData = await adminResponse.json();
+                    const siteData = await siteResponse.json();
+                    
+                    const adminDomains = adminData.data || [];
+                    const siteDomains = siteData.data || [];
+                    
+                    const syncIssues = [];
+                    
+                    // Check for domains in admin but not in site
+                    adminDomains.forEach(adminDomain => {
+                        const found = siteDomains.find(siteDomain => 
+                            siteDomain.id === adminDomain.domainId || 
+                            siteDomain.title === adminDomain.title
+                        );
+                        if (!found) {
+                            syncIssues.push(`❌ دومين "${adminDomain.title}" موجود في Admin لكن غير موجود في Site`);
+                        }
+                    });
+                    
+                    let html = `
+                        <div class="status ${syncIssues.length === 0 ? 'success' : 'error'}">
+                            ${syncIssues.length === 0 ? '✅ المزامنة تعمل بشكل مثالي' : '❌ هناك مشاكل في المزامنة'}
+                        </div>
+                        <div class="comparison-table">
+                            <div class="comparison-row comparison-header">
+                                <div>المصدر</div>
+                                <div>عدد الدومينات</div>
+                                <div>الحالة</div>
+                            </div>
+                            <div class="comparison-row">
+                                <div>Admin Panel</div>
+                                <div>${adminDomains.length}</div>
+                                <div>✅ متصل</div>
+                            </div>
+                            <div class="comparison-row">
+                                <div>Site API</div>
+                                <div>${siteDomains.length}</div>
+                                <div>✅ متصل</div>
+                            </div>
+                        </div>
+                        
+                        ${syncIssues.length > 0 ? `
+                            <div class="status error">
+                                <strong>مشاكل المزامنة:</strong><br>
+                                ${syncIssues.join('<br>')}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="data-grid">
+                            <div class="data-card">
+                                <strong>📊 Admin Panel Domains</strong><br>
+                                ${adminDomains.map(d => `• ${d.title} (${d.domainId})`).join('<br>')}
+                            </div>
+                            <div class="data-card">
+                                <strong>🌐 Site API Domains</strong><br>
+                                ${siteDomains.map(d => `• ${d.title} (${d.id})`).join('<br>')}
+                            </div>
+                        </div>
+                    `;
+                    
+                    updateResult(5, html, syncIssues.length === 0 ? 'success' : 'error');
+                    if (syncIssues.length === 0) updateStep(5, 'completed');
+                } else {
+                    throw new Error('فشل في الاتصال بأحد الـ APIs');
+                }
+            } catch (error) {
+                let html = `
+                    <div class="status error">❌ فشل اختبار المزامنة</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(5, html, 'error');
+            }
+        }
+
+        async function restartBackend() {
+            document.getElementById('quickfix-result').innerHTML = `
+                <div class="status loading">
+                    <div class="spinner"></div>
+                    لإعادة تشغيل Backend، قم بتنفيذ الأوامر التالية:
+                </div>
+                <div class="code-block">
+                    cd backend<br>
+                    npm start
+                </div>
+            `;
+        }
+
+        async function clearCache() {
+            // Clear localStorage
+            localStorage.clear();
+            
+            document.getElementById('quickfix-result').innerHTML = `
+                <div class="status success">✅ تم مسح Cache المحلي</div>
+                <p>قم بإعادة تحديث الصفحة الآن</p>
+            `;
+        }
+
+        async function forceRefresh() {
+            document.getElementById('quickfix-result').innerHTML = `
+                <div class="status loading">
+                    <div class="spinner"></div>
+                    جاري التحديث القسري...
+                </div>
+            `;
+            
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 2000);
+        }
+
+        // Auto-start the first test
+        window.onload = function() {
+            console.log('🚀 بدء التشخيص التلقائي...');
+            setTimeout(testBackendHealth, 1000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Partnerships Display - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        .partnership-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: #f9fafb;
+        }
+        .partnership-header {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .formateur { border-left: 4px solid #3b82f6; }
+        .freelance { border-left: 4px solid #10b981; }
+        .commercial { border-left: 4px solid #f59e0b; }
+        .entreprise { border-left: 4px solid #8b5cf6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Check Partnerships Display</h1>
+        <p>Vérification de l'affichage des partenariats sur le site principal</p>
+
+        <div>
+            <button class="button" onclick="checkLocalStorage()">Vérifier localStorage</button>
+            <button class="button" onclick="testAPI()">Test API Backend</button>
+            <button class="button" onclick="simulateWebsite()">Simuler Site Principal</button>
+            <button class="button" onclick="fixAllPartnerships()">Fix Toutes les Partnerships</button>
+        </div>
+
+        <div id="results"></div>
+        
+        <div id="partnerships-preview"></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'partner_extra_info_v1';
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = 'success';
+            if (type === 'error') statusClass = 'error';
+            if (type === 'warning') statusClass = 'warning';
+            
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function checkLocalStorage() {
+            log('🔍 Vérification localStorage...');
+            
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) {
+                log('❌ Aucune donnée localStorage trouvée', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(rawData);
+                const keys = Object.keys(data);
+                
+                log(`✅ localStorage: ${keys.length} partnerships trouvées`);
+                log(`📋 Types: ${keys.join(', ')}`);
+                
+                keys.forEach(key => {
+                    const partnership = data[key];
+                    if (partnership.title && partnership.contactEmail) {
+                        log(`✅ ${key}: ${partnership.title} - ${partnership.contactEmail}`);
+                    } else {
+                        log(`❌ ${key}: Données incomplètes`, 'error');
+                    }
+                });
+                
+            } catch (error) {
+                log(`❌ Erreur parsing localStorage: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPI() {
+            log('🔍 Test API Backend...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ API: ${data.count} partnerships trouvées`);
+                    
+                    data.data.forEach(p => {
+                        log(`✅ API ${p.type}: ${p.title} - ${p.contactEmail}`);
+                    });
+                } else {
+                    log('❌ API: Échec de récupération', 'error');
+                }
+            } catch (error) {
+                log(`❌ API: Erreur connexion - ${error.message}`, 'error');
+            }
+        }
+
+        async function simulateWebsite() {
+            log('🌐 Simulation Site Principal...');
+            
+            // Simulate the website's data loading logic
+            let partnerships = [];
+            
+            // Try API first
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    partnerships = data.data.map(p => ({
+                        id: p.type,
+                        title: p.title,
+                        icon: p.icon,
+                        description: p.intro,
+                        color: p.color,
+                        contactEmail: p.contactEmail
+                    }));
+                    log(`✅ Site utiliserait API: ${partnerships.length} partnerships`);
+                } else {
+                    throw new Error('No API data');
+                }
+            } catch (error) {
+                // Fallback to localStorage
+                log('⚠️ API failed, trying localStorage fallback...', 'warning');
+                
+                const rawData = localStorage.getItem(STORAGE_KEY);
+                if (rawData) {
+                    const data = JSON.parse(rawData);
+                    partnerships = Object.keys(data).map(key => ({
+                        id: key,
+                        title: data[key].title,
+                        icon: data[key].icon,
+                        description: data[key].intro,
+                        color: data[key].color,
+                        contactEmail: data[key].contactEmail
+                    }));
+                    log(`✅ Site utiliserait localStorage: ${partnerships.length} partnerships`);
+                }
+            }
+            
+            // Display preview
+            const previewDiv = document.getElementById('partnerships-preview');
+            if (partnerships.length > 0) {
+                let html = '<h3>Aperçu Site Principal:</h3>';
+                partnerships.forEach(p => {
+                    html += `
+                        <div class="partnership-card ${p.id}">
+                            <div class="partnership-header">
+                                ${p.icon} ${p.title}
+                            </div>
+                            <div>${p.description}</div>
+                            <div style="margin-top: 10px; font-size: 12px; color: #6b7280;">
+                                Email: ${p.contactEmail || 'Non défini'}
+                            </div>
+                        </div>
+                    `;
+                });
+                previewDiv.innerHTML = html;
+            } else {
+                previewDiv.innerHTML = '<div class="status error">❌ Aucune partnership à afficher</div>';
+            }
+        }
+
+        async function fixAllPartnerships() {
+            log('🔧 Fix de toutes les partnerships...');
+            
+            const completeData = {
+                formateur: {
+                    title: 'Formateur',
+                    subtitle: 'Rejoignez notre équipe de formateurs experts',
+                    intro: 'Partagez vos connaissances avec nos apprenants et contribuez à leur réussite.',
+                    icon: '📘',
+                    color: 'blue',
+                    gradient: 'from-blue-500 to-blue-600',
+                    details: [
+                        'Encadrer des sessions en présentiel et à distance',
+                        'Concevoir des supports pédagogiques de qualité',
+                        'Évaluer et suivre la progression des apprenants'
+                    ],
+                    requirements: [
+                        'Minimum 3 ans d\'expérience dans votre domaine',
+                        'Diplôme ou certifications reconnues',
+                        'Excellentes compétences pédagogiques',
+                        'Disponibilité flexible pour les formations',
+                        'Maîtrise des outils numériques'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Formateur',
+                    contactEmail: 'formateur@matc.com',
+                    mailSubject: 'Candidature Formateur - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                },
+                freelance: {
+                    title: 'Freelance',
+                    subtitle: 'Collaborez avec nous en tant que freelance',
+                    intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+                    icon: '💻',
+                    color: 'green',
+                    gradient: 'from-green-500 to-green-600',
+                    details: [
+                        'Missions adaptées à votre expertise',
+                        'Collaboration flexible et agile',
+                        'Facturation simple et transparente'
+                    ],
+                    requirements: [
+                        'Portfolio démontrant vos compétences',
+                        'Expérience en freelancing ou projets indépendants',
+                        'Capacité à respecter les délais',
+                        'Communication professionnelle',
+                        'Spécialisation dans un domaine technique'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Freelancer',
+                    contactEmail: 'freelance@matc.com',
+                    mailSubject: 'Candidature Freelance - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                },
+                commercial: {
+                    title: 'Commercial / Affilié',
+                    subtitle: 'Devenez notre partenaire commercial',
+                    intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
+                    icon: '📈',
+                    color: 'orange',
+                    gradient: 'from-orange-500 to-orange-600',
+                    details: [
+                        'Programme de commissions motivant',
+                        'Outils marketing fournis',
+                        'Suivi et reporting dédiés'
+                    ],
+                    requirements: [
+                        'Expérience en vente ou marketing',
+                        'Réseau professionnel développé',
+                        'Compétences en négociation',
+                        'Motivation et esprit entrepreneurial',
+                        'Connaissance du secteur de la formation'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Commercial',
+                    contactEmail: 'commercial@matc.com',
+                    mailSubject: 'Candidature Commercial/Affilié - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                },
+                entreprise: {
+                    title: 'Entreprise / École',
+                    subtitle: 'Établissez un partenariat institutionnel',
+                    intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
+                    icon: '🏢',
+                    color: 'purple',
+                    gradient: 'from-purple-500 to-purple-600',
+                    details: [
+                        'Programmes adaptés aux objectifs',
+                        'Accompagnement et suivi personnalisés',
+                        'Modalités intra/inter-entreprise'
+                    ],
+                    requirements: [
+                        'Entreprise ou institution éducative établie',
+                        'Besoin récurrent en formation',
+                        'Capacité de collaboration à long terme',
+                        'Budget dédié à la formation',
+                        'Engagement dans le développement des compétences'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Partenariat',
+                    contactEmail: 'entreprise@matc.com',
+                    mailSubject: 'Partenariat Institutionnel - Programme de Partenariat',
+                    updatedAt: new Date().toISOString()
+                }
+            };
+
+            // Save to localStorage
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(completeData));
+            log('✅ localStorage mis à jour avec 4 partnerships complètes');
+
+            // Try to sync with API
+            try {
+                for (const [type, data] of Object.entries(completeData)) {
+                    const partnershipData = {
+                        type,
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        intro: data.intro,
+                        icon: data.icon,
+                        color: data.color,
+                        gradient: data.gradient,
+                        details: data.details,
+                        requirements: data.requirements,
+                        contactEmail: data.contactEmail,
+                        mailSubject: data.mailSubject
+                    };
+
+                    const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(partnershipData)
+                    });
+
+                    if (response.ok) {
+                        log(`✅ API ${type}: Synchronisé`);
+                    } else {
+                        log(`⚠️ API ${type}: Échec sync`, 'warning');
+                    }
+                }
+            } catch (error) {
+                log(`⚠️ API sync failed: ${error.message}`, 'warning');
+            }
+
+            log('🎉 Fix terminé! Rechargez le site principal maintenant.');
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            log('🚀 Partnership Display Checker chargé');
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

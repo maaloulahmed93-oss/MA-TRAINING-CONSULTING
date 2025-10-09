@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Newsletter System - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        .status-subscribed {
+            background: #d4edda;
+            color: #155724;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .status-unsubscribed {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Newsletter System - MATC</h1>
+        <p class="info">Test complet du système Newsletter (Frontend + Admin Panel)</p>
+
+        <!-- Section 1: Add Test Subscribers -->
+        <div class="section">
+            <h3>📧 1. Ajouter des abonnés de test</h3>
+            <button onclick="addTestSubscribers()">Ajouter 5 abonnés de test</button>
+            <button onclick="clearAllSubscribers()">Vider tous les abonnés</button>
+            <div id="addResult"></div>
+        </div>
+
+        <!-- Section 2: Manual Subscribe -->
+        <div class="section">
+            <h3>✉️ 2. Ajouter un abonné manuellement</h3>
+            <input type="email" id="newEmail" placeholder="email@example.com">
+            <button onclick="addSingleSubscriber()">S'abonner</button>
+            <div id="subscribeResult"></div>
+        </div>
+
+        <!-- Section 3: View All Subscribers -->
+        <div class="section">
+            <h3>👥 3. Liste des abonnés (Admin Panel View)</h3>
+            <button onclick="refreshSubscribers()">Actualiser la liste</button>
+            <div id="subscribersList"></div>
+        </div>
+
+        <!-- Section 4: Manage Subscribers -->
+        <div class="section">
+            <h3>⚙️ 4. Gestion des abonnés</h3>
+            <input type="email" id="manageEmail" placeholder="email@example.com">
+            <button onclick="unsubscribeByEmail()">Désabonner</button>
+            <button onclick="resubscribeByEmail()">Réabonner</button>
+            <div id="manageResult"></div>
+        </div>
+
+        <!-- Section 5: Statistics -->
+        <div class="section">
+            <h3>📊 5. Statistiques</h3>
+            <div id="stats"></div>
+        </div>
+    </div>
+
+    <script>
+        // Newsletter Service Functions (copied from the actual service)
+        const STORAGE_KEY = 'matc_newsletter_subscribers_v1';
+
+        const read = () => {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return [];
+                const arr = JSON.parse(raw);
+                return Array.isArray(arr) ? arr : [];
+            } catch {
+                return [];
+            }
+        };
+
+        const write = (arr) => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+        };
+
+        const getSubscribers = () => read();
+
+        const addSubscriber = (email) => {
+            const now = new Date().toISOString();
+            const all = read();
+            const lower = email.toLowerCase();
+            const existing = all.find(s => s.email.toLowerCase() === lower);
+            if (existing) {
+                if (existing.status === 'unsubscribed') {
+                    existing.status = 'subscribed';
+                    existing.updatedAt = now;
+                    write(all);
+                }
+                return existing;
+            }
+            const s = {
+                id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+                email,
+                status: 'subscribed',
+                createdAt: now,
+                updatedAt: now,
+            };
+            all.unshift(s);
+            write(all);
+            return s;
+        };
+
+        const unsubscribeByEmail = (email) => {
+            const all = read();
+            const lower = email.toLowerCase();
+            const item = all.find(s => s.email.toLowerCase() === lower);
+            if (!item) return false;
+            item.status = 'unsubscribed';
+            item.updatedAt = new Date().toISOString();
+            write(all);
+            return true;
+        };
+
+        const setSubscriberStatus = (id, status) => {
+            const all = read();
+            const idx = all.findIndex(s => s.id === id);
+            if (idx === -1) return false;
+            all[idx].status = status;
+            all[idx].updatedAt = new Date().toISOString();
+            write(all);
+            return true;
+        };
+
+        const removeSubscriber = (id) => {
+            const all = read();
+            const next = all.filter(s => s.id !== id);
+            if (next.length === all.length) return false;
+            write(next);
+            return true;
+        };
+
+        // Test Functions
+        function addTestSubscribers() {
+            const testEmails = [
+                'ahmed.benali@matc.com',
+                'fatma.trabelsi@example.com',
+                'mohamed.gharbi@test.fr',
+                'sarah.ben@matc.tn',
+                'karim.nasri@demo.com'
+            ];
+
+            let added = 0;
+            testEmails.forEach(email => {
+                const result = addSubscriber(email);
+                if (result) added++;
+            });
+
+            document.getElementById('addResult').innerHTML = 
+                `<div class="success">✅ ${added} abonnés de test ajoutés avec succès!</div>`;
+            
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function clearAllSubscribers() {
+            localStorage.removeItem(STORAGE_KEY);
+            document.getElementById('addResult').innerHTML = 
+                `<div class="info">🗑️ Tous les abonnés ont été supprimés</div>`;
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function addSingleSubscriber() {
+            const email = document.getElementById('newEmail').value.trim();
+            if (!email) {
+                document.getElementById('subscribeResult').innerHTML = 
+                    `<div class="error">❌ Veuillez entrer un email valide</div>`;
+                return;
+            }
+
+            const result = addSubscriber(email);
+            document.getElementById('subscribeResult').innerHTML = 
+                `<div class="success">✅ ${email} ajouté avec succès!</div>`;
+            
+            document.getElementById('newEmail').value = '';
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function refreshSubscribers() {
+            const subscribers = getSubscribers();
+            let html = `<p><strong>Total: ${subscribers.length} abonnés</strong></p>`;
+            
+            if (subscribers.length === 0) {
+                html += `<p class="info">Aucun abonné trouvé. Utilisez les boutons ci-dessus pour ajouter des abonnés de test.</p>`;
+            } else {
+                html += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Créé</th>
+                                <th>MAJ</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                subscribers.forEach(s => {
+                    const statusClass = s.status === 'subscribed' ? 'status-subscribed' : 'status-unsubscribed';
+                    const createdDate = new Date(s.createdAt).toLocaleString('fr-FR');
+                    const updatedDate = new Date(s.updatedAt).toLocaleString('fr-FR');
+                    
+                    html += `
+                        <tr>
+                            <td>${s.email}</td>
+                            <td><span class="${statusClass}">${s.status}</span></td>
+                            <td>${createdDate}</td>
+                            <td>${updatedDate}</td>
+                            <td>
+                                <button onclick="toggleStatus('${s.id}')" style="font-size: 12px; padding: 4px 8px;">
+                                    ${s.status === 'subscribed' ? 'Unsubscribe' : 'Subscribe'}
+                                </button>
+                                <button onclick="deleteSubscriber('${s.id}')" style="font-size: 12px; padding: 4px 8px; background: #dc3545;">
+                                    Supprimer
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            document.getElementById('subscribersList').innerHTML = html;
+        }
+
+        function toggleStatus(id) {
+            const subscribers = getSubscribers();
+            const subscriber = subscribers.find(s => s.id === id);
+            if (!subscriber) return;
+            
+            const newStatus = subscriber.status === 'subscribed' ? 'unsubscribed' : 'subscribed';
+            setSubscriberStatus(id, newStatus);
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function deleteSubscriber(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet abonné ?')) return;
+            removeSubscriber(id);
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function unsubscribeByEmail() {
+            const email = document.getElementById('manageEmail').value.trim();
+            if (!email) {
+                document.getElementById('manageResult').innerHTML = 
+                    `<div class="error">❌ Veuillez entrer un email</div>`;
+                return;
+            }
+
+            const success = unsubscribeByEmail(email);
+            if (success) {
+                document.getElementById('manageResult').innerHTML = 
+                    `<div class="success">✅ ${email} désabonné avec succès</div>`;
+            } else {
+                document.getElementById('manageResult').innerHTML = 
+                    `<div class="error">❌ Email non trouvé dans la liste</div>`;
+            }
+            
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function resubscribeByEmail() {
+            const email = document.getElementById('manageEmail').value.trim();
+            if (!email) {
+                document.getElementById('manageResult').innerHTML = 
+                    `<div class="error">❌ Veuillez entrer un email</div>`;
+                return;
+            }
+
+            addSubscriber(email);
+            document.getElementById('manageResult').innerHTML = 
+                `<div class="success">✅ ${email} réabonné avec succès</div>`;
+            
+            refreshSubscribers();
+            updateStats();
+        }
+
+        function updateStats() {
+            const subscribers = getSubscribers();
+            const subscribed = subscribers.filter(s => s.status === 'subscribed').length;
+            const unsubscribed = subscribers.filter(s => s.status === 'unsubscribed').length;
+            
+            document.getElementById('stats').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #1976d2;">${subscribers.length}</div>
+                        <div>Total Abonnés</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #388e3c;">${subscribed}</div>
+                        <div>Abonnés Actifs</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #ffebee; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #d32f2f;">${unsubscribed}</div>
+                        <div>Désabonnés</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshSubscribers();
+            updateStats();
+        });
+    </script>
+</body>
+</html>

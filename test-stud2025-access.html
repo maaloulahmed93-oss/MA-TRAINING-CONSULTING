@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ID STUD2025 - Accès Cours Gratuits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        .success {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .status {
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .loading {
+            background: rgba(255, 193, 7, 0.3);
+            color: #fff;
+        }
+        input {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        .id-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .id-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Test ID d'Accès STUD2025</h1>
+        <p>Test pour vérifier que le nouvel ID <strong>STUD2025</strong> fonctionne correctement</p>
+
+        <!-- Test 1: Vérification des IDs dans coursesData -->
+        <div class="test-section" id="test1">
+            <h3>📋 Test 1: IDs Disponibles dans coursesData.ts</h3>
+            <button onclick="testCoursesData()">Vérifier IDs Disponibles</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: Simulation validation comme dans FreeCourseModal -->
+        <div class="test-section" id="test2">
+            <h3>🔐 Test 2: Validation ID (Simulation FreeCourseModal)</h3>
+            <input type="text" id="testId" placeholder="Entrez un ID (ex: STUD2025)" value="STUD2025">
+            <button onclick="testValidation()">Valider ID</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: Test Backend API (si disponible) -->
+        <div class="test-section" id="test3">
+            <h3>🌐 Test 3: Validation via Backend API</h3>
+            <button onclick="testBackendValidation()">Tester API Backend</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Test 4: Test complet workflow -->
+        <div class="test-section" id="test4">
+            <h3>🎯 Test 4: Workflow Complet</h3>
+            <button onclick="testCompleteWorkflow()">Test Workflow Complet</button>
+            <div id="result4"></div>
+        </div>
+    </div>
+
+    <script>
+        // Simulation des données coursesData (copie de la structure)
+        const coursesData = {
+            validAccessIds: [
+                'DEMO2024',
+                'FREE-ACCESS',
+                'STUDENT-2024',
+                'TRIAL-COURSE',
+                'GRATUIT-2024',
+                'STUD2025'  // Nouvel ID ajouté
+            ]
+        };
+
+        function updateResult(testId, content, isSuccess = true) {
+            const resultDiv = document.getElementById(`result${testId}`);
+            resultDiv.innerHTML = content;
+            const testSection = document.getElementById(`test${testId}`);
+            testSection.className = `test-section ${isSuccess ? 'success' : 'error'}`;
+        }
+
+        function testCoursesData() {
+            console.log('🔍 Test 1: Vérification coursesData...');
+            
+            const availableIds = coursesData.validAccessIds;
+            const hasStud2025 = availableIds.includes('STUD2025');
+            
+            let html = `
+                <div class="id-list">
+                    <h4>IDs Disponibles (${availableIds.length}):</h4>
+                    ${availableIds.map(id => `
+                        <div class="id-item ${id === 'STUD2025' ? 'style="background: rgba(76, 175, 80, 0.3); font-weight: bold;"' : ''}">
+                            ${id} ${id === 'STUD2025' ? '← NOUVEAU!' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="status ${hasStud2025 ? 'success' : 'error'}">
+                    ${hasStud2025 ? '✅ STUD2025 trouvé dans coursesData!' : '❌ STUD2025 non trouvé'}
+                </div>
+            `;
+            
+            updateResult(1, html, hasStud2025);
+        }
+
+        function testValidation() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            console.log(`🔐 Test 2: Validation de l'ID: ${testId}`);
+            
+            updateResult(2, '<div class="status loading">🔄 Validation en cours...</div>');
+            
+            // Simulation du délai comme dans FreeCourseModal
+            setTimeout(() => {
+                const isValid = coursesData.validAccessIds.includes(testId);
+                
+                let html = `
+                    <div class="status ${isValid ? 'success' : 'error'}">
+                        ${isValid ? 
+                            `✅ ID "${testId}" est VALIDE!` : 
+                            `❌ ID "${testId}" est INVALIDE`
+                        }
+                    </div>
+                    <p><strong>Méthode:</strong> coursesData.validAccessIds.includes('${testId}')</p>
+                    <p><strong>Résultat:</strong> ${isValid}</p>
+                `;
+                
+                updateResult(2, html, isValid);
+            }, 1500);
+        }
+
+        async function testBackendValidation() {
+            console.log('🌐 Test 3: Test Backend API...');
+            updateResult(3, '<div class="status loading">🔄 Test connexion backend...</div>');
+            
+            try {
+                // Test 1: Health check
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                const healthOk = healthResponse.ok;
+                
+                if (!healthOk) {
+                    throw new Error('Backend non disponible');
+                }
+                
+                // Test 2: Validation STUD2025
+                const validateResponse = await fetch('http://localhost:3001/api/free-courses/validate-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accessId: 'STUD2025' })
+                });
+                
+                const validateResult = await validateResponse.json();
+                
+                let html = `
+                    <div class="status success">
+                        ✅ Backend connecté!
+                    </div>
+                    <p><strong>Health Check:</strong> ${healthOk ? '✅ OK' : '❌ Échec'}</p>
+                    <p><strong>Validation STUD2025:</strong> ${validateResult.success ? '✅ Valide' : '❌ Invalide'}</p>
+                    <p><strong>Message:</strong> ${validateResult.message || 'Aucun message'}</p>
+                `;
+                
+                updateResult(3, html, validateResult.success);
+                
+            } catch (error) {
+                console.error('❌ Erreur backend:', error);
+                let html = `
+                    <div class="status error">
+                        ❌ Backend non disponible
+                    </div>
+                    <p><strong>Erreur:</strong> ${error.message}</p>
+                    <p><strong>Solution:</strong> Démarrer le backend sur port 3001</p>
+                    <p><strong>Commande:</strong> <code>cd backend && npm start</code></p>
+                `;
+                updateResult(3, html, false);
+            }
+        }
+
+        async function testCompleteWorkflow() {
+            console.log('🎯 Test 4: Workflow complet...');
+            updateResult(4, '<div class="status loading">🔄 Test workflow complet...</div>');
+            
+            let results = [];
+            
+            // Test 1: coursesData
+            const inCoursesData = coursesData.validAccessIds.includes('STUD2025');
+            results.push(`coursesData: ${inCoursesData ? '✅' : '❌'}`);
+            
+            // Test 2: localStorage Admin Panel
+            try {
+                const adminIds = JSON.parse(localStorage.getItem('free_courses_access_ids') || '[]');
+                const inLocalStorage = adminIds.includes('STUD2025');
+                results.push(`localStorage: ${inLocalStorage ? '✅' : '❌'}`);
+            } catch (error) {
+                results.push(`localStorage: ❌ (erreur)`);
+            }
+            
+            // Test 3: Backend (si disponible)
+            try {
+                const response = await fetch('http://localhost:3001/api/free-courses/validate-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accessId: 'STUD2025' })
+                });
+                const result = await response.json();
+                results.push(`Backend: ${result.success ? '✅' : '❌'}`);
+            } catch (error) {
+                results.push(`Backend: ❌ (non disponible)`);
+            }
+            
+            const allSuccess = results.every(r => r.includes('✅'));
+            
+            let html = `
+                <div class="status ${allSuccess ? 'success' : 'error'}">
+                    ${allSuccess ? '🎉 Tous les tests réussis!' : '⚠️ Certains tests ont échoué'}
+                </div>
+                <div class="id-list">
+                    <h4>Résultats par composant:</h4>
+                    ${results.map(result => `<div class="id-item">${result}</div>`).join('')}
+                </div>
+                <p><strong>Recommandation:</strong> ${allSuccess ? 
+                    'STUD2025 devrait fonctionner partout!' : 
+                    'Vérifier la synchronisation entre les composants'
+                }</p>
+            `;
+            
+            updateResult(4, html, allSuccess);
+        }
+
+        // Auto-run test 1 au chargement
+        window.onload = function() {
+            console.log('🚀 Page chargée - Auto-test coursesData...');
+            testCoursesData();
+        };
+    </script>
+</body>
+</html>

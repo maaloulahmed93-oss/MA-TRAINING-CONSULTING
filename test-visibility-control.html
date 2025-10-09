@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Visibility Control - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #059669;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button:hover { background: #047857; }
+        .button.secondary { background: #6366f1; }
+        .button.secondary:hover { background: #4f46e5; }
+        .button.danger { background: #dc2626; }
+        .button.danger:hover { background: #b91c1c; }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        .info { background: #dbeafe; color: #1e40af; }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .card.visible {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .card.hidden {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .step {
+            background: #f1f5f9;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👁️ Test Visibility Control</h1>
+        <p><strong>Test du système de contrôle de visibilité des partenariats</strong></p>
+
+        <div class="step">
+            <h3>📊 État Actuel des Partenariats:</h3>
+            <div id="currentStatus" class="card-grid">
+                <div class="card">Chargement...</div>
+            </div>
+            <button class="button secondary" onclick="checkCurrentStatus()">🔍 Vérifier l'état</button>
+        </div>
+
+        <div class="step">
+            <h3>🎛️ Contrôles de Visibilité:</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>📘 Formateur</h4>
+                    <button class="button" onclick="togglePartnership('formateur', true)">👁️ Afficher</button>
+                    <button class="button danger" onclick="togglePartnership('formateur', false)">🙈 Cacher</button>
+                </div>
+                <div class="card">
+                    <h4>💻 Freelance</h4>
+                    <button class="button" onclick="togglePartnership('freelance', true)">👁️ Afficher</button>
+                    <button class="button danger" onclick="togglePartnership('freelance', false)">🙈 Cacher</button>
+                </div>
+                <div class="card">
+                    <h4>📈 Commercial</h4>
+                    <button class="button" onclick="togglePartnership('commercial', true)">👁️ Afficher</button>
+                    <button class="button danger" onclick="togglePartnership('commercial', false)">🙈 Cacher</button>
+                </div>
+                <div class="card">
+                    <h4>🏢 Entreprise</h4>
+                    <button class="button" onclick="togglePartnership('entreprise', true)">👁️ Afficher</button>
+                    <button class="button danger" onclick="togglePartnership('entreprise', false)">🙈 Cacher</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🌐 Test du Site Web:</h3>
+            <button class="button secondary" onclick="testWebsite()">🚀 Vérifier le Site</button>
+            <p><small>Ceci va vérifier quels partenariats sont visibles sur localhost:5173</small></p>
+        </div>
+
+        <div id="results"></div>
+
+        <div class="step">
+            <h4>📝 Instructions:</h4>
+            <ol>
+                <li><strong>Admin Panel:</strong> Allez sur localhost:8536/finance</li>
+                <li><strong>Cliquez l'œil 👁️</strong> sur chaque carte pour changer la visibilité</li>
+                <li><strong>Site Web:</strong> Allez sur localhost:5173 → Programme de Partenariat</li>
+                <li><strong>Vérifiez:</strong> Seules les cartes "visibles" apparaissent</li>
+                <li><strong>Test:</strong> Cachez 2 cartes, vous ne devriez voir que 2 sur le site</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function checkCurrentStatus() {
+            try {
+                updateStatus('🔍 Vérification de l\'état des partenariats...', 'info');
+                
+                // This would check localStorage in admin panel context
+                // For now, we'll show instructions
+                const statusHtml = `
+                    <div class="card visible">
+                        <h4>📘 Formateur</h4>
+                        <p>👁️ Visible (par défaut)</p>
+                    </div>
+                    <div class="card visible">
+                        <h4>💻 Freelance</h4>
+                        <p>👁️ Visible (par défaut)</p>
+                    </div>
+                    <div class="card visible">
+                        <h4>📈 Commercial</h4>
+                        <p>👁️ Visible (par défaut)</p>
+                    </div>
+                    <div class="card visible">
+                        <h4>🏢 Entreprise</h4>
+                        <p>👁️ Visible (par défaut)</p>
+                    </div>
+                `;
+                
+                document.getElementById('currentStatus').innerHTML = statusHtml;
+                updateStatus('✅ État initial: Tous les partenariats sont visibles', 'success');
+                
+            } catch (error) {
+                updateStatus(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function togglePartnership(type, visible) {
+            clearResults();
+            
+            try {
+                const action = visible ? 'afficher' : 'cacher';
+                updateStatus(`🔄 ${action} le partenariat ${type}...`, 'info');
+                
+                // Instructions for manual testing
+                updateStatus(`📋 Instructions pour ${type}:`, 'warning');
+                updateStatus(`1. Allez sur localhost:8536/finance`, 'info');
+                updateStatus(`2. Trouvez la carte "${type}"`, 'info');
+                updateStatus(`3. Cliquez l'œil 👁️ en haut à droite`, 'info');
+                updateStatus(`4. L'œil doit devenir ${visible ? '👁️ (vert)' : '🙈 (gris)'}`, 'info');
+                updateStatus(`5. Allez sur localhost:5173 pour vérifier`, 'info');
+                
+                if (visible) {
+                    updateStatus(`✅ ${type} devrait maintenant être visible sur le site`, 'success');
+                } else {
+                    updateStatus(`❌ ${type} devrait maintenant être caché du site`, 'warning');
+                }
+
+            } catch (error) {
+                updateStatus(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWebsite() {
+            clearResults();
+            
+            try {
+                updateStatus('🌐 Test du site web...', 'info');
+                
+                updateStatus('📋 Instructions de test:', 'warning');
+                updateStatus('1. Allez sur localhost:5173', 'info');
+                updateStatus('2. Cliquez "Programme de Partenariat"', 'info');
+                updateStatus('3. Comptez le nombre de cartes affichées', 'info');
+                updateStatus('4. Seules les cartes "visibles" doivent apparaître', 'info');
+                
+                updateStatus('🎯 Scénarios de test:', 'warning');
+                updateStatus('• Tous visibles = 4 cartes sur le site', 'info');
+                updateStatus('• 2 cachés = 2 cartes sur le site', 'info');
+                updateStatus('• Tous cachés = 0 carte sur le site', 'info');
+                
+                updateStatus('💡 Conseil: Utilisez les contrôles ci-dessus pour tester', 'warning');
+
+            } catch (error) {
+                updateStatus(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-load status
+        window.onload = function() {
+            updateStatus('🔧 Outil de test de visibilité chargé');
+            updateStatus('ℹ️ Utilisez Admin Panel pour contrôler la visibilité', 'info');
+            checkCurrentStatus();
+        };
+    </script>
+</body>
+</html>

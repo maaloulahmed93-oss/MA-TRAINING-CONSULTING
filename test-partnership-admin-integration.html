@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partnership Admin Integration - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #4F46E5;
+            margin-top: 0;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .button.success {
+            background: #059669;
+        }
+        .button.warning {
+            background: #D97706;
+        }
+        .button.danger {
+            background: #DC2626;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .partnership-preview {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            background: white;
+        }
+        .partnership-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+        .formateur { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .freelance { background: linear-gradient(135deg, #10b981, #047857); }
+        .commercial { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .entreprise { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        
+        .partnership-icon {
+            font-size: 32px;
+        }
+        .partnership-title {
+            font-size: 20px;
+        }
+        .partnership-description {
+            color: #374151;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .details-section {
+            margin: 15px 0;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .section-title.details {
+            color: #059669;
+        }
+        .section-title.conditions {
+            color: #3b82f6;
+        }
+        .list-item {
+            margin: 5px 0;
+            padding-left: 15px;
+            color: #4b5563;
+            font-size: 14px;
+        }
+        .success {
+            color: #059669;
+            font-weight: bold;
+        }
+        .error {
+            color: #DC2626;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            border-bottom-color: #4F46E5;
+            color: #4F46E5;
+            font-weight: bold;
+        }
+        .tab:hover {
+            background-color: #f3f4f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤝 Test Partnership Admin Integration</h1>
+            <p>Test du système d'intégration entre Admin Panel et Site Principal</p>
+        </div>
+
+        <div class="section">
+            <h3>🔧 Contrôles du système</h3>
+            <button class="button" onclick="loadDefaultData()">Charger données par défaut</button>
+            <button class="button success" onclick="testIntegration()">Tester l'intégration</button>
+            <button class="button warning" onclick="exportData()">Exporter données</button>
+            <button class="button danger" onclick="clearData()">Effacer données</button>
+            <div id="system-status"></div>
+        </div>
+
+        <div class="section">
+            <h3>📝 Simulateur Admin Panel</h3>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('formateur')">Formateur</div>
+                <div class="tab" onclick="switchTab('freelance')">Freelance</div>
+                <div class="tab" onclick="switchTab('commercial')">Commercial</div>
+                <div class="tab" onclick="switchTab('entreprise')">Entreprise</div>
+            </div>
+
+            <div id="admin-form">
+                <!-- Le formulaire sera généré dynamiquement -->
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🌐 Aperçu Site Principal</h3>
+            <div id="website-preview">
+                <!-- L'aperçu sera généré dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'partner_extra_info_v1';
+        let currentTab = 'formateur';
+
+        const DEFAULT_DATA = {
+            formateur: {
+                title: 'Formateur',
+                subtitle: 'Rejoignez notre équipe de formateurs experts',
+                intro: 'Rejoignez notre équipe de formateurs experts et partagez vos connaissances avec nos apprenants.',
+                icon: '📘',
+                color: 'blue',
+                gradient: 'from-blue-500 to-blue-600',
+                details: [
+                    'Encadrer des sessions en présentiel et à distance',
+                    'Concevoir des supports pédagogiques de qualité',
+                    'Évaluer et suivre la progression des apprenants',
+                ],
+                requirements: [
+                    'Minimum 3 ans d\'expérience dans votre domaine',
+                    'Diplôme ou certifications reconnues',
+                    'Excellentes compétences pédagogiques',
+                    'Disponibilité flexible pour les formations',
+                    'Maîtrise des outils numériques',
+                ],
+                ctaLabel: 'Accéder à l\'Espace Formateur',
+                contactEmail: 'ahmedmaalou78l@gmail.com',
+                mailSubject: 'Candidature Formateur - Programme de Partenariat',
+                updatedAt: new Date().toISOString(),
+            },
+            freelance: {
+                title: 'Freelance',
+                subtitle: 'Collaborez avec nous en tant que freelance',
+                intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+                icon: '💻',
+                color: 'green',
+                gradient: 'from-green-500 to-green-600',
+                details: [
+                    'Missions adaptées à votre expertise',
+                    'Collaboration flexible et agile',
+                    'Facturation simple et transparente',
+                ],
+                requirements: [
+                    'Portfolio démontrant vos compétences',
+                    'Expérience en freelancing ou projets indépendants',
+                    'Capacité à respecter les délais',
+                    'Communication professionnelle',
+                    'Spécialisation dans un domaine technique',
+                ],
+                ctaLabel: 'Accéder à l\'Espace Freelancer',
+                contactEmail: 'ahmedmaalou78l@gmail.com',
+                mailSubject: 'Candidature Freelance - Programme de Partenariat',
+                updatedAt: new Date().toISOString(),
+            },
+            commercial: {
+                title: 'Commercial / Affilié',
+                subtitle: 'Devenez notre partenaire commercial',
+                intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
+                icon: '📈',
+                color: 'orange',
+                gradient: 'from-orange-500 to-orange-600',
+                details: [
+                    'Programme de commissions motivant',
+                    'Outils marketing fournis',
+                    'Suivi et reporting dédiés',
+                ],
+                requirements: [
+                    'Expérience en vente ou marketing',
+                    'Réseau professionnel développé',
+                    'Compétences en négociation',
+                    'Motivation et esprit entrepreneurial',
+                    'Connaissance du secteur de la formation',
+                ],
+                ctaLabel: 'Accéder à l\'Espace Commercial',
+                contactEmail: 'ahmedmaalou78l@gmail.com',
+                mailSubject: 'Candidature Commercial/Affilié - Programme de Partenariat',
+                updatedAt: new Date().toISOString(),
+            },
+            entreprise: {
+                title: 'Entreprise / École',
+                subtitle: 'Établissez un partenariat institutionnel',
+                intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
+                icon: '🏢',
+                color: 'purple',
+                gradient: 'from-purple-500 to-purple-600',
+                details: [
+                    'Programmes adaptés aux objectifs',
+                    'Accompagnement et suivi personnalisés',
+                    'Modalités intra/inter-entreprise',
+                ],
+                requirements: [
+                    'Entreprise ou institution éducative établie',
+                    'Besoin récurrent en formation',
+                    'Capacité de collaboration à long terme',
+                    'Budget dédié à la formation',
+                    'Engagement dans le développement des compétences',
+                ],
+                ctaLabel: 'Accéder à l\'Espace Partenariat',
+                contactEmail: 'ahmedmaalou78l@gmail.com',
+                mailSubject: 'Partenariat Institutionnel - Programme de Partenariat',
+                updatedAt: new Date().toISOString(),
+            },
+        };
+
+        function loadDefaultData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
+            document.getElementById('system-status').innerHTML = `
+                <div class="success">✅ Données par défaut chargées avec succès</div>
+            `;
+            renderAdminForm();
+            renderWebsitePreview();
+        }
+
+        function testIntegration() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            const statusDiv = document.getElementById('system-status');
+            
+            if (!data) {
+                statusDiv.innerHTML = `<div class="error">❌ Aucune donnée trouvée. Chargez d'abord les données par défaut.</div>`;
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(data);
+                let results = '<h4>Résultats du test d\'intégration:</h4>';
+                let allGood = true;
+
+                const requiredFields = ['title', 'subtitle', 'intro', 'icon', 'color', 'gradient', 'details', 'requirements', 'ctaLabel', 'contactEmail', 'mailSubject'];
+                
+                Object.keys(parsed).forEach(key => {
+                    const partner = parsed[key];
+                    results += `<div><strong>${key.toUpperCase()}:</strong> `;
+                    
+                    const missingFields = requiredFields.filter(field => 
+                        !partner[field] || (Array.isArray(partner[field]) && partner[field].length === 0)
+                    );
+                    
+                    if (missingFields.length === 0) {
+                        results += `<span class="success">✅ Tous les champs OK</span>`;
+                    } else {
+                        results += `<span class="error">❌ Champs manquants: ${missingFields.join(', ')}</span>`;
+                        allGood = false;
+                    }
+                    results += '</div>';
+                });
+
+                if (allGood) {
+                    results += `<div class="success"><h4>🎉 Intégration parfaite! Le système est prêt.</h4></div>`;
+                } else {
+                    results += `<div class="error"><h4>⚠️ Certains champs nécessitent attention.</h4></div>`;
+                }
+
+                statusDiv.innerHTML = results;
+            } catch (e) {
+                statusDiv.innerHTML = `<div class="error">❌ Erreur lors du test: ${e.message}</div>`;
+            }
+        }
+
+        function exportData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'partnership-data.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                document.getElementById('system-status').innerHTML = `
+                    <div class="success">✅ Données exportées avec succès</div>
+                `;
+            } else {
+                document.getElementById('system-status').innerHTML = `
+                    <div class="error">❌ Aucune donnée à exporter</div>
+                `;
+            }
+        }
+
+        function clearData() {
+            if (confirm('Êtes-vous sûr de vouloir effacer toutes les données?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.getElementById('system-status').innerHTML = `
+                    <div class="success">✅ Données effacées</div>
+                `;
+                renderAdminForm();
+                renderWebsitePreview();
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab appearance
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderAdminForm();
+        }
+
+        function renderAdminForm() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            const partnerData = data[currentTab] || {};
+            
+            const formHtml = `
+                <div class="form-group">
+                    <label>Titre</label>
+                    <input type="text" id="title" value="${partnerData.title || ''}" onchange="updateField('title', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Sous-titre</label>
+                    <input type="text" id="subtitle" value="${partnerData.subtitle || ''}" onchange="updateField('subtitle', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Introduction</label>
+                    <textarea id="intro" onchange="updateField('intro', this.value)">${partnerData.intro || ''}</textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Icône</label>
+                        <input type="text" id="icon" value="${partnerData.icon || ''}" onchange="updateField('icon', this.value)" placeholder="📘">
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur</label>
+                        <select id="color" onchange="updateField('color', this.value)">
+                            <option value="blue" ${partnerData.color === 'blue' ? 'selected' : ''}>Bleu</option>
+                            <option value="green" ${partnerData.color === 'green' ? 'selected' : ''}>Vert</option>
+                            <option value="orange" ${partnerData.color === 'orange' ? 'selected' : ''}>Orange</option>
+                            <option value="purple" ${partnerData.color === 'purple' ? 'selected' : ''}>Violet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gradient</label>
+                        <input type="text" id="gradient" value="${partnerData.gradient || ''}" onchange="updateField('gradient', this.value)" placeholder="from-blue-500 to-blue-600">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email de contact</label>
+                    <input type="email" id="contactEmail" value="${partnerData.contactEmail || ''}" onchange="updateField('contactEmail', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Sujet de l'email</label>
+                    <input type="text" id="mailSubject" value="${partnerData.mailSubject || ''}" onchange="updateField('mailSubject', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Label du bouton</label>
+                    <input type="text" id="ctaLabel" value="${partnerData.ctaLabel || ''}" onchange="updateField('ctaLabel', this.value)">
+                </div>
+                <button class="button success" onclick="saveChanges()">Enregistrer les modifications</button>
+            `;
+            
+            document.getElementById('admin-form').innerHTML = formHtml;
+        }
+
+        function updateField(field, value) {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            if (!data[currentTab]) data[currentTab] = {};
+            data[currentTab][field] = value;
+            data[currentTab].updatedAt = new Date().toISOString();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function saveChanges() {
+            renderWebsitePreview();
+            document.getElementById('system-status').innerHTML = `
+                <div class="success">✅ Modifications sauvegardées pour ${currentTab}</div>
+            `;
+        }
+
+        function renderWebsitePreview() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            const previewDiv = document.getElementById('website-preview');
+            
+            if (Object.keys(data).length === 0) {
+                previewDiv.innerHTML = '<p>Aucune donnée à prévisualiser. Chargez d\'abord les données par défaut.</p>';
+                return;
+            }
+
+            let html = '<h4>Aperçu des cartes de partenariat:</h4>';
+            
+            Object.keys(data).forEach(key => {
+                const partner = data[key];
+                html += `
+                    <div class="partnership-preview">
+                        <div class="partnership-header ${key}">
+                            <span class="partnership-icon">${partner.icon || '❓'}</span>
+                            <div>
+                                <div class="partnership-title">${partner.title || 'Titre manquant'}</div>
+                                <div style="font-size: 14px; opacity: 0.9;">${partner.subtitle || 'Sous-titre manquant'}</div>
+                            </div>
+                        </div>
+                        <div class="partnership-description">${partner.intro || 'Description manquante'}</div>
+                        <div class="details-section">
+                            <div class="section-title details">🔹 Points de détail :</div>
+                            ${(partner.details || []).map(detail => `<div class="list-item">• ${detail}</div>`).join('')}
+                        </div>
+                        <div class="details-section">
+                            <div class="section-title conditions">🔸 Conditions requises :</div>
+                            ${(partner.requirements || []).map(req => `<div class="list-item">• ${req}</div>`).join('')}
+                        </div>
+                        <div style="margin-top: 15px; padding: 10px; background: #f3f4f6; border-radius: 6px; font-size: 14px;">
+                            <strong>Bouton:</strong> ${partner.ctaLabel || 'Label manquant'}<br>
+                            <strong>Email:</strong> <a href="mailto:${partner.contactEmail || ''}">${partner.contactEmail || 'Email manquant'}</a><br>
+                            <strong>Sujet:</strong> ${partner.mailSubject || 'Sujet manquant'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            previewDiv.innerHTML = html;
+        }
+
+        // Initialisation
+        window.onload = function() {
+            renderAdminForm();
+            renderWebsitePreview();
+        };
+    </script>
+</body>
+</html>

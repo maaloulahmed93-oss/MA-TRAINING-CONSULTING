@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Visibility Fix - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        .info { background: #dbeafe; color: #1e40af; }
+        
+        .step {
+            background: #f1f5f9;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .demo-button {
+            display: inline-block;
+            padding: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+            margin: 0 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .visible-btn {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+        
+        .hidden-btn {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Visibility Fix</h1>
+        <p><strong>Vérification que le système de visibilité fonctionne maintenant</strong></p>
+
+        <div class="status success">
+            ✅ <strong>Corrections appliquées:</strong><br>
+            • Ajout de logs de débogage<br>
+            • Gestion de backward compatibility<br>
+            • Force refresh après changement<br>
+            • Validation des données
+        </div>
+
+        <div class="step">
+            <h3>🎯 Ce qui a été corrigé:</h3>
+            
+            <h4>❌ Problème identifié:</h4>
+            <ul>
+                <li>Les données localStorage n'avaient pas le champ <code>isVisible</code></li>
+                <li>La fonction <code>toggleVisibility</code> ne fonctionnait pas</li>
+                <li>Pas de feedback visuel lors du clic</li>
+            </ul>
+            
+            <h4>✅ Solutions appliquées:</h4>
+            <ul>
+                <li><strong>Backward compatibility:</strong> Ajoute automatiquement <code>isVisible: true</code></li>
+                <li><strong>Logs de débogage:</strong> Console logs pour tracer les problèmes</li>
+                <li><strong>Force refresh:</strong> Recharge la page après changement</li>
+                <li><strong>Validation:</strong> Vérifie les données avant utilisation</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>🧪 Test maintenant:</h3>
+            
+            <ol style="line-height: 1.8;">
+                <li><strong>Allez sur Admin Panel:</strong> <code>localhost:8536/finance</code></li>
+                <li><strong>Ouvrez la Console:</strong> F12 → Console</li>
+                <li><strong>Cliquez une œil:</strong> 
+                    <span class="demo-button visible-btn">👁️</span>
+                    → Devrait devenir →
+                    <span class="demo-button hidden-btn">🚫</span>
+                </li>
+                <li><strong>Vérifiez la Console:</strong> Vous devriez voir:
+                    <ul>
+                        <li><code>🔄 Toggling visibility for [category]</code></li>
+                        <li><code>Current category data: {...}</code></li>
+                        <li><code>Updated data: {...}</code></li>
+                    </ul>
+                </li>
+                <li><strong>Popup de confirmation:</strong> Devrait apparaître</li>
+                <li><strong>Page se recharge:</strong> Automatiquement</li>
+                <li><strong>Bouton change:</strong> Nouvelle couleur et icône</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>🎮 Scénarios de test:</h3>
+            
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <h4>Test 1: Cacher Freelance</h4>
+                <ol>
+                    <li>Cliquez l'œil de "Freelance" 👁️</li>
+                    <li>Devrait devenir 🚫 rouge</li>
+                    <li>Popup: "🚫 Freelance est maintenant CACHÉ du site web!"</li>
+                    <li>Page se recharge</li>
+                    <li>Allez sur localhost:5173 → Plus que 3 cartes</li>
+                </ol>
+            </div>
+            
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <h4>Test 2: Réafficher Freelance</h4>
+                <ol>
+                    <li>Cliquez le bouton rouge 🚫 de "Freelance"</li>
+                    <li>Devrait redevenir 👁️ vert</li>
+                    <li>Popup: "👁️ Freelance est maintenant VISIBLE sur le site web!"</li>
+                    <li>Page se recharge</li>
+                    <li>Allez sur localhost:5173 → 4 cartes à nouveau</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🔍 Si ça ne marche toujours pas:</h3>
+            
+            <div class="status warning">
+                <strong>Actions de dépannage:</strong><br>
+                1. <strong>Vider le cache:</strong> Ctrl+Shift+R dans Admin Panel<br>
+                2. <strong>Vider localStorage:</strong> F12 → Application → Local Storage → Clear<br>
+                3. <strong>Redémarrer Admin Panel:</strong> <code>npm run dev</code><br>
+                4. <strong>Vérifier Console:</strong> Rechercher les erreurs rouges
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>✅ Résultat attendu:</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f8fafc;">
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Action</th>
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Résultat Admin Panel</th>
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Résultat Site Web</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Clic sur 👁️</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Devient 🚫 rouge</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Carte disparaît</td>
+                </tr>
+                <tr style="background: #f8fafc;">
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Clic sur 🚫</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Devient 👁️ vert</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Carte réapparaît</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

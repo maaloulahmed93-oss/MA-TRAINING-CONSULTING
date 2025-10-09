@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Fix - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        .info { background: #dbeafe; color: #1e40af; }
+        
+        .button {
+            background: #059669;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button:hover { background: #047857; }
+        .button.secondary { background: #6366f1; }
+        .button.secondary:hover { background: #4f46e5; }
+        
+        .step {
+            background: #f1f5f9;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+            margin: 15px 0;
+        }
+        
+        .code {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Backend Fix</h1>
+        <p><strong>Vérification que le Backend fonctionne après correction du syntax error</strong></p>
+
+        <div class="status success">
+            ✅ <strong>Problème corrigé:</strong><br>
+            Syntax error dans partnerships.js → Fichier reconstruit proprement
+        </div>
+
+        <div class="step">
+            <h3>🧪 Tests Backend:</h3>
+            
+            <button class="button" onclick="testBackendHealth()">🏥 Test Backend Health</button>
+            <button class="button secondary" onclick="testVisibilityAPI()">👁️ Test Visibility API</button>
+            <button class="button secondary" onclick="testEmailAPI()">📧 Test Email API</button>
+            
+            <div id="results"></div>
+        </div>
+
+        <div class="step">
+            <h3>📋 Étapes de test:</h3>
+            
+            <ol style="line-height: 1.8;">
+                <li><strong>Démarrer Backend:</strong> 
+                    <div class="code">cd backend<br>npm run dev</div>
+                </li>
+                <li><strong>Vérifier Console:</strong> Pas d'erreurs, serveur sur port 3001</li>
+                <li><strong>Tester APIs:</strong> Utiliser les boutons ci-dessus</li>
+                <li><strong>Résultat attendu:</strong> Toutes les APIs répondent correctement</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>✅ APIs disponibles:</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f8fafc;">
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Endpoint</th>
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Méthode</th>
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Description</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;"><code>/api/partnerships</code></td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">GET</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Récupérer tous les partenariats</td>
+                </tr>
+                <tr style="background: #f8fafc;">
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;"><code>/api/partnerships/visibility</code></td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">GET/PUT</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Gérer la visibilité</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;"><code>/api/partnerships/global-email</code></td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">GET/PUT</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Gérer l'email global</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/partnerships';
+
+        function updateStatus(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testBackendHealth() {
+            clearResults();
+            updateStatus('🔄 Test de santé du Backend...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus('✅ Backend fonctionne correctement!', 'success');
+                    updateStatus(`📊 Partenariats disponibles: ${data.data?.length || 0}`, 'info');
+                } else {
+                    updateStatus(`❌ Backend répond avec erreur: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Impossible de contacter le Backend: ${error.message}`, 'error');
+                updateStatus('💡 Vérifiez que le Backend est démarré sur port 3001', 'warning');
+            }
+        }
+
+        async function testVisibilityAPI() {
+            clearResults();
+            updateStatus('🔄 Test de l\'API Visibility...', 'info');
+            
+            try {
+                // Test GET
+                const getResponse = await fetch(`${API_BASE}/visibility`);
+                
+                if (getResponse.ok) {
+                    const getData = await getResponse.json();
+                    updateStatus('✅ GET /visibility fonctionne', 'success');
+                    updateStatus(`👁️ Paramètres actuels: ${JSON.stringify(getData.data)}`, 'info');
+                    
+                    // Test PUT
+                    const testSettings = {
+                        formateur: { isVisible: true },
+                        freelance: { isVisible: false },
+                        commercial: { isVisible: true },
+                        entreprise: { isVisible: true }
+                    };
+                    
+                    const putResponse = await fetch(`${API_BASE}/visibility`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ settings: testSettings })
+                    });
+                    
+                    if (putResponse.ok) {
+                        updateStatus('✅ PUT /visibility fonctionne', 'success');
+                        updateStatus('🎯 Test complet: API Visibility opérationnelle!', 'success');
+                    } else {
+                        updateStatus('❌ PUT /visibility échoue', 'error');
+                    }
+                } else {
+                    updateStatus('❌ GET /visibility échoue', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur API Visibility: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEmailAPI() {
+            clearResults();
+            updateStatus('🔄 Test de l\'API Email...', 'info');
+            
+            try {
+                // Test GET
+                const getResponse = await fetch(`${API_BASE}/global-email`);
+                
+                if (getResponse.ok) {
+                    const getData = await getResponse.json();
+                    updateStatus('✅ GET /global-email fonctionne', 'success');
+                    updateStatus(`📧 Email actuel: ${getData.data?.email}`, 'info');
+                    
+                    // Test PUT
+                    const testEmail = 'test@matc.com';
+                    
+                    const putResponse = await fetch(`${API_BASE}/global-email`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: testEmail })
+                    });
+                    
+                    if (putResponse.ok) {
+                        updateStatus('✅ PUT /global-email fonctionne', 'success');
+                        updateStatus('🎯 Test complet: API Email opérationnelle!', 'success');
+                    } else {
+                        updateStatus('❌ PUT /global-email échoue', 'error');
+                    }
+                } else {
+                    updateStatus('❌ GET /global-email échoue', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur API Email: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            updateStatus('🔧 Outil de test Backend chargé');
+            updateStatus('💡 Assurez-vous que le Backend est démarré avant de tester', 'warning');
+        };
+    </script>
+</body>
+</html>

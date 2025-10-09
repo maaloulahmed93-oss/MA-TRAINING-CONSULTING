@@ -5,7 +5,8 @@ const partnerSchema = new mongoose.Schema({
   partnerId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true
   },
   
   // Informations de base
@@ -19,6 +20,7 @@ const partnerSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    index: true,
     trim: true,
     lowercase: true
   },
@@ -101,7 +103,7 @@ const partnerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index pour recherche rapide par type (partnerId et email ont déjà unique: true)
+// Index pour recherche rapide par type
 partnerSchema.index({ type: 1 });
 
 const Partner = mongoose.model('Partner', partnerSchema);

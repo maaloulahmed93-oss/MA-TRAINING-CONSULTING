@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Test Debug - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        .info { background: #dbeafe; color: #1e40af; }
+        
+        .step {
+            background: #f1f5f9;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+            margin: 15px 0;
+        }
+        
+        .code {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fbbf24;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Click Test Debug</h1>
+        <p><strong>Diagnostic des problèmes de clic sur les boutons de visibilité</strong></p>
+
+        <div class="status error">
+            ⚠️ <strong>Problème identifié:</strong><br>
+            Les boutons de visibilité (👁️/🚫) ne répondent pas aux clics dans l'Admin Panel
+        </div>
+
+        <div class="step">
+            <h3>🔧 Corrections appliquées:</h3>
+            
+            <h4>1. Console logs renforcés:</h4>
+            <div class="code">
+onClick={(e) => {
+  console.log('🔥 BUTTON CLICKED!', cat);
+  e.stopPropagation();
+  e.preventDefault();
+  toggleVisibility(cat);
+}}
+            </div>
+            
+            <h4>2. Z-index élevé:</h4>
+            <div class="code">
+&lt;div className="absolute top-3 right-3 z-50"&gt;
+            </div>
+            
+            <h4>3. Styles forcés:</h4>
+            <div class="code">
+style={{ 
+  zIndex: 1000, 
+  position: 'relative',
+  pointerEvents: 'auto',
+  cursor: 'pointer'
+}}
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🧪 Test Immédiat:</h3>
+            
+            <ol style="line-height: 1.8;">
+                <li><strong>Allez sur:</strong> <span class="highlight">localhost:8536/finance</span></li>
+                <li><strong>Ouvrez Console:</strong> F12 → Console</li>
+                <li><strong>Cliquez n'importe quelle œil 👁️</strong></li>
+                <li><strong>Vérifiez Console - vous DEVEZ voir:</strong>
+                    <div class="code">
+🔥 BUTTON CLICKED! formateur
+🔥 TOGGLE FUNCTION CALLED FOR: formateur
+🔄 Toggling visibility for formateur
+Current: true, New: false
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>🎯 Diagnostic par étapes:</h3>
+            
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <h4>Étape 1: Vérifier si le bouton existe</h4>
+                <p>Dans Console, tapez:</p>
+                <div class="code">document.querySelectorAll('button').length</div>
+                <p>Devrait retourner un nombre > 0</p>
+            </div>
+            
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <h4>Étape 2: Vérifier les event listeners</h4>
+                <p>Clic droit sur un bouton œil → Inspect → Event Listeners</p>
+                <p>Devrait montrer un event "click"</p>
+            </div>
+            
+            <div style="background: #fefce8; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <h4>Étape 3: Test manuel</h4>
+                <p>Dans Console, tapez:</p>
+                <div class="code">
+document.querySelector('button[title*="VISIBLE"]').click()
+                </div>
+                <p>Devrait déclencher le clic manuellement</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🚨 Si RIEN ne marche:</h3>
+            
+            <div class="status warning">
+                <strong>Actions d'urgence:</strong><br>
+                1. <strong>Kill process:</strong> Ctrl+C dans terminal admin-panel<br>
+                2. <strong>Clear everything:</strong> rm -rf node_modules/.vite<br>
+                3. <strong>Reinstall:</strong> npm install<br>
+                4. <strong>Restart:</strong> npm run dev<br>
+                5. <strong>Hard refresh:</strong> Ctrl+Shift+R
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>✅ Résultat attendu:</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f8fafc;">
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Action</th>
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Console Output</th>
+                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Visual Change</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">Clic sur 👁️</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                        <code>🔥 BUTTON CLICKED!</code><br>
+                        <code>🔥 TOGGLE FUNCTION CALLED</code>
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                        👁️ → 🚫<br>
+                        Vert → Rouge
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <h3>🔧 Alternative de secours:</h3>
+            
+            <p>Si les boutons ne marchent toujours pas, on peut créer un <strong>menu séparé</strong> pour contrôler la visibilité:</p>
+            
+            <div style="background: #f1f5f9; padding: 15px; border-radius: 8px;">
+                <h4>Plan B: Menu de contrôle séparé</h4>
+                <ul>
+                    <li>Section dédiée avec checkboxes</li>
+                    <li>Liste des partenariats avec toggle switches</li>
+                    <li>Boutons texte au lieu d'icônes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

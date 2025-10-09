@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔍 Quick Backend Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Quick Backend Test</h1>
+    <button onclick="testBackend()">Test Backend</button>
+    <div id="result"></div>
+
+    <script>
+        async function testBackend() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<div class="info">🔄 Testing backend...</div>';
+
+            try {
+                // Test 1: Basic connection
+                const response = await fetch('https://ma-training-consulting.onrender.com/api/programs', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                result.innerHTML = `
+                    <div class="success">
+                        ✅ Backend is working!<br>
+                        Status: ${response.status}<br>
+                        Programs found: ${data.data ? data.data.length : 0}<br>
+                        Success: ${data.success}<br>
+                        Time: ${new Date().toLocaleString()}
+                    </div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        ❌ Backend test failed!<br>
+                        Error: ${error.message}<br>
+                        Time: ${new Date().toLocaleString()}
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-test on load
+        window.onload = testBackend;
+    </script>
+</body>
+</html>

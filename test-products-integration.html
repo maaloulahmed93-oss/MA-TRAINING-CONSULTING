@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Products Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .product-details {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        .product-details li {
+            margin: 5px 0;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Intégration Produits Digitalisation MATC</h1>
+        <p>Test complet de l'intégration entre Admin Panel et Site Principal pour les Produits/Démo</p>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="apiStatus">❓</div>
+                <div>Statut API</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="productsCount">0</div>
+                <div>Produits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalDetails">0</div>
+                <div>Détails Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastUpdate">-</div>
+                <div>Dernière MAJ</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 Tests API Produits</h2>
+        
+        <button onclick="testApiConnection()">🔗 Tester Connexion</button>
+        <button onclick="testGetProducts()">📥 Récupérer Produits</button>
+        <button onclick="testGetProductsForAdmin()">👨‍💼 Produits Admin</button>
+        <button onclick="testSaveProducts()">💾 Sauvegarder Test</button>
+        <button onclick="testResetProducts()">🔄 Reset Défaut</button>
+        <button onclick="testGetStatistics()">📊 Statistiques</button>
+        <button onclick="clearResults()">🗑️ Effacer</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Produits Actuels</h2>
+        <button onclick="loadCurrentProducts()">🔄 Actualiser</button>
+        <div id="currentProducts"></div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Test Création Produit Personnalisé</h2>
+        <div style="margin: 20px 0;">
+            <label>Titre Section:</label><br>
+            <input type="text" id="customTitle" value="Démo & Produits Innovants" style="width: 100%; padding: 8px; margin: 5px 0;">
+            
+            <label>Introduction:</label><br>
+            <textarea id="customIntro" style="width: 100%; padding: 8px; margin: 5px 0; height: 60px;">Découvrez nos dernières innovations et testez nos solutions avant adoption</textarea>
+            
+            <label>Produit 1 - Titre:</label><br>
+            <input type="text" id="product1Title" value="IA Assistant Pro" style="width: 100%; padding: 8px; margin: 5px 0;">
+            
+            <label>Produit 1 - Description:</label><br>
+            <input type="text" id="product1Description" value="Assistant IA personnalisé pour votre entreprise" style="width: 100%; padding: 8px; margin: 5px 0;">
+            
+            <label>Produit 1 - Image URL:</label><br>
+            <input type="text" id="product1ImageUrl" value="https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1600&auto=format&fit=crop" style="width: 100%; padding: 8px; margin: 5px 0;">
+            
+            <label>Produit 1 - Détails (séparés par des virgules):</label><br>
+            <input type="text" id="product1Details" value="IA conversationnelle avancée, Intégration multi-plateformes, Support 24/7" style="width: 100%; padding: 8px; margin: 5px 0;">
+        </div>
+        <button onclick="testCustomProduct()">🚀 Créer Produit Personnalisé</button>
+        <div id="customResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>📝 Logs d'Activité</h2>
+        <button onclick="clearLogs()">🗑️ Effacer Logs</button>
+        <pre id="activityLogs"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/digitalization-products';
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            document.getElementById('activityLogs').textContent = logs.slice(-20).join('\n');
+            console.log(logEntry);
+        }
+
+        function clearLogs() {
+            logs = [];
+            document.getElementById('activityLogs').textContent = '';
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function testApiConnection() {
+            log('Testing API connection...');
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('results', `✅ Connexion réussie! Backend: ${data.message}`, 'success');
+                    document.getElementById('apiStatus').textContent = '🟢';
+                    log('API connection successful');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('results', `❌ Erreur de connexion: ${error.message}`, 'error');
+                document.getElementById('apiStatus').textContent = '🔴';
+                log(`API connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetProducts() {
+            log('Testing GET products...');
+            try {
+                const response = await fetch(API_BASE);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('results', `✅ Produits récupérés: ${data.data.products.length} produits trouvés`, 'success');
+                        displayProducts(data.data, 'results');
+                        updateStats(data.data);
+                        log(`Products retrieved: ${data.data.products.length} products`);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('results', `❌ Erreur: ${error.message}`, 'error');
+                log(`GET products failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetProductsForAdmin() {
+            log('Testing GET products for admin...');
+            try {
+                const response = await fetch(`${API_BASE}/admin`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('results', `✅ Produits Admin récupérés: ${data.data.products.length} produits`, 'success');
+                        displayAdminProducts(data.data, 'results');
+                        log(`Admin products retrieved: ${data.data.products.length} products`);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('results', `❌ Erreur Admin: ${error.message}`, 'error');
+                log(`GET admin products failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSaveProducts() {
+            log('Testing POST products...');
+            const testData = {
+                title: 'Produits de Test',
+                intro: 'Ceci est un test d\'intégration API pour les produits',
+                products: [
+                    {
+                        id: 'test-product',
+                        title: 'Produit de Test',
+                        description: 'Description du produit de test',
+                        imageUrl: 'https://via.placeholder.com/400x300/4F46E5/FFFFFF?text=Test+Product',
+                        details: ['Fonctionnalité 1', 'Fonctionnalité 2', 'Support inclus'],
+                        mailtoSubject: 'Plus d\'infos - Produit de Test',
+                        demoLink: '#demo-test',
+                        category: 'web',
+                        isActive: true
+                    }
+                ]
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('results', '✅ Produits sauvegardés avec succès!', 'success');
+                        log('Products saved successfully');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('results', `❌ Erreur sauvegarde: ${error.message}`, 'error');
+                log(`POST products failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testResetProducts() {
+            log('Testing DELETE reset...');
+            try {
+                const response = await fetch(`${API_BASE}/reset`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('results', '✅ Produits remis par défaut!', 'success');
+                        log('Products reset to default');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('results', `❌ Erreur reset: ${error.message}`, 'error');
+                log(`DELETE reset failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetStatistics() {
+            log('Testing GET statistics...');
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('results', '✅ Statistiques récupérées!', 'success');
+                        displayStatistics(data.data, 'results');
+                        updateStatsCards(data.data);
+                        log('Statistics retrieved successfully');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('results', `❌ Erreur stats: ${error.message}`, 'error');
+                log(`GET statistics failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCustomProduct() {
+            log('Testing custom product creation...');
+            const customData = {
+                title: document.getElementById('customTitle').value,
+                intro: document.getElementById('customIntro').value,
+                products: [
+                    {
+                        id: 'custom-product-1',
+                        title: document.getElementById('product1Title').value,
+                        description: document.getElementById('product1Description').value,
+                        imageUrl: document.getElementById('product1ImageUrl').value,
+                        details: document.getElementById('product1Details').value.split(',').map(item => item.trim()),
+                        mailtoSubject: `Plus d'infos - ${document.getElementById('product1Title').value}`,
+                        demoLink: '#demo-custom',
+                        category: 'automation',
+                        isActive: true
+                    }
+                ]
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(customData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('customResult', '✅ Produit personnalisé créé avec succès!', 'success');
+                        log('Custom product created successfully');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('customResult', `❌ Erreur création: ${error.message}`, 'error');
+                log(`Custom product creation failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadCurrentProducts() {
+            log('Loading current products...');
+            try {
+                const response = await fetch(API_BASE);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        displayProducts(data.data, 'currentProducts');
+                        updateStats(data.data);
+                        log('Current products loaded');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('currentProducts').innerHTML = `<div class="status error">❌ Erreur: ${error.message}</div>`;
+                log(`Load current products failed: ${error.message}`, 'error');
+            }
+        }
+
+        function displayProducts(data, elementId) {
+            const html = `
+                <div class="product-card">
+                    <h3>${data.title}</h3>
+                    <p><em>${data.intro}</em></p>
+                    ${data.products.map(product => `
+                        <div class="product-card">
+                            <h4>🔹 ${product.title}</h4>
+                            <p><strong>Description:</strong> ${product.description}</p>
+                            <p><strong>Catégorie:</strong> ${product.category}</p>
+                            <p><strong>Image:</strong> <a href="${product.imageUrl}" target="_blank">Voir image</a></p>
+                            <p><strong>Lien démo:</strong> ${product.demoLink}</p>
+                            <ul class="product-details">
+                                ${product.details.map(detail => `<li>• ${detail}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById(elementId).innerHTML += html;
+        }
+
+        function displayAdminProducts(data, elementId) {
+            const html = `
+                <div class="product-card">
+                    <h3>📋 Format Admin</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            document.getElementById(elementId).innerHTML += html;
+        }
+
+        function displayStatistics(stats, elementId) {
+            const html = `
+                <div class="product-card">
+                    <h4>📊 Statistiques</h4>
+                    <p><strong>Produits:</strong> ${stats.totalProducts}</p>
+                    <p><strong>Détails:</strong> ${stats.totalDetails}</p>
+                    <p><strong>Dernière MAJ:</strong> ${stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : 'N/A'}</p>
+                    <p><strong>Titre:</strong> ${stats.title}</p>
+                    <p><strong>Catégories:</strong> ${JSON.stringify(stats.categories)}</p>
+                </div>
+            `;
+            document.getElementById(elementId).innerHTML += html;
+        }
+
+        function updateStats(data) {
+            document.getElementById('productsCount').textContent = data.products.length;
+            document.getElementById('totalDetails').textContent = data.products.reduce((sum, product) => sum + product.details.length, 0);
+        }
+
+        function updateStatsCards(stats) {
+            document.getElementById('productsCount').textContent = stats.totalProducts;
+            document.getElementById('totalDetails').textContent = stats.totalDetails;
+            document.getElementById('lastUpdate').textContent = stats.lastUpdated ? 
+                new Date(stats.lastUpdated).toLocaleDateString() : '-';
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('currentProducts').innerHTML = '';
+            document.getElementById('customResult').innerHTML = '';
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            log('Page loaded, starting auto-tests...');
+            testApiConnection();
+            setTimeout(() => loadCurrentProducts(), 1000);
+            setTimeout(() => testGetStatistics(), 2000);
+        };
+    </script>
+</body>
+</html>

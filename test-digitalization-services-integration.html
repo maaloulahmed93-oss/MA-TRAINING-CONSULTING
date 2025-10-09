@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Digitalization Services Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { 
+            background-color: #6c757d; 
+            cursor: not-allowed; 
+        }
+        .service-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .service-items {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        .service-items li {
+            margin: 5px 0;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Intégration Services Digitalisation MATC</h1>
+        <p>Test complet de l'intégration entre Admin Panel et Site Principal via Backend API</p>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="apiStatus">❓</div>
+                <div>Statut API</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="servicesCount">0</div>
+                <div>Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalItems">0</div>
+                <div>Items Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastUpdate">-</div>
+                <div>Dernière MAJ</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 Tests Techniques</h2>
+        
+        <div class="test-section">
+            <h3>1. Test Connexion API</h3>
+            <button onclick="testApiConnection()">🔗 Tester Connexion</button>
+            <div id="connectionResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Récupération Services</h3>
+            <button onclick="testGetServices()">📥 Récupérer Services</button>
+            <button onclick="testGetServicesForAdmin()">👨‍💼 Services Admin</button>
+            <div id="servicesResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Sauvegarde Services</h3>
+            <button onclick="testSaveServices()">💾 Sauvegarder Test</button>
+            <button onclick="testResetServices()">🔄 Reset Défaut</button>
+            <div id="saveResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Test Statistiques</h3>
+            <button onclick="testGetStatistics()">📊 Récupérer Stats</button>
+            <div id="statsResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Services Actuels</h2>
+        <button onclick="loadCurrentServices()">🔄 Actualiser</button>
+        <div id="currentServices"></div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Test Création Service Personnalisé</h2>
+        <div style="margin: 20px 0;">
+            <label>Titre Section:</label><br>
+            <input type="text" id="customTitle" value="Nos Services Personnalisés" style="width: 100%; padding: 8px; margin: 5px 0;">
+            
+            <label>Introduction:</label><br>
+            <textarea id="customIntro" style="width: 100%; padding: 8px; margin: 5px 0; height: 60px;">Services sur mesure pour votre transformation digitale</textarea>
+            
+            <label>Service 1 - Titre:</label><br>
+            <input type="text" id="service1Title" value="Développement Web Avancé" style="width: 100%; padding: 8px; margin: 5px 0;">
+            
+            <label>Service 1 - Items (séparés par des virgules):</label><br>
+            <input type="text" id="service1Items" value="React/Vue.js, API REST, Base de données" style="width: 100%; padding: 8px; margin: 5px 0;">
+        </div>
+        <button onclick="testCustomService()">🚀 Créer Service Personnalisé</button>
+        <div id="customResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>📝 Logs d'Activité</h2>
+        <button onclick="clearLogs()">🗑️ Effacer Logs</button>
+        <pre id="activityLogs"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/digitalization-services';
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            document.getElementById('activityLogs').textContent = logs.slice(-20).join('\n');
+            console.log(logEntry);
+        }
+
+        function clearLogs() {
+            logs = [];
+            document.getElementById('activityLogs').textContent = '';
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function testApiConnection() {
+            log('Testing API connection...');
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('connectionResult', `✅ Connexion réussie! Backend: ${data.message}`, 'success');
+                    document.getElementById('apiStatus').textContent = '🟢';
+                    log('API connection successful');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ Erreur de connexion: ${error.message}`, 'error');
+                document.getElementById('apiStatus').textContent = '🔴';
+                log(`API connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetServices() {
+            log('Testing GET services...');
+            try {
+                const response = await fetch(API_BASE);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('servicesResult', `✅ Services récupérés: ${data.data.services.length} services trouvés`, 'success');
+                        displayServices(data.data, 'servicesResult');
+                        updateStats(data.data);
+                        log(`Services retrieved: ${data.data.services.length} services`);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('servicesResult', `❌ Erreur: ${error.message}`, 'error');
+                log(`GET services failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetServicesForAdmin() {
+            log('Testing GET services for admin...');
+            try {
+                const response = await fetch(`${API_BASE}/admin`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('servicesResult', `✅ Services Admin récupérés: ${data.data.services.length} services`, 'success');
+                        displayAdminServices(data.data, 'servicesResult');
+                        log(`Admin services retrieved: ${data.data.services.length} services`);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('servicesResult', `❌ Erreur Admin: ${error.message}`, 'error');
+                log(`GET admin services failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSaveServices() {
+            log('Testing POST services...');
+            const testData = {
+                title: 'Services de Test',
+                intro: 'Ceci est un test d\'intégration API',
+                services: [
+                    {
+                        id: 'test-service',
+                        title: 'Service de Test',
+                        items: ['Test Item 1', 'Test Item 2', 'Test Item 3']
+                    }
+                ]
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('saveResult', '✅ Services sauvegardés avec succès!', 'success');
+                        log('Services saved successfully');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('saveResult', `❌ Erreur sauvegarde: ${error.message}`, 'error');
+                log(`POST services failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testResetServices() {
+            log('Testing DELETE reset...');
+            try {
+                const response = await fetch(`${API_BASE}/reset`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('saveResult', '✅ Services remis par défaut!', 'success');
+                        log('Services reset to default');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('saveResult', `❌ Erreur reset: ${error.message}`, 'error');
+                log(`DELETE reset failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetStatistics() {
+            log('Testing GET statistics...');
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('statsResult', '✅ Statistiques récupérées!', 'success');
+                        displayStatistics(data.data, 'statsResult');
+                        updateStatsCards(data.data);
+                        log('Statistics retrieved successfully');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('statsResult', `❌ Erreur stats: ${error.message}`, 'error');
+                log(`GET statistics failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCustomService() {
+            log('Testing custom service creation...');
+            const customData = {
+                title: document.getElementById('customTitle').value,
+                intro: document.getElementById('customIntro').value,
+                services: [
+                    {
+                        id: 'custom-service-1',
+                        title: document.getElementById('service1Title').value,
+                        items: document.getElementById('service1Items').value.split(',').map(item => item.trim())
+                    }
+                ]
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(customData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        showResult('customResult', '✅ Service personnalisé créé avec succès!', 'success');
+                        log('Custom service created successfully');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('customResult', `❌ Erreur création: ${error.message}`, 'error');
+                log(`Custom service creation failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadCurrentServices() {
+            log('Loading current services...');
+            try {
+                const response = await fetch(API_BASE);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        displayServices(data.data, 'currentServices');
+                        updateStats(data.data);
+                        log('Current services loaded');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('currentServices').innerHTML = `<div class="status error">❌ Erreur: ${error.message}</div>`;
+                log(`Load current services failed: ${error.message}`, 'error');
+            }
+        }
+
+        function displayServices(data, elementId) {
+            const html = `
+                <div class="service-card">
+                    <h3>${data.title}</h3>
+                    <p><em>${data.intro}</em></p>
+                    ${data.services.map(service => `
+                        <div class="service-card">
+                            <h4>🔹 ${service.title}</h4>
+                            <ul class="service-items">
+                                ${service.items.map(item => `<li>• ${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById(elementId).innerHTML += html;
+        }
+
+        function displayAdminServices(data, elementId) {
+            const html = `
+                <div class="service-card">
+                    <h3>📋 Format Admin</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            document.getElementById(elementId).innerHTML += html;
+        }
+
+        function displayStatistics(stats, elementId) {
+            const html = `
+                <div class="service-card">
+                    <h4>📊 Statistiques</h4>
+                    <p><strong>Services:</strong> ${stats.totalServices}</p>
+                    <p><strong>Items:</strong> ${stats.totalItems}</p>
+                    <p><strong>Dernière MAJ:</strong> ${stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : 'N/A'}</p>
+                    <p><strong>Titre:</strong> ${stats.title}</p>
+                </div>
+            `;
+            document.getElementById(elementId).innerHTML += html;
+        }
+
+        function updateStats(data) {
+            document.getElementById('servicesCount').textContent = data.services.length;
+            document.getElementById('totalItems').textContent = data.services.reduce((sum, service) => sum + service.items.length, 0);
+        }
+
+        function updateStatsCards(stats) {
+            document.getElementById('servicesCount').textContent = stats.totalServices;
+            document.getElementById('totalItems').textContent = stats.totalItems;
+            document.getElementById('lastUpdate').textContent = stats.lastUpdated ? 
+                new Date(stats.lastUpdated).toLocaleDateString() : '-';
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            log('Page loaded, starting auto-tests...');
+            testApiConnection();
+            setTimeout(() => loadCurrentServices(), 1000);
+            setTimeout(() => testGetStatistics(), 2000);
+        };
+    </script>
+</body>
+</html>

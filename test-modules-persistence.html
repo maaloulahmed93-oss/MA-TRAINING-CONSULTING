@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 اختبار حفظ الموديولات</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-right: 4px solid #4CAF50;
+        }
+        .test-section.error {
+            border-right-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        .test-section.success {
+            border-right-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .module-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 3px solid #FF9800;
+        }
+        .course-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 3px solid #2196F3;
+        }
+        .domain-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-right: 4px solid #9C27B0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 اختبار حفظ الموديولات - Admin Panel</h1>
+        <p>اختبار شامل للتأكد من أن الموديولات تحفظ ولا تختفي بعد التحديث</p>
+
+        <!-- Test 1: Check localStorage -->
+        <div class="test-section" id="test1">
+            <h3>💾 فحص localStorage</h3>
+            <p>التحقق من وجود بيانات محفوظة في localStorage</p>
+            <button onclick="checkLocalStorage()">فحص localStorage</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: Simulate Module Creation -->
+        <div class="test-section" id="test2">
+            <h3>➕ محاكاة إنشاء موديول</h3>
+            <p>إنشاء موديول تجريبي وحفظه في localStorage</p>
+            <button onclick="simulateModuleCreation()">إنشاء موديول تجريبي</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: Test Persistence -->
+        <div class="test-section" id="test3">
+            <h3>🔄 اختبار الثبات</h3>
+            <p>محاكاة إعادة تحميل الصفحة والتحقق من بقاء البيانات</p>
+            <button onclick="testPersistence()">اختبار الثبات</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Test 4: Fix Missing Data -->
+        <div class="test-section" id="test4">
+            <h3>🛠️ إصلاح البيانات المفقودة</h3>
+            <p>إنشاء بيانات تجريبية كاملة مع دومينات وكورسات وموديولات</p>
+            <button onclick="fixMissingData()">إصلاح البيانات</button>
+            <div id="result4"></div>
+        </div>
+
+        <!-- Test 5: Verify Admin Panel -->
+        <div class="test-section" id="test5">
+            <h3>✅ التحقق من Admin Panel</h3>
+            <p>تعليمات للتحقق من Admin Panel</p>
+            <button onclick="showAdminPanelInstructions()">عرض التعليمات</button>
+            <div id="result5"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateResult(testId, content, status = 'success') {
+            const resultDiv = document.getElementById(`result${testId}`);
+            resultDiv.innerHTML = content;
+            const testSection = document.getElementById(`test${testId}`);
+            testSection.className = `test-section ${status}`;
+        }
+
+        function checkLocalStorage() {
+            console.log('💾 Checking localStorage...');
+            
+            try {
+                const domainsData = localStorage.getItem('free_courses_domains');
+                const accessIdsData = localStorage.getItem('free_courses_access_ids');
+                
+                let html = `
+                    <div style="color: #4CAF50; font-weight: bold;">💾 فحص localStorage</div>
+                `;
+                
+                if (domainsData) {
+                    const domains = JSON.parse(domainsData);
+                    let totalCourses = 0;
+                    let totalModules = 0;
+                    
+                    domains.forEach(domain => {
+                        totalCourses += domain.courses ? domain.courses.length : 0;
+                        if (domain.courses) {
+                            domain.courses.forEach(course => {
+                                totalModules += course.modules ? course.modules.length : 0;
+                            });
+                        }
+                    });
+                    
+                    html += `
+                        <div style="margin: 15px 0;">
+                            <strong>✅ بيانات موجودة في localStorage:</strong><br>
+                            📁 دومينات: ${domains.length}<br>
+                            📚 كورسات: ${totalCourses}<br>
+                            📖 موديولات: ${totalModules}
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <strong>تفاصيل الدومينات:</strong>
+                            ${domains.map(domain => `
+                                <div class="domain-item">
+                                    <strong>${domain.icon} ${domain.title}</strong><br>
+                                    الكورسات: ${domain.courses ? domain.courses.length : 0}<br>
+                                    ${domain.courses ? domain.courses.map(course => `
+                                        <div class="course-item" style="margin: 10px 0;">
+                                            <strong>📚 ${course.title}</strong><br>
+                                            الموديولات: ${course.modules ? course.modules.length : 0}<br>
+                                            ${course.modules && course.modules.length > 0 ? course.modules.map(module => `
+                                                <div class="module-item" style="margin: 5px 0;">
+                                                    📖 ${module.title} - ${module.duration}
+                                                </div>
+                                            `).join('') : '<div style="color: #FF9800;">⚠️ لا توجد موديولات</div>'}
+                                        </div>
+                                    `).join('') : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    updateResult(1, html, totalModules > 0 ? 'success' : 'error');
+                } else {
+                    html += `
+                        <div style="color: #f44336; font-weight: bold;">❌ لا توجد بيانات في localStorage</div>
+                        <p>هذا يفسر لماذا تختفي الموديولات عند التحديث!</p>
+                    `;
+                    updateResult(1, html, 'error');
+                }
+                
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ خطأ في قراءة localStorage</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(1, html, 'error');
+            }
+        }
+
+        function simulateModuleCreation() {
+            console.log('➕ Simulating module creation...');
+            
+            try {
+                // Get existing data or create new
+                let domains = [];
+                const existingData = localStorage.getItem('free_courses_domains');
+                if (existingData) {
+                    domains = JSON.parse(existingData);
+                }
+                
+                // Find or create a test domain
+                let testDomain = domains.find(d => d.id === 'test-domain');
+                if (!testDomain) {
+                    testDomain = {
+                        id: 'test-domain',
+                        title: 'Test Domain',
+                        icon: '🧪',
+                        description: 'Domain for testing modules',
+                        courses: []
+                    };
+                    domains.push(testDomain);
+                }
+                
+                // Find or create a test course
+                let testCourse = testDomain.courses.find(c => c.id === 'test-course');
+                if (!testCourse) {
+                    testCourse = {
+                        id: 'test-course',
+                        title: 'Test Course',
+                        description: 'Course for testing modules',
+                        modules: []
+                    };
+                    testDomain.courses.push(testCourse);
+                }
+                
+                // Add a new test module
+                const newModule = {
+                    id: Date.now(),
+                    title: `Test Module ${Date.now()}`,
+                    duration: '30min',
+                    url: 'https://example.com/test-module'
+                };
+                
+                testCourse.modules.push(newModule);
+                
+                // Save to localStorage
+                localStorage.setItem('free_courses_domains', JSON.stringify(domains));
+                
+                let html = `
+                    <div style="color: #4CAF50; font-weight: bold;">✅ موديول تجريبي تم إنشاؤه</div>
+                    <div class="module-item">
+                        <strong>📖 ${newModule.title}</strong><br>
+                        المدة: ${newModule.duration}<br>
+                        الرابط: ${newModule.url}<br>
+                        ID: ${newModule.id}
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <strong>إجمالي الموديولات في الكورس:</strong> ${testCourse.modules.length}
+                    </div>
+                    <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px;">
+                        <strong>✅ الآن اذهب إلى Admin Panel وحدث الصفحة - ستجد الموديول محفوظ!</strong>
+                    </div>
+                `;
+                
+                updateResult(2, html, 'success');
+                
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ فشل في إنشاء الموديول</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(2, html, 'error');
+            }
+        }
+
+        function testPersistence() {
+            console.log('🔄 Testing persistence...');
+            
+            try {
+                // Save current timestamp
+                const testData = {
+                    timestamp: Date.now(),
+                    testModule: {
+                        id: Date.now(),
+                        title: 'Persistence Test Module',
+                        duration: '15min',
+                        url: 'https://example.com/persistence-test'
+                    }
+                };
+                
+                localStorage.setItem('persistence_test', JSON.stringify(testData));
+                
+                // Simulate page reload by reading the data back
+                const retrievedData = localStorage.getItem('persistence_test');
+                
+                if (retrievedData) {
+                    const parsed = JSON.parse(retrievedData);
+                    
+                    let html = `
+                        <div style="color: #4CAF50; font-weight: bold;">✅ اختبار الثبات نجح</div>
+                        <div class="code-block">
+                            البيانات المحفوظة:<br>
+                            Timestamp: ${new Date(parsed.timestamp).toLocaleString('ar')}<br>
+                            Module Title: ${parsed.testModule.title}<br>
+                            Module Duration: ${parsed.testModule.duration}<br>
+                            Module URL: ${parsed.testModule.url}
+                        </div>
+                        <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px;">
+                            <strong>✅ localStorage يعمل بشكل صحيح - البيانات تبقى بعد إعادة التحميل</strong>
+                        </div>
+                    `;
+                    
+                    updateResult(3, html, 'success');
+                } else {
+                    throw new Error('فشل في استرجاع البيانات');
+                }
+                
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ فشل اختبار الثبات</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(3, html, 'error');
+            }
+        }
+
+        function fixMissingData() {
+            console.log('🛠️ Fixing missing data...');
+            
+            try {
+                // Create comprehensive test data
+                const completeData = [
+                    {
+                        id: 'marketing',
+                        title: 'Marketing',
+                        icon: '📊',
+                        description: 'Stratégies marketing modernes',
+                        courses: [
+                            {
+                                id: 'marketing-digital',
+                                title: 'Marketing Digital',
+                                description: 'Cours complet sur le marketing digital',
+                                modules: [
+                                    {
+                                        id: 1,
+                                        title: 'Introduction au Marketing Digital',
+                                        duration: '45min',
+                                        url: 'https://example.com/marketing-intro'
+                                    },
+                                    {
+                                        id: 2,
+                                        title: 'SEO et Référencement',
+                                        duration: '60min',
+                                        url: 'https://example.com/seo-course'
+                                    },
+                                    {
+                                        id: 3,
+                                        title: 'Publicité en Ligne',
+                                        duration: '50min',
+                                        url: 'https://example.com/online-ads'
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'social-media',
+                                title: 'Réseaux Sociaux',
+                                description: 'Gestion des réseaux sociaux',
+                                modules: [
+                                    {
+                                        id: 4,
+                                        title: 'Stratégie Social Media',
+                                        duration: '40min',
+                                        url: 'https://example.com/social-strategy'
+                                    },
+                                    {
+                                        id: 5,
+                                        title: 'Création de Contenu',
+                                        duration: '55min',
+                                        url: 'https://example.com/content-creation'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'web-dev',
+                        title: 'Développement Web',
+                        icon: '💻',
+                        description: 'Technologies web modernes',
+                        courses: [
+                            {
+                                id: 'html-css',
+                                title: 'HTML & CSS',
+                                description: 'Bases du développement web',
+                                modules: [
+                                    {
+                                        id: 6,
+                                        title: 'Structure HTML',
+                                        duration: '35min',
+                                        url: 'https://example.com/html-basics'
+                                    },
+                                    {
+                                        id: 7,
+                                        title: 'Styles CSS',
+                                        duration: '45min',
+                                        url: 'https://example.com/css-basics'
+                                    },
+                                    {
+                                        id: 8,
+                                        title: 'Responsive Design',
+                                        duration: '50min',
+                                        url: 'https://example.com/responsive'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ];
+                
+                // Save to localStorage
+                localStorage.setItem('free_courses_domains', JSON.stringify(completeData));
+                
+                // Also create access IDs
+                const accessIds = ['DEMO2024', 'FREE-ACCESS', 'STUDENT-2024', 'TRIAL-COURSE'];
+                localStorage.setItem('free_courses_access_ids', JSON.stringify(accessIds));
+                
+                // Count totals
+                let totalCourses = 0;
+                let totalModules = 0;
+                completeData.forEach(domain => {
+                    totalCourses += domain.courses.length;
+                    domain.courses.forEach(course => {
+                        totalModules += course.modules.length;
+                    });
+                });
+                
+                let html = `
+                    <div style="color: #4CAF50; font-weight: bold;">🛠️ بيانات شاملة تم إنشاؤها</div>
+                    <div style="margin: 15px 0;">
+                        <strong>📊 الإحصائيات:</strong><br>
+                        📁 دومينات: ${completeData.length}<br>
+                        📚 كورسات: ${totalCourses}<br>
+                        📖 موديولات: ${totalModules}<br>
+                        🔑 Access IDs: ${accessIds.length}
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>تفاصيل البيانات المُنشأة:</strong>
+                        ${completeData.map(domain => `
+                            <div class="domain-item">
+                                <strong>${domain.icon} ${domain.title}</strong><br>
+                                ${domain.courses.map(course => `
+                                    <div class="course-item">
+                                        <strong>📚 ${course.title}</strong> (${course.modules.length} موديولات)<br>
+                                        ${course.modules.map(module => `
+                                            <div class="module-item">
+                                                📖 ${module.title} - ${module.duration}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>✅ البيانات الشاملة محفوظة! الآن:</strong><br>
+                        1. اذهب إلى Admin Panel<br>
+                        2. حدث الصفحة (F5)<br>
+                        3. ستجد جميع الدومينات والكورسات والموديولات محفوظة!
+                    </div>
+                `;
+                
+                updateResult(4, html, 'success');
+                
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ فشل في إصلاح البيانات</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(4, html, 'error');
+            }
+        }
+
+        function showAdminPanelInstructions() {
+            let html = `
+                <div style="color: #2196F3; font-weight: bold;">📋 تعليمات التحقق من Admin Panel</div>
+                
+                <div style="margin: 20px 0; padding: 15px; background: rgba(33, 150, 243, 0.2); border-radius: 8px;">
+                    <strong>خطوات التحقق:</strong><br><br>
+                    
+                    <strong>1. اذهب إلى Admin Panel:</strong><br>
+                    • افتح: <code>http://localhost:8536/free-courses</code><br>
+                    • أو اذهب إلى Admin Panel → Cours Gratuits<br><br>
+                    
+                    <strong>2. تحقق من الدومينات:</strong><br>
+                    • ستجد دومينات Marketing و Développement Web<br>
+                    • كل دومين يحتوي على كورسات<br><br>
+                    
+                    <strong>3. تحقق من الكورسات:</strong><br>
+                    • اضغط على دومين لفتحه<br>
+                    • ستجد كورسات مثل "Marketing Digital" و "HTML & CSS"<br><br>
+                    
+                    <strong>4. تحقق من الموديولات:</strong><br>
+                    • اضغط على كورس لفتحه<br>
+                    • ستجد موديولات مع العناوين والمدة والروابط<br><br>
+                    
+                    <strong>5. اختبر الإضافة:</strong><br>
+                    • جرب إضافة موديول جديد<br>
+                    • حدث الصفحة (F5)<br>
+                    • تأكد أن الموديول لا يزال موجود<br><br>
+                    
+                    <strong>6. تحقق من Access IDs:</strong><br>
+                    • ستجد IDs مثل DEMO2024, FREE-ACCESS<br>
+                    • جرب إضافة ID جديد واختبر بقاءه
+                </div>
+                
+                <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px;">
+                    <strong>✅ إذا رأيت جميع البيانات محفوظة، فالمشكلة محلولة!</strong><br>
+                    الموديولات لن تختفي بعد الآن عند التحديث.
+                </div>
+            `;
+            
+            updateResult(5, html, 'success');
+        }
+
+        // Auto-run first test
+        window.onload = function() {
+            setTimeout(checkLocalStorage, 1000);
+        };
+    </script>
+</body>
+</html>

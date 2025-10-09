@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Export Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .steps {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid #007bff;
+            background: white;
+            margin-left: 10px;
+        }
+        code {
+            background: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Export Fix - Partner Testimonials</h1>
+        <p>Vérification que le problème d'export est résolu.</p>
+
+        <div class="status success">
+            ✅ <strong>Problème identifié et corrigé!</strong><br>
+            Le fichier PartnerTestimonialsPage.tsx a été recréé avec un export default propre.
+        </div>
+
+        <div class="steps">
+            <h3>🛠️ Actions effectuées:</h3>
+            
+            <div class="step">
+                <strong>1. Backup du fichier original</strong><br>
+                <code>PartnerTestimonialsPage.tsx</code> → <code>PartnerTestimonialsPage_backup.tsx</code>
+            </div>
+            
+            <div class="step">
+                <strong>2. Création d'un nouveau fichier propre</strong><br>
+                Nouveau fichier avec syntaxe correcte et <code>export default</code> valide
+            </div>
+            
+            <div class="step">
+                <strong>3. Remplacement du fichier</strong><br>
+                Le nouveau fichier remplace l'ancien avec la même structure
+            </div>
+        </div>
+
+        <div class="status info">
+            <strong>📋 Prochaines étapes:</strong><br>
+            1. Redémarrez le serveur de développement Admin Panel<br>
+            2. Videz le cache du navigateur (Ctrl+Shift+R)<br>
+            3. Testez la page Partner Testimonials
+        </div>
+
+        <div class="steps">
+            <h3>🚀 Commandes à exécuter:</h3>
+            
+            <div class="step">
+                <strong>Dans le terminal Admin Panel:</strong><br>
+                <code>cd admin-panel</code><br>
+                <code>npm run dev</code>
+            </div>
+            
+            <div class="step">
+                <strong>Dans le navigateur:</strong><br>
+                Ouvrir: <code>http://localhost:8536/partner-testimonials</code><br>
+                Hard refresh: <code>Ctrl + Shift + R</code>
+            </div>
+        </div>
+
+        <div class="status warning">
+            <strong>⚠️ Si le problème persiste:</strong><br>
+            1. Arrêtez le serveur (Ctrl+C)<br>
+            2. Supprimez le dossier <code>node_modules/.vite</code><br>
+            3. Relancez avec <code>npm run dev --force</code>
+        </div>
+
+        <div class="status success">
+            <strong>🎯 Résultat attendu:</strong><br>
+            La page Partner Testimonials devrait maintenant se charger sans erreur d'export et afficher l'interface de gestion des témoignages.
+        </div>
+    </div>
+</body>
+</html>

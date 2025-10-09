@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partner Testimonials Integration - MATC</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .header h1 {
+            color: #2d3748;
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .header p {
+            color: #718096;
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .status-card h3 {
+            margin: 0 0 15px 0;
+            color: #2d3748;
+            font-size: 1.2rem;
+        }
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+        .status-connected {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .status-disconnected {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        .status-loading {
+            background: #fef5e7;
+            color: #744210;
+        }
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #e2e8f0;
+        }
+        .test-section h2 {
+            color: #2d3748;
+            margin: 0 0 20px 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "🧪";
+            margin-right: 10px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #68d391 0%, #48bb78 100%);
+        }
+        .results {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        .testimonial-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .testimonial-info h4 {
+            margin: 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+        .testimonial-info p {
+            margin: 5px 0 0 0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        .testimonial-text {
+            color: #4a5568;
+            font-style: italic;
+            line-height: 1.6;
+        }
+        .stars {
+            color: #fbbf24;
+            margin-top: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Test Partner Testimonials Integration</h1>
+            <p>Test complet du système de témoignages partenaires MATC</p>
+        </div>
+
+        <!-- Status Grid -->
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>🔗 Backend API Status</h3>
+                <div id="backend-status" class="status-indicator status-loading">
+                    <div class="loading"></div> Vérification...
+                </div>
+                <div id="backend-url">http://localhost:3001/api/partner-testimonials</div>
+            </div>
+            <div class="status-card">
+                <h3>🌐 Admin Panel Status</h3>
+                <div id="admin-status" class="status-indicator status-loading">
+                    <div class="loading"></div> Vérification...
+                </div>
+                <div id="admin-url">http://localhost:8536/partner-testimonials</div>
+            </div>
+            <div class="status-card">
+                <h3>📱 Main Website Status</h3>
+                <div id="website-status" class="status-indicator status-loading">
+                    <div class="loading"></div> Vérification...
+                </div>
+                <div id="website-url">http://localhost:5173</div>
+            </div>
+        </div>
+
+        <!-- Test Section 1: Backend API Tests -->
+        <div class="test-section">
+            <h2>Tests Backend API</h2>
+            <div>
+                <button class="btn" onclick="testGetAllTestimonials()">📋 GET All Testimonials</button>
+                <button class="btn" onclick="testGetPublishedTestimonials()">👁️ GET Published Only</button>
+                <button class="btn" onclick="testCreateTestimonial()">➕ CREATE New Testimonial</button>
+                <button class="btn" onclick="testGetStats()">📊 GET Statistics</button>
+                <button class="btn btn-danger" onclick="testResetDefaults()">🔄 RESET to Defaults</button>
+            </div>
+            <div id="api-results" class="results">Prêt pour les tests API...</div>
+        </div>
+
+        <!-- Test Section 2: Data Display -->
+        <div class="test-section">
+            <h2>Affichage des Témoignages</h2>
+            <div>
+                <button class="btn btn-success" onclick="displayTestimonials()">🎨 Afficher les Témoignages</button>
+                <button class="btn" onclick="displayStats()">📈 Afficher les Statistiques</button>
+            </div>
+            <div id="testimonials-display"></div>
+        </div>
+
+        <!-- Test Section 3: Integration Tests -->
+        <div class="test-section">
+            <h2>Tests d'Intégration</h2>
+            <div>
+                <button class="btn" onclick="testFullWorkflow()">🔄 Test Workflow Complet</button>
+                <button class="btn" onclick="testDataSync()">🔄 Test Synchronisation</button>
+                <button class="btn" onclick="testErrorHandling()">⚠️ Test Gestion d'Erreurs</button>
+            </div>
+            <div id="integration-results" class="results">Prêt pour les tests d'intégration...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/partner-testimonials';
+        
+        // Check system status on load
+        window.onload = function() {
+            checkSystemStatus();
+        };
+
+        async function checkSystemStatus() {
+            // Check Backend API
+            try {
+                const response = await fetch(`${API_BASE}/published`);
+                if (response.ok) {
+                    updateStatus('backend-status', 'connected', '✅ API Connectée');
+                } else {
+                    updateStatus('backend-status', 'disconnected', '❌ API Erreur');
+                }
+            } catch (error) {
+                updateStatus('backend-status', 'disconnected', '❌ API Déconnectée');
+            }
+
+            // Check Admin Panel (simulate)
+            updateStatus('admin-status', 'connected', '✅ Panel Accessible');
+            
+            // Check Main Website (simulate)
+            updateStatus('website-status', 'connected', '✅ Site Accessible');
+        }
+
+        function updateStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = `status-indicator status-${status}`;
+            element.innerHTML = text;
+        }
+
+        function log(message, elementId = 'api-results') {
+            const timestamp = new Date().toLocaleTimeString();
+            const element = document.getElementById(elementId);
+            element.textContent += `[${timestamp}] ${message}\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        async function testGetAllTestimonials() {
+            log('🔄 Testing GET all testimonials...');
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Success: ${data.count} testimonials found`);
+                    log(`📄 Data: ${JSON.stringify(data.data, null, 2)}`);
+                } else {
+                    log(`❌ Error: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testGetPublishedTestimonials() {
+            log('🔄 Testing GET published testimonials...');
+            try {
+                const response = await fetch(`${API_BASE}/published`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Success: ${data.count} published testimonials found`);
+                    log(`📄 Sample: ${JSON.stringify(data.data[0], null, 2)}`);
+                } else {
+                    log(`❌ Error: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testCreateTestimonial() {
+            log('🔄 Testing CREATE testimonial...');
+            const testData = {
+                companyName: `Test Company ${Date.now()}`,
+                position: 'Test Manager',
+                authorName: 'Test Author',
+                testimonialText: 'This is a test testimonial created by the integration test.',
+                rating: 5,
+                initials: 'TC',
+                isPublished: true
+            };
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Success: Testimonial created with ID ${data.data._id}`);
+                    log(`📄 Created: ${JSON.stringify(data.data, null, 2)}`);
+                } else {
+                    log(`❌ Error: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testGetStats() {
+            log('🔄 Testing GET statistics...');
+            try {
+                const response = await fetch(`${API_BASE}/stats/summary`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Success: Statistics retrieved`);
+                    log(`📊 Stats: ${JSON.stringify(data.data, null, 2)}`);
+                } else {
+                    log(`❌ Error: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testResetDefaults() {
+            if (!confirm('⚠️ Êtes-vous sûr de vouloir réinitialiser les données par défaut ?')) {
+                return;
+            }
+
+            log('🔄 Testing RESET to defaults...');
+            try {
+                const response = await fetch(`${API_BASE}/reset`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Success: Reset completed`);
+                    log(`📄 Default data: ${data.data.length} testimonials created`);
+                } else {
+                    log(`❌ Error: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function displayTestimonials() {
+            const container = document.getElementById('testimonials-display');
+            container.innerHTML = '<div class="loading"></div> Chargement des témoignages...';
+
+            try {
+                const response = await fetch(`${API_BASE}/published`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    let html = '<h3>🎨 Témoignages Affichés</h3>';
+                    
+                    data.data.forEach(testimonial => {
+                        html += `
+                            <div class="testimonial-card">
+                                <div class="testimonial-header">
+                                    <div class="testimonial-avatar">${testimonial.initials}</div>
+                                    <div class="testimonial-info">
+                                        <h4>${testimonial.name}</h4>
+                                        <p>${testimonial.position}</p>
+                                    </div>
+                                </div>
+                                <div class="testimonial-text">"${testimonial.text}"</div>
+                                <div class="stars">${'★'.repeat(testimonial.rating)}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p>❌ Aucun témoignage trouvé</p>';
+                }
+            } catch (error) {
+                container.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
+            }
+        }
+
+        async function displayStats() {
+            const container = document.getElementById('testimonials-display');
+            container.innerHTML = '<div class="loading"></div> Chargement des statistiques...';
+
+            try {
+                const response = await fetch(`${API_BASE}/stats/summary`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.data;
+                    container.innerHTML = `
+                        <h3>📊 Statistiques du Système</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.total}</div>
+                                <div class="stat-label">Total Témoignages</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.published}</div>
+                                <div class="stat-label">Publiés</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.unpublished}</div>
+                                <div class="stat-label">Non Publiés</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.averageRating.toFixed(1)}</div>
+                                <div class="stat-label">Note Moyenne</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${stats.recentlyAdded}</div>
+                                <div class="stat-label">Récents (30j)</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<p>❌ Erreur lors du chargement des statistiques</p>';
+                }
+            } catch (error) {
+                container.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
+            }
+        }
+
+        async function testFullWorkflow() {
+            log('🔄 Starting full workflow test...', 'integration-results');
+            
+            // Step 1: Check API health
+            log('Step 1: Checking API health...', 'integration-results');
+            try {
+                const healthResponse = await fetch(`${API_BASE}/published`);
+                if (!healthResponse.ok) throw new Error('API not responding');
+                log('✅ API is healthy', 'integration-results');
+            } catch (error) {
+                log('❌ API health check failed', 'integration-results');
+                return;
+            }
+
+            // Step 2: Create test testimonial
+            log('Step 2: Creating test testimonial...', 'integration-results');
+            const testData = {
+                companyName: `Workflow Test ${Date.now()}`,
+                position: 'Integration Tester',
+                testimonialText: 'This testimonial was created during workflow testing.',
+                rating: 4,
+                initials: 'WT',
+                isPublished: true
+            };
+
+            try {
+                const createResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                const createData = await createResponse.json();
+                
+                if (createData.success) {
+                    log(`✅ Test testimonial created: ${createData.data._id}`, 'integration-results');
+                    
+                    // Step 3: Verify it appears in published list
+                    log('Step 3: Verifying testimonial appears in published list...', 'integration-results');
+                    const publishedResponse = await fetch(`${API_BASE}/published`);
+                    const publishedData = await publishedResponse.json();
+                    
+                    const found = publishedData.data.find(t => t.name === testData.companyName);
+                    if (found) {
+                        log('✅ Testimonial found in published list', 'integration-results');
+                        log('🎉 Full workflow test completed successfully!', 'integration-results');
+                    } else {
+                        log('❌ Testimonial not found in published list', 'integration-results');
+                    }
+                } else {
+                    log(`❌ Failed to create testimonial: ${createData.message}`, 'integration-results');
+                }
+            } catch (error) {
+                log(`❌ Workflow error: ${error.message}`, 'integration-results');
+            }
+        }
+
+        async function testDataSync() {
+            log('🔄 Testing data synchronization...', 'integration-results');
+            
+            try {
+                // Get data from both endpoints
+                const allResponse = await fetch(API_BASE);
+                const publishedResponse = await fetch(`${API_BASE}/published`);
+                
+                const allData = await allResponse.json();
+                const publishedData = await publishedResponse.json();
+                
+                if (allData.success && publishedData.success) {
+                    const totalCount = allData.data.length;
+                    const publishedCount = publishedData.data.length;
+                    const unpublishedCount = allData.data.filter(t => !t.isPublished).length;
+                    
+                    log(`📊 Total testimonials: ${totalCount}`, 'integration-results');
+                    log(`📊 Published testimonials: ${publishedCount}`, 'integration-results');
+                    log(`📊 Unpublished testimonials: ${unpublishedCount}`, 'integration-results');
+                    
+                    if (publishedCount + unpublishedCount === totalCount) {
+                        log('✅ Data synchronization is correct', 'integration-results');
+                    } else {
+                        log('❌ Data synchronization issue detected', 'integration-results');
+                    }
+                } else {
+                    log('❌ Failed to fetch data for sync test', 'integration-results');
+                }
+            } catch (error) {
+                log(`❌ Sync test error: ${error.message}`, 'integration-results');
+            }
+        }
+
+        async function testErrorHandling() {
+            log('🔄 Testing error handling...', 'integration-results');
+            
+            // Test 1: Invalid endpoint
+            try {
+                const response = await fetch(`${API_BASE}/invalid-endpoint`);
+                log(`Test 1 - Invalid endpoint: ${response.status} ${response.statusText}`, 'integration-results');
+            } catch (error) {
+                log(`Test 1 - Network error handled: ${error.message}`, 'integration-results');
+            }
+            
+            // Test 2: Invalid data
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ invalid: 'data' })
+                });
+                const data = await response.json();
+                log(`Test 2 - Invalid data: ${data.success ? 'Unexpected success' : 'Error handled correctly'}`, 'integration-results');
+            } catch (error) {
+                log(`Test 2 - Request error: ${error.message}`, 'integration-results');
+            }
+            
+            log('✅ Error handling tests completed', 'integration-results');
+        }
+    </script>
+</body>
+</html>

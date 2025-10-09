@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partnerships API - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Test Partnerships API</h1>
+        <p>Test rapide de l'API Partnerships après correction des erreurs</p>
+
+        <div>
+            <button class="button" onclick="testHealth()">Test Health Check</button>
+            <button class="button" onclick="seedPartnerships()">Seed Partnerships</button>
+            <button class="button" onclick="getAllPartnerships()">Get All Partnerships</button>
+            <button class="button" onclick="testUpdate()">Test Update</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const statusClass = type === 'error' ? 'error' : 'success';
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ Backend Health Check: OK');
+                } else {
+                    log('❌ Backend Health Check: Failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Backend Connection Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function seedPartnerships() {
+            try {
+                const response = await fetch(`${API_BASE}/partnerships/seed`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Partnerships Seeded: ${data.count} partnerships created`);
+                } else {
+                    log(`❌ Seed Failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Seed Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function getAllPartnerships() {
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Partnerships Retrieved: ${data.count} partnerships found`);
+                    
+                    const resultsDiv = document.getElementById('results');
+                    let html = '<div class="code">Partnerships Data:\n';
+                    data.data.forEach(p => {
+                        html += `${p.icon} ${p.title} (${p.type}) - ${p.contactEmail}\n`;
+                    });
+                    html += '</div>';
+                    resultsDiv.innerHTML += html;
+                } else {
+                    log(`❌ Get Failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Get Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUpdate() {
+            try {
+                const testData = {
+                    title: 'Test Partnership Update',
+                    subtitle: 'Updated via API',
+                    intro: 'This is a test update from the API test page.',
+                    icon: '🧪',
+                    color: 'blue',
+                    gradient: 'from-blue-500 to-blue-600',
+                    details: ['Test detail 1', 'Test detail 2'],
+                    requirements: ['Test requirement 1', 'Test requirement 2'],
+                    contactEmail: 'test@matc.com',
+                    mailSubject: 'Test Partnership Update'
+                };
+
+                const response = await fetch(`${API_BASE}/partnerships/formateur`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ Partnership Updated Successfully');
+                } else {
+                    log(`❌ Update Failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Update Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            log('🚀 Partnership API Test Tool Loaded');
+            testHealth();
+        };
+    </script>
+</body>
+</html>

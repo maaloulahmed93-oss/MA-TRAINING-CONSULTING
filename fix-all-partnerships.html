@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix All Partnerships - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button:hover { background: #3730A3; }
+        .button.success { background: #059669; }
+        .button.danger { background: #dc2626; }
+        .button.warning { background: #d97706; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .error { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+        .warning { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        
+        .card.formateur { border-left: 4px solid #3b82f6; }
+        .card.freelance { border-left: 4px solid #10b981; }
+        .card.commercial { border-left: 4px solid #f59e0b; }
+        .card.entreprise { border-left: 4px solid #8b5cf6; }
+        
+        .card h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        
+        .card-status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .card-status.connected { background: #d1fae5; color: #065f46; }
+        .card-status.disconnected { background: #fee2e2; color: #991b1b; }
+        .card-status.partial { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix All Partnerships</h1>
+        <p>Correction du problème: seul Formateur fonctionne, les autres (Freelance, Commercial, Entreprise) ne sont pas connectés au Backend</p>
+
+        <div>
+            <button class="button" onclick="checkCurrentStatus()">Vérifier Status Actuel</button>
+            <button class="button success" onclick="fixAllPartnerships()">Fix Toutes les Partnerships</button>
+            <button class="button warning" onclick="syncAdminToBackend()">Sync Admin → Backend</button>
+            <button class="button danger" onclick="resetEverything()">Reset Complet</button>
+        </div>
+
+        <div id="results"></div>
+        
+        <div id="partnerships-grid" class="grid"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const ADMIN_STORAGE_KEY = 'partner_extra_info_v1';
+        const PARTNERSHIP_TYPES = ['formateur', 'freelance', 'commercial', 'entreprise'];
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function updatePartnershipsGrid(partnerships) {
+            const gridDiv = document.getElementById('partnerships-grid');
+            let html = '';
+            
+            PARTNERSHIP_TYPES.forEach(type => {
+                const partnership = partnerships.find(p => p.type === type);
+                const status = partnership ? 'connected' : 'disconnected';
+                const statusText = partnership ? 'Connecté au Backend' : 'Non connecté';
+                
+                html += `
+                    <div class="card ${type}">
+                        <h3>${getTypeTitle(type)}</h3>
+                        <div class="card-status ${status}">${statusText}</div>
+                        ${partnership ? `
+                            <div><strong>Titre:</strong> ${partnership.title}</div>
+                            <div><strong>Détails:</strong> ${partnership.details?.length || 0}</div>
+                            <div><strong>Conditions:</strong> ${partnership.requirements?.length || 0}</div>
+                            <div><strong>CTA:</strong> ${partnership.ctaLabel || 'N/A'}</div>
+                        ` : `
+                            <div style="color: #991b1b;">Aucune donnée Backend</div>
+                        `}
+                    </div>
+                `;
+            });
+            
+            gridDiv.innerHTML = html;
+        }
+
+        function getTypeTitle(type) {
+            switch(type) {
+                case 'formateur': return '📘 Formateur';
+                case 'freelance': return '💻 Freelance';
+                case 'commercial': return '📈 Commercial / Affilié';
+                case 'entreprise': return '🏢 Entreprise / École';
+                default: return type;
+            }
+        }
+
+        async function checkCurrentStatus() {
+            updateStatus('🔍 Vérification du status actuel...');
+            
+            try {
+                // Check Backend
+                const backendResponse = await fetch(`${API_BASE}/partnerships`);
+                const backendData = await backendResponse.json();
+                
+                if (backendData.success) {
+                    updateStatus(`📊 Backend: ${backendData.count} partnerships trouvées`);
+                    updatePartnershipsGrid(backendData.data);
+                    
+                    // Check which types are missing
+                    const existingTypes = backendData.data.map(p => p.type);
+                    const missingTypes = PARTNERSHIP_TYPES.filter(type => !existingTypes.includes(type));
+                    
+                    if (missingTypes.length > 0) {
+                        updateStatus(`⚠️ Types manquants: ${missingTypes.join(', ')}`, 'warning');
+                    } else {
+                        updateStatus('✅ Tous les types sont présents dans Backend');
+                    }
+                } else {
+                    updateStatus('❌ Backend: Erreur de récupération', 'error');
+                }
+                
+                // Check Admin Panel localStorage
+                const adminData = localStorage.getItem(ADMIN_STORAGE_KEY);
+                if (adminData) {
+                    const parsed = JSON.parse(adminData);
+                    const adminTypes = Object.keys(parsed);
+                    updateStatus(`🔧 Admin Panel: ${adminTypes.length} partnerships en localStorage`);
+                } else {
+                    updateStatus('⚠️ Admin Panel: Aucune donnée localStorage', 'warning');
+                }
+                
+            } catch (error) {
+                updateStatus(`❌ Erreur vérification: ${error.message}`, 'error');
+            }
+        }
+
+        async function fixAllPartnerships() {
+            updateStatus('🔧 Correction de toutes les partnerships...');
+            
+            const completeData = {
+                formateur: {
+                    title: 'Formateur',
+                    subtitle: 'Rejoignez notre équipe de formateurs experts',
+                    intro: 'Rejoignez notre équipe de formateurs experts et partagez vos connaissances avec nos apprenants.',
+                    icon: '📘',
+                    color: 'blue',
+                    gradient: 'from-blue-500 to-blue-600',
+                    details: [
+                        'Encadrer des sessions en présentiel et à distance',
+                        'Concevoir des supports pédagogiques de qualité',
+                        'Évaluer et suivre la progression des apprenants'
+                    ],
+                    requirements: [
+                        'Minimum 3 ans d\'expérience dans votre domaine',
+                        'Diplôme ou certifications reconnues',
+                        'Excellentes compétences pédagogiques',
+                        'Disponibilité flexible pour les formations',
+                        'Maîtrise des outils numériques'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Formateur',
+                    updatedAt: new Date().toISOString()
+                },
+                freelance: {
+                    title: 'Freelance',
+                    subtitle: 'Collaborez avec nous en tant que freelance',
+                    intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+                    icon: '💻',
+                    color: 'green',
+                    gradient: 'from-green-500 to-green-600',
+                    details: [
+                        'Missions adaptées à votre expertise',
+                        'Collaboration flexible et agile',
+                        'Facturation simple et transparente'
+                    ],
+                    requirements: [
+                        'Portfolio démontrant vos compétences',
+                        'Expérience en freelancing ou projets indépendants',
+                        'Capacité à respecter les délais',
+                        'Communication professionnelle',
+                        'Spécialisation dans un domaine technique'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Freelancer',
+                    updatedAt: new Date().toISOString()
+                },
+                commercial: {
+                    title: 'Commercial / Affilié',
+                    subtitle: 'Devenez notre partenaire commercial',
+                    intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
+                    icon: '📈',
+                    color: 'orange',
+                    gradient: 'from-orange-500 to-orange-600',
+                    details: [
+                        'Programme de commissions motivant',
+                        'Outils marketing fournis',
+                        'Suivi et reporting dédiés'
+                    ],
+                    requirements: [
+                        'Expérience en vente ou marketing',
+                        'Réseau professionnel développé',
+                        'Compétences en négociation',
+                        'Motivation et esprit entrepreneurial',
+                        'Connaissance du secteur de la formation'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Commercial',
+                    updatedAt: new Date().toISOString()
+                },
+                entreprise: {
+                    title: 'Entreprise / École',
+                    subtitle: 'Établissez un partenariat institutionnel',
+                    intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
+                    icon: '🏢',
+                    color: 'purple',
+                    gradient: 'from-purple-500 to-purple-600',
+                    details: [
+                        'Programmes adaptés aux objectifs',
+                        'Accompagnement et suivi personnalisés',
+                        'Modalités intra/inter-entreprise'
+                    ],
+                    requirements: [
+                        'Entreprise ou institution éducative établie',
+                        'Besoin récurrent en formation',
+                        'Capacité de collaboration à long terme',
+                        'Budget dédié à la formation',
+                        'Engagement dans le développement des compétences'
+                    ],
+                    ctaLabel: 'Accéder à l\'Espace Partenariat',
+                    updatedAt: new Date().toISOString()
+                }
+            };
+
+            // 1. Save to Admin Panel localStorage
+            localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(completeData));
+            updateStatus('✅ Step 1: Admin Panel localStorage mis à jour');
+
+            // 2. Sync each partnership to Backend
+            let successCount = 0;
+            for (const [type, data] of Object.entries(completeData)) {
+                try {
+                    const partnershipData = {
+                        type,
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        intro: data.intro,
+                        icon: data.icon,
+                        color: data.color,
+                        gradient: data.gradient,
+                        details: data.details,
+                        requirements: data.requirements,
+                        ctaLabel: data.ctaLabel
+                    };
+
+                    const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(partnershipData)
+                    });
+
+                    if (response.ok) {
+                        successCount++;
+                        updateStatus(`✅ ${getTypeTitle(type)}: Synchronisé avec Backend`);
+                    } else {
+                        updateStatus(`❌ ${getTypeTitle(type)}: Échec synchronisation`, 'error');
+                    }
+                } catch (error) {
+                    updateStatus(`❌ ${getTypeTitle(type)}: Erreur - ${error.message}`, 'error');
+                }
+            }
+
+            updateStatus(`🎉 Fix terminé: ${successCount}/4 partnerships synchronisées`);
+            
+            // Refresh status
+            setTimeout(() => checkCurrentStatus(), 1000);
+        }
+
+        async function syncAdminToBackend() {
+            updateStatus('🔄 Synchronisation Admin Panel → Backend...');
+            
+            const adminData = localStorage.getItem(ADMIN_STORAGE_KEY);
+            if (!adminData) {
+                updateStatus('❌ Aucune donnée Admin Panel à synchroniser', 'error');
+                return;
+            }
+
+            const parsed = JSON.parse(adminData);
+            let successCount = 0;
+
+            for (const [type, data] of Object.entries(parsed)) {
+                try {
+                    const partnershipData = {
+                        type,
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        intro: data.intro,
+                        icon: data.icon,
+                        color: data.color,
+                        gradient: data.gradient,
+                        details: data.details,
+                        requirements: data.requirements,
+                        ctaLabel: data.ctaLabel
+                    };
+
+                    const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(partnershipData)
+                    });
+
+                    if (response.ok) {
+                        successCount++;
+                    }
+                } catch (error) {
+                    console.error(`Error syncing ${type}:`, error);
+                }
+            }
+
+            updateStatus(`✅ Synchronisation terminée: ${successCount}/${Object.keys(parsed).length} partnerships`);
+            setTimeout(() => checkCurrentStatus(), 1000);
+        }
+
+        async function resetEverything() {
+            updateStatus('🗑️ Reset complet...');
+            
+            // Clear localStorage
+            localStorage.removeItem(ADMIN_STORAGE_KEY);
+            updateStatus('✅ Admin Panel localStorage nettoyé');
+            
+            // Clear Backend (if endpoint exists)
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`, {
+                    method: 'DELETE'
+                });
+                updateStatus('✅ Backend nettoyé');
+            } catch (error) {
+                updateStatus('⚠️ Backend: Nettoyage partiel', 'warning');
+            }
+            
+            updateStatus('🎯 Reset terminé - utilisez "Fix Toutes les Partnerships" maintenant');
+            updatePartnershipsGrid([]);
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            updateStatus('🚀 Fix All Partnerships chargé');
+            checkCurrentStatus();
+        };
+    </script>
+</body>
+</html>

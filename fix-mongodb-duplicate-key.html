@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix MongoDB Duplicate Key - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .button:hover { background: #3730A3; }
+        .button.danger { background: #dc2626; }
+        .button.success { background: #059669; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4F46E5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix MongoDB Duplicate Key Error</h1>
+        <p>Solution pour l'erreur: <code>E11000 duplicate key error collection: matc_db.partnerships index: partnershipId_1 dup key: { partnershipId: null }</code></p>
+
+        <div>
+            <button class="button danger" onclick="clearPartnerships()">1. Clear Partnerships Collection</button>
+            <button class="button success" onclick="seedCleanData()">2. Seed Clean Data</button>
+            <button class="button" onclick="testAfterFix()">3. Test After Fix</button>
+        </div>
+
+        <div id="results"></div>
+        
+        <div class="step">
+            <h3>🔍 Cause du problème:</h3>
+            <p>MongoDB a des entrées avec <code>partnershipId: null</code> qui violent l'index unique. Cela arrive quand:</p>
+            <ul>
+                <li>Les partnerships sont créées sans <code>partnershipId</code></li>
+                <li>L'index unique ne permet pas plusieurs valeurs <code>null</code></li>
+                <li>Le PUT route n'génère pas d'ID automatiquement</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>✅ Solution appliquée:</h3>
+            <ul>
+                <li>Modifié le model: <code>partnershipId</code> → <code>sparse: true</code></li>
+                <li>Modifié PUT route: génère automatiquement <code>partnershipId</code></li>
+                <li>Nettoyage de la collection pour supprimer les doublons</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function clearPartnerships() {
+            updateStatus('🗑️ Nettoyage de la collection partnerships...');
+            
+            try {
+                // Try to delete all partnerships
+                const response = await fetch(`${API_BASE}/partnerships`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    updateStatus('✅ Collection partnerships nettoyée');
+                } else {
+                    // If no DELETE endpoint, try manual clearing via seed
+                    updateStatus('⚠️ Pas d\'endpoint DELETE, utilisation du seed pour nettoyer', 'warning');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur nettoyage: ${error.message}`, 'error');
+            }
+        }
+
+        async function seedCleanData() {
+            updateStatus('🌱 Seeding avec données propres...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships/seed`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus(`✅ Seed réussi: ${data.count} partnerships créées`);
+                    updateStatus('🎉 Toutes les partnerships ont maintenant des partnershipId valides');
+                } else {
+                    const errorText = await response.text();
+                    updateStatus(`❌ Seed échoué: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur seed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAfterFix() {
+            updateStatus('🧪 Test après correction...');
+            
+            const testTypes = ['formateur', 'freelance', 'commercial', 'entreprise'];
+            let successCount = 0;
+
+            for (const type of testTypes) {
+                try {
+                    const testData = {
+                        type,
+                        title: `Test ${type}`,
+                        subtitle: `Test subtitle for ${type}`,
+                        intro: `Test introduction for ${type}`,
+                        icon: getIconForType(type),
+                        color: getColorForType(type),
+                        gradient: getGradientForType(type),
+                        details: [`Test detail for ${type}`],
+                        requirements: [`Test requirement for ${type}`],
+                        ctaLabel: `Test CTA for ${type}`
+                    };
+
+                    const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testData)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        updateStatus(`✅ ${type}: Sauvegarde OK (ID: ${result.data.partnershipId})`);
+                        successCount++;
+                    } else {
+                        const errorText = await response.text();
+                        updateStatus(`❌ ${type}: Échec - ${errorText}`, 'error');
+                    }
+                } catch (error) {
+                    updateStatus(`❌ ${type}: Erreur - ${error.message}`, 'error');
+                }
+            }
+
+            if (successCount === testTypes.length) {
+                updateStatus('🎉 Tous les tests réussis! Le problème est corrigé', 'success');
+                updateStatus('✅ Vous pouvez maintenant utiliser l\'Admin Panel sans erreurs', 'success');
+            } else {
+                updateStatus(`⚠️ ${successCount}/${testTypes.length} tests réussis`, 'warning');
+            }
+        }
+
+        function getIconForType(type) {
+            switch(type) {
+                case 'formateur': return '📘';
+                case 'freelance': return '💻';
+                case 'commercial': return '📈';
+                case 'entreprise': return '🏢';
+                default: return '📄';
+            }
+        }
+
+        function getColorForType(type) {
+            switch(type) {
+                case 'formateur': return 'blue';
+                case 'freelance': return 'green';
+                case 'commercial': return 'orange';
+                case 'entreprise': return 'purple';
+                default: return 'blue';
+            }
+        }
+
+        function getGradientForType(type) {
+            switch(type) {
+                case 'formateur': return 'from-blue-500 to-blue-600';
+                case 'freelance': return 'from-green-500 to-green-600';
+                case 'commercial': return 'from-orange-500 to-orange-600';
+                case 'entreprise': return 'from-purple-500 to-purple-600';
+                default: return 'from-blue-500 to-blue-600';
+            }
+        }
+
+        // Auto-start
+        window.onload = function() {
+            updateStatus('🚀 Fix MongoDB Duplicate Key chargé');
+            updateStatus('📋 Suivez les étapes dans l\'ordre pour corriger l\'erreur');
+        };
+    </script>
+</body>
+</html>

@@ -1,34 +1,47 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import {
-  ArrowLeft,
+  StarIcon,
+  CheckIcon,
+  PlayIcon,
+  BookOpenIcon,
+  UserGroupIcon,
+  ClockIcon,
+  TrophyIcon,
+  AcademicCapIcon,
+  SparklesIcon,
+  ArrowRightIcon,
+} from "@heroicons/react/24/solid";
+import {
+  Mail,
   Users,
   Shield,
   Lightbulb,
+  TrendingUp,
+  UserCheck,
+  Clock,
+  Video,
+  Target,
+  Briefcase,
+  BookOpen,
+  Code,
   CheckCircle,
   Award,
-  MessageCircle,
-  Clock,
-  Target,
-  BookOpen,
-  Video,
-  UserCheck,
-  TrendingUp,
-  Briefcase,
-  Code,
-  Filter,
-  Search,
-  X,
-  ChevronRight,
   Globe,
-  Mail,
+  ArrowLeft,
+  ChevronRight,
+  MessageCircle,
+  Search,
+  Filter,
+  X
 } from "lucide-react";
+import { testimonialsApiService, TestimonialData } from "../services/testimonialsApiService";
 import CertificateVerification from "./CertificateVerification";
 import FreeCourseModal from "./FreeCourseModal";
 import ProgramRegistrationModal from "./ProgramRegistrationModal";
@@ -58,9 +71,40 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("€");
+  
+  // States pour les témoignages
+  const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+  const [apiConnected, setApiConnected] = useState(false);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [packs, setPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Load testimonials from API
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        setTestimonialsLoading(true);
+        console.log('🔄 Chargement des témoignages depuis l\'API...');
+        
+        // Vérifier la connexion API
+        const connected = await testimonialsApiService.checkConnection();
+        setApiConnected(connected);
+        
+        // Charger les témoignages
+        const data = await testimonialsApiService.getPublishedTestimonials();
+        setTestimonials(data);
+        
+        console.log(`✅ ${data.length} témoignages chargés`);
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement des témoignages:', error);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
+    loadTestimonials();
+  }, []);
 
   // Load programs and packs from API on component mount
   useEffect(() => {
@@ -919,6 +963,18 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 Des transformations professionnelles inspirantes qui témoignent
                 de l'efficacité de notre approche
               </p>
+              {import.meta.env.DEV && (
+                <div className="mt-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                    apiConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full mr-2 ${
+                      apiConnected ? 'bg-green-500' : 'bg-red-500'
+                    }`}></span>
+                    {apiConnected ? 'API Connectée' : 'Mode Hors-ligne'}
+                  </span>
+                </div>
+              )}
             </motion.div>
 
             {/* Carousel des témoignages */}
@@ -928,7 +984,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <Swiper
+              {testimonialsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                  <span className="ml-3 text-gray-600">Chargement des témoignages...</span>
+                </div>
+              ) : testimonials.length === 0 ? (
+                <div className="text-center py-20">
+                  <p className="text-gray-600">Aucun témoignage disponible pour le moment.</p>
+                </div>
+              ) : (
+                <Swiper
                 modules={[Navigation, Pagination, Autoplay]}
                 spaceBetween={24}
                 slidesPerView={1}
@@ -962,97 +1028,23 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 }}
                 className="testimonials-swiper"
               >
-                {[
-                  {
-                    id: 1,
-                    name: "Sarah Benlahsen",
-                    position: "DevOps",
-                    domain: "React, Node.js",
-                    mainSkill: "Développement Full-Stack",
-                    level: "Expert 100%",
-                    testimonial:
-                      "Grâce à VirtualClass Pro, j'ai pu maîtriser les technologies modernes et décrocher un poste de Lead Developer...",
-                  },
-                  {
-                    id: 2,
-                    name: "Mohamed Alami",
-                    position: "Business",
-                    domain: "Leadership, Management",
-                    mainSkill: "Leadership stratégique",
-                    level: "Avancé 75%",
-                    testimonial:
-                      "L'approche personnalisée et l'expertise des formateurs m'ont permis de développer mes compétences en leadership...",
-                  },
-                  {
-                    id: 3,
-                    name: "Fatima Zahra",
-                    position: "Analytics",
-                    domain: "Data Science, Python",
-                    mainSkill: "Analyse prédictive",
-                    level: "Expert 100%",
-                    testimonial:
-                      "Remarquable réussite avec la Data Science ! Les cours étaient parfaitement structurés...",
-                  },
-                  {
-                    id: 4,
-                    name: "Youssef Amrani",
-                    position: "UI/UX Designer",
-                    domain: "Figma, Design Thinking",
-                    mainSkill: "Conception UI/UX",
-                    level: "Avancé 75%",
-                    testimonial:
-                      "J'ai appris à créer des interfaces modernes et ergonomiques qui améliorent l'expérience utilisateur...",
-                  },
-                  {
-                    id: 5,
-                    name: "Imane Khoury",
-                    position: "Cloud Engineer",
-                    domain: "AWS, Kubernetes",
-                    mainSkill: "Architecture Cloud",
-                    level: "Expert 100%",
-                    testimonial:
-                      "Grâce aux projets pratiques, j'ai pu obtenir ma certification AWS Solutions Architect...",
-                  },
-                  {
-                    id: 6,
-                    name: "Hichem Mansouri",
-                    position: "Marketing Digital",
-                    domain: "SEO, SEA",
-                    mainSkill: "Stratégie marketing",
-                    level: "Intermédiaire 50%",
-                    testimonial:
-                      "J'ai pu mettre en place des campagnes performantes qui ont doublé le trafic qualifié...",
-                  },
-                  {
-                    id: 7,
-                    name: "Nadia Bensalem",
-                    position: "Chef de projet IT",
-                    domain: "Agile, Scrum",
-                    mainSkill: "Gestion de projet Agile",
-                    level: "Avancé 75%",
-                    testimonial:
-                      "Les ateliers m'ont permis d'améliorer ma gestion d'équipe et de livrer des projets plus rapidement...",
-                  },
-                ].map((testimonial) => {
+                {testimonials.map((testimonial) => {
                   // 🎯 Attribution automatique du badge TOP pour Expert et Avancé
-                  const isTopParticipant =
-                    testimonial.level.includes("Expert") ||
-                    testimonial.level.includes("Avancé");
+                  const isTopParticipant = testimonial.level === "Expert" || testimonial.level === "Avancé";
                   const getLevelIcon = (level: string) => {
-                    if (level.includes("Expert"))
-                      return <Award className="w-4 h-4" />;
-                    if (level.includes("Avancé"))
-                      return <TrendingUp className="w-4 h-4" />;
-                    return <Target className="w-4 h-4" />;
+                    if (level === "Expert") return "🏆";
+                    if (level === "Avancé") return "📈";
+                    return "🎯";
                   };
-
-                  const getLevelColor = (level: string) => {
-                    if (level.includes("Expert"))
-                      return "text-purple-600 bg-purple-50";
-                    if (level.includes("Avancé"))
-                      return "text-blue-600 bg-blue-50";
-                    return "text-orange-600 bg-orange-50";
-                  };
+                  
+                  // Obtenir les initiales
+                  const initials = testimonialsApiService.getInitials(testimonial.name);
+                  
+                  // Obtenir la couleur du niveau
+                  const levelColor = testimonialsApiService.getLevelColor(testimonial.level);
+                  
+                  // Obtenir les étoiles
+                  const stars = testimonialsApiService.getStarRating(testimonial.rating);
 
                   return (
                     <SwiperSlide key={testimonial.id}>
@@ -1065,17 +1057,25 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         )}
 
                         <div className="p-6">
-                          {/* Nom et informations */}
-                          <div className="mb-4">
-                            <h4 className="font-bold text-gray-900 text-lg mb-1">
-                              {testimonial.name}
-                            </h4>
-                            <p className="text-gray-700 font-medium mb-1">
-                              {testimonial.position}
-                            </p>
-                            <p className="text-gray-500 text-sm mb-3">
-                              {testimonial.domain}
-                            </p>
+                          {/* Avatar et informations */}
+                          <div className="flex items-center space-x-4 mb-4">
+                            <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${levelColor} flex items-center justify-center text-white font-bold text-lg`}>
+                              {initials}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-gray-900 text-lg mb-1">
+                                {testimonial.name}
+                              </h4>
+                              <p className="text-gray-700 font-medium mb-1">
+                                {testimonial.position}
+                              </p>
+                              <p className="text-gray-500 text-sm">
+                                {testimonial.skills}
+                              </p>
+                              <div className="text-yellow-500 text-sm mt-1">
+                                {stars}
+                              </div>
+                            </div>
                           </div>
 
                           {/* Compétence acquise */}
@@ -1083,7 +1083,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                             <div className="flex items-center space-x-2 text-sm">
                               <Lightbulb className="w-4 h-4 text-yellow-500" />
                               <span className="text-gray-600 font-medium">
-                                {testimonial.mainSkill}
+                                {testimonial.category}
                               </span>
                             </div>
                           </div>
@@ -1091,18 +1091,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                           {/* Niveau avec icône */}
                           <div className="mb-4">
                             <div
-                              className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(
-                                testimonial.level
-                              )}`}
+                              className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${levelColor} text-white`}
                             >
                               {getLevelIcon(testimonial.level)}
-                              <span>{testimonial.level}</span>
+                              <span>{testimonial.level} {testimonial.progress}%</span>
                             </div>
                           </div>
 
                           {/* Témoignage */}
                           <blockquote className="text-gray-700 italic leading-relaxed">
-                            "{testimonial.testimonial}"
+                            "{testimonial.content}"
                           </blockquote>
                         </div>
                       </div>
@@ -1110,14 +1108,19 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   );
                 })}
               </Swiper>
+              )}
 
               {/* Navigation personnalisée */}
-              <div className="swiper-button-prev-custom absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                <ChevronRight className="w-6 h-6 text-gray-600 rotate-180" />
-              </div>
-              <div className="swiper-button-next-custom absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                <ChevronRight className="w-6 h-6 text-gray-600" />
-              </div>
+              {!testimonialsLoading && testimonials.length > 0 && (
+                <>
+                  <div className="swiper-button-prev-custom absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                    <ChevronRight className="w-6 h-6 text-gray-600 rotate-180" />
+                  </div>
+                  <div className="swiper-button-next-custom absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                    <ChevronRight className="w-6 h-6 text-gray-600" />
+                  </div>
+                </>
+              )}
             </motion.div>
           </div>
         </div>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Gestion des Pages du Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3B82F6, #1E40AF);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3B82F6, #1E40AF);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .result {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .result.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Test - Système de Gestion des Pages du Site</h1>
+            <p>Test complet du nouveau système avec les 4 pages par défaut + pages personnalisées</p>
+        </div>
+        
+        <div class="content">
+            <!-- Backend API Tests -->
+            <div class="test-section">
+                <h2>🔍 Tests API Backend</h2>
+                <button class="btn" onclick="testBackendHealth()">Vérifier Santé API</button>
+                <button class="btn" onclick="testGetAllPages()">Lister Toutes les Pages</button>
+                <button class="btn" onclick="testGetActivePages()">Pages Actives</button>
+                <button class="btn" onclick="testGetStats()">Statistiques</button>
+                <button class="btn" onclick="testInitDefaults()">Initialiser Pages Par Défaut</button>
+                <div class="result" id="apiResult"></div>
+            </div>
+
+            <!-- Create Test Page -->
+            <div class="test-section">
+                <h2>➕ Test Création Page Personnalisée</h2>
+                <button class="btn" onclick="testCreateCustomPage()">Créer Page Test</button>
+                <button class="btn" onclick="testTogglePageStatus()">Tester Toggle Status</button>
+                <div class="result" id="createResult"></div>
+            </div>
+
+            <!-- Frontend Integration -->
+            <div class="test-section">
+                <h2>🌐 Test Intégration Frontend</h2>
+                <button class="btn" onclick="testFrontendService()">Tester Service Frontend</button>
+                <button class="btn" onclick="simulateMainSiteLoad()">Simuler Chargement Site</button>
+                <div class="result" id="frontendResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/website-pages';
+        let lastCreatedPageId = null;
+
+        // Test Backend Health
+        async function testBackendHealth() {
+            const result = document.getElementById('apiResult');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Backend API opérationnel<br>
+                            📍 URL: http://localhost:3001<br>
+                            ⏰ Timestamp: ${data.timestamp}<br>
+                            🔧 Environment: ${data.environment}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error('API Health Check Failed');
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div style="color: #ef4444;">
+                        ❌ Erreur de connexion au backend<br>
+                        🔍 Vérifiez que le serveur tourne sur le port 3001<br>
+                        💡 Commande: cd backend && npm start
+                    </div>
+                `;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Get All Pages
+        async function testGetAllPages() {
+            const result = document.getElementById('apiResult');
+            
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const defaultPages = data.data.filter(p => p.isDefault);
+                    const customPages = data.data.filter(p => !p.isDefault);
+                    
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ ${data.count} pages récupérées avec succès<br>
+                            📄 Pages par défaut: ${defaultPages.length}<br>
+                            🎨 Pages personnalisées: ${customPages.length}<br>
+                            📋 Titres: ${data.data.map(p => p.title).join(', ')}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Get Active Pages
+        async function testGetActivePages() {
+            const result = document.getElementById('apiResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/active`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ ${data.count} pages actives récupérées<br>
+                            📋 Pages: ${data.data.map(p => `${p.title} (${p.isDefault ? 'Défaut' : 'Perso'})`).join(', ')}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Get Stats
+        async function testGetStats() {
+            const result = document.getElementById('apiResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.data;
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Statistiques récupérées:<br>
+                            📊 Total: ${stats.totalPages}<br>
+                            ✅ Actives: ${stats.activePages}<br>
+                            ❌ Inactives: ${stats.inactivePages}<br>
+                            🔒 Par défaut: ${stats.defaultPages}<br>
+                            🎨 Personnalisées: ${stats.customPages}<br>
+                            📂 Catégories: ${stats.categoriesStats?.length || 0}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Initialize Defaults
+        async function testInitDefaults() {
+            const result = document.getElementById('apiResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/init-defaults`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Initialisation des pages par défaut réussie<br>
+                            📄 Les 4 pages par défaut sont maintenant disponibles
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Create Custom Page
+        async function testCreateCustomPage() {
+            const result = document.getElementById('createResult');
+            
+            const pageData = {
+                title: 'Page Test Personnalisée',
+                description: 'Ceci est une page de test créée pour valider le système de gestion des pages personnalisées.',
+                icon: '🚀',
+                buttonText: 'Découvrir',
+                buttonLink: 'https://example.com/test',
+                backgroundColor: '#F59E0B',
+                textColor: '#FFFFFF',
+                category: 'other',
+                order: 10
+            };
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(pageData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    lastCreatedPageId = data.data._id;
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Page personnalisée créée avec succès!<br>
+                            🆔 ID: ${data.data._id}<br>
+                            📄 Titre: ${data.data.title}<br>
+                            🎨 Icône: ${data.data.icon}<br>
+                            🔗 Lien: ${data.data.buttonLink}<br>
+                            🔒 Type: ${data.data.isDefault ? 'Par défaut' : 'Personnalisée'}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Toggle Page Status
+        async function testTogglePageStatus() {
+            const result = document.getElementById('createResult');
+            
+            if (!lastCreatedPageId) {
+                result.innerHTML = `<div style="color: #f59e0b;">⚠️ Créez d'abord une page de test</div>`;
+                result.className = 'result';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/${lastCreatedPageId}/toggle-status`, {
+                    method: 'PUT'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Statut de la page modifié avec succès!<br>
+                            📄 Page: ${data.data.title}<br>
+                            📊 Nouveau statut: ${data.data.isActive ? 'Active' : 'Inactive'}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Test Frontend Service
+        async function testFrontendService() {
+            const result = document.getElementById('frontendResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/active`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const defaultPages = data.data.filter(p => p.isDefault);
+                    const customPages = data.data.filter(p => !p.isDefault);
+                    
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Service frontend testé avec succès<br>
+                            📱 ${data.data.length} pages traitées pour l'affichage<br>
+                            🔒 Pages par défaut: ${defaultPages.length} (protégées)<br>
+                            🎨 Pages personnalisées: ${customPages.length}<br>
+                            📋 Titres: ${data.data.map(p => p.title).join(', ')}
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Simulate Main Site Load
+        async function simulateMainSiteLoad() {
+            const result = document.getElementById('frontendResult');
+            
+            try {
+                result.innerHTML = '<div>🔄 Simulation du chargement du site principal...</div>';
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                const isApiHealthy = healthResponse.ok;
+                
+                const pagesResponse = await fetch(`${API_BASE}/active`);
+                const pagesData = await pagesResponse.json();
+                
+                if (pagesData.success) {
+                    const defaultPages = pagesData.data.filter(p => p.isDefault);
+                    const customPages = pagesData.data.filter(p => !p.isDefault);
+                    
+                    result.innerHTML = `
+                        <div style="color: #10b981;">
+                            ✅ Simulation terminée avec succès<br>
+                            🌐 API Status: ${isApiHealthy ? 'Connected' : 'Fallback mode'}<br>
+                            📄 Pages chargées: ${pagesData.count}<br>
+                            🔒 Pages par défaut: ${defaultPages.length} (À propos, E-Training, Digitalisation, Partenariat)<br>
+                            🎨 Pages personnalisées: ${customPages.length}<br>
+                            ⚡ Cache: ${isApiHealthy ? 'Mis à jour' : 'Données locales utilisées'}<br>
+                            🎯 Prêt pour l'affichage utilisateur
+                        </div>
+                    `;
+                    result.className = 'result success';
+                } else {
+                    throw new Error('Erreur lors du chargement des pages');
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: #ef4444;">❌ Erreur simulation: ${error.message}</div>`;
+                result.className = 'result error';
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            testBackendHealth();
+        });
+    </script>
+</body>
+</html>

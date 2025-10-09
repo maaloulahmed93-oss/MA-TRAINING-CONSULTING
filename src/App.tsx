@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import HomePage from "./pages/HomePage";
 import EspaceParticipantPage from "./pages/EspaceParticipantPage";
 import EspaceFormateurPage from "./pages/EspaceFormateurPage";
@@ -16,8 +17,16 @@ import PartenaireMessagesPage from "./pages/partenaire/PartenaireMessagesPage";
 import ProjectsTestPage from "./pages/ProjectsTestPage";
 import "./styles/animations.css";
 import Footer from "./components/Footer";
+import { siteConfigService } from "./services/siteConfigApiService";
 
 function App() {
+  // Appliquer la configuration du site au chargement
+  useEffect(() => {
+    siteConfigService.applySiteConfig().catch(error => {
+      console.error('Erreur lors de l\'application de la configuration du site:', error);
+    });
+  }, []);
+
   return (
     <Router>
       <div className="flex flex-col min-h-screen">

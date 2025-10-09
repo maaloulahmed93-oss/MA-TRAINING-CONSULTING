@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partnership Sync - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .button.success {
+            background: #059669;
+        }
+        .button.danger {
+            background: #dc2626;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        .data-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Test Partnership Sync</h1>
+        <p>Test de synchronisation entre Admin Panel et Site Principal via Backend (Port 3001)</p>
+
+        <div>
+            <button class="button" onclick="testBackendConnection()">Test Backend Connection</button>
+            <button class="button success" onclick="seedBackend()">Seed Backend Data</button>
+            <button class="button" onclick="testAdminPanelSync()">Test Admin Panel → Backend</button>
+            <button class="button" onclick="testWebsiteSync()">Test Website ← Backend</button>
+            <button class="button danger" onclick="clearAll()">Clear All Data</button>
+        </div>
+
+        <div id="results"></div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>🔧 Admin Panel Data</h3>
+                <div id="admin-data" class="data-preview">Pas de données</div>
+            </div>
+            <div class="card">
+                <h3>🌐 Website Data</h3>
+                <div id="website-data" class="data-preview">Pas de données</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🗄️ Backend Data</h3>
+            <div id="backend-data" class="data-preview">Pas de données</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const ADMIN_STORAGE_KEY = 'partner_extra_info_v1';
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function updateDataDisplay(elementId, data, title) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<strong>${title}</strong>\n${JSON.stringify(data, null, 2)}`;
+        }
+
+        async function testBackendConnection() {
+            updateStatus('🔍 Test de connexion Backend...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus(`✅ Backend connecté: ${data.count} partnerships trouvées`);
+                    updateDataDisplay('backend-data', data.data, 'Backend API Data');
+                } else {
+                    updateStatus('❌ Backend: Réponse invalide', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Backend: Connexion échouée - ${error.message}`, 'error');
+            }
+        }
+
+        async function seedBackend() {
+            updateStatus('🌱 Seeding Backend avec données par défaut...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships/seed`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus(`✅ Backend seedé: ${data.count} partnerships créées`);
+                    updateDataDisplay('backend-data', data.data, 'Seeded Backend Data');
+                } else {
+                    updateStatus(`❌ Seed failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Seed error: ${error.message}`, 'error');
+            }
+        }
+
+        function testAdminPanelSync() {
+            updateStatus('🔧 Test Admin Panel → Backend sync...');
+            
+            const adminData = localStorage.getItem(ADMIN_STORAGE_KEY);
+            if (!adminData) {
+                updateStatus('❌ Aucune donnée Admin Panel trouvée', 'error');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(adminData);
+                updateStatus(`✅ Admin Panel: ${Object.keys(parsed).length} partnerships trouvées`);
+                updateDataDisplay('admin-data', parsed, 'Admin Panel localStorage');
+                
+                // Test sync to backend
+                syncAdminToBackend(parsed);
+                
+            } catch (error) {
+                updateStatus(`❌ Admin Panel: Erreur parsing - ${error.message}`, 'error');
+            }
+        }
+
+        async function syncAdminToBackend(adminData) {
+            updateStatus('🔄 Synchronisation Admin Panel → Backend...');
+            
+            let successCount = 0;
+            let totalCount = Object.keys(adminData).length;
+
+            for (const [type, data] of Object.entries(adminData)) {
+                try {
+                    const partnershipData = {
+                        type,
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        intro: data.intro,
+                        icon: data.icon,
+                        color: data.color,
+                        gradient: data.gradient,
+                        details: data.details,
+                        requirements: data.requirements,
+                        ctaLabel: data.ctaLabel || `Accéder à l'Espace ${data.title}`
+                    };
+
+                    const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(partnershipData)
+                    });
+
+                    if (response.ok) {
+                        successCount++;
+                    }
+                } catch (error) {
+                    console.error(`Error syncing ${type}:`, error);
+                }
+            }
+
+            if (successCount === totalCount) {
+                updateStatus(`✅ Sync terminé: ${successCount}/${totalCount} partnerships synchronisées`);
+            } else {
+                updateStatus(`⚠️ Sync partiel: ${successCount}/${totalCount} partnerships synchronisées`, 'warning');
+            }
+        }
+
+        async function testWebsiteSync() {
+            updateStatus('🌐 Test Website ← Backend sync...');
+            
+            try {
+                // Simulate website data loading
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    // Convert to website format
+                    const websiteData = data.data.map(p => ({
+                        id: p.type,
+                        title: p.title,
+                        icon: p.icon,
+                        description: p.intro,
+                        color: p.color,
+                        gradient: p.gradient,
+                        details: p.details,
+                        requirements: p.requirements
+                    }));
+                    
+                    updateStatus(`✅ Website: ${websiteData.length} partnerships chargées depuis Backend`);
+                    updateDataDisplay('website-data', websiteData, 'Website Format Data');
+                } else {
+                    updateStatus('❌ Website: Aucune donnée Backend disponible', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Website sync error: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearAll() {
+            updateStatus('🗑️ Nettoyage de toutes les données...');
+            
+            // Clear localStorage
+            localStorage.removeItem(ADMIN_STORAGE_KEY);
+            updateStatus('✅ Admin Panel localStorage nettoyé');
+            
+            // Clear backend
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    updateStatus('✅ Backend nettoyé');
+                } else {
+                    updateStatus('⚠️ Backend: Nettoyage partiel', 'warning');
+                }
+            } catch (error) {
+                updateStatus(`❌ Backend clear error: ${error.message}`, 'error');
+            }
+            
+            // Clear displays
+            updateDataDisplay('admin-data', {}, 'Nettoyé');
+            updateDataDisplay('website-data', {}, 'Nettoyé');
+            updateDataDisplay('backend-data', {}, 'Nettoyé');
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            updateStatus('🚀 Test Partnership Sync chargé');
+            testBackendConnection();
+        };
+    </script>
+</body>
+</html>

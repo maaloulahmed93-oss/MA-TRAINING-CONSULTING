@@ -8,12 +8,37 @@ const Newsletter = () => {
   const [unEmail, setUnEmail] = useState('');
   const [unDone, setUnDone] = useState<null | 'ok' | 'fail'>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle newsletter subscription
-    console.log("Newsletter subscription:", email);
-    setSubmitted(true);
-    setEmail("");
+    if (!email.trim()) return;
+    
+    try {
+      // Try API first
+      const response = await fetch('http://localhost:3001/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim() })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log("✅ Newsletter subscription via API:", email);
+        setSubmitted(true);
+        setEmail("");
+      } else {
+        throw new Error(result.message || 'Erreur API');
+      }
+    } catch (error) {
+      console.log("⚠️ API failed, using localStorage fallback:", error);
+      // Fallback to localStorage
+      addSubscriber(email.trim());
+      console.log("Newsletter subscription via localStorage:", email);
+      setSubmitted(true);
+      setEmail("");
+    }
   };
 
   return (
@@ -69,11 +94,36 @@ const Newsletter = () => {
             {/* Inline unsubscribe form */}
             <div className="mt-3 max-w-md mx-auto">
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
-                  const ok = unsubscribeByEmail(unEmail.trim());
-                  setUnDone(ok ? 'ok' : 'fail');
-                  if (ok) setUnEmail('');
+                  if (!unEmail.trim()) return;
+                  
+                  try {
+                    // Try API first
+                    const response = await fetch('http://localhost:3001/api/newsletter/unsubscribe', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ email: unEmail.trim() })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                      console.log("✅ Newsletter unsubscribe via API:", unEmail);
+                      setUnDone('ok');
+                      setUnEmail('');
+                    } else {
+                      setUnDone('fail');
+                    }
+                  } catch (error) {
+                    console.log("⚠️ API failed, using localStorage fallback:", error);
+                    // Fallback to localStorage
+                    const ok = unsubscribeByEmail(unEmail.trim());
+                    setUnDone(ok ? 'ok' : 'fail');
+                    if (ok) setUnEmail('');
+                  }
                 }}
                 className="flex gap-2 justify-center"
                 aria-labelledby="unsubscribe-label"

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test All Partnerships Working - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button:hover { background: #3730A3; }
+        .button.success { background: #059669; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .error { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+        .warning { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .test-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .test-card.formateur { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+        .test-card.freelance { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+        .test-card.commercial { background: linear-gradient(135deg, #fed7aa, #fdba74); }
+        .test-card.entreprise { background: linear-gradient(135deg, #e9d5ff, #d8b4fe); }
+        
+        .test-result {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .test-result.success { background: #d1fae5; color: #065f46; }
+        .test-result.error { background: #fee2e2; color: #991b1b; }
+        .test-result.pending { background: #f3f4f6; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test All Partnerships Working</h1>
+        <p>Test complet pour vérifier que les 4 partnerships (Formateur, Freelance, Commercial, Entreprise) fonctionnent avec le Backend</p>
+
+        <div>
+            <button class="button success" onclick="runCompleteTest()">Test Complet</button>
+            <button class="button" onclick="testIndividualSaves()">Test Sauvegardes Individuelles</button>
+            <button class="button" onclick="testWebsiteDisplay()">Test Affichage Website</button>
+        </div>
+
+        <div id="results"></div>
+        
+        <div id="test-grid" class="test-grid"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const PARTNERSHIP_TYPES = [
+            { type: 'formateur', title: 'Formateur', icon: '📘' },
+            { type: 'freelance', title: 'Freelance', icon: '💻' },
+            { type: 'commercial', title: 'Commercial / Affilié', icon: '📈' },
+            { type: 'entreprise', title: 'Entreprise / École', icon: '🏢' }
+        ];
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function initTestGrid() {
+            const gridDiv = document.getElementById('test-grid');
+            let html = '';
+            
+            PARTNERSHIP_TYPES.forEach(partnership => {
+                html += `
+                    <div class="test-card ${partnership.type}">
+                        <h3>${partnership.icon} ${partnership.title}</h3>
+                        <div id="result-${partnership.type}" class="test-result pending">En attente...</div>
+                    </div>
+                `;
+            });
+            
+            gridDiv.innerHTML = html;
+        }
+
+        function updateTestResult(type, status, message) {
+            const resultDiv = document.getElementById(`result-${type}`);
+            resultDiv.className = `test-result ${status}`;
+            resultDiv.textContent = message;
+        }
+
+        async function runCompleteTest() {
+            updateStatus('🚀 Démarrage du test complet...');
+            initTestGrid();
+            
+            // Step 1: Seed Backend
+            await seedBackend();
+            
+            // Step 2: Test each partnership
+            for (const partnership of PARTNERSHIP_TYPES) {
+                await testPartnership(partnership);
+            }
+            
+            // Step 3: Test website loading
+            await testWebsiteLoading();
+            
+            updateStatus('🎉 Test complet terminé!');
+        }
+
+        async function seedBackend() {
+            updateStatus('🌱 Seeding Backend...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships/seed`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus(`✅ Backend seedé: ${data.count} partnerships`);
+                } else {
+                    updateStatus('❌ Échec du seeding Backend', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur seeding: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPartnership(partnership) {
+            updateTestResult(partnership.type, 'pending', 'Test en cours...');
+            
+            const testData = {
+                type: partnership.type,
+                title: `Test ${partnership.title}`,
+                subtitle: `Test subtitle for ${partnership.title}`,
+                intro: `Test introduction for ${partnership.title}`,
+                icon: partnership.icon,
+                color: getColorForType(partnership.type),
+                gradient: getGradientForType(partnership.type),
+                details: [`Test detail 1 for ${partnership.title}`, `Test detail 2 for ${partnership.title}`],
+                requirements: [`Test requirement 1 for ${partnership.title}`, `Test requirement 2 for ${partnership.title}`],
+                ctaLabel: `Test CTA for ${partnership.title}`
+            };
+
+            try {
+                // Test save
+                const saveResponse = await fetch(`${API_BASE}/partnerships/${partnership.type}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                if (saveResponse.ok) {
+                    // Test retrieve
+                    const getResponse = await fetch(`${API_BASE}/partnerships/${partnership.type}`);
+                    
+                    if (getResponse.ok) {
+                        const retrievedData = await getResponse.json();
+                        
+                        if (retrievedData.success && retrievedData.data.title === testData.title) {
+                            updateTestResult(partnership.type, 'success', '✅ Save & Retrieve OK');
+                        } else {
+                            updateTestResult(partnership.type, 'error', '❌ Retrieve Failed');
+                        }
+                    } else {
+                        updateTestResult(partnership.type, 'error', '❌ Retrieve Failed');
+                    }
+                } else {
+                    updateTestResult(partnership.type, 'error', '❌ Save Failed');
+                }
+            } catch (error) {
+                updateTestResult(partnership.type, 'error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        function getColorForType(type) {
+            switch(type) {
+                case 'formateur': return 'blue';
+                case 'freelance': return 'green';
+                case 'commercial': return 'orange';
+                case 'entreprise': return 'purple';
+                default: return 'blue';
+            }
+        }
+
+        function getGradientForType(type) {
+            switch(type) {
+                case 'formateur': return 'from-blue-500 to-blue-600';
+                case 'freelance': return 'from-green-500 to-green-600';
+                case 'commercial': return 'from-orange-500 to-orange-600';
+                case 'entreprise': return 'from-purple-500 to-purple-600';
+                default: return 'from-blue-500 to-blue-600';
+            }
+        }
+
+        async function testWebsiteLoading() {
+            updateStatus('🌐 Test chargement Website...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length === 4) {
+                    const types = data.data.map(p => p.type).sort();
+                    const expectedTypes = ['commercial', 'entreprise', 'formateur', 'freelance'];
+                    
+                    if (JSON.stringify(types) === JSON.stringify(expectedTypes)) {
+                        updateStatus('✅ Website: Tous les 4 partnerships chargés correctement');
+                    } else {
+                        updateStatus(`⚠️ Website: Types manquants - Trouvés: ${types.join(', ')}`, 'warning');
+                    }
+                } else {
+                    updateStatus(`❌ Website: ${data.data?.length || 0}/4 partnerships chargés`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Website loading error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testIndividualSaves() {
+            updateStatus('💾 Test sauvegardes individuelles...');
+            initTestGrid();
+            
+            for (const partnership of PARTNERSHIP_TYPES) {
+                await testPartnership(partnership);
+            }
+            
+            updateStatus('✅ Test sauvegardes individuelles terminé');
+        }
+
+        async function testWebsiteDisplay() {
+            updateStatus('🖥️ Test affichage Website...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus(`📊 Backend: ${data.count} partnerships disponibles`);
+                    
+                    // Simulate website data conversion
+                    const websiteData = data.data.map(p => ({
+                        id: p.type,
+                        title: p.title,
+                        icon: p.icon,
+                        description: p.intro,
+                        color: p.color,
+                        gradient: p.gradient
+                    }));
+                    
+                    updateStatus(`✅ Website: ${websiteData.length} partnerships prêts pour affichage`);
+                    
+                    websiteData.forEach(p => {
+                        updateStatus(`  • ${p.icon} ${p.title} (${p.color})`);
+                    });
+                } else {
+                    updateStatus('❌ Échec récupération données Website', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Website display error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-init on load
+        window.onload = function() {
+            updateStatus('🚀 Test All Partnerships Working chargé');
+            initTestGrid();
+        };
+    </script>
+</body>
+</html>

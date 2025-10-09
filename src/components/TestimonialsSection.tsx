@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+import { partnerTestimonialsWebsiteService } from '../services/partnerTestimonialsApiService';
+
 // Interface TypeScript pour le typage strict
 interface Testimonial {
   id: number;
@@ -99,17 +101,57 @@ const saveTestimonialsToLocalStorage = (testimonials: Testimonial[]): void => {
 const TestimonialsSection: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [apiStatus, setApiStatus] = useState<'connected' | 'disconnected'>('disconnected');
 
   // Charger les témoignages au montage du composant
   useEffect(() => {
-    const loadedTestimonials = loadTestimonialsFromLocalStorage();
-    setTestimonials(loadedTestimonials);
-    
-    // Sauvegarder les données par défaut si localStorage est vide
-    if (!localStorage.getItem('matc-testimonials')) {
-      saveTestimonialsToLocalStorage(defaultTestimonials);
-    }
+    loadTestimonials();
   }, []);
+
+  const loadTestimonials = async () => {
+    try {
+      setLoading(true);
+      console.log('🔄 Loading testimonials from API...');
+      
+      // Try to load from API first
+      const apiTestimonials = await partnerTestimonialsWebsiteService.getTestimonialsWithCache();
+      
+      // Convert API format to component format
+      const convertedTestimonials: Testimonial[] = apiTestimonials.map((testimonial, index) => ({
+        id: parseInt(testimonial.id) || index + 1,
+        text: testimonial.text,
+        initials: testimonial.initials,
+        name: testimonial.name,
+        position: testimonial.position
+      }));
+      
+      setTestimonials(convertedTestimonials);
+      setApiStatus('connected');
+      
+      console.log(`✅ ${convertedTestimonials.length} testimonials loaded from API`);
+      
+      // Save to localStorage as backup
+      saveTestimonialsToLocalStorage(convertedTestimonials);
+      
+    } catch (error) {
+      console.error('❌ Error loading testimonials from API:', error);
+      setApiStatus('disconnected');
+      
+      // Fallback to localStorage
+      console.log('📦 Falling back to localStorage...');
+      const localTestimonials = loadTestimonialsFromLocalStorage();
+      setTestimonials(localTestimonials);
+      
+      // If localStorage is also empty, use defaults
+      if (localTestimonials.length === 0) {
+        setTestimonials(defaultTestimonials);
+        saveTestimonialsToLocalStorage(defaultTestimonials);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Auto-play carousel toutes les 5 secondes
   useEffect(() => {
@@ -179,6 +221,16 @@ const TestimonialsSection: React.FC = () => {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Découvrez l'expérience de nos clients et partenaires qui nous font confiance
           </p>
+          
+          {/* API Status Indicator (Development Mode) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="flex items-center justify-center mt-4">
+              <div className={`w-2 h-2 rounded-full mr-2 ${apiStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className={`text-sm ${apiStatus === 'connected' ? 'text-green-600' : 'text-red-600'}`}>
+                API {apiStatus === 'connected' ? 'Connectée' : 'Déconnectée'}
+              </span>
+            </div>
+          )}
           
           {/* Ligne décorative */}
           <div className="flex items-center justify-center mt-8">

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Testimonial Update Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .results {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Testimonial Update Fix</h1>
+        <p>Test pour vérifier que le problème de mise à jour des témoignages est résolu.</p>
+
+        <div id="status" class="status info">
+            🔄 Initialisation...
+        </div>
+
+        <div>
+            <button class="btn" onclick="testCreateAndUpdate()">🧪 Test Create & Update</button>
+            <button class="btn" onclick="testUpdateNonExistent()">⚠️ Test Update Non-Existent</button>
+            <button class="btn" onclick="testLocalStorageHandling()">💾 Test localStorage Handling</button>
+            <button class="btn btn-danger" onclick="clearLocalStorage()">🗑️ Clear localStorage</button>
+        </div>
+
+        <div id="results" class="results">Prêt pour les tests...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/partner-testimonials';
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const results = document.getElementById('results');
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        // Test server connection on load
+        window.onload = async function() {
+            try {
+                const response = await fetch(`${API_BASE}/published`);
+                if (response.ok) {
+                    updateStatus('✅ API connectée - Tests prêts', 'success');
+                } else {
+                    updateStatus('⚠️ API déconnectée - Tests en mode localStorage', 'warning');
+                }
+            } catch (error) {
+                updateStatus('❌ API non disponible - Tests en mode localStorage uniquement', 'error');
+            }
+        };
+
+        async function testCreateAndUpdate() {
+            log('🧪 Test Create & Update Workflow...');
+            
+            const testData = {
+                companyName: `Test Company ${Date.now()}`,
+                position: 'Test Manager',
+                authorName: 'Test Author',
+                testimonialText: 'This is a test testimonial for update testing.',
+                rating: 4,
+                initials: 'TC',
+                isPublished: true,
+                displayOrder: 1
+            };
+
+            try {
+                // Step 1: Create testimonial
+                log('Step 1: Creating testimonial...');
+                const createResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                if (createResponse.ok) {
+                    const createResult = await createResponse.json();
+                    log(`✅ Created testimonial with ID: ${createResult.data._id}`);
+                    
+                    // Step 2: Update testimonial
+                    log('Step 2: Updating testimonial...');
+                    const updateData = {
+                        ...testData,
+                        testimonialText: 'Updated testimonial text for testing.',
+                        rating: 5
+                    };
+
+                    const updateResponse = await fetch(`${API_BASE}/${createResult.data._id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+
+                    if (updateResponse.ok) {
+                        const updateResult = await updateResponse.json();
+                        log('✅ Update successful');
+                        log(`📄 Updated data: ${JSON.stringify(updateResult.data, null, 2)}`);
+                        
+                        // Step 3: Clean up
+                        await fetch(`${API_BASE}/${createResult.data._id}`, { method: 'DELETE' });
+                        log('🗑️ Test data cleaned up');
+                        
+                    } else {
+                        log(`❌ Update failed: ${updateResponse.status}`);
+                    }
+                } else {
+                    log(`❌ Create failed: ${createResponse.status}`);
+                }
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`);
+                log('ℹ️ This might be expected if API is not available');
+            }
+        }
+
+        async function testUpdateNonExistent() {
+            log('⚠️ Test Update Non-Existent ID...');
+            
+            const fakeId = 'non-existent-id-' + Date.now();
+            const updateData = {
+                companyName: 'Fake Company',
+                position: 'Fake Position',
+                testimonialText: 'This should handle gracefully.',
+                rating: 3,
+                initials: 'FC',
+                isPublished: false
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/${fakeId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    log('⚠️ Unexpected success for non-existent ID');
+                } else {
+                    log(`✅ Correctly handled non-existent ID: ${response.status}`);
+                }
+            } catch (error) {
+                log(`✅ Error handled gracefully: ${error.message}`);
+            }
+        }
+
+        function testLocalStorageHandling() {
+            log('💾 Test localStorage Handling...');
+            
+            // Simulate localStorage data
+            const testData = [
+                {
+                    _id: 'local-test-1',
+                    companyName: 'Local Test Company',
+                    position: 'Local Manager',
+                    testimonialText: 'Local storage test testimonial',
+                    rating: 4,
+                    initials: 'LT',
+                    isPublished: true,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+
+            try {
+                // Save to localStorage
+                localStorage.setItem('partner-testimonials', JSON.stringify(testData));
+                log('✅ Test data saved to localStorage');
+
+                // Retrieve from localStorage
+                const retrieved = localStorage.getItem('partner-testimonials');
+                if (retrieved) {
+                    const parsed = JSON.parse(retrieved);
+                    log(`✅ Retrieved ${parsed.length} items from localStorage`);
+                    log(`📄 Sample: ${JSON.stringify(parsed[0], null, 2)}`);
+                } else {
+                    log('❌ Failed to retrieve from localStorage');
+                }
+
+                // Test update in localStorage
+                const updated = [...JSON.parse(retrieved)];
+                updated[0].testimonialText = 'Updated via localStorage';
+                updated[0].updatedAt = new Date().toISOString();
+                
+                localStorage.setItem('partner-testimonials', JSON.stringify(updated));
+                log('✅ localStorage update test successful');
+
+            } catch (error) {
+                log(`❌ localStorage test failed: ${error.message}`);
+            }
+        }
+
+        function clearLocalStorage() {
+            try {
+                localStorage.removeItem('partner-testimonials');
+                log('🗑️ localStorage cleared successfully');
+                updateStatus('🗑️ localStorage vidé', 'info');
+            } catch (error) {
+                log(`❌ Failed to clear localStorage: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

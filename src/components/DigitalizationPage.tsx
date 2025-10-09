@@ -1,5 +1,10 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ArrowLeft, Home, Globe, Bot, Settings, GraduationCap, Database, Users, BarChart3, Star, Phone, Mail, MessageCircle, ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { digitalizationServicesApi, DigitalizationServicesResponse } from '../services/digitalizationServicesApi';
+import { digitalizationProductsApi, DigitalizationProductsResponse } from '../services/digitalizationProductsApi';
+import { digitalizationPortfolioApiService, PortfolioData } from '../services/digitalizationPortfolioApiService';
+import { digitalizationTestimonialsApiService, TestimonialsData } from '../services/digitalizationTestimonialsApiService';
+import { digitalizationContactApiService, ContactData } from '../services/digitalizationContactApiService';
 
 interface DigitalizationPageProps {
   onBack: () => void;
@@ -7,60 +12,143 @@ interface DigitalizationPageProps {
 
 const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
   const [hoveredService, setHoveredService] = useState<string | null>(null);
+  
+  // API state
+  const [servicesData, setServicesData] = useState<DigitalizationServicesResponse | null>(null);
+  const [productsData, setProductsData] = useState<DigitalizationProductsResponse | null>(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
+  const [testimonialsData, setTestimonialsData] = useState<TestimonialsData | null>(null);
+  const [contactData, setContactData] = useState<ContactData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiConnected, setApiConnected] = useState(false);
 
-  const services = [
-    {
-      id: 'creation',
-      title: 'Création digitale & présence en ligne',
-      icon: Globe,
-      color: 'blue',
-      gradient: 'from-blue-500 to-blue-600',
-      items: [
-        'Site web vitrine avec démo',
-        'Plateforme e-commerce prête à l\'emploi',
-        'Packs publications (affiches, vidéos)',
-        'Sponsoring & campagnes réseaux sociaux'
-      ]
-    },
-    {
-      id: 'automation',
-      title: 'Automatisation & Applications IA',
-      icon: Bot,
-      color: 'purple',
-      gradient: 'from-purple-500 to-purple-600',
-      items: [
-        'Automatisation des processus internes',
-        'Applications IA sur mesure',
-        'Marketing automatisé',
-        'Analyse BI & rapports'
-      ]
-    },
-    {
-      id: 'training',
-      title: 'Accompagnement & formation',
-      icon: GraduationCap,
-      color: 'green',
-      gradient: 'from-green-500 to-green-600',
-      items: [
-        'Certification ISO',
-        'Transformation digitale sur mesure',
-        'Formations pratiques'
-      ]
-    },
-    {
-      id: 'saas',
-      title: 'Solutions (SaaS)',
-      icon: Database,
-      color: 'orange',
-      gradient: 'from-orange-500 to-orange-600',
-      items: [
-        'ERP modulaire',
-        'CRM en ligne',
-        'Gestion réseaux sociaux avec IA',
-        'Plateforme e-commerce + maintenance'
-      ]
+  // Load data from API on component mount
+  useEffect(() => {
+    loadServicesData();
+    loadProductsData();
+    loadPortfolioData();
+    loadTestimonialsData();
+    loadContactData();
+    testApiConnection();
+  }, []);
+
+  const testApiConnection = async () => {
+    const servicesConnected = await digitalizationServicesApi.testConnection();
+    const portfolioConnected = await digitalizationPortfolioApiService.checkApiHealth();
+    const testimonialsConnected = await digitalizationTestimonialsApiService.checkApiHealth();
+    const contactConnected = await digitalizationContactApiService.testConnection();
+    setApiConnected(servicesConnected && portfolioConnected && testimonialsConnected && contactConnected);
+  };
+
+  const loadServicesData = async () => {
+    try {
+      const data = await digitalizationServicesApi.getServicesWithCache();
+      setServicesData(data);
+      console.log('✅ Services data loaded in DigitalizationPage:', data);
+    } catch (error) {
+      console.error('❌ Error loading services data:', error);
     }
-  ];
+  };
+
+  const loadProductsData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await digitalizationProductsApi.getProductsWithCache();
+      setProductsData(data);
+      console.log('✅ Products data loaded in DigitalizationPage:', data);
+    } catch (error) {
+      console.error('❌ Error loading products data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadPortfolioData = async () => {
+    try {
+      console.log('🔄 Loading portfolio data from API...');
+      const data = await digitalizationPortfolioApiService.getPortfolioData();
+      setPortfolioData(data);
+      console.log('✅ Portfolio data loaded successfully');
+    } catch (error) {
+      console.error('❌ Error loading portfolio data:', error);
+    }
+  };
+
+  const loadTestimonialsData = async () => {
+    try {
+      console.log('🔄 Loading testimonials data from API...');
+      const data = await digitalizationTestimonialsApiService.getTestimonialsData();
+      setTestimonialsData(data);
+      console.log('✅ Testimonials data loaded successfully');
+    } catch (error) {
+      console.error('❌ Error loading testimonials data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadContactData = async () => {
+    try {
+      console.log('🔄 Loading contact data from API...');
+      const data = await digitalizationContactApiService.getContactDataWithCache();
+      setContactData(data);
+      console.log('✅ Contact data loaded successfully:', data);
+    } catch (error) {
+      console.error('❌ Error loading contact data:', error);
+      // Utiliser les données par défaut en cas d'erreur
+      const defaultData = {
+        email: 'contact@matc-consulting.com',
+        phone: '+216 52 345 678',
+        whatsapp: '+216 52 345 678',
+        companyName: 'MA Training & Consulting',
+        supportHours: '24/7',
+        responseTime: 'Sous 2h',
+        buttons: {
+          email: { text: '📩 Email', enabled: true, style: 'primary' },
+          phone: { text: '📞 Téléphone', enabled: true, style: 'secondary' },
+          whatsapp: { text: 'WhatsApp', enabled: true, style: 'whatsapp' }
+        },
+        links: {
+          email: 'mailto:contact@matc-consulting.com',
+          phone: 'tel:+21652345678',
+          whatsapp: 'https://wa.me/21652345678'
+        }
+      };
+      setContactData(defaultData);
+    }
+  };
+
+  // Map icon names to actual icon components
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+      Globe,
+      Bot,
+      GraduationCap,
+      Database,
+      Settings,
+      Users
+    };
+    return iconMap[iconName] || Globe;
+  };
+
+  // Transform API data to component format
+  const services = servicesData ? servicesData.services.map(service => ({
+    id: service.id,
+    title: service.title,
+    icon: getIconComponent(service.icon),
+    color: service.color,
+    gradient: service.gradient,
+    items: service.items
+  })) : [];
+
+  // Get title and intro from API or use defaults
+  const pageTitle = servicesData?.title || 'Nos Services';
+  const pageIntro = servicesData?.intro || 'Des solutions complètes pour digitaliser votre entreprise et optimiser vos performances';
+  
+  // Get products data from API or use defaults
+  const productsTitle = productsData?.title || 'Démo & Produits Prêts';
+  const productsIntro = productsData?.intro || 'Découvrez nos solutions en action et testez nos produits avant de vous engager';
+  const products = productsData?.products || [];
 
   const testimonialsRef = useRef<HTMLDivElement>(null);
   const scrollTestimonials = (dir: 'prev' | 'next') => {
@@ -70,56 +158,7 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
     el.scrollBy({ left: dir === 'next' ? amount : -amount, behavior: 'smooth' });
   };
 
-  const products = [
-    {
-      title: 'Site Web Démo',
-      description: 'Site vitrine professionnel avec accès test complet',
-      imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
-      details: [
-        'Hébergement et domaine inclus (démo)',
-        'Design responsive multi-plateformes',
-        'Formulaire de contact et pages essentielles'
-      ],
-      mailtoSubject: 'Plus d\'infos - Site Web Démo',
-      demoLink: '#demo-site'
-    },
-    {
-      title: 'Pack Publications Pro',
-      description: 'Affiches et contenus visuels professionnels prêts à utiliser',
-      imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop',
-      details: [
-        'Templates multi-format (feed, story, reels)',
-        'Charte graphique cohérente',
-        'Calendrier éditorial de 30 jours'
-      ],
-      mailtoSubject: 'Plus d\'infos - Pack Publications Pro',
-      demoLink: '#demo-publications'
-    },
-    {
-      title: 'E-commerce Testable',
-      description: 'Plateforme de vente en ligne complète et personnalisable',
-      imageUrl: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=1600&auto=format&fit=crop',
-      details: [
-        'Catalogue produits et gestion panier',
-        'Paiement test (sandbox) et factures',
-        'Dashboard commandes et clients'
-      ],
-      mailtoSubject: 'Plus d\'infos - E-commerce Testable',
-      demoLink: '#demo-ecommerce'
-    },
-    {
-      title: 'Campagnes Sponsoring',
-      description: 'Campagnes publicitaires optimisées prêtes à lancer',
-      imageUrl: 'https://images.unsplash.com/photo-1543286386-2e659306cd6c?q=80&w=1600&auto=format&fit=crop',
-      details: [
-        'Ciblage précis et audiences lookalike',
-        'Cohortes tests et A/B testing',
-        'Rapports de performance clairs'
-      ],
-      mailtoSubject: 'Plus d\'infos - Campagnes Sponsoring',
-      demoLink: '#demo-campaigns'
-    }
-  ];
+  // Products are used directly from the products variable
 
   const [isProductModalOpen, setProductModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<typeof products[number] | null>(null);
@@ -133,7 +172,8 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
     setSelectedProduct(null);
   };
 
-  const portfolio = [
+  // Use API data if available, otherwise fallback to static data
+  const portfolio = portfolioData ? portfolioData.portfolio : [
     {
       title: 'Transformation E-commerce',
       description: 'Augmentation de 300% des ventes en ligne',
@@ -154,9 +194,9 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
     }
   ];
 
-  // Real examples per portfolio category (dummy placeholders to be replaced by real client names)
+  // Portfolio examples from API or fallback to static data
   type PortfolioExample = { name: string; detail: string; link?: string; imageUrl?: string };
-  const portfolioExamples: Record<string, PortfolioExample[]> = {
+  const portfolioExamples: Record<string, PortfolioExample[]> = portfolioData ? portfolioData.portfolioExamples : {
     'Transformation E-commerce': [
       { name: 'Boutique Alpha', detail: 'Migration Shopify + campagnes Meta/Google → CA x3 en 4 mois', link: '#case-boutique-alpha', imageUrl: 'https://images.unsplash.com/photo-1515165562835-c3b8c2e5d3c4?q=80&w=400&auto=format&fit=crop' },
       { name: 'ModeLine', detail: 'Optimisation checkout et upsell → +22% panier moyen', link: '#case-modeline' },
@@ -176,7 +216,8 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
 
   const [showPortfolioDetails, setShowPortfolioDetails] = useState(false);
 
-  const testimonials = [
+  // Use API data if available, otherwise fallback to static data
+  const testimonials = testimonialsData ? testimonialsData.testimonials.slice(0, 3) : [
     {
       name: 'Sarah Dubois',
       company: 'TechStart SAS',
@@ -233,32 +274,53 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
 
   const testimonialsAll = [...testimonials, ...moreTestimonials];
 
-  // Contact info shown inside the product modal
-  const CONTACT_EMAIL = 'contact@example.com';
-  const CONTACT_PHONE = '+216 52 345 678';
+  // Contact info from API or defaults
+  const CONTACT_EMAIL = contactData?.email || 'contact@matc-consulting.com';
+  const CONTACT_PHONE = contactData?.phone || '+216 52 345 678';
+  const CONTACT_WHATSAPP = contactData?.whatsapp || '+216 52 345 678';
 
   const generateMailto = (subject: string) => {
-    const body = `Bonjour,
+    if (contactData?.links?.email) {
+      // Si on a les liens depuis l'API, les utiliser
+      return contactData.links.email.replace(
+        encodeURIComponent('Demande de consultation - Digitalisation MATC'),
+        encodeURIComponent(subject)
+      );
+    }
+    
+    // Fallback vers la génération manuelle
+    return digitalizationContactApiService.generateMailto(subject);
+  };
 
-Je souhaite obtenir plus d'informations concernant vos services de digitalisation.
+  const generatePhoneLink = () => {
+    if (contactData?.links?.phone) {
+      return contactData.links.phone;
+    }
+    return digitalizationContactApiService.generatePhoneLink(CONTACT_PHONE);
+  };
 
-Mes coordonnées :
-- Nom : [Votre nom]
-- Entreprise : [Nom de votre entreprise]
-- Téléphone : [Votre numéro]
-- Secteur d'activité : [Votre secteur]
-
-Besoins spécifiques :
-[Décrivez brièvement vos besoins]
-
-Cordialement,
-[Votre nom]`;
-
-    return `mailto:contact@digitalisation.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const generateWhatsAppLink = () => {
+    if (contactData?.links?.whatsapp) {
+      return contactData.links.whatsapp;
+    }
+    return digitalizationContactApiService.generateWhatsAppLink(CONTACT_WHATSAPP);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Development API Status Indicator */}
+      {import.meta.env.DEV && (
+        <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+            apiConnected 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {apiConnected ? '🟢 APIs Connected' : '🔴 APIs Disconnected'}
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
@@ -319,21 +381,21 @@ Cordialement,
                 
                 <div className="flex gap-4">
                   <a
-                    href="tel:+33123456789"
+                    href={generatePhoneLink()}
                     className="inline-flex items-center space-x-3 rounded-full bg-white text-gray-800 px-6 py-4 font-semibold shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:-translate-y-0.5"
                   >
                     <Phone className="w-5 h-5 text-blue-600" />
-                    <span>📞 Appeler</span>
+                    <span>{contactData?.buttons?.phone?.text || '📞 Appeler'}</span>
                   </a>
                   
                   <a
-                    href="https://wa.me/33123456789"
+                    href={generateWhatsAppLink()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center space-x-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-4 font-semibold shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
                   >
                     <MessageCircle className="w-5 h-5" />
-                    <span>WhatsApp</span>
+                    <span>{contactData?.buttons?.whatsapp?.text || 'WhatsApp'}</span>
                   </a>
                 </div>
               </div>
@@ -348,15 +410,31 @@ Cordialement,
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-6 [font-family:Arial,Helvetica,sans-serif]">
-              Nos <span className="text-blue-600">Services</span>
+              {pageTitle.split(' ').map((word, index) => 
+                index === 1 ? <span key={index} className="text-blue-600">{word}</span> : <span key={index}>{word}</span>
+              ).reduce((prev: React.ReactNode[], curr, index) => index === 0 ? [curr] : [...prev, ' ', curr], [] as React.ReactNode[])}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Des solutions complètes pour digitaliser votre entreprise et optimiser vos performances
+              {pageIntro}
             </p>
+            
+            {/* API Status Indicator (only visible in development) */}
+            {import.meta.env.DEV && (
+              <div className="mt-4 flex justify-center">
+                <div className={`px-3 py-1 rounded-full text-sm font-medium ${apiConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {apiConnected ? '🟢 API Connectée' : '🔴 Données statiques'}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {services.map((service, index) => (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500">🔄 Chargement des services...</div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {services.map((service, index) => (
               <div
                 key={service.id}
                 className={`service-card bg-white/90 rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 animate-slide-up ring-1 ring-transparent hover:ring-indigo-200`}
@@ -380,7 +458,8 @@ Cordialement,
                 </ul>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -389,18 +468,42 @@ Cordialement,
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-6">
-              Démo &{' '}
-              <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-                Produits Prêts
-              </span>
+              {productsTitle.includes('&') ? (
+                <>
+                  {productsTitle.split('&')[0].trim()}&{' '}
+                  <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+                    {productsTitle.split('&')[1].trim()}
+                  </span>
+                </>
+              ) : (
+                productsTitle
+              )}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Découvrez nos solutions en action et testez nos produits avant de vous engager
+              {productsIntro}
             </p>
+            
+            {/* API Status Indicator for products (only visible in development) */}
+            {import.meta.env.DEV && (
+              <div className="mt-4 flex justify-center">
+                <div className={`px-3 py-1 rounded-full text-sm font-medium ${apiConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {apiConnected ? '🟢 API Produits Connectée' : '🔴 Données statiques produits'}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product, index) => (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500">🔄 Chargement des produits...</div>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500">Aucun produit disponible pour le moment.</div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {products.map((product, index) => (
               <div
                 key={index}
                 className={`product-card bg-white/90 rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 animate-slide-up ring-1 ring-transparent hover:ring-purple-200`}
@@ -431,7 +534,8 @@ Cordialement,
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
 
           {/* Product Details Modal */}
           {isProductModalOpen && selectedProduct && (
@@ -465,18 +569,18 @@ Cordialement,
                       </div>
                       <div className="flex items-center gap-2 text-slate-700">
                         <Phone className="h-5 w-5 text-emerald-600" />
-                        <a href={`tel:${CONTACT_PHONE.replace(/\s/g,'')}`} className="hover:underline">{CONTACT_PHONE}</a>
+                        <a href={generatePhoneLink()} className="hover:underline">{CONTACT_PHONE}</a>
                       </div>
                     </div>
                     <div className="mt-3 flex gap-3">
                       <a
-                        href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(selectedProduct.mailtoSubject)}`}
+                        href={generateMailto(selectedProduct.mailtoSubject || 'Demande d\'information produit')}
                         className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-2 text-sm font-medium shadow-sm hover:shadow-md"
                       >
                         <Mail className="h-4 w-4" /> Envoyer un email
                       </a>
                       <a
-                        href={`tel:${CONTACT_PHONE.replace(/\s/g,'')}`}
+                        href={generatePhoneLink()}
                         className="inline-flex items-center gap-2 rounded-full bg-white text-gray-900 px-4 py-2 text-sm font-medium border border-slate-200 hover:bg-slate-50"
                       >
                         <Phone className="h-4 w-4" /> Appeler maintenant
@@ -495,10 +599,10 @@ Cordialement,
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-6">
-              Portfolio & <span className="text-green-600">Réalisations</span>
+              {portfolioData ? portfolioData.title : 'Portfolio & Réalisations'}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Découvrez les résultats concrets obtenus pour nos clients
+              {portfolioData ? portfolioData.intro : 'Découvrez les résultats concrets obtenus pour nos clients'}
             </p>
           </div>
 
@@ -590,14 +694,10 @@ Cordialement,
         <div className="container mx-auto px-6">
           <div className="text-center mb-10 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
-              Témoignages
-              {" "}
-              <span className="bg-gradient-to-r from-yellow-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">
-                Clients
-              </span>
+              {testimonialsData ? testimonialsData.title : 'Témoignages Clients'}
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-              Ce que disent nos clients de nos services de digitalisation
+              {testimonialsData ? testimonialsData.subtitle : 'Ce que disent nos clients de nos services de digitalisation'}
             </p>
           </div>
 
@@ -693,26 +793,26 @@ Cordialement,
                 className="inline-flex items-center space-x-3 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
               >
                 <Mail className="w-6 h-6" />
-                <span>📩 Email</span>
+                <span>{contactData?.buttons?.email?.text || '📩 Email'}</span>
               </a>
               
               <div className="flex gap-4">
                 <a
-                  href="tel:+33123456789"
+                  href={generatePhoneLink()}
                   className="inline-flex items-center space-x-3 bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>📞 Téléphone</span>
+                  <span>{contactData?.buttons?.phone?.text || '📞 Téléphone'}</span>
                 </a>
                 
                 <a
-                  href="https://wa.me/33123456789"
+                  href={generateWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center space-x-3 bg-green-500 text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
                   <MessageCircle className="w-5 h-5" />
-                  <span>WhatsApp</span>
+                  <span>{contactData?.buttons?.whatsapp?.text || 'WhatsApp'}</span>
                 </a>
               </div>
             </div>

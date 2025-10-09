@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Users, Star, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Users, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
 import { Domain, Course } from '../types/courses';
+import { freeCoursesService } from '../services/freeCoursesService';
 
 interface FreeCourseModalProps {
   isOpen: boolean;
@@ -17,6 +18,12 @@ interface SelectedCourse {
 }
 
 const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) => {
+  // API Connection State
+  const [isApiConnected, setIsApiConnected] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [apiDomains, setApiDomains] = useState<Domain[]>([]);
+  
+  // Modal State
   const [currentStep, setCurrentStep] = useState<Step>('access-id');
   const [accessId, setAccessId] = useState('');
   const [isValidating, setIsValidating] = useState(false);
@@ -27,21 +34,59 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
   const [searchQuery, setSearchQuery] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Initialize API connection and load data
+  useEffect(() => {
+    if (isOpen) {
+      initializeData();
+    }
+  }, [isOpen]);
+
+  const initializeData = async () => {
+    setIsLoadingData(true);
+    
+    try {
+      console.log('🔄 Initialisation données cours gratuiti...');
+      
+      // Test API connection
+      const connectionTest = await freeCoursesService.testConnection();
+      console.log('🔍 Test connexion:', connectionTest);
+      
+      if (connectionTest.api && connectionTest.domains) {
+        // API is working - load from API
+        setIsApiConnected(true);
+        const domains = await freeCoursesService.getDomains();
+        setApiDomains(domains);
+        console.log('✅ Données chargées depuis l\'API MongoDB');
+      } else {
+        // API not available - use static data
+        setIsApiConnected(false);
+        setApiDomains(coursesData.domains);
+        console.log('📱 Fallback vers données statiques');
+      }
+    } catch (error) {
+      console.error('❌ Erreur initialisation:', error);
+      setIsApiConnected(false);
+      setApiDomains(coursesData.domains);
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  // Use API domains if connected, otherwise use static data
+  const activeDomains = isApiConnected ? apiDomains : coursesData.domains;
+
   // Filtered domains based on search query
   const filteredDomains = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return coursesData.domains;
-    }
-    return coursesData.domains.filter(domain => 
+    if (!searchQuery.trim()) return activeDomains;
+    return activeDomains.filter(domain =>
       domain.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       domain.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, activeDomains]);
 
   // Calculate slides per view and total slides
   const slidesPerView = 3;
   const totalSlides = Math.ceil(filteredDomains.length / slidesPerView);
-
   // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
@@ -67,16 +112,47 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
     setIsValidating(true);
     setError('');
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    if (coursesData.validAccessIds.includes(accessId.toUpperCase())) {
-      setIsValidating(false);
-      setCurrentStep('domain-selection');
-    } else {
-      setIsValidating(false);
-      setError('ID d\'accès invalide. Essayez: DEMO2024');
-      triggerShake();
+    try {
+      if (isApiConnected) {
+        // Use API validation
+        console.log('🔐 Validation via API MongoDB...');
+        const result = await freeCoursesService.validateAccess(accessId.toUpperCase());
+        
+        if (result.success) {
+          console.log('✅ ID validé via API:', accessId);
+          setIsValidating(false);
+          setCurrentStep('domain-selection');
+        } else {
+          console.log('❌ ID invalide via API:', accessId);
+          setIsValidating(false);
+          setError(result.message || 'ID d\'accès invalide');
+          triggerShake();
+        }
+      } else {
+        // Fallback to static validation
+        console.log('📱 Validation via données statiques...');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        if (coursesData.validAccessIds.includes(accessId.toUpperCase())) {
+          setIsValidating(false);
+          setCurrentStep('domain-selection');
+        } else {
+          setIsValidating(false);
+          setError('ID d\'accès invalide. Essayez: DEMO2024');
+          triggerShake();
+        }
+      }
+    } catch (error) {
+      console.error('❌ Erreur validation:', error);
+      // Fallback to static validation on error
+      if (coursesData.validAccessIds.includes(accessId.toUpperCase())) {
+        setIsValidating(false);
+        setCurrentStep('domain-selection');
+      } else {
+        setIsValidating(false);
+        setError('Erreur de connexion. Essayez: DEMO2024');
+        triggerShake();
+      }
     }
   };
 
@@ -110,12 +186,12 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
   };
 
   const getCurrentDomain = (): Domain | undefined => {
-    return coursesData.domains.find((d: Domain) => d.id === selectedDomain);
+    return activeDomains.find((d: Domain) => d.id === selectedDomain);
   };
 
   const getCurrentCourse = (): Course | undefined => {
     if (!selectedCourse) return undefined;
-    const domain = coursesData.domains.find((d: Domain) => d.id === selectedCourse.domainId);
+    const domain = activeDomains.find((d: Domain) => d.id === selectedCourse.domainId);
     return domain?.courses.find((c: Course) => c.id === selectedCourse.courseId);
   };
 
@@ -130,6 +206,31 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
+  };
+
+  const handleCourseAccess = (course: Course) => {
+    console.log('🎯 Accès au cours:', course.title);
+    
+    // Naviguer vers les modules du cours
+    setSelectedCourse({
+      domainId: selectedDomain,
+      courseId: course.id
+    });
+    setCurrentStep('course-modules');
+  };
+
+  const handleModuleAccess = (module: CourseModule) => {
+    console.log('🎯 Accès au module:', module.title);
+    
+    if (module.url) {
+      // Ouvrir l'URL du module dans un nouvel onglet
+      window.open(module.url, '_blank', 'noopener,noreferrer');
+      console.log('🔗 URL ouverte:', module.url);
+    } else {
+      // Si pas d'URL, afficher un message
+      alert(`📖 Module: ${module.title}\n⏱️ Durée: ${module.duration}\n\n⚠️ Aucune URL configurée pour ce module.`);
+      console.log('⚠️ Pas d\'URL pour le module:', module.title);
+    }
   };
 
   const modalVariants = {
@@ -163,6 +264,15 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
 
   return (
     <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="modal-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
       {/* Custom Styles for Enhanced Carousel */}
       <div dangerouslySetInnerHTML={{
         __html: `
@@ -239,13 +349,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
           </style>
         `
       }} />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
         <motion.div
           variants={modalVariants}
           initial="hidden"
@@ -269,15 +372,34 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                 </button>
               )}
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                   {currentStep === 'access-id' && '🎓 Accès Cours Gratuit'}
                   {currentStep === 'domain-selection' && '📚 Choisir un Domaine'}
                   {currentStep === 'course-list' && `💻 Cours ${getCurrentDomain()?.title}`}
                   {currentStep === 'course-modules' && '📖 Modules du Cours'}
+                  
+                  {/* API Status Indicator */}
+                  {isLoadingData ? (
+                    <div className="ml-3 animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                  ) : (
+                    <div className="ml-3 flex items-center">
+                      {isApiConnected ? (
+                        <div className="flex items-center text-green-600 text-xs">
+                          <Wifi className="h-4 w-4 mr-1" />
+                          <span>MongoDB</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center text-orange-600 text-xs">
+                          <WifiOff className="h-4 w-4 mr-1" />
+                          <span>Local</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
                   {currentStep === 'access-id' && 'Saisissez votre ID d\'accès pour commencer'}
-                  {currentStep === 'domain-selection' && 'Sélectionnez le domaine qui vous intéresse'}
+                  {currentStep === 'domain-selection' && `Sélectionnez le domaine qui vous intéresse (${activeDomains.length} disponibles)`}
                   {currentStep === 'course-list' && 'Choisissez le cours que vous souhaitez suivre'}
                   {currentStep === 'course-modules' && 'Accédez aux modules de formation'}
                 </p>
@@ -426,9 +548,9 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                               transform: `translateX(-${currentSlide * (100 / totalSlides)}%)`
                             }}
                           >
-                            {filteredDomains.map((domain: Domain) => (
+                            {filteredDomains.map((domain: Domain, index: number) => (
                               <motion.div
-                                key={domain.id}
+                                key={`${domain.id}-${index}`}
                                 variants={staggerItem}
                                 className="carousel-slide"
                                 style={{ minWidth: `${100 / slidesPerView}%` }}
@@ -580,7 +702,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                                 <CheckCircle className="w-5 h-5" />
                                 Accès gratuit
                               </div>
-                              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform group-hover:scale-105 flex items-center gap-2">
+                              <button 
+                                onClick={() => handleCourseAccess(course)}
+                                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform group-hover:scale-105 flex items-center gap-2"
+                              >
                                 <Play className="w-4 h-4" />
                                 Accéder
                               </button>
@@ -651,7 +776,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                               </div>
                             </div>
                           </div>
-                          <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all transform group-hover:scale-105 flex items-center gap-2">
+                          <button 
+                            onClick={() => handleModuleAccess(module)}
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all transform group-hover:scale-105 flex items-center gap-2"
+                          >
                             <Play className="w-4 h-4" />
                             Accéder
                           </button>
@@ -731,7 +859,8 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
             </AnimatePresence>
           </div>
         </motion.div>
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };

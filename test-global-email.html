@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Global Email - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #059669;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+        }
+        .button:hover { background: #047857; }
+        .button:disabled { background: #9ca3af; cursor: not-allowed; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Global Email Route</h1>
+        <p><strong>Test du nouveau endpoint pour l'email global</strong></p>
+
+        <div>
+            <label for="emailInput"><strong>📧 Email à tester:</strong></label>
+            <input type="email" id="emailInput" value="messi@gmail.com" placeholder="contact@example.com">
+        </div>
+
+        <button class="button" onclick="testGlobalEmail()" id="testBtn">🚀 Tester l'Email Global</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function testGlobalEmail() {
+            const email = document.getElementById('emailInput').value.trim();
+            const testBtn = document.getElementById('testBtn');
+            
+            if (!email) {
+                updateStatus('❌ Veuillez entrer un email', 'error');
+                return;
+            }
+
+            // Clear previous results
+            document.getElementById('results').innerHTML = '';
+            
+            testBtn.disabled = true;
+            testBtn.textContent = '⏳ Test en cours...';
+
+            try {
+                updateStatus('🔄 Test de l\'endpoint global-email...', 'warning');
+                
+                // Test the global email endpoint
+                const response = await fetch(`${API_BASE}/partnerships/global-email`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus(`✅ Succès! Email "${email}" sauvegardé`, 'success');
+                    updateStatus(`📋 Réponse: ${data.message}`, 'success');
+                    updateStatus(`📧 Email confirmé: ${data.data.email}`, 'success');
+                } else {
+                    updateStatus(`❌ Erreur ${response.status}: ${data.message}`, 'error');
+                    
+                    // Show detailed error info
+                    if (data.error) {
+                        updateStatus(`🔍 Détails: ${data.error}`, 'error');
+                    }
+                }
+
+            } catch (error) {
+                updateStatus(`❌ Erreur de connexion: ${error.message}`, 'error');
+                updateStatus('💡 Vérifiez que le Backend est démarré sur port 3001', 'warning');
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = '🚀 Tester l\'Email Global';
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            updateStatus('🔧 Outil de test pour l\'endpoint global-email');
+            updateStatus('ℹ️ Cet outil teste directement l\'API Backend', 'warning');
+        };
+    </script>
+</body>
+</html>

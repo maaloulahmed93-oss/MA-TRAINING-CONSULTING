@@ -347,6 +347,7 @@ export const coursesData: CoursesData = {
     'FREE-ACCESS',
     'STUDENT-2024',
     'TRIAL-COURSE',
-    'GRATUIT-2024'
+    'GRATUIT-2024',
+    'STUD2025'
   ]
 };

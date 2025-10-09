@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Email Update - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #059669;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button:hover { background: #047857; }
+        .button.secondary { background: #6366f1; }
+        .button.secondary:hover { background: #4f46e5; }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        .info { background: #dbeafe; color: #1e40af; }
+        
+        .email-display {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .step {
+            background: #f1f5f9;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            margin: 10px 0;
+        }
+        
+        input[type="email"] {
+            width: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Test Email Update</h1>
+        <p><strong>Test de mise à jour de l'email global en temps réel</strong></p>
+
+        <div class="step">
+            <h3>📧 Email Actuel dans Backend:</h3>
+            <div id="currentEmail" class="email-display">Chargement...</div>
+            <button class="button secondary" onclick="checkCurrentEmail()">🔍 Vérifier Email Actuel</button>
+        </div>
+
+        <div class="step">
+            <h3>🔄 Changer l'Email:</h3>
+            <div>
+                <input type="email" id="newEmail" value="test@matc.com" placeholder="nouvel@email.com">
+                <button class="button" onclick="updateEmail()">💾 Mettre à jour</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🌐 Test du Site Web:</h3>
+            <button class="button secondary" onclick="testWebsiteEmail()">🚀 Tester l'Email sur le Site</button>
+            <p><small>Ceci va vérifier l'email affiché sur localhost:5173</small></p>
+        </div>
+
+        <div id="results"></div>
+
+        <div class="step">
+            <h4>📝 Instructions:</h4>
+            <ol>
+                <li><strong>Étape 1:</strong> Vérifiez l'email actuel dans Backend</li>
+                <li><strong>Étape 2:</strong> Changez l'email ci-dessus</li>
+                <li><strong>Étape 3:</strong> Allez sur localhost:5173 → Programme de Partenariat</li>
+                <li><strong>Étape 4:</strong> Attendez 30 secondes ou rechargez la page</li>
+                <li><strong>Étape 5:</strong> Vérifiez que l'email a changé</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/partnerships';
+
+        function updateStatus(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function checkCurrentEmail() {
+            try {
+                updateStatus('🔍 Vérification de l\'email actuel...', 'info');
+                
+                const response = await fetch(`${API_BASE}/global-email`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const email = data.data.email;
+                    document.getElementById('currentEmail').textContent = email;
+                    updateStatus(`✅ Email actuel: ${email}`, 'success');
+                } else {
+                    updateStatus('❌ Erreur lors de la récupération de l\'email', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateEmail() {
+            const newEmail = document.getElementById('newEmail').value.trim();
+            
+            if (!newEmail) {
+                updateStatus('❌ Veuillez entrer un email', 'error');
+                return;
+            }
+
+            clearResults();
+            
+            try {
+                updateStatus(`🔄 Mise à jour vers: ${newEmail}...`, 'info');
+                
+                const response = await fetch(`${API_BASE}/global-email`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: newEmail })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    updateStatus(`✅ Email mis à jour avec succès!`, 'success');
+                    updateStatus(`📧 Nouvel email: ${data.data.email}`, 'success');
+                    
+                    // Update current email display
+                    document.getElementById('currentEmail').textContent = data.data.email;
+                    
+                    updateStatus('🌐 Allez sur localhost:5173 pour voir le changement', 'warning');
+                    updateStatus('⏰ Le site se met à jour automatiquement toutes les 30 secondes', 'info');
+                } else {
+                    updateStatus(`❌ Erreur: ${data.message}`, 'error');
+                }
+
+            } catch (error) {
+                updateStatus(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWebsiteEmail() {
+            clearResults();
+            
+            try {
+                updateStatus('🌐 Test de l\'email sur le site web...', 'info');
+                
+                // Check backend email
+                const response = await fetch(`${API_BASE}/global-email`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const backendEmail = data.data.email;
+                    updateStatus(`📧 Email Backend: ${backendEmail}`, 'success');
+                    
+                    updateStatus('🔄 Instructions pour tester:', 'warning');
+                    updateStatus('1. Allez sur localhost:5173', 'info');
+                    updateStatus('2. Cliquez "Programme de Partenariat"', 'info');
+                    updateStatus('3. Cliquez "Plus de détails" sur n\'importe quel partenariat', 'info');
+                    updateStatus('4. Scrollez en bas pour voir l\'email', 'info');
+                    updateStatus(`5. L'email doit être: ${backendEmail}`, 'warning');
+                    updateStatus('6. Si ce n\'est pas le cas, attendez 30 secondes ou rechargez', 'info');
+                } else {
+                    updateStatus('❌ Erreur Backend', 'error');
+                }
+
+            } catch (error) {
+                updateStatus(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-load current email
+        window.onload = function() {
+            updateStatus('🔧 Outil de test de mise à jour email chargé');
+            checkCurrentEmail();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Integration - MATC Partnerships</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #4F46E5;
+            margin-top: 0;
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #3730A3;
+        }
+        .button.success {
+            background: #059669;
+        }
+        .button.warning {
+            background: #D97706;
+        }
+        .button.danger {
+            background: #DC2626;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+        }
+        .partnership-preview {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9fafb;
+        }
+        .partnership-header {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .partnership-details {
+            font-size: 14px;
+            color: #4b5563;
+        }
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Test Backend Integration</h1>
+            <p>Test complet du système de partenariat avec Backend API</p>
+        </div>
+
+        <div class="section">
+            <h3>🔧 Contrôles Backend</h3>
+            <button class="button" onclick="testBackendConnection()">Test Connexion Backend</button>
+            <button class="button success" onclick="seedDefaultData()">Seed Données par Défaut</button>
+            <button class="button warning" onclick="getAllPartnerships()">Récupérer Toutes les Partnerships</button>
+            <button class="button danger" onclick="clearAllData()">Effacer Toutes les Données</button>
+            <div id="backend-status"></div>
+        </div>
+
+        <div class="section">
+            <h3>📝 Test Admin Panel Integration</h3>
+            <button class="button" onclick="testAdminPanelSave()">Test Sauvegarde Admin Panel</button>
+            <button class="button" onclick="syncLocalStorageToAPI()">Sync localStorage → API</button>
+            <div id="admin-status"></div>
+        </div>
+
+        <div class="section">
+            <h3>🌐 Test Site Principal Integration</h3>
+            <button class="button" onclick="testWebsiteLoad()">Test Chargement Site</button>
+            <button class="button" onclick="compareDataSources()">Comparer Sources de Données</button>
+            <div id="website-status"></div>
+        </div>
+
+        <div class="section">
+            <h3>📊 Données Actuelles</h3>
+            <div id="current-data"></div>
+        </div>
+
+        <div class="section">
+            <h3>📋 Logs</h3>
+            <button class="button" onclick="clearLogs()">Effacer Logs</button>
+            <div id="logs" class="log-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            
+            const logsContainer = document.getElementById('logs');
+            logsContainer.textContent = logs.join('\n');
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+            
+            console.log(logEntry);
+        }
+
+        function clearLogs() {
+            logs = [];
+            document.getElementById('logs').textContent = '';
+        }
+
+        async function testBackendConnection() {
+            log('Testing backend connection...');
+            const statusDiv = document.getElementById('backend-status');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.innerHTML = `<div class="status success">✅ Backend connecté: ${data.message}</div>`;
+                    log('Backend connection successful', 'success');
+                } else {
+                    statusDiv.innerHTML = `<div class="status error">❌ Backend health check failed</div>`;
+                    log('Backend health check failed', 'error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur de connexion: ${error.message}</div>`;
+                log(`Backend connection error: ${error.message}`, 'error');
+            }
+        }
+
+        async function seedDefaultData() {
+            log('Seeding default partnerships...');
+            const statusDiv = document.getElementById('backend-status');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships/seed`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.innerHTML = `<div class="status success">✅ ${data.count} partnerships créées avec succès</div>`;
+                    log(`${data.count} partnerships seeded successfully`, 'success');
+                    getAllPartnerships();
+                } else {
+                    statusDiv.innerHTML = `<div class="status error">❌ Erreur seed: ${data.message}</div>`;
+                    log(`Seed error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur seed: ${error.message}</div>`;
+                log(`Seed error: ${error.message}`, 'error');
+            }
+        }
+
+        async function getAllPartnerships() {
+            log('Fetching all partnerships...');
+            const statusDiv = document.getElementById('backend-status');
+            const dataDiv = document.getElementById('current-data');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.innerHTML = `<div class="status success">✅ ${data.count} partnerships récupérées</div>`;
+                    log(`${data.count} partnerships fetched successfully`, 'success');
+                    
+                    let html = '<h4>Partnerships dans la base de données:</h4>';
+                    data.data.forEach(partnership => {
+                        html += `
+                            <div class="partnership-preview">
+                                <div class="partnership-header">
+                                    ${partnership.icon} ${partnership.title} (${partnership.type})
+                                </div>
+                                <div class="partnership-details">
+                                    <strong>Email:</strong> ${partnership.contactEmail}<br>
+                                    <strong>Détails:</strong> ${partnership.details.length} points<br>
+                                    <strong>Conditions:</strong> ${partnership.requirements.length} items<br>
+                                    <strong>Mis à jour:</strong> ${new Date(partnership.updatedAt).toLocaleString()}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    dataDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = `<div class="status error">❌ Erreur fetch: ${data.message}</div>`;
+                    log(`Fetch error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur fetch: ${error.message}</div>`;
+                log(`Fetch error: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearAllData() {
+            if (!confirm('Êtes-vous sûr de vouloir effacer toutes les partnerships?')) return;
+            
+            log('Clearing all partnerships...');
+            const statusDiv = document.getElementById('backend-status');
+            
+            try {
+                const types = ['formateur', 'freelance', 'commercial', 'entreprise'];
+                let deletedCount = 0;
+                
+                for (const type of types) {
+                    try {
+                        const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                            method: 'DELETE'
+                        });
+                        const data = await response.json();
+                        if (data.success) deletedCount++;
+                    } catch (e) {
+                        // Continue even if some deletions fail
+                    }
+                }
+                
+                statusDiv.innerHTML = `<div class="status success">✅ ${deletedCount} partnerships supprimées</div>`;
+                log(`${deletedCount} partnerships deleted`, 'success');
+                document.getElementById('current-data').innerHTML = '';
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur suppression: ${error.message}</div>`;
+                log(`Delete error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminPanelSave() {
+            log('Testing Admin Panel save functionality...');
+            const statusDiv = document.getElementById('admin-status');
+            
+            try {
+                // Simulate admin panel save
+                const testData = {
+                    type: 'formateur',
+                    title: 'Formateur Test',
+                    subtitle: 'Test depuis Admin Panel',
+                    intro: 'Ceci est un test d\'intégration Admin Panel.',
+                    icon: '🧪',
+                    color: 'blue',
+                    gradient: 'from-blue-500 to-blue-600',
+                    details: ['Test détail 1', 'Test détail 2'],
+                    requirements: ['Test condition 1', 'Test condition 2'],
+                    contactEmail: 'test@matc.com',
+                    mailSubject: 'Test Admin Panel Integration'
+                };
+                
+                const response = await fetch(`${API_BASE}/partnerships/formateur`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.innerHTML = `<div class="status success">✅ Sauvegarde Admin Panel réussie</div>`;
+                    log('Admin Panel save test successful', 'success');
+                } else {
+                    statusDiv.innerHTML = `<div class="status error">❌ Erreur sauvegarde: ${data.message}</div>`;
+                    log(`Admin Panel save error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur test Admin Panel: ${error.message}</div>`;
+                log(`Admin Panel test error: ${error.message}`, 'error');
+            }
+        }
+
+        async function syncLocalStorageToAPI() {
+            log('Syncing localStorage to API...');
+            const statusDiv = document.getElementById('admin-status');
+            
+            try {
+                const STORAGE_KEY = 'partner_extra_info_v1';
+                const localData = localStorage.getItem(STORAGE_KEY);
+                
+                if (!localData) {
+                    statusDiv.innerHTML = `<div class="status warning">⚠️ Aucune donnée localStorage trouvée</div>`;
+                    log('No localStorage data found', 'warning');
+                    return;
+                }
+                
+                const parsed = JSON.parse(localData);
+                let syncCount = 0;
+                
+                for (const [type, data] of Object.entries(parsed)) {
+                    try {
+                        const partnershipData = {
+                            type,
+                            title: data.title || '',
+                            subtitle: data.subtitle || '',
+                            intro: data.intro || '',
+                            icon: data.icon || '📄',
+                            color: data.color || 'blue',
+                            gradient: data.gradient || 'from-blue-500 to-blue-600',
+                            details: data.details || [],
+                            requirements: data.requirements || [],
+                            contactEmail: data.contactEmail || 'contact@matc.com',
+                            mailSubject: data.mailSubject || 'Candidature - Programme de Partenariat'
+                        };
+                        
+                        const response = await fetch(`${API_BASE}/partnerships/${type}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(partnershipData)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) syncCount++;
+                        
+                    } catch (error) {
+                        log(`Sync error for ${type}: ${error.message}`, 'error');
+                    }
+                }
+                
+                statusDiv.innerHTML = `<div class="status success">✅ ${syncCount}/4 partnerships synchronisées</div>`;
+                log(`${syncCount}/4 partnerships synced from localStorage`, 'success');
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur sync: ${error.message}</div>`;
+                log(`Sync error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWebsiteLoad() {
+            log('Testing website load functionality...');
+            const statusDiv = document.getElementById('website-status');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    // Simulate website transformation
+                    const websiteData = data.data.map(partnership => ({
+                        id: partnership.type,
+                        title: partnership.title,
+                        icon: partnership.icon,
+                        description: partnership.intro,
+                        color: partnership.color,
+                        gradient: partnership.gradient,
+                        details: partnership.details,
+                        conditions: partnership.requirements,
+                        mailSubject: partnership.mailSubject,
+                        contactEmail: partnership.contactEmail
+                    }));
+                    
+                    statusDiv.innerHTML = `<div class="status success">✅ ${websiteData.length} partnerships prêtes pour le site</div>`;
+                    log(`${websiteData.length} partnerships ready for website`, 'success');
+                    
+                    // Show preview
+                    let html = '<h4>Aperçu Site Principal:</h4>';
+                    websiteData.forEach(item => {
+                        html += `
+                            <div class="partnership-preview">
+                                <div class="partnership-header">
+                                    ${item.icon} ${item.title}
+                                </div>
+                                <div class="partnership-details">
+                                    ${item.description}<br>
+                                    <strong>Détails:</strong> ${item.details.length} points<br>
+                                    <strong>Conditions:</strong> ${item.conditions.length} items
+                                </div>
+                            </div>
+                        `;
+                    });
+                    statusDiv.innerHTML += html;
+                    
+                } else {
+                    statusDiv.innerHTML = `<div class="status warning">⚠️ Aucune donnée API disponible pour le site</div>`;
+                    log('No API data available for website', 'warning');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur test site: ${error.message}</div>`;
+                log(`Website test error: ${error.message}`, 'error');
+            }
+        }
+
+        async function compareDataSources() {
+            log('Comparing data sources...');
+            const statusDiv = document.getElementById('website-status');
+            
+            try {
+                // Get API data
+                const apiResponse = await fetch(`${API_BASE}/partnerships`);
+                const apiData = await apiResponse.json();
+                
+                // Get localStorage data
+                const localData = localStorage.getItem('partner_extra_info_v1');
+                const parsedLocal = localData ? JSON.parse(localData) : {};
+                
+                let comparison = '<h4>Comparaison des Sources:</h4>';
+                comparison += `<div class="code-block">API: ${apiData.success ? apiData.count : 0} partnerships
+localStorage: ${Object.keys(parsedLocal).length} partnerships
+
+Détails:`;
+                
+                if (apiData.success) {
+                    apiData.data.forEach(item => {
+                        const localItem = parsedLocal[item.type];
+                        const match = localItem && localItem.title === item.title;
+                        comparison += `\n${item.type}: API ✅ | localStorage ${match ? '✅' : '❌'}`;
+                    });
+                }
+                
+                comparison += '</div>';
+                statusDiv.innerHTML = comparison;
+                log('Data sources comparison completed', 'success');
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Erreur comparaison: ${error.message}</div>`;
+                log(`Comparison error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            log('Backend Integration Test Tool loaded', 'info');
+            testBackendConnection();
+        };
+    </script>
+</body>
+</html>

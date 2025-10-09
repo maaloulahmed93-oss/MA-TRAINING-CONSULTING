@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force Fix Conditions - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #dc2626;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+        }
+        .button:hover { background: #b91c1c; }
+        .button.success { background: #059669; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Force Fix Conditions</h1>
+        <p><strong>Correction forcée du problème des Conditions requises</strong></p>
+
+        <div class="step">
+            <h3>🎯 Plan d'action:</h3>
+            <ol>
+                <li>Supprimer toutes les partnerships existantes</li>
+                <li>Recréer avec des conditions complètes</li>
+                <li>Forcer la synchronisation</li>
+                <li>Vérifier le résultat</li>
+            </ol>
+        </div>
+
+        <button class="button" onclick="executeFullFix()">🚀 EXÉCUTER CORRECTION COMPLÈTE</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function executeFullFix() {
+            updateStatus('🚀 DÉBUT DE LA CORRECTION FORCÉE...', 'warning');
+            
+            try {
+                // Étape 1: Supprimer toutes les partnerships
+                updateStatus('1️⃣ Suppression de toutes les partnerships...');
+                const deleteResponse = await fetch(`${API_BASE}/partnerships`, {
+                    method: 'DELETE'
+                });
+                
+                if (deleteResponse.ok) {
+                    updateStatus('✅ Toutes les partnerships supprimées');
+                } else {
+                    updateStatus('⚠️ Suppression partielle', 'warning');
+                }
+
+                // Étape 2: Recréer avec données complètes
+                updateStatus('2️⃣ Création des partnerships avec conditions complètes...');
+                
+                const partnerships = [
+                    {
+                        partnershipId: 'PART-FORMATEUR-FIXED',
+                        type: 'formateur',
+                        title: 'Formateur',
+                        subtitle: 'Rejoignez notre équipe de formateurs experts',
+                        intro: 'Rejoignez notre équipe de formateurs experts et partagez vos connaissances.',
+                        icon: '📘',
+                        color: 'blue',
+                        gradient: 'from-blue-500 to-blue-600',
+                        details: [
+                            'Encadrer des sessions en présentiel et à distance',
+                            'Concevoir des supports pédagogiques de qualité',
+                            'Évaluer et suivre la progression des apprenants'
+                        ],
+                        requirements: [
+                            'Minimum 3 ans d\'expérience dans votre domaine',
+                            'Diplôme ou certifications reconnues',
+                            'Excellentes compétences pédagogiques',
+                            'Disponibilité flexible pour les formations',
+                            'Maîtrise des outils numériques'
+                        ],
+                        ctaLabel: 'Accéder à l\'Espace Formateur',
+                        isActive: true
+                    },
+                    {
+                        partnershipId: 'PART-FREELANCE-FIXED',
+                        type: 'freelance',
+                        title: 'Freelance',
+                        subtitle: 'Collaborez avec nous en tant que freelance',
+                        intro: 'Collaborez avec nous pour des missions ponctuelles ou récurrentes.',
+                        icon: '💻',
+                        color: 'green',
+                        gradient: 'from-green-500 to-green-600',
+                        details: [
+                            'Missions adaptées à votre expertise',
+                            'Collaboration flexible et agile',
+                            'Facturation simple et transparente'
+                        ],
+                        requirements: [
+                            'Portfolio démontrant vos compétences',
+                            'Expérience en freelancing ou projets indépendants',
+                            'Capacité à respecter les délais',
+                            'Communication professionnelle',
+                            'Spécialisation dans un domaine technique'
+                        ],
+                        ctaLabel: 'Accéder à l\'Espace Freelancer',
+                        isActive: true
+                    },
+                    {
+                        partnershipId: 'PART-COMMERCIAL-FIXED',
+                        type: 'commercial',
+                        title: 'Commercial / Affilié',
+                        subtitle: 'Devenez notre partenaire commercial',
+                        intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives.',
+                        icon: '📈',
+                        color: 'orange',
+                        gradient: 'from-orange-500 to-orange-600',
+                        details: [
+                            'Programme de commissions motivant',
+                            'Outils marketing fournis',
+                            'Suivi et reporting dédiés'
+                        ],
+                        requirements: [
+                            'Expérience en vente ou marketing',
+                            'Réseau professionnel développé',
+                            'Compétences en négociation',
+                            'Motivation et esprit entrepreneurial',
+                            'Connaissance du secteur de la formation'
+                        ],
+                        ctaLabel: 'Accéder à l\'Espace Commercial',
+                        isActive: true
+                    },
+                    {
+                        partnershipId: 'PART-ENTREPRISE-FIXED',
+                        type: 'entreprise',
+                        title: 'Entreprise / École',
+                        subtitle: 'Établissez un partenariat institutionnel',
+                        intro: 'Établissez un partenariat pour des formations sur mesure.',
+                        icon: '🏢',
+                        color: 'purple',
+                        gradient: 'from-purple-500 to-purple-600',
+                        details: [
+                            'Programmes adaptés aux objectifs',
+                            'Accompagnement et suivi personnalisés',
+                            'Modalités intra/inter-entreprise'
+                        ],
+                        requirements: [
+                            'Entreprise ou institution éducative établie',
+                            'Besoin récurrent en formation',
+                            'Capacité de collaboration à long terme',
+                            'Budget dédié à la formation',
+                            'Engagement dans le développement des compétences'
+                        ],
+                        ctaLabel: 'Accéder à l\'Espace Partenariat',
+                        isActive: true
+                    }
+                ];
+
+                // Créer chaque partnership individuellement
+                for (const partnership of partnerships) {
+                    try {
+                        const response = await fetch(`${API_BASE}/partnerships`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(partnership)
+                        });
+
+                        if (response.ok) {
+                            updateStatus(`✅ ${partnership.title}: Créé avec ${partnership.requirements.length} conditions`);
+                        } else {
+                            // Essayer avec PUT si POST échoue
+                            const putResponse = await fetch(`${API_BASE}/partnerships/${partnership.type}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(partnership)
+                            });
+                            
+                            if (putResponse.ok) {
+                                updateStatus(`✅ ${partnership.title}: Mis à jour avec ${partnership.requirements.length} conditions`);
+                            } else {
+                                updateStatus(`❌ ${partnership.title}: Échec création`, 'error');
+                            }
+                        }
+                    } catch (error) {
+                        updateStatus(`❌ ${partnership.title}: ${error.message}`, 'error');
+                    }
+                    
+                    // Petit délai entre les créations
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                // Étape 3: Vérification finale
+                updateStatus('3️⃣ Vérification finale...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const verifyResponse = await fetch(`${API_BASE}/partnerships`);
+                if (verifyResponse.ok) {
+                    const data = await verifyResponse.json();
+                    updateStatus(`✅ Vérification: ${data.count} partnerships créées`);
+                    
+                    let allHaveRequirements = true;
+                    data.data.forEach(p => {
+                        const reqCount = p.requirements?.length || 0;
+                        if (reqCount > 0) {
+                            updateStatus(`✅ ${p.title}: ${reqCount} conditions`);
+                        } else {
+                            updateStatus(`❌ ${p.title}: Aucune condition`, 'error');
+                            allHaveRequirements = false;
+                        }
+                    });
+                    
+                    if (allHaveRequirements) {
+                        updateStatus('🎉 CORRECTION RÉUSSIE! Toutes les partnerships ont des conditions!', 'success');
+                        updateStatus('🌐 Rechargez le site maintenant - les conditions devraient apparaître!', 'success');
+                    } else {
+                        updateStatus('⚠️ Certaines partnerships n\'ont toujours pas de conditions', 'warning');
+                    }
+                }
+
+            } catch (error) {
+                updateStatus(`❌ ERREUR CRITIQUE: ${error.message}`, 'error');
+                updateStatus('💡 Vérifiez que le Backend est démarré sur port 3001', 'warning');
+            }
+        }
+
+        // Auto-message
+        window.onload = function() {
+            updateStatus('⚡ Correction forcée prête');
+            updateStatus('⚠️ Cette opération va recréer toutes les partnerships avec des conditions complètes', 'warning');
+            updateStatus('🎯 Cliquez sur le bouton rouge pour commencer', 'warning');
+        };
+    </script>
+</body>
+</html>

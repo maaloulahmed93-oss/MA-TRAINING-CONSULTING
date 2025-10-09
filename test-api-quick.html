@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Quick - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test API Quick - MATC Backend</h1>
+        <p>Test rapide de la connexion API et des services de digitalisation</p>
+        
+        <button onclick="testHealth()">🔗 Test Health</button>
+        <button onclick="testDigitalizationServices()">📋 Test Services</button>
+        <button onclick="testCreateService()">➕ Test Create</button>
+        <button onclick="clearResults()">🗑️ Clear</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `[${timestamp}] ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testHealth() {
+            try {
+                log('🔄 Testing API health...', 'info');
+                const response = await fetch(`${API_BASE}/api/health`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ API Health OK: ${data.message}`, 'success');
+                    
+                    const pre = document.createElement('pre');
+                    pre.textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('results').appendChild(pre);
+                } else {
+                    log(`❌ API Health Failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ API Health Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDigitalizationServices() {
+            try {
+                log('🔄 Testing digitalization services...', 'info');
+                const response = await fetch(`${API_BASE}/api/digitalization-services`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Services OK: ${data.data?.services?.length || 0} services found`, 'success');
+                    
+                    const pre = document.createElement('pre');
+                    pre.textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('results').appendChild(pre);
+                } else {
+                    log(`❌ Services Failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Services Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreateService() {
+            try {
+                log('🔄 Testing service creation...', 'info');
+                
+                const testData = {
+                    title: 'Test Services API',
+                    intro: 'Test d\'intégration API réussi',
+                    services: [
+                        {
+                            id: 'test-api',
+                            title: 'Service Test API',
+                            items: ['Test Item 1', 'Test Item 2', 'API Integration Test']
+                        }
+                    ]
+                };
+                
+                const response = await fetch(`${API_BASE}/api/digitalization-services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Service Created: ${data.message}`, 'success');
+                    
+                    const pre = document.createElement('pre');
+                    pre.textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('results').appendChild(pre);
+                } else {
+                    const errorData = await response.json();
+                    log(`❌ Create Failed: ${errorData.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Create Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            log('🚀 Page loaded, starting auto-tests...', 'info');
+            setTimeout(testHealth, 500);
+            setTimeout(testDigitalizationServices, 1500);
+        };
+    </script>
+</body>
+</html>

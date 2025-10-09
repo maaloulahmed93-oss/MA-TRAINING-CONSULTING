@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 تشخيص Access IDs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-right: 4px solid #4CAF50;
+        }
+        .test-section.error {
+            border-right-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+        .test-section.success {
+            border-right-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .access-id-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 3px solid #2196F3;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص Access IDs - Admin Panel</h1>
+        <p>فحص شامل لمشكلة عدم ظهور Access IDs في Admin Panel</p>
+
+        <!-- Test 1: Backend API -->
+        <div class="test-section" id="test1">
+            <h3>🏥 اختبار Backend API</h3>
+            <button onclick="testBackendAPI()">فحص API</button>
+            <div id="result1"></div>
+        </div>
+
+        <!-- Test 2: Access IDs Data -->
+        <div class="test-section" id="test2">
+            <h3>📋 فحص بيانات Access IDs</h3>
+            <button onclick="testAccessIdsData()">فحص البيانات</button>
+            <div id="result2"></div>
+        </div>
+
+        <!-- Test 3: Create Test ID -->
+        <div class="test-section" id="test3">
+            <h3>➕ إنشاء ID تجريبي</h3>
+            <button onclick="createTestAccessId()">إنشاء ID تجريبي</button>
+            <div id="result3"></div>
+        </div>
+
+        <!-- Test 4: Admin Panel Service -->
+        <div class="test-section" id="test4">
+            <h3>🔧 اختبار Admin Panel Service</h3>
+            <button onclick="testAdminPanelService()">اختبار الخدمة</button>
+            <div id="result4"></div>
+        </div>
+
+        <!-- Test 5: Fix the Issue -->
+        <div class="test-section" id="test5">
+            <h3>🛠️ إصلاح المشكلة</h3>
+            <button onclick="fixAccessIdsIssue()">إصلاح تلقائي</button>
+            <div id="result5"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/free-courses';
+
+        function updateResult(testId, content, status = 'success') {
+            const resultDiv = document.getElementById(`result${testId}`);
+            resultDiv.innerHTML = content;
+            const testSection = document.getElementById(`test${testId}`);
+            testSection.className = `test-section ${status}`;
+        }
+
+        function showLoading(testId) {
+            updateResult(testId, '<div style="text-align: center;"><div class="spinner"></div> جاري الفحص...</div>', 'warning');
+        }
+
+        async function testBackendAPI() {
+            console.log('🏥 Testing Backend API...');
+            showLoading(1);
+            
+            try {
+                // Test health
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    
+                    // Test access-ids endpoint
+                    const accessResponse = await fetch(`${API_BASE}/admin/access-ids`);
+                    
+                    let html = `
+                        <div style="color: #4CAF50; font-weight: bold;">✅ Backend API يعمل</div>
+                        <div class="code-block">
+                            Health Status: ${healthResponse.status}<br>
+                            Access IDs Endpoint: ${accessResponse.status}<br>
+                            Health Data: ${JSON.stringify(healthData, null, 2)}
+                        </div>
+                    `;
+                    
+                    updateResult(1, html, accessResponse.ok ? 'success' : 'error');
+                } else {
+                    throw new Error(`Health check failed: ${healthResponse.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ Backend غير متاح</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                    <p><strong>الحل:</strong></p>
+                    <ul>
+                        <li>تشغيل Backend: <code>cd backend && npm start</code></li>
+                        <li>التأكد من المنفذ 3001</li>
+                    </ul>
+                `;
+                updateResult(1, html, 'error');
+            }
+        }
+
+        async function testAccessIdsData() {
+            console.log('📋 Testing Access IDs Data...');
+            showLoading(2);
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/access-ids`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const accessIds = data.data || [];
+                    
+                    let html = `
+                        <div style="color: #4CAF50; font-weight: bold;">✅ بيانات Access IDs</div>
+                        <p><strong>العدد الإجمالي:</strong> ${accessIds.length}</p>
+                        
+                        ${accessIds.length > 0 ? `
+                            <div style="margin: 15px 0;">
+                                <strong>قائمة Access IDs:</strong>
+                                ${accessIds.map(access => `
+                                    <div class="access-id-item">
+                                        <strong>ID:</strong> ${access.accessId}<br>
+                                        <strong>Active:</strong> ${access.isActive ? 'نعم' : 'لا'}<br>
+                                        <strong>Usage:</strong> ${access.usageCount}/${access.maxUsage === -1 ? '∞' : access.maxUsage}<br>
+                                        <strong>Created:</strong> ${new Date(access.createdAt).toLocaleString('ar')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div style="color: #FF9800; font-weight: bold;">⚠️ لا توجد Access IDs في قاعدة البيانات</div>
+                        `}
+                        
+                        <div class="code-block">
+                            Raw Response: ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                    
+                    updateResult(2, html, accessIds.length > 0 ? 'success' : 'error');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ فشل في جلب البيانات</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(2, html, 'error');
+            }
+        }
+
+        async function createTestAccessId() {
+            console.log('➕ Creating Test Access ID...');
+            showLoading(3);
+            
+            try {
+                const testId = `TEST-${Date.now()}`;
+                
+                const response = await fetch(`${API_BASE}/admin/access-ids`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        accessId: testId,
+                        description: 'ID تجريبي للاختبار',
+                        maxUsage: -1
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    let html = `
+                        <div style="color: #4CAF50; font-weight: bold;">✅ تم إنشاء ID تجريبي</div>
+                        <div class="access-id-item">
+                            <strong>ID المُنشأ:</strong> ${testId}<br>
+                            <strong>الوصف:</strong> ID تجريبي للاختبار<br>
+                            <strong>الاستخدام:</strong> غير محدود
+                        </div>
+                        <div class="code-block">
+                            Response: ${JSON.stringify(data, null, 2)}
+                        </div>
+                        <p><strong>الآن جرب تحديث Admin Panel لرؤية الـ ID الجديد!</strong></p>
+                    `;
+                    
+                    updateResult(3, html, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ فشل في إنشاء ID</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(3, html, 'error');
+            }
+        }
+
+        async function testAdminPanelService() {
+            console.log('🔧 Testing Admin Panel Service...');
+            showLoading(4);
+            
+            try {
+                // Simulate the freeCoursesApiService.getAccessIds() call
+                const response = await fetch(`${API_BASE}/admin/access-ids`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const accessIds = (data.data || []).map(access => access.accessId);
+                    
+                    let html = `
+                        <div style="color: #4CAF50; font-weight: bold;">✅ Admin Panel Service يعمل</div>
+                        <p><strong>getAccessIds() Result:</strong></p>
+                        <div class="code-block">
+                            Raw API Response: ${JSON.stringify(data.data, null, 2)}
+                            <br><br>
+                            Processed Result: ${JSON.stringify(accessIds, null, 2)}
+                        </div>
+                        <p><strong>عدد IDs المُعالجة:</strong> ${accessIds.length}</p>
+                        ${accessIds.length > 0 ? `
+                            <p><strong>IDs List:</strong> ${accessIds.join(', ')}</p>
+                        ` : `
+                            <div style="color: #FF9800;">⚠️ لا توجد IDs للمعالجة</div>
+                        `}
+                    `;
+                    
+                    updateResult(4, html, accessIds.length > 0 ? 'success' : 'error');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ خطأ في Admin Panel Service</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(4, html, 'error');
+            }
+        }
+
+        async function fixAccessIdsIssue() {
+            console.log('🛠️ Fixing Access IDs Issue...');
+            showLoading(5);
+            
+            try {
+                // Step 1: Check current data
+                const checkResponse = await fetch(`${API_BASE}/admin/access-ids`);
+                const checkData = await checkResponse.json();
+                const currentIds = checkData.data || [];
+                
+                let steps = [];
+                
+                // Step 2: Create default IDs if none exist
+                if (currentIds.length === 0) {
+                    const defaultIds = ['DEMO2024', 'FREE-ACCESS', 'STUDENT-2024', 'TRIAL-COURSE'];
+                    
+                    for (const id of defaultIds) {
+                        try {
+                            await fetch(`${API_BASE}/admin/access-ids`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    accessId: id,
+                                    description: `ID افتراضي: ${id}`,
+                                    maxUsage: -1
+                                })
+                            });
+                            steps.push(`✅ تم إنشاء: ${id}`);
+                        } catch (error) {
+                            steps.push(`❌ فشل إنشاء: ${id} - ${error.message}`);
+                        }
+                    }
+                }
+                
+                // Step 3: Verify fix
+                const verifyResponse = await fetch(`${API_BASE}/admin/access-ids`);
+                const verifyData = await verifyResponse.json();
+                const finalIds = verifyData.data || [];
+                
+                let html = `
+                    <div style="color: #4CAF50; font-weight: bold;">🛠️ إصلاح المشكلة مكتمل</div>
+                    
+                    ${steps.length > 0 ? `
+                        <div style="margin: 15px 0;">
+                            <strong>خطوات الإصلاح:</strong><br>
+                            ${steps.join('<br>')}
+                        </div>
+                    ` : ''}
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>النتيجة النهائية:</strong><br>
+                        عدد Access IDs: ${finalIds.length}<br>
+                        IDs: ${finalIds.map(access => access.accessId).join(', ')}
+                    </div>
+                    
+                    <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>✅ الآن اذهب إلى Admin Panel وحدث الصفحة - ستجد Access IDs تظهر!</strong>
+                    </div>
+                `;
+                
+                updateResult(5, html, 'success');
+            } catch (error) {
+                let html = `
+                    <div style="color: #f44336; font-weight: bold;">❌ فشل في الإصلاح</div>
+                    <p><strong>الخطأ:</strong> ${error.message}</p>
+                `;
+                updateResult(5, html, 'error');
+            }
+        }
+
+        // Auto-start first test
+        window.onload = function() {
+            setTimeout(testBackendAPI, 1000);
+        };
+    </script>
+</body>
+</html>

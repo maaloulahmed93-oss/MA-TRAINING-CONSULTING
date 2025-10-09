@@ -1,19 +1,70 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Eye, Users, RefreshCw, Zap } from "lucide-react";
+import { Calendar, Clock, Eye, Users, RefreshCw, Zap, MapPin, Video } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   eventsData,
   updateEventParticipants,
   type Event,
 } from "../data/eventsData";
+import { eventsApiService } from "../services/eventsApiService";
 
 const EventsSection = () => {
   const [events, setEvents] = useState<Event[]>(eventsData);
   const [isUpdating, setIsUpdating] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mise à jour automatique des participants toutes les 20 secondes
+  // جلب الأحداث من API
+  const fetchEventsFromAPI = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const apiEvents = await eventsApiService.getPublishedEvents();
+      
+      // تحويل البيانات من API format إلى Event format مع الأيقونات
+      const transformedEvents: Event[] = apiEvents.map(apiEvent => ({
+        ...apiEvent,
+        icon: getIconComponent(apiEvent.color), // تحويل اللون إلى أيقونة
+      }));
+      
+      setEvents(transformedEvents);
+      setLastUpdate(new Date());
+      console.log(`✅ Events loaded from API: ${transformedEvents.length} events`);
+      
+    } catch (error) {
+      console.error('❌ Error loading events from API:', error);
+      setError('فشل في تحميل الأحداث من الخادم. سيتم استخدام البيانات التجريبية.');
+      
+      // استخدام البيانات التجريبية كـ fallback
+      setEvents(eventsData);
+      setLastUpdate(new Date());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // تحميل الأحداث عند بداية التشغيل
   useEffect(() => {
+    fetchEventsFromAPI();
+  }, []);
+
+  // دالة لتحويل اللون إلى أيقونة
+  const getIconComponent = (color: string) => {
+    switch (color) {
+      case 'blue': return MapPin;
+      case 'purple': return Video;
+      case 'green': return Users;
+      case 'orange': return Calendar;
+      default: return MapPin;
+    }
+  };
+
+  // Mise à jour automatique des participants toutes les 20 secondes (للبيانات التجريبية فقط)
+  useEffect(() => {
+    if (error) return; // لا تحديث إذا كان هناك خطأ في API
+    
     const interval = setInterval(() => {
       setIsUpdating(true);
 
@@ -29,7 +80,7 @@ const EventsSection = () => {
     }, 20000);
 
     return () => clearInterval(interval);
-  }, [events]);
+  }, [events, error]);
 
   // Animation variants
   const containerVariants = {
@@ -69,6 +120,18 @@ const EventsSection = () => {
     return "bg-green-500";
   };
 
+  // دالة فتح رابط الحدث
+  const handleViewEvent = (event: Event) => {
+    if (event.url) {
+      // فتح الرابط في تبويب جديد
+      window.open(event.url, '_blank', 'noopener,noreferrer');
+      console.log(`🔗 Opening event URL: ${event.url}`);
+    } else {
+      // عرض معلومات الحدث إذا لم يكن هناك رابط
+      alert(`معلومات الحدث:\n\nالعنوان: ${event.title}\nالتاريخ: ${event.date}\nالمدة: ${event.duration}\nالمكان: ${event.format}`);
+    }
+  };
+
   return (
     <section className="py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
       {/* Background decorative elements */}
@@ -79,6 +142,30 @@ const EventsSection = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">تحميل الأحداث...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <RefreshCw className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-yellow-700">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Header with live update indicator */}
           <motion.div
             className="text-center mb-16"
@@ -87,9 +174,15 @@ const EventsSection = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Événements en temps réel</span>
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
+                error 
+                  ? 'bg-yellow-100 text-yellow-800' 
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${
+                  error ? 'bg-yellow-500' : 'bg-green-500'
+                }`}></div>
+                <span>{error ? 'البيانات التجريبية' : 'Événements en temps réel'}</span>
                 {isUpdating && <RefreshCw className="w-3 h-3 animate-spin" />}
               </div>
             </div>
@@ -239,9 +332,15 @@ const EventsSection = () => {
                       {/* Action Button */}
                       <div className="col-span-1 text-center">
                         <motion.button
-                          className="event-action-button bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-full hover:shadow-lg transition-all duration-200"
+                          onClick={() => handleViewEvent(event)}
+                          className={`event-action-button text-white p-2 rounded-full hover:shadow-lg transition-all duration-200 ${
+                            event.url 
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700' 
+                              : 'bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600'
+                          }`}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
+                          title={event.url ? 'عرض تفاصيل الحدث' : 'معلومات الحدث'}
                         >
                           <Eye className="w-4 h-4" />
                         </motion.button>

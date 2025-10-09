@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Testimonials Integration - MATC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #3498db;
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+        
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .test-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .test-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .test-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .btn.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+        
+        .log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+        
+        .testimonial-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .testimonial-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .testimonial-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .level-expert { background: #e8f5e8; color: #27ae60; }
+        .level-avance { background: #e3f2fd; color: #2196f3; }
+        .level-intermediaire { background: #fff3e0; color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Test Testimonials Integration</h1>
+            <p>Système de témoignages MATC - Test complet Backend ↔ Admin Panel ↔ Site Principal</p>
+        </div>
+        
+        <div class="content">
+            <!-- Status Section -->
+            <div class="section">
+                <h2>📊 État du Système</h2>
+                <div id="systemStatus">
+                    <span class="status info">🔄 Vérification en cours...</span>
+                </div>
+                <div class="stats" id="statsContainer">
+                    <!-- Stats will be populated here -->
+                </div>
+            </div>
+            
+            <!-- API Tests Section -->
+            <div class="section">
+                <h2>🔧 Tests API Backend</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>🔌 Connexion API</h3>
+                        <p>Test de la connexion au backend</p>
+                        <button class="btn" onclick="testApiConnection()">Tester Connexion</button>
+                        <div id="connectionResult"></div>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>📋 Récupération Témoignages</h3>
+                        <p>Test GET /api/testimonials/published</p>
+                        <button class="btn" onclick="testGetTestimonials()">Récupérer Témoignages</button>
+                        <div id="getResult"></div>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>➕ Création Témoignage</h3>
+                        <p>Test POST /api/testimonials</p>
+                        <button class="btn success" onclick="testCreateTestimonial()">Créer Test</button>
+                        <div id="createResult"></div>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>📊 Statistiques</h3>
+                        <p>Test GET /api/testimonials/stats/summary</p>
+                        <button class="btn" onclick="testGetStats()">Récupérer Stats</button>
+                        <div id="statsResult"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Preview Section -->
+            <div class="section">
+                <h2>👀 Aperçu des Données</h2>
+                <button class="btn" onclick="loadTestimonialsPreviews()">Charger Aperçu</button>
+                <button class="btn danger" onclick="resetTestimonials()">Réinitialiser Données</button>
+                <div id="testimonialsPreview"></div>
+            </div>
+            
+            <!-- Integration Tests Section -->
+            <div class="section">
+                <h2>🔗 Tests d'Intégration</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>🎛️ Admin Panel</h3>
+                        <p>Test de l'intégration Admin Panel</p>
+                        <button class="btn" onclick="testAdminPanelIntegration()">Test Admin</button>
+                        <div id="adminResult"></div>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>🌐 Site Principal</h3>
+                        <p>Test de l'intégration Site Principal</p>
+                        <button class="btn" onclick="testMainSiteIntegration()">Test Site</button>
+                        <div id="siteResult"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Console Log -->
+            <div class="section">
+                <h2>📝 Console de Debug</h2>
+                <button class="btn" onclick="clearLog()">Effacer Log</button>
+                <div id="logConsole" class="log">
+                    🚀 Système de test des témoignages MATC initialisé...<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        
+        // Logging function
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('logConsole');
+            const colors = {
+                info: '#3498db',
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12'
+            };
+            
+            logElement.innerHTML += `<span style="color: ${colors[type]}">[${timestamp}] ${message}</span><br>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('logConsole').innerHTML = '🚀 Console effacée...<br>';
+        }
+        
+        // Test API Connection
+        async function testApiConnection() {
+            log('🔌 Test de connexion API...', 'info');
+            const resultDiv = document.getElementById('connectionResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = '<span class="status success">✅ Connecté</span>';
+                    log('✅ API Backend connecté avec succès', 'success');
+                    updateSystemStatus('connected');
+                } else {
+                    throw new Error('API response not successful');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="status error">❌ Déconnecté</span>';
+                log(`❌ Erreur de connexion: ${error.message}`, 'error');
+                updateSystemStatus('disconnected');
+            }
+        }
+        
+        // Test Get Testimonials
+        async function testGetTestimonials() {
+            log('📋 Test récupération témoignages...', 'info');
+            const resultDiv = document.getElementById('getResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials/published`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<span class="status success">✅ ${result.data.length} témoignages</span>`;
+                    log(`✅ ${result.data.length} témoignages récupérés`, 'success');
+                    updateStats(result.data.length);
+                } else {
+                    throw new Error(result.message || 'Erreur API');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="status error">❌ Erreur</span>';
+                log(`❌ Erreur récupération: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test Create Testimonial
+        async function testCreateTestimonial() {
+            log('➕ Test création témoignage...', 'info');
+            const resultDiv = document.getElementById('createResult');
+            
+            const testTestimonial = {
+                name: "Test User " + Date.now(),
+                position: "Test Developer",
+                skills: "Testing, JavaScript",
+                category: "Test Category",
+                level: "Expert",
+                progress: 100,
+                content: "Ceci est un témoignage de test créé automatiquement.",
+                isPublished: true,
+                rating: 5,
+                company: "Test Company"
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testTestimonial)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = '<span class="status success">✅ Créé</span>';
+                    log(`✅ Témoignage créé: ${result.data.name}`, 'success');
+                } else {
+                    throw new Error(result.message || 'Erreur création');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="status error">❌ Erreur</span>';
+                log(`❌ Erreur création: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test Get Statistics
+        async function testGetStats() {
+            log('📊 Test récupération statistiques...', 'info');
+            const resultDiv = document.getElementById('statsResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials/stats/summary`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    resultDiv.innerHTML = `<span class="status success">✅ Total: ${stats.total}</span>`;
+                    log(`✅ Stats: ${stats.total} total, ${stats.published} publiés`, 'success');
+                    displayDetailedStats(stats);
+                } else {
+                    throw new Error(result.message || 'Erreur stats');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="status error">❌ Erreur</span>';
+                log(`❌ Erreur stats: ${error.message}`, 'error');
+            }
+        }
+        
+        // Load Testimonials Preview
+        async function loadTestimonialsPreviews() {
+            log('👀 Chargement aperçu témoignages...', 'info');
+            const previewDiv = document.getElementById('testimonialsPreview');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials/published`);
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    previewDiv.innerHTML = result.data.map(testimonial => `
+                        <div class="testimonial-preview">
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar">
+                                    ${getInitials(testimonial.name)}
+                                </div>
+                                <div class="testimonial-info">
+                                    <h4>${testimonial.name}</h4>
+                                    <p>${testimonial.position} - ${testimonial.company || 'N/A'}</p>
+                                    <span class="level-badge level-${testimonial.level.toLowerCase()}">
+                                        ${testimonial.level} ${testimonial.progress}%
+                                    </span>
+                                </div>
+                            </div>
+                            <p>"${testimonial.content.substring(0, 150)}..."</p>
+                            <p><strong>Compétences:</strong> ${testimonial.skills}</p>
+                            <p><strong>Note:</strong> ${'★'.repeat(testimonial.rating)}${'☆'.repeat(5-testimonial.rating)}</p>
+                        </div>
+                    `).join('');
+                    
+                    log(`✅ ${result.data.length} témoignages affichés`, 'success');
+                } else {
+                    previewDiv.innerHTML = '<p>Aucun témoignage trouvé</p>';
+                    log('ℹ️ Aucun témoignage à afficher', 'warning');
+                }
+            } catch (error) {
+                previewDiv.innerHTML = '<p>Erreur lors du chargement</p>';
+                log(`❌ Erreur aperçu: ${error.message}`, 'error');
+            }
+        }
+        
+        // Reset Testimonials
+        async function resetTestimonials() {
+            if (!confirm('Êtes-vous sûr de vouloir réinitialiser tous les témoignages ?')) {
+                return;
+            }
+            
+            log('🔄 Réinitialisation des témoignages...', 'warning');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials/reset`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    log('✅ Témoignages réinitialisés avec succès', 'success');
+                    loadTestimonialsPreviews();
+                } else {
+                    throw new Error(result.message || 'Erreur réinitialisation');
+                }
+            } catch (error) {
+                log(`❌ Erreur réinitialisation: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test Admin Panel Integration
+        function testAdminPanelIntegration() {
+            log('🎛️ Test intégration Admin Panel...', 'info');
+            const resultDiv = document.getElementById('adminResult');
+            
+            // Simulate admin panel test
+            const adminUrl = 'http://localhost:8536/testimonials';
+            resultDiv.innerHTML = `
+                <span class="status info">ℹ️ Admin Panel</span><br>
+                <small>URL: <a href="${adminUrl}" target="_blank">${adminUrl}</a></small>
+            `;
+            log(`ℹ️ Admin Panel disponible sur: ${adminUrl}`, 'info');
+        }
+        
+        // Test Main Site Integration
+        function testMainSiteIntegration() {
+            log('🌐 Test intégration Site Principal...', 'info');
+            const resultDiv = document.getElementById('siteResult');
+            
+            // Simulate main site test
+            const siteUrl = 'http://localhost:5173';
+            resultDiv.innerHTML = `
+                <span class="status info">ℹ️ Site Principal</span><br>
+                <small>URL: <a href="${siteUrl}" target="_blank">${siteUrl}</a></small>
+            `;
+            log(`ℹ️ Site Principal disponible sur: ${siteUrl}`, 'info');
+        }
+        
+        // Helper Functions
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+        
+        function updateSystemStatus(status) {
+            const statusDiv = document.getElementById('systemStatus');
+            if (status === 'connected') {
+                statusDiv.innerHTML = '<span class="status success">🟢 Système Opérationnel</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="status error">🔴 Système Déconnecté</span>';
+            }
+        }
+        
+        function updateStats(count) {
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${count}</div>
+                    <div class="stat-label">Témoignages Publiés</div>
+                </div>
+            `;
+        }
+        
+        function displayDetailedStats(stats) {
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.total}</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.published}</div>
+                    <div class="stat-label">Publiés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.unpublished}</div>
+                    <div class="stat-label">Non Publiés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.avgRating.toFixed(1)}</div>
+                    <div class="stat-label">Note Moyenne</div>
+                </div>
+            `;
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            log('🚀 Initialisation des tests...', 'info');
+            setTimeout(() => {
+                testApiConnection();
+            }, 1000);
+            
+            setTimeout(() => {
+                testGetTestimonials();
+            }, 2000);
+        });
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            log('🔄 Actualisation automatique...', 'info');
+            testGetTestimonials();
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Status - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .status-card {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 4px solid #27ae60; }
+        .error { border-left: 4px solid #e74c3c; }
+        .warning { border-left: 4px solid #f39c12; }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #2980b9; }
+        .log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 MATC Backend Status</h1>
+    
+    <div class="status-card">
+        <h2>🔌 API Health Check</h2>
+        <button class="btn" onclick="checkBackendHealth()">Test Backend</button>
+        <div id="healthResult"></div>
+    </div>
+    
+    <div class="status-card">
+        <h2>🎓 Testimonials API</h2>
+        <button class="btn" onclick="testTestimonialsAPI()">Test Testimonials</button>
+        <div id="testimonialsResult"></div>
+    </div>
+    
+    <div class="status-card">
+        <h2>📊 Quick Stats</h2>
+        <button class="btn" onclick="getQuickStats()">Get Stats</button>
+        <div id="statsResult"></div>
+    </div>
+    
+    <div class="log" id="logOutput">
+        🚀 Backend Status Checker Ready...<br>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('logOutput');
+            const colors = {
+                info: '#3498db',
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12'
+            };
+            
+            logElement.innerHTML += `<span style="color: ${colors[type]}">[${timestamp}] ${message}</span><br>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        async function checkBackendHealth() {
+            log('🔌 Checking backend health...', 'info');
+            const resultDiv = document.getElementById('healthResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = '<div class="success">✅ Backend is running</div>';
+                    log('✅ Backend health check passed', 'success');
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">❌ Backend is down</div>';
+                log(`❌ Backend health check failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testTestimonialsAPI() {
+            log('🎓 Testing testimonials API...', 'info');
+            const resultDiv = document.getElementById('testimonialsResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials/published`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ ${result.data.length} testimonials loaded</div>`;
+                    log(`✅ Testimonials API working: ${result.data.length} items`, 'success');
+                } else {
+                    throw new Error(result.message || 'API error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">❌ Testimonials API failed</div>';
+                log(`❌ Testimonials API error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function getQuickStats() {
+            log('📊 Getting quick stats...', 'info');
+            const resultDiv = document.getElementById('statsResult');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testimonials/stats/summary`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Stats loaded<br>
+                            Total: ${stats.total}<br>
+                            Published: ${stats.published}<br>
+                            Average Rating: ${stats.avgRating.toFixed(1)}/5
+                        </div>
+                    `;
+                    log(`✅ Stats loaded: ${stats.total} total, ${stats.published} published`, 'success');
+                } else {
+                    throw new Error(result.message || 'Stats error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">❌ Stats failed</div>';
+                log(`❌ Stats error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run health check on load
+        window.addEventListener('load', () => {
+            setTimeout(checkBackendHealth, 1000);
+        });
+    </script>
+</body>
+</html>

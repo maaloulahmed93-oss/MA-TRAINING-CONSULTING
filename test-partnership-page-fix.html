@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Partnership Page Fix - MATC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .button:hover { background: #3730A3; }
+        .button.success { background: #059669; }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        
+        .fix-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Partnership Page Fix</h1>
+        <p>Correction de l'erreur: <code>Cannot read properties of undefined (reading 'map')</code></p>
+
+        <div class="fix-summary">
+            <h3>🔧 Corrections appliquées:</h3>
+            <ul>
+                <li><strong>PartnershipPage.tsx ligne 378:</strong> Ajout de protection <code>(partnership.conditions || partnership.requirements || [])</code></li>
+                <li><strong>PartnershipPage.tsx ligne 361:</strong> Ajout de protection <code>(partnership.details || [])</code></li>
+                <li><strong>partnershipsApiService.ts:</strong> Ajout de fallbacks <code>|| []</code> dans convertToPartnershipType</li>
+                <li><strong>Interface Partnership:</strong> Suppression des champs email/subject obsolètes</li>
+            </ul>
+        </div>
+
+        <div>
+            <button class="button" onclick="testBackendData()">Test Backend Data</button>
+            <button class="button success" onclick="simulateWebsiteLoad()">Simuler Chargement Website</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function updateStatus(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            let statusClass = type;
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        async function testBackendData() {
+            updateStatus('🔍 Test des données Backend...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    updateStatus(`✅ Backend: ${data.count} partnerships trouvées`);
+                    
+                    // Test data structure
+                    data.data.forEach((partnership, index) => {
+                        const hasDetails = Array.isArray(partnership.details);
+                        const hasRequirements = Array.isArray(partnership.requirements);
+                        const hasTitle = typeof partnership.title === 'string';
+                        
+                        if (hasDetails && hasRequirements && hasTitle) {
+                            updateStatus(`✅ ${partnership.type}: Structure OK (${partnership.details.length} détails, ${partnership.requirements.length} conditions)`);
+                        } else {
+                            updateStatus(`❌ ${partnership.type}: Structure invalide`, 'error');
+                        }
+                    });
+                } else {
+                    updateStatus('❌ Backend: Pas de données', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Backend: ${error.message}`, 'error');
+            }
+        }
+
+        async function simulateWebsiteLoad() {
+            updateStatus('🌐 Simulation du chargement Website...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/partnerships`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    // Simulate the conversion process
+                    const convertedData = data.data.map(partnership => ({
+                        id: partnership.type,
+                        title: partnership.title,
+                        icon: partnership.icon,
+                        description: partnership.intro,
+                        color: partnership.color,
+                        gradient: partnership.gradient,
+                        details: partnership.details || [],
+                        conditions: partnership.requirements || []
+                    }));
+                    
+                    updateStatus(`✅ Conversion réussie: ${convertedData.length} partnerships`);
+                    
+                    // Test that map operations would work
+                    convertedData.forEach(partnership => {
+                        try {
+                            const detailsCount = partnership.details.map(d => d).length;
+                            const conditionsCount = partnership.conditions.map(c => c).length;
+                            updateStatus(`✅ ${partnership.title}: map() fonctionne (${detailsCount} détails, ${conditionsCount} conditions)`);
+                        } catch (error) {
+                            updateStatus(`❌ ${partnership.title}: map() échoue - ${error.message}`, 'error');
+                        }
+                    });
+                    
+                    updateStatus('🎉 Simulation terminée - aucune erreur map() détectée!', 'success');
+                } else {
+                    updateStatus('❌ Simulation: Pas de données', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Simulation: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-start
+        window.onload = function() {
+            updateStatus('🚀 Partnership Page Fix Test chargé');
+            updateStatus('ℹ️ L\'erreur "Cannot read properties of undefined (reading \'map\')" devrait être corrigée');
+        };
+    </script>
+</body>
+</html>

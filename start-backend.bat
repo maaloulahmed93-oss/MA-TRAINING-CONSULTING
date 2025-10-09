@@ -10,14 +10,14 @@ if not exist "node_modules" (
     npm install
 )
 
-echo.
-echo 🚀 بدء تشغيل Backend...
-echo 🔗 Backend سيعمل على: http://localhost:3001
-echo 📊 API endpoint: http://localhost:3001/api/freelancer-decisions
-echo.
-echo ⏹️ لإيقاف Backend اضغط Ctrl+C
-echo.
+echo [2/3] Navigating to backend directory...
+cd backend
 
+echo [3/3] Starting Backend server...
+echo.
+echo Backend will start on: http://localhost:3001
+echo Press Ctrl+C to stop the server
+echo.
 npm start
 
 pause
