@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/',
   server: {
     port: 8536,
-    host: true,
+    host: '0.0.0.0',
     open: false,
     hmr: {
       overlay: true
@@ -42,8 +42,8 @@ export default defineConfig({
     include: ['@headlessui/react', '@heroicons/react']
   },
   preview: {
-    port: 4174,
-    host: true,
+    host: '0.0.0.0',
+    port: 4173,
     allowedHosts: [
       'ma-training-consulting.onrender.com',
       'localhost',
