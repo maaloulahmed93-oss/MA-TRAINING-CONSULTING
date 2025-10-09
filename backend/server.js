@@ -31,6 +31,7 @@ const allowedOrigins = [
   'https://ma-training-consulting.vercel.app',
   'https://matc-admin.vercel.app',
   'https://admine-lake.vercel.app', // Admin Panel Vercel URL
+  'https://admine-git-main-maalouls-projects.vercel.app', // Git-based deployment
   // Development URLs
   'http://localhost:5173', // Main site
   'http://localhost:5174', // Main site (alternate port)
@@ -55,6 +56,15 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any Vercel deployment for this project
+    if (origin && (
+      origin.includes('maalouls-projects.vercel.app') ||
+      origin.includes('admine-') && origin.includes('.vercel.app') ||
+      origin.includes('ma-training-consulting') && origin.includes('.vercel.app')
+    )) {
       return callback(null, true);
     }
     
