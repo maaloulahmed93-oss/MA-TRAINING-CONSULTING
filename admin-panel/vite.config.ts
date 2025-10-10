@@ -10,9 +10,10 @@ export default defineConfig({
       : undefined
   },
   preview: {
-    allowedHosts: ['*'],
+    allowedHosts: ['*', 'ma-training-consulting.onrender.com'],
     host: '0.0.0.0',
-    port: 4173
+    port: 4173,
+    strictPort: false
   },
   define: {
     __ALLOW_ALL_HOSTS__: JSON.stringify(true)
