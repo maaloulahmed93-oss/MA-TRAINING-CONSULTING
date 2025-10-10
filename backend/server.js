@@ -251,19 +251,31 @@ app.use('/api/digitalization-products', digitalizationProductsRoutes);
 // Import site config routes
 import siteConfigRoutes from './routes/siteConfig.js';
 app.use('/api/site-config', siteConfigRoutes);
-
 // Import website pages routes
 import websitePagesRoutes from './routes/websitePages.js';
 app.use('/api/website-pages', websitePagesRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'MATC Backend API is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+// Basic health check endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    // Check MongoDB connection
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
+    res.json({
+      success: true,
+      message: 'API is running',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: dbStatus,
+      uptime: process.uptime()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Health check failed',
+      error: error.message
+    });
+  }
 });
 
 // Root endpoint
