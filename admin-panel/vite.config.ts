@@ -7,12 +7,14 @@ export default defineConfig({
   base: '/',
   server: {
     port: 8536,
-    host: '0.0.0.0',
+    host: true,
     open: false,
+    allowedHosts: ['.vercel.app', '.onrender.com', 'localhost', '127.0.0.1'],
     hmr: {
       overlay: true
     },
-    proxy: {
+    // Only use proxy in development
+    proxy: process.env.NODE_ENV !== 'production' ? {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
@@ -22,7 +24,7 @@ export default defineConfig({
           return path;
         }
       }
-    }
+    } : undefined
   },
   build: {
     outDir: 'dist',
@@ -46,9 +48,11 @@ export default defineConfig({
     port: 4173,
     allowedHosts: [
       'ma-training-consulting.onrender.com',
+      'admine-lake.vercel.app',
+      '.vercel.app',
+      '.onrender.com',
       'localhost',
-      '127.0.0.1',
-      '.vercel.app'
+      '127.0.0.1'
     ]
   }
 })
