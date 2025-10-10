@@ -1,4 +1,5 @@
 export interface Subscriber {
+import { API_BASE_URL } from '../config/api';
   _id: string;
   email: string;
   status: 'subscribed' | 'unsubscribed';
@@ -201,7 +202,7 @@ class NewsletterApiService {
   // Check API health
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`);
       return response.ok;
     } catch (error) {
       console.error('API health check failed:', error);

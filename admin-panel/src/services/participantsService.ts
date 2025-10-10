@@ -1,7 +1,8 @@
 import type { Participant } from "../types/participant";
 
 const STORAGE_KEY = "matc_participants";
-const API_BASE = "http://localhost:3001/api";
+import { API_BASE_URL } from '../config/api';
+const API_BASE = API_BASE_URL;
 
 // Get all participants from API with localStorage fallback
 export async function getAllParticipants(): Promise<Participant[]> {

@@ -8,7 +8,8 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    open: false
+    open: false,
+    allowedHosts: ['ma-training-consulting.onrender.com', 'localhost', '127.0.0.1']
   },
   build: {
     outDir: 'dist',
@@ -27,7 +28,8 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   preview: {
+    host: '0.0.0.0',
     port: 4173,
-    host: true
+    allowedHosts: ['ma-training-consulting.onrender.com', 'localhost', '127.0.0.1']
   }
 });

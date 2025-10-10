@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3001/api/digitalization-portfolio';
+import { API_BASE_URL } from '../config/api';
+const API_BASE = `${API_BASE_URL}/digitalization-portfolio`;
 
 export interface PortfolioCard {
   title: string;

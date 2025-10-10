@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 interface SiteConfig {
   _id?: string;
   siteName: string;
@@ -34,7 +35,7 @@ interface ApiResponse<T> {
 }
 
 class SiteConfigApiService {
-  private readonly API_BASE = 'http://localhost:3001/api/site-config';
+  private readonly API_BASE = API_BASE_URL;
 
   // Obtenir la configuration actuelle
   async getSiteConfig(): Promise<SiteConfig> {
@@ -174,7 +175,7 @@ class SiteConfigApiService {
   // Vérifier la connexion API
   async checkApiConnection(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`);
       const result = await response.json();
       return result.success === true;
     } catch (error) {

@@ -2,6 +2,11 @@
 // Centralized API URL management
 
 export const getApiBaseUrl = (): string => {
+  // Production environment - use environment variable or default to Render URL
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_API_BASE_URL || 'https://ma-training-consulting.onrender.com/api';
+  }
+  
   // Force production URL for any Vercel deployment
   if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
     return 'https://ma-training-consulting.onrender.com/api';

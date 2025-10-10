@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 // خدمة API لإدارة إعدادات الفوتر
 const API_BASE_URL = 'http://localhost:3001/api/footer-settings';
 
@@ -178,7 +179,7 @@ class FooterApiService {
     try {
       console.log('🔍 اختبار الاتصال بـ Footer API...');
 
-      const response = await fetch('http://localhost:3001/api/health', {
+      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

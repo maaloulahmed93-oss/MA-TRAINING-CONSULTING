@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
+    allowedHosts: ['*', 'ma-training-consulting.onrender.com', 'localhost', '127.0.0.1'],
     proxy: process.env.NODE_ENV !== 'production'
       ? { '/api': { target: 'http://localhost:3001', changeOrigin: true } }
       : undefined

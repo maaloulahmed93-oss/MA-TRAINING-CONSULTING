@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Backend Connectivity Diagnosis - MATC Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; margin: 0 auto; 
+            background: white; border-radius: 15px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white; padding: 30px; text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .status-indicator { 
+            display: inline-block; padding: 8px 16px; 
+            border-radius: 20px; margin: 10px 5px;
+            font-weight: bold; font-size: 0.9rem;
+        }
+        .status-success { background: #10b981; color: white; }
+        .status-error { background: #ef4444; color: white; }
+        .status-warning { background: #f59e0b; color: white; }
+        .status-info { background: #3b82f6; color: white; }
+        
+        .content { padding: 30px; }
+        .test-section { 
+            margin-bottom: 30px; padding: 25px; 
+            border: 2px solid #e5e7eb; border-radius: 12px;
+            background: #f9fafb;
+        }
+        .test-section h2 { 
+            color: #374151; margin-bottom: 15px; 
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        .btn { 
+            padding: 12px 24px; margin: 8px; 
+            border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        
+        .result { 
+            margin: 15px 0; padding: 15px; 
+            border-radius: 8px; border-left: 4px solid;
+            font-family: 'Courier New', monospace; font-size: 0.9rem;
+        }
+        .success { background: #ecfdf5; border-color: #10b981; color: #065f46; }
+        .error { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+        .info { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+        .warning { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+        
+        .api-endpoint { 
+            background: #1f2937; color: #e5e7eb; 
+            padding: 10px 15px; border-radius: 6px; 
+            font-family: 'Courier New', monospace;
+            margin: 10px 0; word-break: break-all;
+        }
+        
+        pre { 
+            background: #1f2937; color: #e5e7eb; padding: 15px; 
+            border-radius: 8px; overflow-x: auto; font-size: 0.85rem;
+            max-height: 400px; overflow-y: auto;
+        }
+        
+        .grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; margin: 20px 0;
+        }
+        .card { 
+            background: white; padding: 20px; border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #4f46e5;
+        }
+        .card h3 { color: #374151; margin-bottom: 10px; }
+        .card-value { font-size: 1.5rem; font-weight: bold; color: #4f46e5; }
+        
+        .loading { 
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid #f3f4f6; border-top: 3px solid #4f46e5;
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Backend Connectivity Diagnosis</h1>
+            <p>MATC Admin Panel → Render Backend API</p>
+            <div class="api-endpoint">https://ma-training-consulting.onrender.com/api</div>
+            <div id="overallStatus">
+                <span class="status-indicator status-info">🔄 Testing...</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Environment Check -->
+            <div class="test-section">
+                <h2>🌍 Environment Configuration</h2>
+                <button class="btn btn-primary" onclick="checkEnvironment()">Check Environment</button>
+                <div id="envResults"></div>
+            </div>
+            
+            <!-- API Tests -->
+            <div class="test-section">
+                <h2>🧪 API Connectivity Tests</h2>
+                <button class="btn btn-primary" onclick="runFullDiagnosis()">
+                    <span class="loading" id="diagnosisLoading" style="display: none;"></span>
+                    Run Full Diagnosis
+                </button>
+                <button class="btn btn-success" onclick="testHealth()">Health Check</button>
+                <button class="btn btn-danger" onclick="testPrograms()">Programs API</button>
+                <button class="btn btn-primary" onclick="testCORS()">CORS Test</button>
+                <div id="apiResults"></div>
+            </div>
+            
+            <!-- Results Summary -->
+            <div class="test-section">
+                <h2>📊 Test Results Summary</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Backend Status</h3>
+                        <div class="card-value" id="backendStatus">Unknown</div>
+                    </div>
+                    <div class="card">
+                        <h3>API Response Time</h3>
+                        <div class="card-value" id="responseTime">0ms</div>
+                    </div>
+                    <div class="card">
+                        <h3>CORS Status</h3>
+                        <div class="card-value" id="corsStatus">Unknown</div>
+                    </div>
+                    <div class="card">
+                        <h3>Programs Count</h3>
+                        <div class="card-value" id="programsCount">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Logs -->
+            <div class="test-section">
+                <h2>📝 Detailed Logs</h2>
+                <pre id="detailedLogs">No tests run yet...</pre>
+            </div>
+            
+            <!-- Fix Recommendations -->
+            <div class="test-section">
+                <h2>🔧 Fix Recommendations</h2>
+                <div id="recommendations"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://ma-training-consulting.onrender.com/api';
+        let testResults = [];
+        let logs = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString();
+            logs.push(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+            document.getElementById('detailedLogs').textContent = logs.join('\n');
+            
+            // Also add to results
+            addResult(message, type);
+        }
+        
+        function addResult(message, type = 'info') {
+            const container = document.getElementById('apiResults');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function updateStatus(element, value, type = 'info') {
+            const el = document.getElementById(element);
+            if (el) {
+                el.textContent = value;
+                el.className = `card-value status-${type}`;
+            }
+        }
+        
+        function checkEnvironment() {
+            log('Checking environment configuration...');
+            
+            const envInfo = {
+                hostname: window.location.hostname,
+                protocol: window.location.protocol,
+                userAgent: navigator.userAgent,
+                isVercel: window.location.hostname.includes('vercel.app'),
+                isLocalhost: window.location.hostname === 'localhost',
+                apiBaseUrl: API_BASE_URL
+            };
+            
+            const container = document.getElementById('envResults');
+            container.innerHTML = `
+                <div class="result info">
+                    <strong>Environment Details:</strong><br>
+                    • Hostname: ${envInfo.hostname}<br>
+                    • Protocol: ${envInfo.protocol}<br>
+                    • Is Vercel: ${envInfo.isVercel}<br>
+                    • Is Localhost: ${envInfo.isLocalhost}<br>
+                    • API Base URL: ${envInfo.apiBaseUrl}
+                </div>
+            `;
+            
+            log(`Environment check complete: ${JSON.stringify(envInfo)}`);
+        }
+        
+        async function testHealth() {
+            log('Testing backend health endpoint...');
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                updateStatus('responseTime', `${responseTime}ms`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus('backendStatus', 'Online', 'success');
+                    log(`Health check SUCCESS: ${JSON.stringify(data)} (${responseTime}ms)`, 'success');
+                    return { success: true, data, responseTime };
+                } else {
+                    updateStatus('backendStatus', `Error ${response.status}`, 'error');
+                    log(`Health check FAILED: HTTP ${response.status} (${responseTime}ms)`, 'error');
+                    return { success: false, status: response.status, responseTime };
+                }
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStatus('backendStatus', 'Offline', 'error');
+                log(`Health check ERROR: ${error.message} (${responseTime}ms)`, 'error');
+                return { success: false, error: error.message, responseTime };
+            }
+        }
+        
+        async function testPrograms() {
+            log('Testing programs API endpoint...');
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/programs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = Array.isArray(data) ? data.length : 0;
+                    updateStatus('programsCount', count);
+                    log(`Programs API SUCCESS: Found ${count} programs (${responseTime}ms)`, 'success');
+                    
+                    // Log sample data if available
+                    if (count > 0) {
+                        log(`Sample program: ${JSON.stringify(data[0], null, 2)}`);
+                    } else {
+                        log('No programs found in database - this matches the memory about 0 programs', 'warning');
+                    }
+                    
+                    return { success: true, data, count, responseTime };
+                } else {
+                    const errorText = await response.text();
+                    updateStatus('programsCount', 'Error');
+                    log(`Programs API FAILED: HTTP ${response.status} - ${errorText} (${responseTime}ms)`, 'error');
+                    return { success: false, status: response.status, error: errorText, responseTime };
+                }
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStatus('programsCount', 'Error');
+                log(`Programs API ERROR: ${error.message} (${responseTime}ms)`, 'error');
+                return { success: false, error: error.message, responseTime };
+            }
+        }
+        
+        async function testCORS() {
+            log('Testing CORS configuration...');
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/programs`, {
+                    method: 'OPTIONS'
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                };
+                
+                const hasCORS = corsHeaders['Access-Control-Allow-Origin'] !== null;
+                updateStatus('corsStatus', hasCORS ? 'Enabled' : 'Disabled', hasCORS ? 'success' : 'error');
+                
+                log(`CORS test complete: ${JSON.stringify(corsHeaders)} (${responseTime}ms)`, hasCORS ? 'success' : 'warning');
+                
+                return { success: hasCORS, corsHeaders, responseTime };
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStatus('corsStatus', 'Error', 'error');
+                log(`CORS test ERROR: ${error.message} (${responseTime}ms)`, 'error');
+                return { success: false, error: error.message, responseTime };
+            }
+        }
+        
+        async function runFullDiagnosis() {
+            const loading = document.getElementById('diagnosisLoading');
+            loading.style.display = 'inline-block';
+            
+            log('='.repeat(50));
+            log('Starting full backend connectivity diagnosis...');
+            log('='.repeat(50));
+            
+            // Clear previous results
+            testResults = [];
+            
+            // Run all tests
+            checkEnvironment();
+            
+            const healthResult = await testHealth();
+            testResults.push({ name: 'Health Check', ...healthResult });
+            
+            const programsResult = await testPrograms();
+            testResults.push({ name: 'Programs API', ...programsResult });
+            
+            const corsResult = await testCORS();
+            testResults.push({ name: 'CORS Test', ...corsResult });
+            
+            // Generate recommendations
+            generateRecommendations();
+            
+            // Update overall status
+            const successCount = testResults.filter(r => r.success).length;
+            const totalTests = testResults.length;
+            const overallStatus = document.getElementById('overallStatus');
+            
+            if (successCount === totalTests) {
+                overallStatus.innerHTML = '<span class="status-indicator status-success">✅ All Tests Passed</span>';
+                log('DIAGNOSIS COMPLETE: All tests passed! Backend connectivity is working.', 'success');
+            } else if (successCount > 0) {
+                overallStatus.innerHTML = '<span class="status-indicator status-warning">⚠️ Partial Success</span>';
+                log(`DIAGNOSIS COMPLETE: ${successCount}/${totalTests} tests passed. Some issues detected.`, 'warning');
+            } else {
+                overallStatus.innerHTML = '<span class="status-indicator status-error">❌ All Tests Failed</span>';
+                log('DIAGNOSIS COMPLETE: All tests failed. Backend connectivity issues detected.', 'error');
+            }
+            
+            loading.style.display = 'none';
+        }
+        
+        function generateRecommendations() {
+            const container = document.getElementById('recommendations');
+            const failedTests = testResults.filter(r => !r.success);
+            
+            if (failedTests.length === 0) {
+                container.innerHTML = `
+                    <div class="result success">
+                        <strong>✅ No Issues Detected</strong><br>
+                        All connectivity tests passed successfully. Your Admin Panel should be able to communicate with the Render backend without issues.
+                    </div>
+                `;
+                return;
+            }
+            
+            let recommendations = '<div class="result error"><strong>🔧 Issues Detected - Recommended Fixes:</strong><br><br>';
+            
+            failedTests.forEach(test => {
+                if (test.name === 'Health Check') {
+                    recommendations += `
+                        <strong>1. Backend Health Issue:</strong><br>
+                        • Check if your Render service is running and deployed<br>
+                        • Verify the backend URL: ${API_BASE_URL}<br>
+                        • Check Render logs for any startup errors<br><br>
+                    `;
+                }
+                
+                if (test.name === 'Programs API' && test.status === 404) {
+                    recommendations += `
+                        <strong>2. Programs API Not Found:</strong><br>
+                        • Verify that /api/programs route exists in your backend<br>
+                        • Check if the backend is properly configured<br>
+                        • This matches the memory about programs not reaching backend<br><br>
+                    `;
+                }
+                
+                if (test.name === 'Programs API' && test.error && test.error.includes('CORS')) {
+                    recommendations += `
+                        <strong>3. CORS Configuration Issue:</strong><br>
+                        • Add your Vercel domain to backend CORS allowedOrigins<br>
+                        • Update backend to include: app.use(cors({ origin: ['https://admine-lake.vercel.app'] }))<br>
+                        • Or temporarily use '*' for testing<br><br>
+                    `;
+                }
+                
+                if (test.name === 'CORS Test' && !test.success) {
+                    recommendations += `
+                        <strong>4. CORS Headers Missing:</strong><br>
+                        • Backend is not sending proper CORS headers<br>
+                        • Install and configure cors middleware in your Express app<br>
+                        • Ensure preflight requests are handled<br><br>
+                    `;
+                }
+            });
+            
+            // Add environment variable check
+            recommendations += `
+                <strong>5. Environment Variable Check:</strong><br>
+                • Ensure VITE_API_BASE_URL is set in Vercel deployment settings<br>
+                • Value should be: https://ma-training-consulting.onrender.com/api<br>
+                • Redeploy after setting environment variables<br><br>
+            `;
+            
+            recommendations += '</div>';
+            container.innerHTML = recommendations;
+        }
+        
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            log('Backend connectivity diagnosis tool loaded');
+            log(`Target API: ${API_BASE_URL}`);
+            
+            // Auto-run environment check
+            setTimeout(checkEnvironment, 1000);
+            
+            // Auto-run health check
+            setTimeout(testHealth, 2000);
+        };
+    </script>
+</body>
+</html>

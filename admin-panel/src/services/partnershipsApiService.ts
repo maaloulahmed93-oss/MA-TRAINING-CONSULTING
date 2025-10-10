@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:3001/api/partnerships';
+import { API_BASE_URL as BASE_URL } from '../config/api';
+const API_BASE_URL = `${BASE_URL}/partnerships`;
 
 export interface Partnership {
   _id?: string;

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel API Connectivity Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔗 Admin Panel API Connectivity Test</h1>
+    
+    <div class="info">
+        <strong>Backend URL:</strong> https://ma-training-consulting.onrender.com/api
+    </div>
+    
+    <button onclick="testBackendHealth()">Test Backend Health</button>
+    <button onclick="testProgramsAPI()">Test Programs API</button>
+    <button onclick="testCategoriesAPI()">Test Categories API</button>
+    <button onclick="testCORS()">Test CORS</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE_URL = 'https://ma-training-consulting.onrender.com/api';
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        async function testBackendHealth() {
+            addResult('🔄 Testing backend health...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ Backend Health: ${JSON.stringify(data)}`, 'success');
+                } else {
+                    addResult(`⚠️ Backend responded with status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Backend Health Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testProgramsAPI() {
+            addResult('🔄 Testing Programs API...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/programs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ Programs API: Found ${data.length || 0} programs`, 'success');
+                } else {
+                    addResult(`⚠️ Programs API responded with status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Programs API Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCategoriesAPI() {
+            addResult('🔄 Testing Categories API...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ Categories API: Found ${data.length || 0} categories`, 'success');
+                } else {
+                    addResult(`⚠️ Categories API responded with status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Categories API Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCORS() {
+            addResult('🔄 Testing CORS configuration...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/programs`, {
+                    method: 'OPTIONS',
+                });
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                };
+                
+                addResult(`✅ CORS Headers: <pre>${JSON.stringify(corsHeaders, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                addResult(`❌ CORS Test Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run basic tests on load
+        window.onload = function() {
+            addResult('🚀 Starting API connectivity tests...', 'info');
+            setTimeout(testBackendHealth, 1000);
+        };
+    </script>
+</body>
+</html>

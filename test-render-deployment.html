@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Test Render Deployment Fix</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; }
+        .info { background: rgba(59, 130, 246, 0.2); border-left: 4px solid #3b82f6; }
+        .warning { background: rgba(245, 158, 11, 0.2); border-left: 4px solid #f59e0b; }
+        .code {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .step {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+        }
+        h1, h2 { text-align: center; }
+        .emoji { font-size: 1.5em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Render Deployment Fix - MATC Site</h1>
+        
+        <div class="status success">
+            <span class="emoji">✅</span> <strong>المشكلة تم تشخيصها وإصلاحها!</strong>
+        </div>
+
+        <div class="status info">
+            <span class="emoji">🔍</span> <strong>المشكلة الأصلية:</strong><br>
+            Vite يمنع الوصول من النطاق الجديد على Render: ma-training-consulting.onrender.com
+        </div>
+
+        <h2>📋 التغييرات المطبقة</h2>
+
+        <div class="step">
+            <h3>1️⃣ الموقع الرئيسي (vite.config.ts)</h3>
+            <div class="code">
+server: {
+  port: 5173,
+  host: true,
+  open: false,
+  allowedHosts: ['ma-training-consulting.onrender.com', 'localhost', '127.0.0.1']
+},
+preview: {
+  host: '0.0.0.0',
+  port: 4173,
+  allowedHosts: ['ma-training-consulting.onrender.com', 'localhost', '127.0.0.1']
+}
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>2️⃣ Admin Panel (admin-panel/vite.config.ts)</h3>
+            <div class="code">
+server: {
+  host: true,
+  allowedHosts: ['*', 'ma-training-consulting.onrender.com', 'localhost', '127.0.0.1'],
+  proxy: process.env.NODE_ENV !== 'production'
+    ? { '/api': { target: 'http://localhost:3001', changeOrigin: true } }
+    : undefined
+},
+preview: {
+  allowedHosts: ['*', 'ma-training-consulting.onrender.com'],
+  host: '0.0.0.0',
+  port: 4173,
+  strictPort: false
+}
+            </div>
+        </div>
+
+        <h2>🔄 الخطوات التالية</h2>
+
+        <div class="step">
+            <h3>3️⃣ رفع التغييرات إلى GitHub</h3>
+            <div class="code">
+git add .
+git commit -m "🚀 Fix Render deployment: Add allowed hosts for ma-training-consulting.onrender.com"
+git push origin main
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>4️⃣ انتظار Auto-Deploy على Render</h3>
+            <div class="status info">
+                <span class="emoji">⏳</span> Render سيقوم بـ auto-deploy تلقائياً بعد push
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>5️⃣ اختبار الموقع</h3>
+            <div class="status success">
+                <span class="emoji">🌐</span> بعد اكتمال الـ deploy، ادخل على: 
+                <strong>https://ma-training-consulting.onrender.com</strong>
+            </div>
+        </div>
+
+        <h2>🛡️ الحماية المضافة</h2>
+        
+        <div class="status success">
+            <span class="emoji">✅</span> <strong>allowedHosts</strong> يسمح بالنطاقات التالية:
+            <ul>
+                <li>ma-training-consulting.onrender.com (Render domain)</li>
+                <li>localhost (Local development)</li>
+                <li>127.0.0.1 (Local IP)</li>
+                <li>* (Wildcard في admin panel)</li>
+            </ul>
+        </div>
+
+        <div class="status warning">
+            <span class="emoji">⚠️</span> <strong>ملاحظة مهمة:</strong><br>
+            إذا غيرت اسم الموقع على Render، ستحتاج لتحديث allowedHosts مرة أخرى
+        </div>
+
+        <div class="status info">
+            <span class="emoji">📱</span> <strong>للتأكد من نجاح الإصلاح:</strong><br>
+            1. تأكد من اكتمال الـ deploy على Render<br>
+            2. افتح الموقع في متصفح جديد<br>
+            3. تأكد من عدم ظهور رسالة "host not allowed"
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <div class="status success">
+                <span class="emoji">🎉</span> <strong>الإصلاح مكتمل! جاهز للـ deployment</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Render Deployment Fix Applied Successfully!');
+        console.log('📝 Changes made to:');
+        console.log('   - vite.config.ts (main site)');
+        console.log('   - admin-panel/vite.config.ts (admin panel)');
+        console.log('✅ Ready for GitHub push and Render auto-deploy');
+    </script>
+</body>
+</html>

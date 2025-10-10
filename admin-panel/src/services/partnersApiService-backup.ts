@@ -1,8 +1,9 @@
 import type { Partner, PartnerType } from './partnersService';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+import { API_BASE_URL } from '../config/api';
 
 export interface ApiPartner {
+import { API_BASE_URL } from '../config/api';
   _id: string;
   partnerId: string;
   fullName: string;

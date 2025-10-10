@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 const API_BASE_URL = 'http://localhost:3001/api/digitalization-products';
 
 export interface DigitalizationProduct {
@@ -236,7 +237,7 @@ class DigitalizationProductsApiService {
     try {
       console.log('🔄 Testing API connection...');
       
-      const response = await fetch('http://localhost:3001/api/health', {
+      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

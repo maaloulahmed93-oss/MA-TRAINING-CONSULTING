@@ -1,6 +1,8 @@
 import { WebsitePage, WebsitePageFormData } from '../types/websitePage';
 
-const API_BASE_URL = 'http://localhost:3001/api/website-pages';
+import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL } from '../config/api';
+const API_BASE_URL = `${API_BASE_URL}/website-pages`;
 
 export class WebsitePagesApiService {
   // جلب جميع الصفحات

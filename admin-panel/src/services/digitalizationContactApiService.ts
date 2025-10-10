@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 interface ContactData {
   _id?: string;
   email: string;
@@ -56,7 +57,7 @@ interface StatsResponse {
 }
 
 class DigitalizationContactApiService {
-  private readonly API_BASE = 'http://localhost:3001/api/digitalization-contact';
+  private readonly API_BASE = API_BASE_URL;
   private readonly STORAGE_KEY = 'digitalization_contact_backup';
 
   // Test de connexion API

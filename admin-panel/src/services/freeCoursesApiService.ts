@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 // Service API pour la gestion des cours gratuits dans l'Admin Panel
 const API_BASE = 'http://localhost:3001/api/free-courses';
 
@@ -107,7 +108,7 @@ class FreeCoursesApiService {
   // Vérifier la santé de l'API
   async checkApiHealth(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`);
       return response.ok;
     } catch (error) {
       console.error('❌ API Health Check Failed:', error);

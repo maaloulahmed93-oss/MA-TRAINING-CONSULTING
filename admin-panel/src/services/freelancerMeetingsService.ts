@@ -1,6 +1,7 @@
 import { FreelancerMeeting } from '../types/freelancers';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL } from '../config/api';
 const STORAGE_KEY = 'freelancer_meetings';
 
 // Fallback functions for localStorage

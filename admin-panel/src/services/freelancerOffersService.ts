@@ -1,6 +1,7 @@
 import { FreelancerOffer } from '../types/freelancers';
 
-const API_BASE = 'http://localhost:3001/api/freelancer-offers';
+import { API_BASE_URL } from '../config/api';
+const API_BASE = `${API_BASE_URL}/freelancer-offers`;
 const STORAGE_KEY = 'freelancer_offers';
 
 // Fallback functions للـ localStorage (للتوافق مع النسخة القديمة)
