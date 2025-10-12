@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC QA Connectivity Test Suite</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #000;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #111;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #1a4d1a;
+            color: #00ff00;
+            border-left: 4px solid #00ff00;
+        }
+        .error {
+            background: #4d1a1a;
+            color: #ff6666;
+            border-left: 4px solid #ff0000;
+        }
+        .warning {
+            background: #4d4d1a;
+            color: #ffff66;
+            border-left: 4px solid #ffff00;
+        }
+        .info {
+            background: #1a1a4d;
+            color: #6666ff;
+            border-left: 4px solid #0066ff;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #66ff66;
+        }
+        button:disabled {
+            background: #666;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background: #00ff00; }
+        .status-fail { background: #ff0000; }
+        .status-warn { background: #ffff00; }
+        .json-viewer {
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .cors-headers {
+            background: #2a2a2a;
+            border: 1px solid #555;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 MATC QA CONNECTIVITY TEST SUITE</h1>
+            <p>Automated testing for Frontend ↔ Backend ↔ Admin Panel connectivity</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Test Configuration</h2>
+            <div class="test-result info">
+Frontend URL: https://matrainingconsulting.vercel.app/
+Admin Panel URL: https://admine-lake.vercel.app/
+Backend API: https://matc-backend.onrender.com/api
+Test Timestamp: <span id="timestamp"></span>
+            </div>
+            <button onclick="runFullTestSuite()">🚀 Run Full Test Suite</button>
+            <button onclick="clearResults()">🧹 Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="test-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 CORS Headers Analysis</h2>
+            <div id="cors-analysis"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🚨 Console Errors & Network Failures</h2>
+            <div id="console-errors"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Final Verdict</h2>
+            <div id="final-verdict"></div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            backendHealth: null,
+            backendPrograms: null,
+            corsHeaders: {},
+            consoleErrors: [],
+            networkFailures: []
+        };
+
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            resultsDiv.appendChild(logEntry);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function updateTimestamp() {
+            document.getElementById('timestamp').textContent = new Date().toISOString();
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('cors-analysis').innerHTML = '';
+            document.getElementById('console-errors').innerHTML = '';
+            document.getElementById('final-verdict').innerHTML = '';
+            testResults = {
+                backendHealth: null,
+                backendPrograms: null,
+                corsHeaders: {},
+                consoleErrors: [],
+                networkFailures: []
+            };
+        }
+
+        async function testBackendHealth() {
+            log('🔍 Testing Backend Health Endpoint...', 'info');
+            
+            try {
+                const response = await fetch('https://matc-backend.onrender.com/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                const responseText = await response.text();
+                const responseBody = responseText.substring(0, 400);
+                
+                // Extract CORS headers
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                };
+
+                testResults.backendHealth = {
+                    status: response.status,
+                    headers: corsHeaders,
+                    body: responseBody,
+                    success: response.ok
+                };
+
+                if (response.ok) {
+                    log(`✅ Backend Health: HTTP ${response.status}`, 'success');
+                    log(`📄 Response Body (400 chars): ${responseBody}`, 'info');
+                } else {
+                    log(`❌ Backend Health: HTTP ${response.status}`, 'error');
+                    log(`📄 Error Response: ${responseBody}`, 'error');
+                }
+
+                // Store CORS headers for analysis
+                testResults.corsHeaders.health = corsHeaders;
+
+            } catch (error) {
+                log(`❌ Backend Health Test Failed: ${error.message}`, 'error');
+                testResults.backendHealth = { success: false, error: error.message };
+            }
+        }
+
+        async function testBackendPrograms() {
+            log('🔍 Testing Backend Programs Endpoint...', 'info');
+            
+            try {
+                const response = await fetch('https://matc-backend.onrender.com/api/programs', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                const responseText = await response.text();
+                const responseBody = responseText.substring(0, 400);
+                
+                // Extract CORS headers
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                };
+
+                testResults.backendPrograms = {
+                    status: response.status,
+                    headers: corsHeaders,
+                    body: responseBody,
+                    success: response.ok
+                };
+
+                if (response.ok) {
+                    log(`✅ Backend Programs: HTTP ${response.status}`, 'success');
+                    log(`📄 Response Body (400 chars): ${responseBody}`, 'info');
+                } else {
+                    log(`❌ Backend Programs: HTTP ${response.status}`, 'error');
+                    log(`📄 Error Response: ${responseBody}`, 'error');
+                }
+
+                // Store CORS headers for analysis
+                testResults.corsHeaders.programs = corsHeaders;
+
+            } catch (error) {
+                log(`❌ Backend Programs Test Failed: ${error.message}`, 'error');
+                testResults.backendPrograms = { success: false, error: error.message };
+            }
+        }
+
+        async function testCrossOriginRequests() {
+            log('🔍 Testing Cross-Origin Requests...', 'info');
+            
+            const origins = [
+                'https://matrainingconsulting.vercel.app',
+                'https://admine-lake.vercel.app'
+            ];
+
+            for (const origin of origins) {
+                try {
+                    const response = await fetch('https://matc-backend.onrender.com/api/health', {
+                        method: 'GET',
+                        headers: {
+                            'Origin': origin,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        log(`✅ CORS Test for ${origin}: HTTP ${response.status}`, 'success');
+                    } else {
+                        log(`⚠️ CORS Test for ${origin}: HTTP ${response.status}`, 'warning');
+                    }
+
+                } catch (error) {
+                    log(`❌ CORS Test for ${origin}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function analyzeCorsHeaders() {
+            const corsDiv = document.getElementById('cors-analysis');
+            let corsHtml = '<h3>🔍 CORS Headers Analysis</h3>';
+
+            Object.keys(testResults.corsHeaders).forEach(endpoint => {
+                const headers = testResults.corsHeaders[endpoint];
+                corsHtml += `<div class="cors-headers">`;
+                corsHtml += `<h4>Endpoint: /api/${endpoint}</h4>`;
+                
+                Object.keys(headers).forEach(headerName => {
+                    const headerValue = headers[headerName] || 'Not Set';
+                    const status = headers[headerName] ? 'success' : 'error';
+                    corsHtml += `<div class="test-result ${status}">`;
+                    corsHtml += `<span class="status-indicator status-${headers[headerName] ? 'pass' : 'fail'}"></span>`;
+                    corsHtml += `${headerName}: ${headerValue}`;
+                    corsHtml += `</div>`;
+                });
+                
+                corsHtml += `</div>`;
+            });
+
+            corsDiv.innerHTML = corsHtml;
+        }
+
+        function captureConsoleErrors() {
+            const consoleDiv = document.getElementById('console-errors');
+            
+            // Override console methods to capture errors
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            
+            console.error = function(...args) {
+                testResults.consoleErrors.push({
+                    type: 'error',
+                    message: args.join(' '),
+                    timestamp: new Date().toISOString()
+                });
+                originalError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+                testResults.consoleErrors.push({
+                    type: 'warning',
+                    message: args.join(' '),
+                    timestamp: new Date().toISOString()
+                });
+                originalWarn.apply(console, args);
+            };
+
+            // Display captured errors
+            let errorsHtml = '<h3>🚨 Captured Console Output</h3>';
+            
+            if (testResults.consoleErrors.length === 0) {
+                errorsHtml += '<div class="test-result success">✅ No console errors detected during testing</div>';
+            } else {
+                testResults.consoleErrors.forEach(error => {
+                    const errorClass = error.type === 'error' ? 'error' : 'warning';
+                    errorsHtml += `<div class="test-result ${errorClass}">`;
+                    errorsHtml += `[${error.timestamp}] ${error.type.toUpperCase()}: ${error.message.substring(0, 1000)}`;
+                    errorsHtml += `</div>`;
+                });
+            }
+            
+            consoleDiv.innerHTML = errorsHtml;
+        }
+
+        function generateFinalVerdict() {
+            const verdictDiv = document.getElementById('final-verdict');
+            
+            const healthPass = testResults.backendHealth?.success;
+            const programsPass = testResults.backendPrograms?.success;
+            const corsConfigured = testResults.corsHeaders.health?.['Access-Control-Allow-Origin'] !== null;
+            const hasErrors = testResults.consoleErrors.filter(e => e.type === 'error').length > 0;
+            
+            let verdict = '';
+            let status = '';
+            let recommendations = [];
+            
+            if (healthPass && programsPass && corsConfigured && !hasErrors) {
+                status = '✅ ALL SYSTEMS OPERATIONAL';
+                verdict = 'All connectivity tests passed successfully. Both frontend and admin panel can communicate with the backend API.';
+            } else {
+                status = '❌ ISSUES DETECTED';
+                verdict = 'One or more connectivity issues were found:';
+                
+                if (!healthPass) {
+                    recommendations.push('❌ Backend health endpoint is not responding correctly');
+                }
+                if (!programsPass) {
+                    recommendations.push('❌ Backend programs endpoint is not responding correctly');
+                }
+                if (!corsConfigured) {
+                    recommendations.push('❌ CORS headers are not properly configured');
+                    recommendations.push('🔧 Fix: Ensure backend includes proper Access-Control-Allow-Origin headers');
+                }
+                if (hasErrors) {
+                    recommendations.push('❌ Console errors detected during testing');
+                    recommendations.push('🔧 Fix: Check browser console for detailed error messages');
+                }
+            }
+            
+            let verdictHtml = `<div class="test-result ${healthPass && programsPass && corsConfigured && !hasErrors ? 'success' : 'error'}">`;
+            verdictHtml += `<h3>${status}</h3>`;
+            verdictHtml += `<p>${verdict}</p>`;
+            
+            if (recommendations.length > 0) {
+                verdictHtml += '<h4>Recommendations:</h4><ul>';
+                recommendations.forEach(rec => {
+                    verdictHtml += `<li>${rec}</li>`;
+                });
+                verdictHtml += '</ul>';
+            }
+            
+            verdictHtml += '</div>';
+            
+            // Add detailed test summary
+            verdictHtml += '<h3>📊 Test Summary</h3>';
+            verdictHtml += '<div class="json-viewer">';
+            verdictHtml += `Backend Health: ${healthPass ? '✅ PASS' : '❌ FAIL'} (HTTP ${testResults.backendHealth?.status || 'N/A'})\n`;
+            verdictHtml += `Backend Programs: ${programsPass ? '✅ PASS' : '❌ FAIL'} (HTTP ${testResults.backendPrograms?.status || 'N/A'})\n`;
+            verdictHtml += `CORS Configuration: ${corsConfigured ? '✅ CONFIGURED' : '❌ MISSING'}\n`;
+            verdictHtml += `Console Errors: ${hasErrors ? '❌ FOUND' : '✅ NONE'} (${testResults.consoleErrors.length} total)\n`;
+            verdictHtml += '</div>';
+            
+            verdictDiv.innerHTML = verdictHtml;
+        }
+
+        async function runFullTestSuite() {
+            updateTimestamp();
+            clearResults();
+            
+            log('🚀 Starting MATC QA Connectivity Test Suite...', 'info');
+            log('🔍 Testing all endpoints and connectivity...', 'info');
+            
+            // Run all tests
+            await testBackendHealth();
+            await testBackendPrograms();
+            await testCrossOriginRequests();
+            
+            // Analyze results
+            analyzeCorsHeaders();
+            captureConsoleErrors();
+            generateFinalVerdict();
+            
+            log('✅ Test suite completed!', 'success');
+        }
+
+        // Initialize
+        updateTimestamp();
+        
+        // Capture any existing console errors
+        window.addEventListener('error', function(e) {
+            testResults.consoleErrors.push({
+                type: 'error',
+                message: e.message + ' at ' + e.filename + ':' + e.lineno,
+                timestamp: new Date().toISOString()
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC Frontend QA Test</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #000;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background: #1a4d1a; color: #00ff00; border-left: 4px solid #00ff00; }
+        .error { background: #4d1a1a; color: #ff6666; border-left: 4px solid #ff0000; }
+        .warning { background: #4d4d1a; color: #ffff66; border-left: 4px solid #ffff00; }
+        .info { background: #1a1a4d; color: #6666ff; border-left: 4px solid #0066ff; }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #66ff66; }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 MATC Frontend QA Test</h1>
+        <p>This page will test the frontend connectivity and monitor for issues.</p>
+        
+        <button onclick="startFrontendTest()">🚀 Start Frontend Test</button>
+        <button onclick="clearResults()">🧹 Clear Results</button>
+        
+        <div id="test-results"></div>
+        
+        <h2>📱 Frontend Preview</h2>
+        <iframe id="frontend-frame" src="" style="display: none;"></iframe>
+        
+        <h2>🔍 Network Monitor</h2>
+        <div id="network-monitor"></div>
+        
+        <h2>🚨 Console Output</h2>
+        <div id="console-output"></div>
+    </div>
+
+    <script>
+        let networkRequests = [];
+        let consoleOutput = [];
+        
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            resultsDiv.appendChild(logEntry);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('network-monitor').innerHTML = '';
+            document.getElementById('console-output').innerHTML = '';
+            networkRequests = [];
+            consoleOutput = [];
+        }
+        
+        function monitorNetworkRequests() {
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                const url = args[0];
+                const options = args[1] || {};
+                
+                networkRequests.push({
+                    url: url,
+                    method: options.method || 'GET',
+                    headers: options.headers || {},
+                    timestamp: new Date().toISOString()
+                });
+                
+                return originalFetch.apply(this, args)
+                    .then(response => {
+                        networkRequests[networkRequests.length - 1].status = response.status;
+                        networkRequests[networkRequests.length - 1].success = response.ok;
+                        updateNetworkMonitor();
+                        return response;
+                    })
+                    .catch(error => {
+                        networkRequests[networkRequests.length - 1].error = error.message;
+                        networkRequests[networkRequests.length - 1].success = false;
+                        updateNetworkMonitor();
+                        throw error;
+                    });
+            };
+        }
+        
+        function updateNetworkMonitor() {
+            const networkDiv = document.getElementById('network-monitor');
+            let html = '<h3>🌐 Network Requests</h3>';
+            
+            networkRequests.forEach((req, index) => {
+                const statusClass = req.success ? 'success' : 'error';
+                html += `<div class="test-result ${statusClass}">`;
+                html += `[${req.timestamp}] ${req.method} ${req.url}\n`;
+                html += `Status: ${req.status || 'PENDING'} ${req.success ? '✅' : '❌'}\n`;
+                if (req.error) {
+                    html += `Error: ${req.error}\n`;
+                }
+                html += `</div>`;
+            });
+            
+            networkDiv.innerHTML = html;
+        }
+        
+        function monitorConsole() {
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            
+            console.log = function(...args) {
+                consoleOutput.push({
+                    type: 'log',
+                    message: args.join(' '),
+                    timestamp: new Date().toISOString()
+                });
+                updateConsoleOutput();
+                originalLog.apply(console, args);
+            };
+            
+            console.error = function(...args) {
+                consoleOutput.push({
+                    type: 'error',
+                    message: args.join(' '),
+                    timestamp: new Date().toISOString()
+                });
+                updateConsoleOutput();
+                originalError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+                consoleOutput.push({
+                    type: 'warn',
+                    message: args.join(' '),
+                    timestamp: new Date().toISOString()
+                });
+                updateConsoleOutput();
+                originalWarn.apply(console, args);
+            };
+        }
+        
+        function updateConsoleOutput() {
+            const consoleDiv = document.getElementById('console-output');
+            let html = '<h3>📝 Console Messages (First 1000 chars)</h3>';
+            
+            const recentOutput = consoleOutput.slice(-10);
+            recentOutput.forEach(output => {
+                const typeClass = output.type === 'error' ? 'error' : 
+                                output.type === 'warn' ? 'warning' : 'info';
+                html += `<div class="test-result ${typeClass}">`;
+                html += `[${output.timestamp}] ${output.type.toUpperCase()}: ${output.message.substring(0, 1000)}`;
+                html += `</div>`;
+            });
+            
+            consoleDiv.innerHTML = html;
+        }
+        
+        async function testFrontendDirectly() {
+            log('🔍 Testing Frontend API calls directly...', 'info');
+            
+            try {
+                // Test health endpoint from frontend origin
+                const healthResponse = await fetch('https://matc-backend.onrender.com/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'https://matrainingconsulting.vercel.app',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (healthResponse.ok) {
+                    log('✅ Frontend → Backend Health: SUCCESS', 'success');
+                    const healthData = await healthResponse.text();
+                    log(`📄 Health Response (400 chars): ${healthData.substring(0, 400)}`, 'info');
+                } else {
+                    log(`❌ Frontend → Backend Health: HTTP ${healthResponse.status}`, 'error');
+                }
+                
+                // Test programs endpoint
+                const programsResponse = await fetch('https://matc-backend.onrender.com/api/programs', {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'https://matrainingconsulting.vercel.app',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (programsResponse.ok) {
+                    log('✅ Frontend → Backend Programs: SUCCESS', 'success');
+                    const programsData = await programsResponse.text();
+                    log(`📄 Programs Response (400 chars): ${programsData.substring(0, 400)}`, 'info');
+                } else {
+                    log(`❌ Frontend → Backend Programs: HTTP ${programsResponse.status}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Direct API test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function startFrontendTest() {
+            log('🚀 Starting Frontend QA Test...', 'info');
+            
+            // Initialize monitoring
+            monitorNetworkRequests();
+            monitorConsole();
+            
+            // Test direct API calls
+            testFrontendDirectly();
+            
+            // Load frontend in iframe
+            const iframe = document.getElementById('frontend-frame');
+            iframe.style.display = 'block';
+            iframe.src = 'https://matrainingconsulting.vercel.app/';
+            
+            log('📱 Loading Frontend in iframe...', 'info');
+            log('🔍 Monitoring network requests and console output...', 'info');
+            
+            // Set up iframe load monitoring
+            iframe.onload = function() {
+                log('✅ Frontend loaded successfully', 'success');
+                
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    log('✅ Frontend content accessible', 'success');
+                } catch (error) {
+                    log('⚠️ Frontend content blocked by CORS (expected)', 'warning');
+                }
+            };
+            
+            iframe.onerror = function() {
+                log('❌ Frontend failed to load', 'error');
+            };
+            
+            // Generate report after 10 seconds
+            setTimeout(() => {
+                generateFrontendTestReport();
+            }, 10000);
+        }
+        
+        function generateFrontendTestReport() {
+            log('📋 Generating Frontend Test Report...', 'info');
+            
+            const failedRequests = networkRequests.filter(req => !req.success);
+            const errorMessages = consoleOutput.filter(output => output.type === 'error');
+            
+            if (failedRequests.length === 0 && errorMessages.length === 0) {
+                log('✅ FRONTEND TEST: ALL SYSTEMS OPERATIONAL', 'success');
+                log('No failed network requests or console errors detected', 'success');
+            } else {
+                log('❌ FRONTEND TEST: ISSUES DETECTED', 'error');
+                
+                if (failedRequests.length > 0) {
+                    log(`❌ ${failedRequests.length} failed network requests detected`, 'error');
+                    failedRequests.forEach(req => {
+                        log(`   Failed: ${req.method} ${req.url} (${req.status || 'Network Error'})`, 'error');
+                    });
+                }
+                
+                if (errorMessages.length > 0) {
+                    log(`❌ ${errorMessages.length} console errors detected`, 'error');
+                    errorMessages.slice(0, 5).forEach(error => {
+                        log(`   Error: ${error.message.substring(0, 200)}`, 'error');
+                    });
+                }
+            }
+        }
+        
+        // Initialize error monitoring
+        window.addEventListener('error', function(e) {
+            consoleOutput.push({
+                type: 'error',
+                message: `${e.message} at ${e.filename}:${e.lineno}`,
+                timestamp: new Date().toISOString()
+            });
+            updateConsoleOutput();
+        });
+    </script>
+</body>
+</html>

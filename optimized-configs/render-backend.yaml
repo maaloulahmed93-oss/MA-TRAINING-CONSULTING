@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: matc-backend
+    env: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm install --production
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "https://matrainingconsulting.vercel.app,https://admine-lake.vercel.app"
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+    disk:
+      name: matc-backend-disk
+      size: 1GB
+      mount: /opt/render/project/uploads
+    
+  # Optional: Redis cache service
+  - type: redis
+    name: matc-redis
+    plan: starter
+    region: frankfurt
+    maxmemoryPolicy: allkeys-lru
+
+databases:
+  - name: matc-mongodb
+    databaseName: matc_db
+    user: matc_admin
+    region: frankfurt
+
+# Environment-specific configurations
+environments:
+  production:
+    envVars:
+      - key: LOG_LEVEL
+        value: info
+      - key: RATE_LIMIT_MAX
+        value: 1000
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+  
+  staging:
+    envVars:
+      - key: LOG_LEVEL
+        value: debug
+      - key: RATE_LIMIT_MAX
+        value: 100
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000

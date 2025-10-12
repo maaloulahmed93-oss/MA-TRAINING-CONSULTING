@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار النشر على Vercel - MATC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .test-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-right: 4px solid #3498db;
+        }
+        .test-card.success {
+            border-right-color: #27ae60;
+            background: #f8fff8;
+        }
+        .test-card.error {
+            border-right-color: #e74c3c;
+            background: #fff5f5;
+        }
+        .test-card.warning {
+            border-right-color: #f39c12;
+            background: #fffbf0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        .status-indicator.success { background: #27ae60; }
+        .status-indicator.error { background: #e74c3c; }
+        .status-indicator.warning { background: #f39c12; }
+        .status-indicator.loading { 
+            background: #3498db; 
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .test-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .test-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin: 20px 0;
+            direction: ltr;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px 0;
+        }
+        .log-entry.success { color: #2ecc71; }
+        .log-entry.error { color: #e74c3c; }
+        .log-entry.warning { color: #f39c12; }
+        .log-entry.info { color: #3498db; }
+        .cors-details {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            direction: ltr;
+        }
+        .environment-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-right: 4px solid #9b59b6;
+        }
+        .curl-commands {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            direction: ltr;
+        }
+        .recommendations {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 اختبار النشر الشامل - MATC</h1>
+            <p>فحص الاتصال بين Frontend و Admin Panel و Backend API</p>
+            <p id="current-environment"></p>
+        </div>
+
+        <div class="section">
+            <h2>🌐 معلومات البيئة الحالية</h2>
+            <div class="environment-info" id="environment-details">
+                <p>جاري تحديد البيئة الحالية...</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 اختبارات الاتصال</h2>
+            <div style="margin: 20px 0;">
+                <button class="test-button" onclick="runAllTests()">🚀 تشغيل جميع الاختبارات</button>
+                <button class="test-button" onclick="testBackendHealth()">💓 فحص صحة Backend</button>
+                <button class="test-button" onclick="testCORSConfiguration()">🔒 فحص إعدادات CORS</button>
+                <button class="test-button" onclick="testEnvironmentVariables()">⚙️ فحص متغيرات البيئة</button>
+                <button class="test-button" onclick="clearLogs()">🧹 مسح السجلات</button>
+            </div>
+            
+            <div class="test-grid" id="test-results">
+                <!-- Test results will be populated here -->
+            </div>
+            
+            <div class="log-container" id="test-logs">
+                <div class="log-entry info">🚀 جاهز لتشغيل الاختبارات...</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 أوامر cURL للفحص السريع</h2>
+            <div class="curl-commands" id="curl-commands">
+                <h3>📋 نسخ هذه الأوامر وتشغيلها في Terminal:</h3>
+                <div style="margin: 10px 0;">
+                    <strong>1. فحص صحة Backend:</strong><br>
+                    <code>curl -i https://matc-backend.onrender.com/api/health</code>
+                </div>
+                <div style="margin: 10px 0;">
+                    <strong>2. فحص Programs endpoint:</strong><br>
+                    <code>curl -i https://matc-backend.onrender.com/api/programs</code>
+                </div>
+                <div style="margin: 10px 0;">
+                    <strong>3. فحص CORS preflight للـ Admin Panel:</strong><br>
+                    <code>curl -i -X OPTIONS https://matc-backend.onrender.com/api/programs \<br>
+                    &nbsp;&nbsp;-H "Origin: https://admine-lake.vercel.app" \<br>
+                    &nbsp;&nbsp;-H "Access-Control-Request-Method: GET"</code>
+                </div>
+                <div style="margin: 10px 0;">
+                    <strong>4. فحص CORS preflight للـ Frontend:</strong><br>
+                    <code>curl -i -X OPTIONS https://matc-backend.onrender.com/api/programs \<br>
+                    &nbsp;&nbsp;-H "Origin: https://matrainingconsulting.vercel.app" \<br>
+                    &nbsp;&nbsp;-H "Access-Control-Request-Method: GET"</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 تفاصيل CORS والـ Headers</h2>
+            <div id="cors-analysis"></div>
+        </div>
+
+        <div class="section">
+            <h2>💡 التوصيات والإصلاحات</h2>
+            <div class="recommendations" id="recommendations">
+                <h3>🎯 نصائح مهمة للتطبيق:</h3>
+                <ul>
+                    <li><strong>متغيرات البيئة:</strong> تأكد من إعداد VITE_API_BASE_URL في Vercel Settings</li>
+                    <li><strong>إعدادات CORS:</strong> تأكد من إضافة domains الصحيحة في Backend</li>
+                    <li><strong>HTTPS:</strong> تأكد من استخدام HTTPS في جميع الطلبات</li>
+                    <li><strong>Cache:</strong> امسح cache المتصفح بعد التحديثات</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINTS = {
+            BACKEND_BASE: 'https://matc-backend.onrender.com',
+            HEALTH: 'https://matc-backend.onrender.com/api/health',
+            PROGRAMS: 'https://matc-backend.onrender.com/api/programs',
+            FRONTEND: 'https://matrainingconsulting.vercel.app',
+            ADMIN: 'https://admine-lake.vercel.app'
+        };
+
+        let testResults = {
+            environment: null,
+            backendHealth: null,
+            backendPrograms: null,
+            corsHeaders: {},
+            environmentVariables: null
+        };
+
+        function log(message, type = 'info') {
+            const logsContainer = document.getElementById('test-logs');
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('test-logs').innerHTML = '<div class="log-entry info">🧹 تم مسح السجلات</div>';
+        }
+
+        function detectEnvironment() {
+            const hostname = window.location.hostname;
+            const protocol = window.location.protocol;
+            const port = window.location.port;
+            
+            let environment = 'unknown';
+            let environmentDetails = '';
+            
+            if (hostname.includes('vercel.app')) {
+                if (hostname.includes('admine') || hostname.includes('admin')) {
+                    environment = 'admin-vercel';
+                    environmentDetails = '🔑 Admin Panel على Vercel';
+                } else {
+                    environment = 'frontend-vercel';
+                    environmentDetails = '🌐 Frontend على Vercel';
+                }
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                environment = 'local';
+                environmentDetails = '💻 بيئة محلية (Local Development)';
+            } else {
+                environment = 'other';
+                environmentDetails = '🌍 بيئة أخرى';
+            }
+            
+            testResults.environment = {
+                type: environment,
+                hostname: hostname,
+                protocol: protocol,
+                port: port,
+                fullUrl: window.location.href
+            };
+            
+            document.getElementById('current-environment').textContent = environmentDetails;
+            document.getElementById('environment-details').innerHTML = `
+                <strong>البيئة:</strong> ${environmentDetails}<br>
+                <strong>النطاق:</strong> ${hostname}<br>
+                <strong>البروتوكول:</strong> ${protocol}<br>
+                <strong>المنفذ:</strong> ${port || 'افتراضي'}<br>
+                <strong>الرابط الكامل:</strong> ${window.location.href}
+            `;
+            
+            log(`🌐 تم تحديد البيئة: ${environmentDetails}`, 'info');
+        }
+
+        async function testBackendHealth() {
+            log('🔍 فحص صحة Backend...', 'info');
+            
+            try {
+                const response = await fetch(API_ENDPOINTS.HEALTH, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                const responseText = await response.text();
+                const corsHeaders = extractCORSHeaders(response);
+                
+                testResults.backendHealth = {
+                    status: response.status,
+                    ok: response.ok,
+                    headers: corsHeaders,
+                    body: responseText.substring(0, 400),
+                    timestamp: new Date().toISOString()
+                };
+
+                if (response.ok) {
+                    log(`✅ Backend Health: HTTP ${response.status} - يعمل بشكل صحيح`, 'success');
+                    log(`📄 الاستجابة: ${responseText.substring(0, 200)}...`, 'info');
+                } else {
+                    log(`❌ Backend Health: HTTP ${response.status} - خطأ`, 'error');
+                    log(`📄 رسالة الخطأ: ${responseText}`, 'error');
+                }
+
+                updateTestCard('backend-health', response.ok, `Backend Health: HTTP ${response.status}`);
+                
+            } catch (error) {
+                log(`❌ فشل في الاتصال بـ Backend: ${error.message}`, 'error');
+                testResults.backendHealth = { error: error.message, ok: false };
+                updateTestCard('backend-health', false, `خطأ في الاتصال: ${error.message}`);
+            }
+        }
+
+        async function testBackendPrograms() {
+            log('🔍 فحص Programs endpoint...', 'info');
+            
+            try {
+                const response = await fetch(API_ENDPOINTS.PROGRAMS, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                const responseText = await response.text();
+                const corsHeaders = extractCORSHeaders(response);
+                
+                testResults.backendPrograms = {
+                    status: response.status,
+                    ok: response.ok,
+                    headers: corsHeaders,
+                    body: responseText.substring(0, 400),
+                    timestamp: new Date().toISOString()
+                };
+
+                if (response.ok) {
+                    log(`✅ Programs Endpoint: HTTP ${response.status} - يعمل بشكل صحيح`, 'success');
+                    log(`📄 الاستجابة: ${responseText.substring(0, 200)}...`, 'info');
+                } else {
+                    log(`❌ Programs Endpoint: HTTP ${response.status} - خطأ`, 'error');
+                }
+
+                updateTestCard('backend-programs', response.ok, `Programs API: HTTP ${response.status}`);
+                
+            } catch (error) {
+                log(`❌ فشل في الاتصال بـ Programs API: ${error.message}`, 'error');
+                testResults.backendPrograms = { error: error.message, ok: false };
+                updateTestCard('backend-programs', false, `خطأ في Programs API: ${error.message}`);
+            }
+        }
+
+        async function testCORSConfiguration() {
+            log('🔒 فحص إعدادات CORS...', 'info');
+            
+            const origins = [
+                API_ENDPOINTS.FRONTEND,
+                API_ENDPOINTS.ADMIN,
+                window.location.origin
+            ];
+
+            let corsResults = [];
+
+            for (const origin of origins) {
+                try {
+                    // Test OPTIONS preflight request
+                    const response = await fetch(API_ENDPOINTS.PROGRAMS, {
+                        method: 'OPTIONS',
+                        headers: {
+                            'Origin': origin,
+                            'Access-Control-Request-Method': 'GET',
+                            'Access-Control-Request-Headers': 'Content-Type'
+                        }
+                    });
+
+                    const corsHeaders = extractCORSHeaders(response);
+                    corsResults.push({
+                        origin: origin,
+                        status: response.status,
+                        ok: response.ok,
+                        headers: corsHeaders
+                    });
+
+                    if (response.ok) {
+                        log(`✅ CORS OK للنطاق: ${origin}`, 'success');
+                    } else {
+                        log(`⚠️ CORS مشكلة للنطاق: ${origin} (HTTP ${response.status})`, 'warning');
+                    }
+
+                } catch (error) {
+                    log(`❌ خطأ CORS للنطاق ${origin}: ${error.message}`, 'error');
+                    corsResults.push({
+                        origin: origin,
+                        error: error.message,
+                        ok: false
+                    });
+                }
+            }
+
+            testResults.corsHeaders = corsResults;
+            updateCORSAnalysis(corsResults);
+            
+            const allCorsOk = corsResults.every(result => result.ok);
+            updateTestCard('cors-config', allCorsOk, `CORS Configuration: ${allCorsOk ? 'صحيح' : 'يحتاج إصلاح'}`);
+        }
+
+        function testEnvironmentVariables() {
+            log('⚙️ فحص متغيرات البيئة...', 'info');
+            
+            // Check if we can detect API base URL from current environment
+            const currentOrigin = window.location.origin;
+            const expectedAPIBase = 'https://matc-backend.onrender.com/api';
+            
+            // Try to detect if environment variables are properly set
+            // This is a client-side check, so we can only infer from behavior
+            
+            let envStatus = {
+                currentOrigin: currentOrigin,
+                expectedAPIBase: expectedAPIBase,
+                isProduction: currentOrigin.includes('vercel.app'),
+                isLocal: currentOrigin.includes('localhost')
+            };
+            
+            testResults.environmentVariables = envStatus;
+            
+            if (envStatus.isProduction) {
+                log(`✅ بيئة الإنتاج: ${currentOrigin}`, 'success');
+                log(`🔧 يجب أن يكون API Base URL: ${expectedAPIBase}`, 'info');
+            } else if (envStatus.isLocal) {
+                log(`💻 بيئة محلية: ${currentOrigin}`, 'info');
+                log(`🔧 API Base URL المحلي: http://localhost:3001/api`, 'info');
+            }
+            
+            updateTestCard('env-vars', true, `Environment: ${envStatus.isProduction ? 'Production' : 'Local'}`);
+        }
+
+        function extractCORSHeaders(response) {
+            return {
+                'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                'Access-Control-Expose-Headers': response.headers.get('Access-Control-Expose-Headers')
+            };
+        }
+
+        function updateTestCard(testId, success, message) {
+            const resultsContainer = document.getElementById('test-results');
+            
+            let card = document.getElementById(testId);
+            if (!card) {
+                card = document.createElement('div');
+                card.id = testId;
+                card.className = 'test-card';
+                resultsContainer.appendChild(card);
+            }
+            
+            card.className = `test-card ${success ? 'success' : 'error'}`;
+            card.innerHTML = `
+                <span class="status-indicator ${success ? 'success' : 'error'}"></span>
+                <strong>${message}</strong>
+                <br><small>آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}</small>
+            `;
+        }
+
+        function updateCORSAnalysis(corsResults) {
+            const corsDiv = document.getElementById('cors-analysis');
+            let html = '<h3>🔍 تحليل تفصيلي لـ CORS Headers</h3>';
+            
+            corsResults.forEach(result => {
+                html += `<div class="cors-details">`;
+                html += `<h4>النطاق: ${result.origin}</h4>`;
+                html += `<strong>الحالة:</strong> HTTP ${result.status || 'خطأ'} ${result.ok ? '✅' : '❌'}<br>`;
+                
+                if (result.headers) {
+                    Object.keys(result.headers).forEach(headerName => {
+                        const headerValue = result.headers[headerName] || 'غير محدد';
+                        html += `<strong>${headerName}:</strong> ${headerValue}<br>`;
+                    });
+                }
+                
+                if (result.error) {
+                    html += `<strong style="color: #e74c3c;">خطأ:</strong> ${result.error}<br>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            corsDiv.innerHTML = html;
+        }
+
+        async function runAllTests() {
+            log('🚀 بدء تشغيل جميع الاختبارات...', 'info');
+            
+            // Clear previous results
+            document.getElementById('test-results').innerHTML = '';
+            
+            // Run all tests
+            detectEnvironment();
+            await testBackendHealth();
+            await testBackendPrograms();
+            await testCORSConfiguration();
+            testEnvironmentVariables();
+            
+            // Generate final report
+            generateFinalReport();
+            
+            log('✅ تم الانتهاء من جميع الاختبارات!', 'success');
+        }
+
+        function generateFinalReport() {
+            const healthOk = testResults.backendHealth?.ok;
+            const programsOk = testResults.backendPrograms?.ok;
+            const corsOk = testResults.corsHeaders?.every(r => r.ok);
+            
+            let recommendations = [];
+            
+            if (!healthOk) {
+                recommendations.push('❌ Backend Health لا يعمل - تحقق من حالة Render deployment');
+            }
+            
+            if (!programsOk) {
+                recommendations.push('❌ Programs API لا يعمل - تحقق من database connection');
+            }
+            
+            if (!corsOk) {
+                recommendations.push('❌ CORS غير مضبوط صحيح - أضف domains في backend CORS config');
+                recommendations.push(`🔧 أضف هذا الكود في backend:
+app.use(cors({
+  origin: [
+    'https://matrainingconsulting.vercel.app',
+    'https://admine-lake.vercel.app',
+    'https://matc-backend.onrender.com'
+  ],
+  credentials: true
+}));`);
+            }
+            
+            if (testResults.environment?.isProduction) {
+                recommendations.push('⚙️ تأكد من إعداد VITE_API_BASE_URL في Vercel Settings');
+                recommendations.push('🔧 القيمة يجب أن تكون: https://matc-backend.onrender.com/api');
+            }
+            
+            const recommendationsDiv = document.getElementById('recommendations');
+            if (recommendations.length > 0) {
+                let html = '<h3>🚨 مشاكل تحتاج إصلاح:</h3><ul>';
+                recommendations.forEach(rec => {
+                    html += `<li>${rec}</li>`;
+                });
+                html += '</ul>';
+                recommendationsDiv.innerHTML = html;
+            } else {
+                recommendationsDiv.innerHTML = '<h3>✅ جميع الاختبارات نجحت!</h3><p>النظام يعمل بشكل صحيح.</p>';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            detectEnvironment();
+            log('🌐 تم تحميل صفحة الاختبار بنجاح', 'info');
+            log('💡 اضغط على "تشغيل جميع الاختبارات" للبدء', 'info');
+        });
+    </script>
+</body>
+</html>

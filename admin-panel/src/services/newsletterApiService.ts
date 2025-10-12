@@ -1,5 +1,6 @@
-export interface Subscriber {
 import { API_BASE_URL } from '../config/api';
+
+export interface Subscriber {
   _id: string;
   email: string;
   status: 'subscribed' | 'unsubscribed';
