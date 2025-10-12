@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getPartnerExtraInfo, setPartnerExtraInfo, PartnerCategoryKey, PartnerExtraInfo } from '../data/partnerExtraInfoStore';
+import { safeLocalStorage, safeInit } from '../utils/safeInit';
 
 // Default form data to prevent initialization errors
 const DEFAULT_FORM: PartnerExtraInfo = {
@@ -31,39 +32,53 @@ const FinancePage: React.FC = () => {
 
   // Safe initialization effect
   useEffect(() => {
-    try {
-      // Initialize global contact email safely
-      const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('global_contact_email') : null;
-      if (savedEmail) {
-        setGlobalContactEmail(savedEmail);
-      }
+    const initializeData = async () => {
+      try {
+        // Initialize global contact email safely
+        const savedEmail = safeLocalStorage.getItem('global_contact_email');
+        if (savedEmail) {
+          setGlobalContactEmail(savedEmail);
+        }
 
-      // Initialize visibility states safely
-      const states: Record<PartnerCategoryKey, boolean> = {
-        formateur: true,
-        freelance: true,
-        commercial: true,
-        entreprise: true
-      };
+        // Initialize visibility states safely using safeInit
+        const states = await safeInit(
+          () => {
+            const result: Record<PartnerCategoryKey, boolean> = {
+              formateur: true,
+              freelance: true,
+              commercial: true,
+              entreprise: true
+            };
 
-      if (typeof window !== 'undefined') {
-        (['formateur', 'freelance', 'commercial', 'entreprise'] as PartnerCategoryKey[]).forEach(cat => {
-          try {
-            const data = getPartnerExtraInfo(cat);
-            states[cat] = data.isVisible !== false;
-          } catch (error) {
-            console.warn(`Error loading data for ${cat}:`, error);
-            states[cat] = true; // Default to visible
+            (['formateur', 'freelance', 'commercial', 'entreprise'] as PartnerCategoryKey[]).forEach(cat => {
+              try {
+                const data = getPartnerExtraInfo(cat);
+                result[cat] = data.isVisible !== false;
+              } catch (error) {
+                console.warn(`Error loading data for ${cat}:`, error);
+                result[cat] = true; // Default to visible
+              }
+            });
+
+            return result;
+          },
+          {
+            formateur: true,
+            freelance: true,
+            commercial: true,
+            entreprise: true
           }
-        });
-      }
+        );
 
-      setVisibilityStates(states);
-      setIsInitialized(true);
-    } catch (error) {
-      console.error('Initialization error:', error);
-      setIsInitialized(true); // Still mark as initialized to prevent infinite loading
-    }
+        setVisibilityStates(states);
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Initialization error:', error);
+        setIsInitialized(true); // Still mark as initialized to prevent infinite loading
+      }
+    };
+
+    initializeData();
   }, []);
 
   useEffect(() => {
@@ -173,7 +188,7 @@ const FinancePage: React.FC = () => {
     setIsSavingEmail(true);
 
     try {
-      localStorage.setItem('global_contact_email', globalContactEmail);
+      safeLocalStorage.setItem('global_contact_email', globalContactEmail);
       
       // Save to backend as well
       const response = await fetch('http://localhost:3001/api/partnerships/global-email', {

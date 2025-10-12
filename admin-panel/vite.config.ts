@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Production-safe Vite configuration
+// Ultra-safe production configuration to prevent variable initialization errors
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
   
   return {
-    plugins: [react()],
+    plugins: [
+      react()
+    ],
     
     // Server configuration
     server: {
@@ -22,53 +24,60 @@ export default defineConfig(({ mode }) => {
       strictPort: false
     },
     
-    // Build optimization for production safety
+    // Ultra-safe build configuration
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: false,
-      minify: isProduction ? 'esbuild' : false, // Use esbuild instead of terser
-      target: 'es2018', // Updated target for better compatibility
+      // Disable minification completely to prevent variable mangling
+      minify: false,
+      target: 'es2020',
       
       rollupOptions: {
+        // Completely disable code splitting to prevent initialization issues
         output: {
-          // Simplified chunk naming to avoid initialization issues
-          manualChunks: undefined,
-          chunkFileNames: 'assets/js/[name]-[hash].js',
-          entryFileNames: 'assets/js/[name]-[hash].js',
-          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
-        }
+          manualChunks: () => 'index',
+          chunkFileNames: 'assets/js/[name].js',
+          entryFileNames: 'assets/js/[name].js',
+          assetFileNames: 'assets/[ext]/[name].[ext]',
+          // Preserve variable names and structure
+          compact: false,
+          minifyInternalExports: false
+        },
+        // Preserve all external dependencies
+        external: [],
+        // Disable tree shaking that might cause variable issues
+        treeshake: false
       }
     },
     
-    // Enhanced dependency optimization
+    // Strict dependency optimization
     optimizeDeps: {
       include: [
         'react',
         'react-dom',
         'react-router-dom'
       ],
-      // Force pre-bundling to avoid runtime issues
-      force: isProduction
+      // Don't force pre-bundling in production
+      force: false,
+      // Disable dependency optimization in production
+      disabled: isProduction
     },
     
     // CSS configuration
     css: {
       postcss: './postcss.config.js',
-      devSourcemap: !isProduction
+      devSourcemap: false
     },
     
-    // ESBuild configuration - safer settings
-    esbuild: {
-      // Don't drop console/debugger in production to avoid variable reference issues
+    // Disable ESBuild transformations that might cause issues
+    esbuild: isProduction ? false : {
       drop: [],
-      // Ensure proper variable hoisting
       keepNames: true
     },
     
-    // Define global constants to prevent undefined variables
+    // Define minimal globals
     define: {
-      __DEV__: !isProduction,
       'process.env.NODE_ENV': JSON.stringify(mode)
     }
   };
