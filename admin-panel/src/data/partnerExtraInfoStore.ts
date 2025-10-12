@@ -115,6 +115,11 @@ const DEFAULT_DATA: Record<PartnerCategoryKey, PartnerExtraInfo> = {
 
 function readStore(): Record<PartnerCategoryKey, PartnerExtraInfo> {
   try {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+      return { ...DEFAULT_DATA };
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
@@ -134,13 +139,21 @@ function readStore(): Record<PartnerCategoryKey, PartnerExtraInfo> {
     return parsed;
   } catch (e) {
     console.warn('Error reading partner extra info store:', e);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
+    }
     return { ...DEFAULT_DATA };
   }
 }
 
 function writeStore(data: Record<PartnerCategoryKey, PartnerExtraInfo>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+  } catch (e) {
+    console.warn('Error writing to localStorage:', e);
+  }
 }
 
 export function getPartnerExtraInfo(key: PartnerCategoryKey): PartnerExtraInfo {

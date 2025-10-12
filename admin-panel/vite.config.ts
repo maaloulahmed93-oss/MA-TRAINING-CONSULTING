@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Simplified Vite configuration to avoid initialization issues
+// Production-safe Vite configuration
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
   
@@ -22,17 +22,18 @@ export default defineConfig(({ mode }) => {
       strictPort: false
     },
     
-    // Build optimization - simplified
+    // Build optimization for production safety
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: false,
-      minify: isProduction ? 'terser' : false,
-      target: 'es2015',
+      minify: isProduction ? 'esbuild' : false, // Use esbuild instead of terser
+      target: 'es2018', // Updated target for better compatibility
       
-      // Simplified rollup options without manual chunks
       rollupOptions: {
         output: {
+          // Simplified chunk naming to avoid initialization issues
+          manualChunks: undefined,
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
@@ -40,13 +41,15 @@ export default defineConfig(({ mode }) => {
       }
     },
     
-    // Dependency optimization
+    // Enhanced dependency optimization
     optimizeDeps: {
       include: [
         'react',
         'react-dom',
         'react-router-dom'
-      ]
+      ],
+      // Force pre-bundling to avoid runtime issues
+      force: isProduction
     },
     
     // CSS configuration
@@ -55,9 +58,18 @@ export default defineConfig(({ mode }) => {
       devSourcemap: !isProduction
     },
     
-    // ESBuild configuration
+    // ESBuild configuration - safer settings
     esbuild: {
-      drop: isProduction ? ['console', 'debugger'] : []
+      // Don't drop console/debugger in production to avoid variable reference issues
+      drop: [],
+      // Ensure proper variable hoisting
+      keepNames: true
+    },
+    
+    // Define global constants to prevent undefined variables
+    define: {
+      __DEV__: !isProduction,
+      'process.env.NODE_ENV': JSON.stringify(mode)
     }
   };
 });

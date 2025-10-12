@@ -1,29 +1,83 @@
 import React, { useEffect, useState } from 'react';
 import { getPartnerExtraInfo, setPartnerExtraInfo, PartnerCategoryKey, PartnerExtraInfo } from '../data/partnerExtraInfoStore';
- 
+
+// Default form data to prevent initialization errors
+const DEFAULT_FORM: PartnerExtraInfo = {
+  title: '',
+  subtitle: '',
+  intro: '',
+  icon: '📄',
+  color: 'blue',
+  gradient: 'from-blue-500 to-blue-600',
+  details: [],
+  requirements: [],
+  ctaLabel: '',
+  isVisible: true,
+  updatedAt: new Date().toISOString()
+};
 
 const FinancePage: React.FC = () => {
   const [currentCategory, setCurrentCategory] = useState<PartnerCategoryKey>('formateur');
-  const [form, setForm] = useState<PartnerExtraInfo>(getPartnerExtraInfo('formateur'));
-  const [globalContactEmail, setGlobalContactEmail] = useState<string>(() => {
-    return localStorage.getItem('global_contact_email') || 'ahmedmaalou78l@gmail.com';
-  });
+  const [form, setForm] = useState<PartnerExtraInfo>(DEFAULT_FORM);
+  const [globalContactEmail, setGlobalContactEmail] = useState<string>('ahmedmaalou78l@gmail.com');
   const [isSavingEmail, setIsSavingEmail] = useState(false);
-  const [visibilityStates, setVisibilityStates] = useState<Record<PartnerCategoryKey, boolean>>(() => {
-    // Initialize visibility states from localStorage
-    const states: Record<PartnerCategoryKey, boolean> = {} as any;
-    (['formateur', 'freelance', 'commercial', 'entreprise'] as PartnerCategoryKey[]).forEach(cat => {
-      const data = getPartnerExtraInfo(cat);
-      states[cat] = data.isVisible !== false;
-    });
-    return states;
+  const [visibilityStates, setVisibilityStates] = useState<Record<PartnerCategoryKey, boolean>>({
+    formateur: true,
+    freelance: true,
+    commercial: true,
+    entreprise: true
   });
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Safe initialization effect
+  useEffect(() => {
+    try {
+      // Initialize global contact email safely
+      const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('global_contact_email') : null;
+      if (savedEmail) {
+        setGlobalContactEmail(savedEmail);
+      }
+
+      // Initialize visibility states safely
+      const states: Record<PartnerCategoryKey, boolean> = {
+        formateur: true,
+        freelance: true,
+        commercial: true,
+        entreprise: true
+      };
+
+      if (typeof window !== 'undefined') {
+        (['formateur', 'freelance', 'commercial', 'entreprise'] as PartnerCategoryKey[]).forEach(cat => {
+          try {
+            const data = getPartnerExtraInfo(cat);
+            states[cat] = data.isVisible !== false;
+          } catch (error) {
+            console.warn(`Error loading data for ${cat}:`, error);
+            states[cat] = true; // Default to visible
+          }
+        });
+      }
+
+      setVisibilityStates(states);
+      setIsInitialized(true);
+    } catch (error) {
+      console.error('Initialization error:', error);
+      setIsInitialized(true); // Still mark as initialized to prevent infinite loading
+    }
+  }, []);
 
   useEffect(() => {
-    const categoryData = getPartnerExtraInfo(currentCategory);
-    console.log('Category data:', categoryData);
-    setForm(categoryData);
-  }, [currentCategory]);
+    if (!isInitialized) return;
+    
+    try {
+      const categoryData = getPartnerExtraInfo(currentCategory);
+      console.log('Category data:', categoryData);
+      setForm(categoryData);
+    } catch (error) {
+      console.error('Error loading category data:', error);
+      setForm(DEFAULT_FORM);
+    }
+  }, [currentCategory, isInitialized]);
 
   const updateField = (field: keyof PartnerExtraInfo, value: string) => {
     setForm(prev => ({ ...prev, [field]: value, updatedAt: new Date().toISOString() }));
@@ -215,6 +269,22 @@ const FinancePage: React.FC = () => {
       default: return category;
     }
   };
+
+  // Show loading state during initialization
+  if (!isInitialized) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Chargement du panneau d'administration...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
