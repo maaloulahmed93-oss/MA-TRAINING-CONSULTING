@@ -1,7 +1,7 @@
 {
   "name": "matc-admin-panel",
   "private": true,
-  "version": "1.0.1760375701307",
+  "version": "1.0.1760376786424",
   "type": "module",
   "scripts": {
     "dev": "vite --port 8536",
@@ -38,5 +38,6 @@
     "terser": "^5.44.0",
     "typescript": "^5.2.2",
     "vite": "^7.1.5"
-  }
+  },
+  "description": "MATC Admin Panel - Updated: 2025-10-13T17:33:06.422Z"
 }
