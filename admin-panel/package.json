@@ -1,7 +1,7 @@
 {
   "name": "matc-admin-panel",
   "private": true,
-  "version": "2.1.1760391667539",
+  "version": "2.1.1760391736448",
   "type": "module",
   "scripts": {
     "dev": "vite --port 8536",
