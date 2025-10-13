@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "serve -s dist",
-    "start": "serve -s dist"
+    "start": "serve -s dist",
+    "build:safe": "vite build --mode production",
+    "build:vercel": "VITE_API_BASE_URL=https://matc-backend.onrender.com/api vite build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
