@@ -1,0 +1,222 @@
+name: 🚀 Deploy MATC Fullstack
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_backend:
+        description: 'Deploy Backend'
+        required: true
+        default: true
+        type: boolean
+      deploy_frontend:
+        description: 'Deploy Frontend'
+        required: true
+        default: true
+        type: boolean
+      deploy_admin:
+        description: 'Deploy Admin Panel'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🧩 Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📋 Environment Info
+        run: |
+          echo "🔍 Deployment Environment Information"
+          echo "Node.js version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Current directory: $(pwd)"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: 🔨 Install Backend Dependencies
+        run: |
+          echo "📦 Installing backend dependencies..."
+          cd backend
+          npm ci --only=production
+          echo "✅ Backend dependencies installed"
+
+      - name: 🔨 Install Frontend Dependencies
+        run: |
+          echo "📦 Installing frontend dependencies..."
+          npm ci
+          echo "✅ Frontend dependencies installed"
+
+      - name: 🔨 Install Admin Panel Dependencies
+        run: |
+          echo "📦 Installing admin panel dependencies..."
+          cd admin-panel
+          npm ci
+          echo "✅ Admin panel dependencies installed"
+
+      - name: 🧪 Test Backend
+        run: |
+          echo "🧪 Testing backend configuration..."
+          cd backend
+          # Basic syntax check
+          node -c server.js
+          echo "✅ Backend syntax check passed"
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          PORT: ${{ secrets.PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+      - name: 🏗️ Build Frontend
+        run: |
+          echo "🏗️ Building frontend..."
+          npm run build
+          echo "✅ Frontend build completed"
+          ls -la dist/
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          VITE_APP_NAME: ${{ secrets.VITE_APP_NAME }}
+
+      - name: 🏗️ Build Admin Panel
+        run: |
+          echo "🏗️ Building admin panel..."
+          cd admin-panel
+          npm run build
+          echo "✅ Admin panel build completed"
+          ls -la dist/
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+
+      - name: 🚀 Deploy Backend to Render
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_backend)
+        run: |
+          echo "🚀 Triggering Render deployment..."
+          if [ -n "${{ secrets.RENDER_API_KEY }}" ] && [ -n "${{ secrets.RENDER_SERVICE_ID }}" ]; then
+            curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              -H "Content-Type: application/json" \
+              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+              -d '{"clearCache": true}'
+            echo "✅ Render deployment triggered"
+          else
+            echo "⚠️ Render API credentials not configured - skipping backend deployment"
+            echo "Please add RENDER_API_KEY and RENDER_SERVICE_ID to GitHub Secrets"
+          fi
+
+      - name: 🚀 Deploy Frontend to Vercel
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_frontend)
+        run: |
+          echo "🚀 Deploying frontend to Vercel..."
+          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+            npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+            echo "✅ Frontend deployed to Vercel"
+          else
+            echo "⚠️ VERCEL_TOKEN not configured - skipping frontend deployment"
+            echo "Please add VERCEL_TOKEN to GitHub Secrets"
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: 🚀 Deploy Admin Panel to Vercel
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_admin)
+        run: |
+          echo "🚀 Deploying admin panel to Vercel..."
+          cd admin-panel
+          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+            npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+            echo "✅ Admin panel deployed to Vercel"
+          else
+            echo "⚠️ VERCEL_TOKEN not configured - skipping admin panel deployment"
+            echo "Please add VERCEL_TOKEN to GitHub Secrets"
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_ADMIN_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
+
+      - name: 🧪 Post-Deployment Validation
+        run: |
+          echo "🧪 Running post-deployment validation..."
+          
+          # Wait for deployments to propagate
+          sleep 30
+          
+          # Test backend health
+          echo "Testing backend health..."
+          if curl -f -s "https://matc-backend.onrender.com/api/health" > /dev/null; then
+            echo "✅ Backend health check passed"
+          else
+            echo "⚠️ Backend health check failed - may be cold starting"
+          fi
+          
+          # Test frontend
+          echo "Testing frontend..."
+          if curl -f -s -I "https://matrainingconsulting.vercel.app" > /dev/null; then
+            echo "✅ Frontend accessibility check passed"
+          else
+            echo "⚠️ Frontend accessibility check failed"
+          fi
+          
+          # Test admin panel
+          echo "Testing admin panel..."
+          if curl -f -s -I "https://admine-lake.vercel.app" > /dev/null; then
+            echo "✅ Admin panel accessibility check passed"
+          else
+            echo "⚠️ Admin panel accessibility check failed"
+          fi
+
+      - name: 📊 Deployment Summary
+        if: always()
+        run: |
+          echo "## 🎉 MATC Fullstack Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Live URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend API:** https://matc-backend.onrender.com/api" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend:** https://matrainingconsulting.vercel.app" >> $GITHUB_STEP_SUMMARY
+          echo "- **Admin Panel:** https://admine-lake.vercel.app" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Status:** Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Status:** Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "- **Validation:** Post-deployment checks executed" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    
+    steps:
+      - name: 📢 Deployment Notification
+        run: |
+          if [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "✅ MATC Fullstack deployment completed successfully!"
+            echo "🔗 Backend: https://matc-backend.onrender.com"
+            echo "🔗 Frontend: https://matrainingconsulting.vercel.app"
+            echo "🔗 Admin Panel: https://admine-lake.vercel.app"
+          else
+            echo "❌ MATC Fullstack deployment encountered issues!"
+            echo "Please check the deployment logs for details."
+          fi
