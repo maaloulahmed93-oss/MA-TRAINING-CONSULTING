@@ -1,3 +1,6 @@
+// Deploy trigger: 2025-10-13T17:15:01.303Z
+console.log('🚀 MATC Admin Panel - Force Deploy: 2025-10-13T17:15:01.303Z');
+
 /**
  * MATC Admin Panel API Configuration
  * EMERGENCY FIX: Completely rewritten to avoid initialization errors
