@@ -102,7 +102,7 @@
         <div class="header">
             <h1>🔍 Backend Connectivity Diagnosis</h1>
             <p>MATC Admin Panel → Render Backend API</p>
-            <div class="api-endpoint">https://ma-training-consulting.onrender.com/api</div>
+            <div class="api-endpoint">https://matc-backend.onrender.com/api</div>
             <div id="overallStatus">
                 <span class="status-indicator status-info">🔄 Testing...</span>
             </div>
@@ -167,7 +167,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://ma-training-consulting.onrender.com/api';
+        const API_BASE_URL = 'https://matc-backend.onrender.com/api';
         let testResults = [];
         let logs = [];
         
@@ -435,7 +435,7 @@
             recommendations += `
                 <strong>5. Environment Variable Check:</strong><br>
                 • Ensure VITE_API_BASE_URL is set in Vercel deployment settings<br>
-                • Value should be: https://ma-training-consulting.onrender.com/api<br>
+                • Value should be: https://matc-backend.onrender.com/api<br>
                 • Redeploy after setting environment variables<br><br>
             `;
             

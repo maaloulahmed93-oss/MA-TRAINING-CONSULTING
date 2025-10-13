@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC Deployment Connectivity Analysis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .test-section h2 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.pending {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .test-result {
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .summary {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .summary h2 {
+            margin: 0 0 15px 0;
+        }
+        .cors-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 MATC Deployment Analysis</h1>
+            <p>Comprehensive connectivity and configuration analysis</p>
+        </div>
+        
+        <div class="content">
+            <!-- Backend API Tests -->
+            <div class="test-section">
+                <h2>🚀 Backend API (Render)</h2>
+                <div class="test-item">
+                    <h3>Health Check</h3>
+                    <button class="button" onclick="testBackendHealth()">Test Health Endpoint</button>
+                    <div id="backend-health-result" class="test-result"></div>
+                </div>
+                <div class="test-item">
+                    <h3>MongoDB Connection</h3>
+                    <button class="button" onclick="testMongoConnection()">Test Database</button>
+                    <div id="mongo-result" class="test-result"></div>
+                </div>
+                <div class="test-item">
+                    <h3>CORS Configuration</h3>
+                    <button class="button" onclick="testCORS()">Test CORS</button>
+                    <div id="cors-result" class="test-result"></div>
+                </div>
+            </div>
+
+            <!-- Frontend Tests -->
+            <div class="test-section">
+                <h2>🌐 Frontend (Vercel)</h2>
+                <div class="test-item">
+                    <h3>Main Website</h3>
+                    <button class="button" onclick="testMainSite()">Test matrainingconsulting.vercel.app</button>
+                    <div id="main-site-result" class="test-result"></div>
+                </div>
+                <div class="test-item">
+                    <h3>Admin Panel</h3>
+                    <button class="button" onclick="testAdminPanel()">Test admine-lake.vercel.app</button>
+                    <div id="admin-panel-result" class="test-result"></div>
+                </div>
+            </div>
+
+            <!-- API Integration Tests -->
+            <div class="test-section">
+                <h2>🔗 API Integration Tests</h2>
+                <div class="test-item">
+                    <h3>Frontend → Backend</h3>
+                    <button class="button" onclick="testFrontendBackend()">Test API Calls</button>
+                    <div id="frontend-backend-result" class="test-result"></div>
+                </div>
+                <div class="test-item">
+                    <h3>Admin Panel → Backend</h3>
+                    <button class="button" onclick="testAdminBackend()">Test Admin API</button>
+                    <div id="admin-backend-result" class="test-result"></div>
+                </div>
+            </div>
+
+            <!-- Environment Analysis -->
+            <div class="test-section">
+                <h2>⚙️ Environment Analysis</h2>
+                <div class="test-item">
+                    <h3>API Configuration</h3>
+                    <button class="button" onclick="analyzeConfig()">Analyze Config</button>
+                    <div id="config-result" class="test-result"></div>
+                </div>
+                <div class="test-item">
+                    <h3>CORS Policy Check</h3>
+                    <button class="button" onclick="checkCorsPolicy()">Check CORS Policy</button>
+                    <div id="cors-policy-result" class="test-result"></div>
+                </div>
+            </div>
+
+            <!-- Run All Tests -->
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="button" onclick="runAllTests()" style="font-size: 1.2em; padding: 15px 30px;">
+                    🚀 Run Complete Analysis
+                </button>
+            </div>
+
+            <!-- Summary -->
+            <div id="summary" class="summary" style="display: none;">
+                <h2>📊 Analysis Summary</h2>
+                <div id="summary-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://matc-backend.onrender.com';
+        const MAIN_SITE_URL = 'https://matrainingconsulting.vercel.app';
+        const ADMIN_PANEL_URL = 'https://admine-lake.vercel.app';
+        
+        let testResults = {};
+
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).innerHTML = '<div class="loading"></div> Testing...';
+        }
+
+        function showResult(elementId, success, message, details = '') {
+            const element = document.getElementById(elementId);
+            const statusClass = success ? 'success' : 'error';
+            const icon = success ? '✅' : '❌';
+            
+            element.innerHTML = `
+                <div class="status ${statusClass}">${icon} ${message}</div>
+                ${details ? `<div style="margin-top: 10px; font-size: 0.9em;">${details}</div>` : ''}
+            `;
+        }
+
+        // Backend Tests
+        async function testBackendHealth() {
+            showLoading('backend-health-result');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    testResults.backendHealth = true;
+                    showResult('backend-health-result', true, 'Backend API is healthy', 
+                        `Environment: ${data.environment}<br>Database: ${data.database}<br>Uptime: ${Math.floor(data.uptime)}s`);
+                } else {
+                    testResults.backendHealth = false;
+                    showResult('backend-health-result', false, 'Backend health check failed', JSON.stringify(data));
+                }
+            } catch (error) {
+                testResults.backendHealth = false;
+                showResult('backend-health-result', false, 'Backend connection failed', error.message);
+            }
+        }
+
+        async function testMongoConnection() {
+            showLoading('mongo-result');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                
+                if (data.database === 'connected') {
+                    testResults.mongoConnection = true;
+                    showResult('mongo-result', true, 'MongoDB Atlas connected successfully');
+                } else {
+                    testResults.mongoConnection = false;
+                    showResult('mongo-result', false, 'MongoDB connection issue', `Status: ${data.database}`);
+                }
+            } catch (error) {
+                testResults.mongoConnection = false;
+                showResult('mongo-result', false, 'Cannot check MongoDB status', error.message);
+            }
+        }
+
+        async function testCORS() {
+            showLoading('cors-result');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET'
+                    }
+                });
+                
+                if (response.ok) {
+                    testResults.cors = true;
+                    showResult('cors-result', true, 'CORS configuration is working', 
+                        `Origin: ${window.location.origin}<br>Status: ${response.status}`);
+                } else {
+                    testResults.cors = false;
+                    showResult('cors-result', false, 'CORS preflight failed', `Status: ${response.status}`);
+                }
+            } catch (error) {
+                testResults.cors = false;
+                showResult('cors-result', false, 'CORS test failed', error.message);
+            }
+        }
+
+        // Frontend Tests
+        async function testMainSite() {
+            showLoading('main-site-result');
+            try {
+                const response = await fetch(MAIN_SITE_URL, { method: 'HEAD' });
+                
+                if (response.ok) {
+                    testResults.mainSite = true;
+                    showResult('main-site-result', true, 'Main website is accessible', 
+                        `Status: ${response.status}<br>URL: ${MAIN_SITE_URL}`);
+                } else {
+                    testResults.mainSite = false;
+                    showResult('main-site-result', false, 'Main website access failed', `Status: ${response.status}`);
+                }
+            } catch (error) {
+                testResults.mainSite = false;
+                showResult('main-site-result', false, 'Main website connection failed', error.message);
+            }
+        }
+
+        async function testAdminPanel() {
+            showLoading('admin-panel-result');
+            try {
+                const response = await fetch(ADMIN_PANEL_URL, { method: 'HEAD' });
+                
+                if (response.ok) {
+                    testResults.adminPanel = true;
+                    showResult('admin-panel-result', true, 'Admin panel is accessible', 
+                        `Status: ${response.status}<br>URL: ${ADMIN_PANEL_URL}`);
+                } else {
+                    testResults.adminPanel = false;
+                    showResult('admin-panel-result', false, 'Admin panel access failed', `Status: ${response.status}`);
+                }
+            } catch (error) {
+                testResults.adminPanel = false;
+                showResult('admin-panel-result', false, 'Admin panel connection failed', error.message);
+            }
+        }
+
+        // API Integration Tests
+        async function testFrontendBackend() {
+            showLoading('frontend-backend-result');
+            try {
+                // Test a simple API endpoint from frontend perspective
+                const response = await fetch(`${BACKEND_URL}/api/programs`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    testResults.frontendBackend = true;
+                    showResult('frontend-backend-result', true, 'Frontend can communicate with backend', 
+                        `Programs API working<br>Response: ${data.success ? 'Success' : 'Failed'}`);
+                } else {
+                    testResults.frontendBackend = false;
+                    showResult('frontend-backend-result', false, 'Frontend-Backend communication failed', 
+                        `Status: ${response.status}`);
+                }
+            } catch (error) {
+                testResults.frontendBackend = false;
+                showResult('frontend-backend-result', false, 'API call failed', error.message);
+            }
+        }
+
+        async function testAdminBackend() {
+            showLoading('admin-backend-result');
+            try {
+                // Test admin-specific endpoint
+                const response = await fetch(`${BACKEND_URL}/api/partners`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    testResults.adminBackend = true;
+                    showResult('admin-backend-result', true, 'Admin panel can communicate with backend', 
+                        `Partners API working<br>Response: ${data.success ? 'Success' : 'Failed'}`);
+                } else {
+                    testResults.adminBackend = false;
+                    showResult('admin-backend-result', false, 'Admin-Backend communication failed', 
+                        `Status: ${response.status}`);
+                }
+            } catch (error) {
+                testResults.adminBackend = false;
+                showResult('admin-backend-result', false, 'Admin API call failed', error.message);
+            }
+        }
+
+        // Configuration Analysis
+        function analyzeConfig() {
+            showLoading('config-result');
+            
+            const analysis = {
+                currentOrigin: window.location.origin,
+                backendUrl: BACKEND_URL,
+                mainSiteUrl: MAIN_SITE_URL,
+                adminPanelUrl: ADMIN_PANEL_URL,
+                isHTTPS: window.location.protocol === 'https:',
+                userAgent: navigator.userAgent.includes('Chrome') ? 'Chrome' : 'Other'
+            };
+            
+            testResults.config = true;
+            showResult('config-result', true, 'Configuration analyzed', 
+                `Origin: ${analysis.currentOrigin}<br>
+                 Backend: ${analysis.backendUrl}<br>
+                 HTTPS: ${analysis.isHTTPS}<br>
+                 Browser: ${analysis.userAgent}`);
+        }
+
+        function checkCorsPolicy() {
+            showLoading('cors-policy-result');
+            
+            const allowedOrigins = [
+                'https://ma-training-consulting.vercel.app',
+                'https://matc-admin.vercel.app',
+                'https://admine-lake.vercel.app',
+                'https://matrainingconsulting.vercel.app'
+            ];
+            
+            const currentOrigin = window.location.origin;
+            const isAllowed = allowedOrigins.includes(currentOrigin) || currentOrigin.includes('vercel.app');
+            
+            testResults.corsPolicy = isAllowed;
+            showResult('cors-policy-result', isAllowed, 
+                isAllowed ? 'Origin should be allowed by CORS' : 'Origin may not be allowed by CORS',
+                `Current: ${currentOrigin}<br>Allowed origins: ${allowedOrigins.join(', ')}`);
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            console.log('🚀 Starting comprehensive analysis...');
+            
+            // Reset results
+            testResults = {};
+            
+            // Run all tests
+            await testBackendHealth();
+            await testMongoConnection();
+            await testCORS();
+            await testMainSite();
+            await testAdminPanel();
+            await testFrontendBackend();
+            await testAdminBackend();
+            analyzeConfig();
+            checkCorsPolicy();
+            
+            // Show summary
+            showSummary();
+        }
+
+        function showSummary() {
+            const summary = document.getElementById('summary');
+            const content = document.getElementById('summary-content');
+            
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(result => result === true).length;
+            const failedTests = totalTests - passedTests;
+            
+            const successRate = Math.round((passedTests / totalTests) * 100);
+            
+            let summaryHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div style="text-align: center;">
+                        <h3>Total Tests</h3>
+                        <div style="font-size: 2em; font-weight: bold;">${totalTests}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>Passed</h3>
+                        <div style="font-size: 2em; font-weight: bold; color: #2ecc71;">${passedTests}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>Failed</h3>
+                        <div style="font-size: 2em; font-weight: bold; color: #e74c3c;">${failedTests}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>Success Rate</h3>
+                        <div style="font-size: 2em; font-weight: bold;">${successRate}%</div>
+                    </div>
+                </div>
+                
+                <h3>Detailed Results:</h3>
+                <ul>
+            `;
+            
+            for (const [test, result] of Object.entries(testResults)) {
+                const icon = result ? '✅' : '❌';
+                const status = result ? 'PASS' : 'FAIL';
+                summaryHTML += `<li>${icon} ${test}: ${status}</li>`;
+            }
+            
+            summaryHTML += '</ul>';
+            
+            // Add recommendations
+            if (failedTests > 0) {
+                summaryHTML += `
+                    <h3>🔧 Recommendations:</h3>
+                    <ul>
+                        ${!testResults.backendHealth ? '<li>Check Render deployment status and logs</li>' : ''}
+                        ${!testResults.mongoConnection ? '<li>Verify MongoDB Atlas connection string and network access</li>' : ''}
+                        ${!testResults.cors ? '<li>Update CORS configuration in backend server.js</li>' : ''}
+                        ${!testResults.frontendBackend ? '<li>Check VITE_API_BASE_URL environment variable in Vercel</li>' : ''}
+                        ${!testResults.adminBackend ? '<li>Verify admin panel API configuration</li>' : ''}
+                    </ul>
+                `;
+            } else {
+                summaryHTML += '<h3>🎉 All systems operational!</h3>';
+            }
+            
+            content.innerHTML = summaryHTML;
+            summary.style.display = 'block';
+        }
+
+        // Auto-run analysis on page load
+        window.addEventListener('load', () => {
+            console.log('🔍 MATC Deployment Analysis Tool loaded');
+            console.log('Click "Run Complete Analysis" to start testing');
+        });
+    </script>
+</body>
+</html>

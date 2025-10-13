@@ -1,7 +1,7 @@
 // Backend Connectivity Test for MATC Admin Panel
 // Tests live connection between Vercel Admin Panel and Render Backend
 
-const API_BASE_URL = 'https://ma-training-consulting.onrender.com/api';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api';
 
 console.log('🧪 MATC Backend Connectivity Test');
 console.log('='.repeat(50));
@@ -41,7 +41,7 @@ function testEnvironmentVariable() {
     console.log('\n📋 Test 1: Environment Variable Configuration');
     
     // Simulate environment variable check (would be import.meta.env.VITE_API_BASE_URL in browser)
-    const expectedUrl = 'https://ma-training-consulting.onrender.com/api';
+    const expectedUrl = 'https://matc-backend.onrender.com/api';
     const isCorrect = API_BASE_URL === expectedUrl;
     
     addTestResult(

@@ -2,14 +2,17 @@
 // Centralized API URL management
 
 export const getApiBaseUrl = (): string => {
-  // Production environment - use environment variable or default to Render URL
+  // CORRECT Backend URL - Fixed!
+  const CORRECT_BACKEND_URL = 'https://matc-backend.onrender.com/api';
+  
+  // Production environment - use correct backend URL
   if (import.meta.env.PROD) {
-    return import.meta.env.VITE_API_BASE_URL || 'https://ma-training-consulting.onrender.com/api';
+    return import.meta.env.VITE_API_BASE_URL || CORRECT_BACKEND_URL;
   }
   
-  // Force production URL for any Vercel deployment
+  // Force correct backend URL for any Vercel deployment
   if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
-    return 'https://ma-training-consulting.onrender.com/api';
+    return CORRECT_BACKEND_URL;
   }
   
   // Environment variable (for custom deployments)
@@ -17,8 +20,8 @@ export const getApiBaseUrl = (): string => {
     return import.meta.env.VITE_API_BASE_URL;
   }
   
-  // Development fallback
-  return '/api';
+  // Development fallback to localhost
+  return 'http://localhost:3001/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();

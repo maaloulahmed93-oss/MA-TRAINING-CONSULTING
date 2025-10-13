@@ -28,9 +28,9 @@ app.use('/api/', limiter);
 // CORS configuration - Production ready with development support
 const allowedOrigins = [
   // Production URLs (Vercel deployments)
-  'https://ma-training-consulting.vercel.app',
+  'https://matrainingconsulting.vercel.app', // ✅ main site
   'https://matc-admin.vercel.app',
-  'https://admine-lake.vercel.app', // Admin Panel Vercel URL
+  'https://admine-lake.vercel.app', // ✅ admin panel
   'https://admine-git-main-maalouls-projects.vercel.app', // Git-based deployment
   // Development URLs
   'http://localhost:5173', // Main site
@@ -63,7 +63,7 @@ app.use(cors({
     if (origin && (
       origin.includes('maalouls-projects.vercel.app') ||
       origin.includes('admine-') && origin.includes('.vercel.app') ||
-      origin.includes('ma-training-consulting') && origin.includes('.vercel.app')
+      origin.includes('matrainingconsulting') && origin.includes('.vercel.app')
     )) {
       return callback(null, true);
     }

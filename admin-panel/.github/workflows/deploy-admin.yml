@@ -1,0 +1,209 @@
+name: 🚀 Deploy MATC Admin Panel to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
+
+jobs:
+  deploy-admin:
+    name: 🔧 Deploy Admin Panel
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: production
+      url: https://admine-lake.vercel.app
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          npm audit --audit-level=high
+
+      - name: 🔍 Validate Environment Variables
+        run: |
+          echo "Validating required environment variables..."
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "❌ VITE_API_BASE_URL is not set"
+            exit 1
+          fi
+          echo "✅ All required environment variables are set"
+          echo "🔗 API Base URL: $VITE_API_BASE_URL"
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+
+      - name: 🧪 Backend Health Check
+        run: |
+          echo "Checking backend health before deployment..."
+          
+          # Wait for backend to be ready
+          for i in {1..5}; do
+            echo "Backend health check attempt $i/5..."
+            
+            if curl -f -s "$VITE_API_BASE_URL/health"; then
+              echo "✅ Backend is healthy!"
+              break
+            else
+              echo "⏳ Backend not ready, waiting 30 seconds..."
+              sleep 30
+            fi
+            
+            if [ $i -eq 5 ]; then
+              echo "❌ Backend health check failed"
+              exit 1
+            fi
+          done
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+
+      - name: 🏗️ Build Application
+        run: |
+          npm run build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_APP_NAME: MATC-ADMIN-PANEL
+          VITE_APP_VERSION: 1.0.0
+          NODE_ENV: production
+
+      - name: 🧪 Test Build
+        run: |
+          echo "Testing build output..."
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed - dist directory not found"
+            exit 1
+          fi
+          
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Build failed - index.html not found"
+            exit 1
+          fi
+          
+          echo "✅ Build output validated"
+
+      - name: 🚀 Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./
+
+      - name: ⏳ Wait for Deployment
+        run: |
+          echo "Waiting for Vercel deployment to propagate..."
+          sleep 45
+
+      - name: 🧪 Admin Panel Health Check
+        run: |
+          echo "Running admin panel health check..."
+          
+          # Health check with retry
+          for i in {1..5}; do
+            echo "Admin panel health check attempt $i/5..."
+            
+            response=$(curl -s -o /dev/null -w "%{http_code}" "https://admine-lake.vercel.app")
+            
+            if [ "$response" = "200" ]; then
+              echo "✅ Admin panel health check passed!"
+              break
+            else
+              echo "⏳ Admin panel not ready (HTTP $response), retrying in 15 seconds..."
+              sleep 15
+            fi
+            
+            if [ $i -eq 5 ]; then
+              echo "❌ Admin panel health check failed"
+              exit 1
+            fi
+          done
+
+      - name: 🧪 Admin API Connectivity Test
+        run: |
+          echo "Testing API connectivity from admin panel..."
+          
+          # Test critical admin endpoints
+          endpoints=("/health" "/programs" "/categories" "/partners")
+          
+          for endpoint in "${endpoints[@]}"; do
+            echo "Testing endpoint: $endpoint"
+            
+            if curl -f -s "${{ secrets.VITE_API_BASE_URL }}$endpoint" > /dev/null; then
+              echo "✅ $endpoint - OK"
+            else
+              echo "❌ $endpoint - Failed"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All admin API endpoints are accessible"
+
+      - name: 🧪 CORS Validation
+        run: |
+          echo "Testing CORS configuration for admin panel..."
+          
+          # Test CORS preflight request
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Origin: https://admine-lake.vercel.app" \
+            -H "Access-Control-Request-Method: GET" \
+            -H "Access-Control-Request-Headers: Content-Type" \
+            -X OPTIONS \
+            "${{ secrets.VITE_API_BASE_URL }}/health")
+          
+          if [ "$response" = "200" ] || [ "$response" = "204" ]; then
+            echo "✅ CORS configuration is correct"
+          else
+            echo "❌ CORS configuration issue (HTTP $response)"
+            exit 1
+          fi
+
+      - name: 📊 Deployment Summary
+        run: |
+          echo "## 🎉 Admin Panel Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Admin Panel URL**: https://admine-lake.vercel.app" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Connectivity**: ✅ Verified" >> $GITHUB_STEP_SUMMARY
+          echo "- **CORS Configuration**: ✅ Valid" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: 📢 Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: deploy-admin
+    if: always()
+    
+    steps:
+      - name: 📢 Deployment Notification
+        run: |
+          if [ "${{ needs.deploy-admin.result }}" = "success" ]; then
+            echo "✅ MATC Admin Panel deployment successful!"
+            echo "🔗 Admin Panel URL: https://admine-lake.vercel.app"
+            echo "🧪 API Connectivity: Verified"
+            echo "🌐 CORS Configuration: Valid"
+          else
+            echo "❌ MATC Admin Panel deployment failed!"
+            echo "Please check the deployment logs for details."
+          fi

@@ -109,7 +109,7 @@
         <div class="header">
             <h1>🔗 Backend Connectivity Test</h1>
             <p>Testing connection from Vercel Admin Panel to Render Backend</p>
-            <p><strong>Target:</strong> https://ma-training-consulting.onrender.com/api</p>
+            <p><strong>Target:</strong> https://matc-backend.onrender.com/api</p>
         </div>
 
         <div class="test-section">
@@ -174,7 +174,7 @@
             
             if (isProduction) {
                 // Use environment variable or fallback to Render URL
-                return 'https://ma-training-consulting.onrender.com/api';
+                return 'https://matc-backend.onrender.com/api';
             }
             
             // Development fallback
@@ -192,7 +192,7 @@
             document.getElementById('currentUrl').textContent = window.location.href;
             document.getElementById('environment').textContent = window.location.hostname.includes('vercel.app') ? 'Production (Vercel)' : 'Development';
             document.getElementById('isVercel').textContent = window.location.hostname.includes('vercel.app') ? 'Yes' : 'No';
-            document.getElementById('envApiUrl').textContent = 'https://ma-training-consulting.onrender.com/api';
+            document.getElementById('envApiUrl').textContent = 'https://matc-backend.onrender.com/api';
             document.getElementById('computedApiBase').textContent = API_BASE_URL;
         }
 

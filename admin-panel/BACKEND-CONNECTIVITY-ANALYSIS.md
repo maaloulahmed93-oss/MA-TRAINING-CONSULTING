@@ -9,9 +9,9 @@ The deployed Admin Panel on Vercel cannot communicate with the backend on Render
 ## 🔍 Root Cause Analysis
 
 ### ✅ **What's Working:**
-1. **Environment Variable Configuration:** `VITE_API_BASE_URL=https://ma-training-consulting.onrender.com/api` is correctly set in Vercel
+1. **Environment Variable Configuration:** `VITE_API_BASE_URL=https://matc-backend.onrender.com/api` is correctly set in Vercel
 2. **Centralized API Config:** `src/config/api.ts` properly handles environment detection and URL resolution
-3. **Backend Deployment:** Render backend is accessible at `https://ma-training-consulting.onrender.com`
+3. **Backend Deployment:** Render backend is accessible at `https://matc-backend.onrender.com`
 4. **Some Components:** ProgramManager correctly uses centralized config via `import { API_BASE_URL } from '../../config/api'`
 
 ### ❌ **What's Broken:**
@@ -68,12 +68,12 @@ The deployed Admin Panel on Vercel cannot communicate with the backend on Render
 export const getApiBaseUrl = (): string => {
   // Production environment - use environment variable or default to Render URL
   if (import.meta.env.PROD) {
-    return import.meta.env.VITE_API_BASE_URL || 'https://ma-training-consulting.onrender.com/api';
+    return import.meta.env.VITE_API_BASE_URL || 'https://matc-backend.onrender.com/api';
   }
   
   // Force production URL for any Vercel deployment
   if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
-    return 'https://ma-training-consulting.onrender.com/api';
+    return 'https://matc-backend.onrender.com/api';
   }
   
   // Environment variable (for custom deployments)
@@ -170,11 +170,11 @@ app.use(cors({
 ### **If Tests Still Fail:**
 
 1. **Check Environment Variables in Vercel:**
-   - Verify `VITE_API_BASE_URL=https://ma-training-consulting.onrender.com/api`
+   - Verify `VITE_API_BASE_URL=https://matc-backend.onrender.com/api`
    - Ensure no trailing slashes
 
 2. **Verify Backend Status:**
-   - Test `https://ma-training-consulting.onrender.com/api/health`
+   - Test `https://matc-backend.onrender.com/api/health`
    - Check Render deployment logs
 
 3. **CORS Issues:**
