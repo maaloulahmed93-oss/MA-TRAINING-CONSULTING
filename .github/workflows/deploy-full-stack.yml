@@ -1,3 +1,5 @@
+# IDE Note: Warnings about ${{ secrets.* }} context access are false positives
+# This is the official GitHub Actions syntax and will work correctly at runtime
 name: 🚀 MATC Full-Stack Deployment Orchestration
 
 on:
