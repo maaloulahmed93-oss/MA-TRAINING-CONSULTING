@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MATC Admin Panel API Test</title>
+</head>
+<body>
+    <h1>MATC Admin Panel API Configuration Test</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        // اختبار تكوين API
+        try {
+            const API_URL = 'https://matc-backend.onrender.com/api';
+            console.log('✅ API URL configured:', API_URL);
+            document.getElementById('result').innerHTML = 
+                '<p style="color: green;">✅ API URL: ' + API_URL + '</p>';
+        } catch (error) {
+            console.error('❌ API configuration error:', error);
+            document.getElementById('result').innerHTML = 
+                '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+        }
+    </script>
+</body>
+</html>
