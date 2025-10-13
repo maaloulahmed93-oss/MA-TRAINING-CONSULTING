@@ -1,34 +1,33 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Ultra-safe Vite configuration to prevent minification issues
+// Ultra-safe Vite configuration - Nuclear Fix
 export default defineConfig({
   plugins: [react()],
   
-  // Development server
   server: {
     port: 8536,
     host: true
   },
   
-  // Build configuration - NO MINIFICATION to prevent variable issues
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: false, // DISABLE minification to prevent 'Sv' error
+    minify: false, // NO MINIFICATION
     target: 'es2020',
     rollupOptions: {
       output: {
-        // Prevent code splitting that causes initialization issues
-        manualChunks: undefined,
-        // Keep variable names intact
-        compact: false
+        // Single chunk to prevent initialization issues
+        manualChunks: () => 'index',
+        entryFileNames: 'assets/js/[name].js',
+        chunkFileNames: 'assets/js/[name].js',
+        assetFileNames: 'assets/[ext]/[name].[ext]'
       }
     }
   },
   
-  // Environment variables
   define: {
-    'process.env.NODE_ENV': '"production"'
+    'process.env.NODE_ENV': '"production"',
+    'process.env.VITE_API_BASE_URL': '"https://matc-backend.onrender.com/api"'
   }
 });

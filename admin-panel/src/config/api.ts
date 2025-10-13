@@ -1,26 +1,40 @@
-// Final deployment push: 2025-10-13T17:33:06.422Z
-// Fix minification error: 2025-10-13T17:28:11.781Z
-// Deploy trigger: 2025-10-13T17:15:01.303Z
-console.log('🚀 MATC Admin Panel - Force Deploy: 2025-10-13T17:15:01.303Z');
-
 /**
  * MATC Admin Panel API Configuration
- * EMERGENCY FIX: Completely rewritten to avoid initialization errors
+ * NUCLEAR FIX: Zero-dependency, ultra-safe configuration
  */
 
-// HARDCODED BACKEND URL - NO DYNAMIC IMPORTS TO AVOID CIRCULAR DEPENDENCY
-const API_BASE_URL = 'https://matc-backend.onrender.com/api';
+// HARDCODED VALUES - NO IMPORTS, NO DEPENDENCIES
+const PRODUCTION_API_URL = 'https://matc-backend.onrender.com/api';
+const DEVELOPMENT_API_URL = 'http://localhost:3001/api';
 
-// Simple function to get API URL - NO COMPLEX LOGIC
-export function getApiBaseUrl(): string {
-  return API_BASE_URL;
+// SIMPLE FUNCTION - NO COMPLEX LOGIC
+function getApiUrl() {
+  // Check if we're in production
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
+      console.log('🔗 Production API URL:', PRODUCTION_API_URL);
+      return PRODUCTION_API_URL;
+    }
+  }
+  
+  // Check environment
+  if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
+    console.log('🔗 Production API URL:', PRODUCTION_API_URL);
+    return PRODUCTION_API_URL;
+  }
+  
+  // Default to production for safety
+  console.log('🔗 Default API URL:', PRODUCTION_API_URL);
+  return PRODUCTION_API_URL;
 }
 
-// Direct export - NO DYNAMIC INITIALIZATION
-export { API_BASE_URL };
+// DIRECT ASSIGNMENT - NO INITIALIZATION ISSUES
+const API_BASE_URL = getApiUrl();
 
-// Default export
+// SIMPLE EXPORTS
+export { API_BASE_URL };
 export default API_BASE_URL;
 
-// Simple debug log
-console.log('✅ MATC Admin Panel API URL:', API_BASE_URL);
+// DEBUG LOG
+console.log('✅ MATC Admin Panel API initialized:', API_BASE_URL);

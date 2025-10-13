@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-10-13T21:37:33.120Z",
+  "version": "2.0.1760391417047",
+  "fix_type": "NUCLEAR_FIX",
+  "changes": [
+    "Completely rewrote API configuration",
+    "Removed all complex dependencies",
+    "Disabled minification completely",
+    "Single chunk build",
+    "Hardcoded API URL",
+    "Zero initialization dependencies"
+  ],
+  "expected_result": "Admin panel should work without ANY JavaScript errors"
+}

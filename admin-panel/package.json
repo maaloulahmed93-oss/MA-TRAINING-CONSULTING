@@ -1,7 +1,7 @@
 {
   "name": "matc-admin-panel",
   "private": true,
-  "version": "1.0.1760376786424",
+  "version": "2.0.1760391417047",
   "type": "module",
   "scripts": {
     "dev": "vite --port 8536",
@@ -10,7 +10,9 @@
     "preview": "serve -s dist",
     "start": "serve -s dist",
     "build:safe": "vite build --mode production",
-    "build:vercel": "VITE_API_BASE_URL=https://matc-backend.onrender.com/api vite build"
+    "build:vercel": "VITE_API_BASE_URL=https://matc-backend.onrender.com/api vite build",
+    "build:nuclear": "vite build --mode production --force",
+    "preview:nuclear": "vite preview --port 4173"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
@@ -39,5 +41,5 @@
     "typescript": "^5.2.2",
     "vite": "^7.1.5"
   },
-  "description": "MATC Admin Panel - Updated: 2025-10-13T17:33:06.422Z"
+  "description": "MATC Admin Panel - Nuclear Fix Applied"
 }
