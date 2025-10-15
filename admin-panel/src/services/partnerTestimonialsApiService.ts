@@ -1,5 +1,7 @@
 // API Service للتعامل مع Partner Testimonials
-const API_BASE_URL = 'http://localhost:3001/api/partner-testimonials';
+import { API_BASE_URL } from '../config/api';
+
+const API_BASE_URL_PARTNER_TESTIMONIALS = `${API_BASE_URL}/partner-testimonials`;
 
 // Interface للتيمونيال
 export interface PartnerTestimonial {
@@ -43,7 +45,7 @@ class PartnerTestimonialsApiService {
   // جلب جميع التيمونيالز
   async getAllTestimonials(published?: boolean): Promise<PartnerTestimonial[]> {
     try {
-      const url = new URL(API_BASE_URL);
+      const url = new URL(API_BASE_URL_PARTNER_TESTIMONIALS);
       if (published !== undefined) {
         url.searchParams.append('published', published.toString());
       }
@@ -76,7 +78,7 @@ class PartnerTestimonialsApiService {
     try {
       console.log('🔄 Creating new testimonial via API...');
       
-      const response = await fetch(API_BASE_URL, {
+      const response = await fetch(API_BASE_URL_PARTNER_TESTIMONIALS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +115,7 @@ class PartnerTestimonialsApiService {
     try {
       console.log('🔄 Updating testimonial via API...');
       
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetch(`${API_BASE_URL_PARTNER_TESTIMONIALS}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +170,7 @@ class PartnerTestimonialsApiService {
     try {
       console.log('🔄 Deleting testimonial via API...');
       
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetch(`${API_BASE_URL_PARTNER_TESTIMONIALS}/${id}`, {
         method: 'DELETE',
       });
 
@@ -202,7 +204,7 @@ class PartnerTestimonialsApiService {
     try {
       console.log('🔄 Toggling publish status via API...');
       
-      const response = await fetch(`${API_BASE_URL}/${id}/toggle-publish`, {
+      const response = await fetch(`${API_BASE_URL_PARTNER_TESTIMONIALS}/${id}/toggle-publish`, {
         method: 'PUT',
       });
 
@@ -233,7 +235,7 @@ class PartnerTestimonialsApiService {
     try {
       console.log('🔄 Fetching testimonials stats...');
       
-      const response = await fetch(`${API_BASE_URL}/stats/summary`);
+      const response = await fetch(`${API_BASE_URL_PARTNER_TESTIMONIALS}/stats/summary`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -267,7 +269,7 @@ class PartnerTestimonialsApiService {
     try {
       console.log('🔄 Resetting testimonials to defaults...');
       
-      const response = await fetch(`${API_BASE_URL}/reset`, {
+      const response = await fetch(`${API_BASE_URL_PARTNER_TESTIMONIALS}/reset`, {
         method: 'POST',
       });
 

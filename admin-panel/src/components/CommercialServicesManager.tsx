@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { motion } from 'framer-motion';
 import { 
   PlusIcon, 
@@ -72,7 +73,7 @@ const CommercialServicesManager: React.FC = () => {
   const [secretAction, setSecretAction] = useState<'create' | 'assign' | null>(null);
   const [secretError, setSecretError] = useState('');
 
-  const API_BASE = 'http://localhost:3001/api/commercial-new';
+  const API_BASE = `${API_BASE_URL}/commercial-new`;
 
   useEffect(() => {
     loadData();
@@ -91,7 +92,7 @@ const CommercialServicesManager: React.FC = () => {
       }
       
       // Charger commerciaux (depuis API partners)
-      const commerciauxResponse = await fetch('http://localhost:3001/api/partners');
+      const commerciauxResponse = await fetch(`${API_BASE_URL}/partners`);
       const commerciauxResult = await commerciauxResponse.json();
       
       if (commerciauxResult.success) {

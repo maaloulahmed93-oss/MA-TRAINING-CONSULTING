@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { motion } from 'framer-motion';
 import { 
   PlusIcon, 
@@ -69,7 +70,7 @@ const CommercialServicesPage: React.FC = () => {
     setLoading(true);
     
     try {
-      const response = await fetch('http://localhost:3001/api/commercial-services');
+      const response = await fetch(`${API_BASE_URL}/commercial-services`);
       const result = await response.json();
       console.log('📡 API Response:', result);
       
@@ -93,7 +94,7 @@ const CommercialServicesPage: React.FC = () => {
 
   const loadCommercials = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/partners?type=commercial');
+      const response = await fetch(`${API_BASE_URL}/partners?type=commercial`);
       const result = await response.json();
       if (result.success) {
         setCommercials(result.data || []);
@@ -117,7 +118,7 @@ const CommercialServicesPage: React.FC = () => {
         commission: Number(serviceForm.commission) || 0
       };
 
-      const response = await fetch('http://localhost:3001/api/commercial-services', {
+      const response = await fetch(`${API_BASE_URL}/commercial-services`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(serviceData)
@@ -172,7 +173,7 @@ const CommercialServicesPage: React.FC = () => {
     try {
       console.log(`📡 DELETE: /api/commercial-services/${serviceId}`);
       
-      const response = await fetch(`http://localhost:3001/api/commercial-services/${serviceId}`, {
+      const response = await fetch(`${API_BASE_URL}/commercial-services/${serviceId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -225,7 +226,7 @@ const CommercialServicesPage: React.FC = () => {
       
       console.log('📡 Sending request:', requestBody);
       
-      const response = await fetch('http://localhost:3001/api/commercial-new/admin/assign-service', {
+      const response = await fetch(`${API_BASE_URL}/commercial-new/admin/assign-service`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)

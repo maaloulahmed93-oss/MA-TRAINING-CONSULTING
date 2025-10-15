@@ -11,6 +11,12 @@ const DEVELOPMENT_API_URL = 'http://localhost:3001/api';
 
 // SIMPLE FUNCTION - NO COMPLEX LOGIC
 function getApiUrl() {
+  // Check for environment variable first
+  if (import.meta.env.VITE_API_BASE_URL) {
+    console.log('🔗 Environment API URL:', import.meta.env.VITE_API_BASE_URL);
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
   // Check if we're in production
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
@@ -20,9 +26,9 @@ function getApiUrl() {
     }
   }
   
-  // Check environment
-  if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
-    console.log('🔗 Production API URL:', PRODUCTION_API_URL);
+  // Check if in production mode
+  if (import.meta.env.PROD) {
+    console.log('🔗 Production mode API URL:', PRODUCTION_API_URL);
     return PRODUCTION_API_URL;
   }
   

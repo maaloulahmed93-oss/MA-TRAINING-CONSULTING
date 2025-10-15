@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../config/api';
 // Service API pour la gestion des cours gratuits dans l'Admin Panel
-const API_BASE = 'http://localhost:3001/api/free-courses';
+const API_BASE = `${API_BASE_URL}/free-courses`;
 
 export interface Domain {
   id: string;

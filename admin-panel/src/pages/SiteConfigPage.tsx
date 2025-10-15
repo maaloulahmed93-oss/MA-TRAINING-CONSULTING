@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { siteConfigApiService, SiteConfig } from '../services/siteConfigApiService';
 import { 
   CogIcon, 
@@ -306,7 +307,7 @@ const SiteConfigPage: React.FC = () => {
                 <div className="flex items-center space-x-4">
                   {config.favicon && (
                     <img 
-                      src={config.favicon.startsWith('/') ? `http://localhost:3001${config.favicon}` : config.favicon}
+                      src={config.favicon.startsWith('/') ? `${API_BASE_URL.replace('/api', '')}${config.favicon}` : config.favicon}
                       alt="Favicon"
                       className="h-8 w-8"
                     />
@@ -333,7 +334,7 @@ const SiteConfigPage: React.FC = () => {
                 <div className="flex items-center space-x-4">
                   {config.logo && (
                     <img 
-                      src={config.logo.startsWith('/') ? `http://localhost:3001${config.logo}` : config.logo}
+                      src={config.logo.startsWith('/') ? `${API_BASE_URL.replace('/api', '')}${config.logo}` : config.logo}
                       alt="Logo"
                       className="h-12 w-auto"
                     />

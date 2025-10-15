@@ -1,6 +1,7 @@
 import { Testimonial } from '../types';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE_URL = 'http://localhost:3001/api/testimonials';
+const API_BASE_URL_TESTIMONIALS = `${API_BASE_URL}/testimonials`;
 
 export class TestimonialsApiService {
   private static instance: TestimonialsApiService;
@@ -32,7 +33,7 @@ export class TestimonialsApiService {
   // Vérifier la connexion API
   async checkConnection(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL.replace('/testimonials', '')}/health`);
+      const response = await fetch(`${API_BASE_URL_TESTIMONIALS.replace('/testimonials', '')}/health`);
       const result = await response.json();
       return result.success === true;
     } catch (error) {
@@ -57,7 +58,7 @@ export class TestimonialsApiService {
       if (filters?.level) params.append('level', filters.level);
       if (filters?.search) params.append('search', filters.search);
 
-      const url = `${API_BASE_URL}${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `${API_BASE_URL_TESTIMONIALS}${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -86,7 +87,7 @@ export class TestimonialsApiService {
     try {
       console.log('➕ Création d\'un nouveau témoignage...');
       
-      const response = await fetch(API_BASE_URL, {
+      const response = await fetch(API_BASE_URL_TESTIMONIALS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +134,7 @@ export class TestimonialsApiService {
     try {
       console.log(`🔄 Mise à jour du témoignage ${id}...`);
       
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetch(`${API_BASE_URL_TESTIMONIALS}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +175,7 @@ export class TestimonialsApiService {
     try {
       console.log(`🗑️ Suppression du témoignage ${id}...`);
       
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetch(`${API_BASE_URL_TESTIMONIALS}/${id}`, {
         method: 'DELETE',
       });
 
@@ -209,7 +210,7 @@ export class TestimonialsApiService {
     try {
       console.log(`📢 Basculement du statut de publication pour ${id}...`);
       
-      const response = await fetch(`${API_BASE_URL}/${id}/publish`, {
+      const response = await fetch(`${API_BASE_URL_TESTIMONIALS}/${id}/publish`, {
         method: 'PATCH',
       });
 
@@ -246,7 +247,7 @@ export class TestimonialsApiService {
         return this.getCache(cacheKey);
       }
 
-      const response = await fetch(`${API_BASE_URL}/stats/summary`);
+      const response = await fetch(`${API_BASE_URL_TESTIMONIALS}/stats/summary`);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);

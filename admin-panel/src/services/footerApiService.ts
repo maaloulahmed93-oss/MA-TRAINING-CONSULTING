@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../config/api';
 // خدمة API لإدارة إعدادات الفوتر
-const API_BASE_URL = 'http://localhost:3001/api/footer-settings';
+const API_BASE_URL_FOOTER = `${API_BASE_URL}/footer-settings`;
 
 export interface ContactInfo {
   email: string;
@@ -50,7 +50,7 @@ class FooterApiService {
     try {
       console.log('🔍 جلب إعدادات الفوتر من API...');
       
-      const response = await fetch(API_BASE_URL, {
+      const response = await fetch(API_BASE_URL_FOOTER, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ class FooterApiService {
       console.log('🔄 تحديث إعدادات الفوتر...');
       console.log('📝 البيانات المرسلة:', settings);
 
-      const response = await fetch(API_BASE_URL, {
+      const response = await fetch(API_BASE_URL_FOOTER, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ class FooterApiService {
     try {
       console.log('🔄 إعادة تعيين إعدادات الفوتر للقيم الافتراضية...');
 
-      const response = await fetch(`${API_BASE_URL}/reset`, {
+      const response = await fetch(`${API_BASE_URL_FOOTER}/reset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ class FooterApiService {
     try {
       console.log('📜 جلب تاريخ تحديثات الفوتر...');
 
-      const response = await fetch(`${API_BASE_URL}/history`, {
+      const response = await fetch(`${API_BASE_URL_FOOTER}/history`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

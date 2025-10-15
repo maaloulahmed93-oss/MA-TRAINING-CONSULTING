@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3001/api/digitalization-testimonials';
+import { API_BASE_URL } from '../config/api';
+const API_BASE = `${API_BASE_URL}/digitalization-testimonials`;
 
 export interface TestimonialItem {
   author: string;

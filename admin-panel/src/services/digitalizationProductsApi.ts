@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '../config/api';
-const API_BASE_URL = 'http://localhost:3001/api/digitalization-products';
+const API_BASE_URL_DIGITALIZATION_PRODUCTS = `${API_BASE_URL}/digitalization-products`;
 
 export interface DigitalizationProduct {
   id: string;
@@ -32,7 +32,7 @@ class DigitalizationProductsApiService {
     try {
       console.log('🔄 Fetching products for admin panel...');
       
-      const response = await fetch(`${API_BASE_URL}/admin`, {
+      const response = await fetch(`${API_BASE_URL_DIGITALIZATION_PRODUCTS}/admin`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ class DigitalizationProductsApiService {
       console.log('🔄 Saving products to API...');
       console.log('📝 Data to save:', productsData);
       
-      const response = await fetch(API_BASE_URL, {
+      const response = await fetch(API_BASE_URL_DIGITALIZATION_PRODUCTS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ class DigitalizationProductsApiService {
     try {
       console.log('🔄 Fetching statistics...');
       
-      const response = await fetch(`${API_BASE_URL}/stats`, {
+      const response = await fetch(`${API_BASE_URL_DIGITALIZATION_PRODUCTS}/stats`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ class DigitalizationProductsApiService {
     try {
       console.log('🔄 Resetting products to default...');
       
-      const response = await fetch(`${API_BASE_URL}/reset`, {
+      const response = await fetch(`${API_BASE_URL_DIGITALIZATION_PRODUCTS}/reset`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

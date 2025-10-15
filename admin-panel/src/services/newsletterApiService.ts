@@ -33,7 +33,7 @@ export interface NewsletterResponse {
   message?: string;
 }
 
-const API_BASE = 'http://localhost:3001/api/newsletter';
+const API_BASE = `${API_BASE_URL}/newsletter`;
 
 class NewsletterApiService {
   

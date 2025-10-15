@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { Send, FileText, MessageSquare, CheckCircle, XCircle, User, Trash2 } from 'lucide-react';
 
 interface DecisionForm {
@@ -340,7 +341,7 @@ const NotificationsPage: React.FC = () => {
 
       // إرسال القرار عبر Backend API
       try {
-        const response = await fetch('http://localhost:3001/api/freelancer-decisions', {
+        const response = await fetch(`${API_BASE_URL}/freelancer-decisions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

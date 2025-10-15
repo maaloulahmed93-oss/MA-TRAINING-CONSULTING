@@ -3,7 +3,8 @@
  * Handles all API calls related to events management
  */
 
-const API_BASE = 'http://localhost:3001/api/events';
+import { API_BASE_URL } from '../config/api';
+const API_BASE = `${API_BASE_URL}/events`;
 
 export interface EventFormData {
   title: string;

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { getPartnerExtraInfo, setPartnerExtraInfo, PartnerCategoryKey, PartnerExtraInfo } from '../data/partnerExtraInfoStore';
 import { safeLocalStorage, safeInit } from '../utils/safeInit';
 
@@ -156,7 +157,7 @@ const FinancePage: React.FC = () => {
       
       console.log('🔄 Sending visibility settings to Backend:', allSettings);
       
-      const response = await fetch('http://localhost:3001/api/partnerships/visibility', {
+      const response = await fetch(`${API_BASE_URL}/partnerships/visibility`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings: allSettings })
@@ -191,7 +192,7 @@ const FinancePage: React.FC = () => {
       safeLocalStorage.setItem('global_contact_email', globalContactEmail);
       
       // Save to backend as well
-      const response = await fetch('http://localhost:3001/api/partnerships/global-email', {
+      const response = await fetch(`${API_BASE_URL}/partnerships/global-email`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: globalContactEmail.trim() })
@@ -243,7 +244,7 @@ const FinancePage: React.FC = () => {
 
       console.log(`🔄 Syncing ${currentCategory} to Backend...`, partnershipData);
 
-      const response = await fetch(`http://localhost:3001/api/partnerships/${currentCategory}`, {
+      const response = await fetch(`${API_BASE_URL}/partnerships/${currentCategory}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(partnershipData)
