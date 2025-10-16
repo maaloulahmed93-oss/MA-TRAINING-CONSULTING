@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
-import { API_BASE_URL as BACKEND_API_URL } from '../../config/api';
+import { API_BASE_URL } from '../../config/api';
 
 console.log('📦 ProgramManager module loaded');
 
@@ -35,9 +35,6 @@ interface Program {
   sessions: Session[];
   isActive?: boolean;
 }
-
-// Use centralized API configuration
-const API_BASE_URL = BACKEND_API_URL;
 
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
 console.log('🌍 Environment:', import.meta.env.MODE);
