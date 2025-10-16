@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, Tag, List, BookOpen } from "lucide-react";
-import { Pack } from "../types";
+import { Pack } from "../types/index";
 import PackFormModal from "../components/packs/PackFormModal";
 import axios from "axios";
-
-const API_BASE_URL = '/api';
+import { API_BASE_URL } from "../config/api";
 
 const PacksPage: React.FC = () => {
   const [packs, setPacks] = useState<Pack[]>([]);

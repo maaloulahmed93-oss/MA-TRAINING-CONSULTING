@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config/api';
 
 console.log('📦 CategoryManager module loaded');
 
@@ -12,8 +13,6 @@ interface Category {
   createdAt: string;
   updatedAt: string;
 }
-
-const API_BASE_URL = '/api';
 
 const CategoryManager: React.FC = () => {
   console.log('🚀 CategoryManager component loaded');
