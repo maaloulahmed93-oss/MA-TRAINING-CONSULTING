@@ -13,17 +13,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: false, // NO MINIFICATION
-    target: 'es2020',
-    rollupOptions: {
-      output: {
-        // Single chunk to prevent initialization issues
-        manualChunks: () => 'index',
-        entryFileNames: 'assets/js/[name].js',
-        chunkFileNames: 'assets/js/[name].js',
-        assetFileNames: 'assets/[ext]/[name].[ext]'
-      }
-    }
+    target: 'es2020'
   },
   
   define: {
