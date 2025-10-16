@@ -1,7 +1,7 @@
 // MATC Admin Panel - Nuclear Fix Entry Point
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import App from './App-simple.tsx'
+import App from './App.tsx'
 import './index.css'
 
 // Ensure API is loaded before app starts
