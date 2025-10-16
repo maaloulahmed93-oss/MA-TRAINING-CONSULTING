@@ -4,15 +4,15 @@
   "version": "2.1.1760391736448",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 8536",
-    "build": "vite build",
+    "dev": "npx vite --port 8536",
+    "build": "npx vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "serve -s dist",
     "start": "serve -s dist",
-    "build:safe": "vite build --mode production",
-    "build:vercel": "VITE_API_BASE_URL=https://matc-backend.onrender.com/api vite build",
-    "build:nuclear": "vite build --mode production --force",
-    "preview:nuclear": "vite preview --port 4173"
+    "build:safe": "npx vite build --mode production",
+    "build:vercel": "VITE_API_BASE_URL=https://matc-backend.onrender.com/api npx vite build",
+    "build:nuclear": "npx vite build --mode production --force",
+    "preview:nuclear": "npx vite preview --port 4173"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
