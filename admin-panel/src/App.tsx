@@ -92,17 +92,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
+      {/* Protected Routes - All wrapped in Layout */}
       <Route
         path="/*"
         element={
