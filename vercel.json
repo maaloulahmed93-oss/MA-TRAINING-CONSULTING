@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "matc-admin-panel",
-  "buildCommand": "cd admin-panel && npm install --include=dev && npx vite build",
+  "buildCommand": "cd admin-panel && npm install && npm run build",
   "outputDirectory": "admin-panel/dist",
   "installCommand": "npm ci",
   "framework": "vite",
