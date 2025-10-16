@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { coursesData as initialCoursesData } from '../../../../src/data/coursesData';
-import { Domain, Course, CourseModule } from '../../../../src/types/courses';
+import { coursesData as initialCoursesData } from '../../data/coursesData';
+import { Domain, Course, CourseModule } from '../../types/courses';
 import { PlusCircle, Edit, Trash2, ChevronDown, ChevronRight, X, Link, KeyRound, Wifi, WifiOff } from 'lucide-react';
 import { freeCoursesApiService } from '../../services/freeCoursesApiService';
 
