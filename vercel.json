@@ -1,8 +1,8 @@
 {
   "version": 2,
   "name": "matc-admin-panel",
-  "buildCommand": "cd admin-panel && npm install && npm run build",
-  "outputDirectory": "admin-panel/dist",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "installCommand": "npm ci",
   "framework": "vite",
   "rewrites": [
