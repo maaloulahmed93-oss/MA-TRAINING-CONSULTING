@@ -44,74 +44,14 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
  * App Routes Component
  */
 const AppRoutes: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <Routes>
-      <Route
-        path={ROUTES.LOGIN}
-        element={
-          isAuthenticated ? (
-            <Navigate to={ROUTES.DASHBOARD} replace />
-          ) : (
-            <LoginPage />
-          )
-        }
-      />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTES.PROGRAMS}
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <ProgramsPage />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTES.CATEGORIES}
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <CategoriesPage />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTES.PACKS}
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <PacksPage />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="*"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Navigate to={ROUTES.DASHBOARD} replace />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<Layout><Dashboard /></Layout>} />
+      <Route path="/programs" element={<Layout><ProgramsPage /></Layout>} />
+      <Route path="/categories" element={<Layout><CategoriesPage /></Layout>} />
+      <Route path="/packs" element={<Layout><PacksPage /></Layout>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
