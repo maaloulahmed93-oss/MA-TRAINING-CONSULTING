@@ -10,7 +10,7 @@
     "dev:admin": "cd admin-panel && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "dev:all": "concurrently \"npm run dev:main\" \"npm run dev:admin\" \"npm run dev:backend\" --names \"MAIN,ADMIN,API\" --prefix-colors \"cyan,magenta,green\"",
-    "build": "vite build",
+    "build": "cd admin-panel && npm install && npm run build",
     "build:admin": "cd admin-panel && npm run build",
     "build:all": "npm run build && npm run build:admin",
     "lint": "eslint .",
