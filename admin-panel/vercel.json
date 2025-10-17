@@ -26,11 +26,5 @@
   "env": {
     "VITE_API_BASE_URL": "https://matc-backend.onrender.com/api",
     "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "VITE_API_BASE_URL": "https://matc-backend.onrender.com/api",
-      "NODE_ENV": "production"
-    }
   }
 }
