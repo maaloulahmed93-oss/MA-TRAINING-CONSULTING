@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite --port 8536",
-    "prebuild": "echo 'Checking vite installation...' && npm ls vite",
     "build": "npx vite build --mode production",
-    "postbuild": "echo 'Build completed successfully'",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "serve -s dist",
     "start": "serve -s dist",
