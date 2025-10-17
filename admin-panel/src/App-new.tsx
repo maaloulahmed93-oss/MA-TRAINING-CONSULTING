@@ -23,6 +23,7 @@ console.log('🚀 MATC Admin Panel starting...');
 
 /**
  * Protected Route Component
+ * Redirects to login if user is not authenticated
  */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -42,6 +43,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 
 /**
  * App Routes Component
+ * Handles all routing logic
  */
 const AppRoutes: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -52,6 +54,7 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
+      {/* Public Route - Login */}
       <Route
         path={ROUTES.LOGIN}
         element={
@@ -62,6 +65,8 @@ const AppRoutes: React.FC = () => {
           )
         }
       />
+
+      {/* Protected Routes */}
       <Route
         path="/"
         element={

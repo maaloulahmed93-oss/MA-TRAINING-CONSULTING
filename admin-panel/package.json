@@ -19,6 +19,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.0.18",
+    "@vitejs/plugin-react": "^4.1.1",
     "axios": "^1.12.2",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.536.0",
@@ -32,7 +33,6 @@
     "@types/react-dom": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
-    "@vitejs/plugin-react": "^4.1.1",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
