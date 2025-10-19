@@ -4,15 +4,10 @@
   "version": "2.1.1760391736448",
   "type": "module",
   "scripts": {
-    "dev": "npx vite --port 8536",
-    "build": "npx vite build --mode production",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "serve -s dist",
-    "start": "serve -s dist",
-    "build:safe": "npx vite build --mode production",
-    "build:vercel": "VITE_API_BASE_URL=https://matc-backend.onrender.com/api npx vite build",
-    "build:nuclear": "npx vite build --mode production --force",
-    "preview:nuclear": "npx vite preview --port 4173"
+    "dev": "vite --port 8536",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
@@ -28,7 +23,7 @@
     "react-router-dom": "^6.26.1",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
-    "vite": "^7.1.5"
+    "vite": "^5.4.10"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",

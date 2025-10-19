@@ -1,16 +1,12 @@
 {
   "version": 2,
   "name": "matc-admin-panel",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
   "framework": "vite",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
+  "nodeVersion": "18.x",
   "regions": ["iad1"],
-  "build": {
-    "env": {
-      "NODE_VERSION": "18"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
