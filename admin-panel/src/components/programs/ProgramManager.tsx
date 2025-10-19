@@ -86,7 +86,7 @@ const ProgramManager: React.FC = () => {
     try {
       console.log('📋 Récupération des programmes...');
       console.log('🔗 URL:', `${API_BASE_URL}/programs`);
-      console.log('🌐 Full URL:', window.location.origin + `${API_BASE_URL}/programs`);
+      console.log('🌐 Full URL:', `${API_BASE_URL}/programs`);
       
       const response = await axios.get(`${API_BASE_URL}/programs`, {
         timeout: 10000, // 10 seconds timeout

@@ -32,6 +32,9 @@ const allowedOrigins = [
   'https://matc-admin.vercel.app',
   'https://admine-lake.vercel.app', // ✅ admin panel
   'https://admine-git-main-maalouls-projects.vercel.app', // Git-based deployment
+  // CORS FIX: Additional Vercel admin panel URLs
+  'https://admine-35fgpwv3-maalouls-projects.vercel.app', // ✅ Current admin panel URL
+  'https://admine-5zbj6il0v-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
   // Development URLs
   'http://localhost:5173', // Main site
   'http://localhost:5174', // Main site (alternate port)
@@ -59,11 +62,14 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // Allow any Vercel deployment for this project
+    // Allow any Vercel deployment for this project (ENHANCED PATTERN MATCHING)
     if (origin && (
       origin.includes('maalouls-projects.vercel.app') ||
-      origin.includes('admine-') && origin.includes('.vercel.app') ||
-      origin.includes('matrainingconsulting') && origin.includes('.vercel.app')
+      (origin.includes('admine-') && origin.includes('.vercel.app')) ||
+      (origin.includes('matrainingconsulting') && origin.includes('.vercel.app')) ||
+      // Enhanced pattern for admin panel deployments
+      /^https:\/\/admine-[a-z0-9]+-maalouls-projects\.vercel\.app$/.test(origin) ||
+      /^https:\/\/matrainingconsulting.*\.vercel\.app$/.test(origin)
     )) {
       return callback(null, true);
     }
@@ -78,7 +84,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Origin', 'Accept'],
   optionsSuccessStatus: 200 // For legacy browser support
 }));
 
@@ -95,7 +101,7 @@ app.use((req, res, next) => {
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
   res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
