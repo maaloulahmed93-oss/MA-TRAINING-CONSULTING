@@ -22,6 +22,7 @@ import PartnerTestimonialsPage from "./pages/PartnerTestimonialsPage";
 import FooterSettingsPage from "./pages/FooterSettingsPage";
 import UsersPage from "./pages/UsersPage";
 import RegistrationsPage from "./pages/RegistrationsPage";
+import NewsletterPage from "./pages/NewsletterPage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -46,6 +47,7 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.FOOTER_SETTINGS} element={<Layout><FooterSettingsPage /></Layout>} />
       <Route path={ROUTES.USERS} element={<Layout><UsersPage /></Layout>} />
       <Route path={ROUTES.REGISTRATIONS} element={<Layout><RegistrationsPage /></Layout>} />
+      <Route path={ROUTES.NEWSLETTER} element={<Layout><NewsletterPage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
