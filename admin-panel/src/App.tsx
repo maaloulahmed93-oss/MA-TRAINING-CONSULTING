@@ -25,6 +25,8 @@ import RegistrationsPage from "./pages/RegistrationsPage";
 import NewsletterPage from "./pages/NewsletterPage";
 import ParticipantsPage from "./pages/ParticipantsPage";
 import AttestationsPage from "./pages/AttestationsPage";
+import FreeCoursesPage from "./pages/FreeCoursesPage";
+import FinancePage from "./pages/FinancePage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -52,6 +54,8 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.NEWSLETTER} element={<Layout><NewsletterPage /></Layout>} />
       <Route path={ROUTES.PARTICIPANTS} element={<Layout><ParticipantsPage /></Layout>} />
       <Route path={ROUTES.ATTESTATIONS} element={<Layout><AttestationsPage /></Layout>} />
+      <Route path={ROUTES.FREE_COURSES} element={<Layout><FreeCoursesPage /></Layout>} />
+      <Route path={ROUTES.FINANCE} element={<Layout><FinancePage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
