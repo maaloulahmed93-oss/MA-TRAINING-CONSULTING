@@ -33,7 +33,7 @@ export class TestimonialsApiService {
   // Vérifier la connexion API
   async checkConnection(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL_TESTIMONIALS.replace('/testimonials', '')}/health`);
+      const response = await fetch(`${API_BASE_URL_TESTIMONIALS.replace('/testimonials', '')}/api/health`);
       const result = await response.json();
       return result.success === true;
     } catch (error) {

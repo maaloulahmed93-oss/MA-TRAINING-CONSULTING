@@ -108,7 +108,7 @@ class FreeCoursesApiService {
   // Vérifier la santé de l'API
   async checkApiHealth(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`);
+      const response = await fetch(`${API_BASE_URL}/health`);
       return response.ok;
     } catch (error) {
       console.error('❌ API Health Check Failed:', error);

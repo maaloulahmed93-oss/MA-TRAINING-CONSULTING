@@ -220,7 +220,7 @@ class DigitalizationServicesApiService {
     try {
       console.log('🔄 Testing API connection...');
       
-      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`, {
+      const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

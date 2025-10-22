@@ -179,7 +179,7 @@ class FooterApiService {
     try {
       console.log('🔍 اختبار الاتصال بـ Footer API...');
 
-      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`, {
+      const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

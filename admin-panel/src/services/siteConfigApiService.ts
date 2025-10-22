@@ -175,7 +175,7 @@ class SiteConfigApiService {
   // Vérifier la connexion API
   async checkApiConnection(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`);
+      const response = await fetch(`${API_BASE_URL}/health`);
       const result = await response.json();
       return result.success === true;
     } catch (error) {
