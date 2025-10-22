@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'https://matc-backend.onrender.com/api';
 
 export interface ApiParticipant {
   id: string;

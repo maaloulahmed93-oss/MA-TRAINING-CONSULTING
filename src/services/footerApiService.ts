@@ -1,5 +1,5 @@
 // خدمة API لجلب إعدادات الفوتر في الموقع الرئيسي
-const API_BASE_URL = 'http://localhost:3001/api/footer-settings';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/footer-settings';
 
 export interface ContactInfo {
   email: string;
@@ -80,7 +80,7 @@ class FooterApiService {
     try {
       console.log('🔍 اختبار الاتصال بـ Footer API...');
 
-      const response = await fetch('http://localhost:3001/api/health', {
+      const response = await fetch('https://matc-backend.onrender.com/api/health', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

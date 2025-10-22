@@ -1,7 +1,7 @@
 // Service للتعامل مع API الاجتماعات للفريلانسرز
 import { Meeting } from '../types/freelancer';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api';
 
 // تحويل البيانات من Backend إلى Frontend format
 const transformMeetingFromAPI = (apiMeeting: any): Meeting => {

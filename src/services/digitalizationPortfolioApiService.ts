@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001/api/digitalization-portfolio';
+const API_BASE = 'https://matc-backend.onrender.com/api/digitalization-portfolio';
 
 export interface PortfolioItem {
   title: string;

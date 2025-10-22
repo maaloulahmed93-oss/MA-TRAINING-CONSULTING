@@ -16,7 +16,7 @@ interface WebsitePage {
   updatedAt: string;
 }
 
-const API_BASE_URL = 'http://localhost:3001/api/website-pages';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/website-pages';
 
 // Cache للأداء
 let cachedPages: WebsitePage[] | null = null;
@@ -139,7 +139,7 @@ export class WebsitePagesService {
   // التحقق من حالة API
   static async checkApiHealth(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch('https://matc-backend.onrender.com/api/health');
       return response.ok;
     } catch {
       return false;

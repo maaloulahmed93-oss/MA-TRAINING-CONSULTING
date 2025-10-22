@@ -41,7 +41,7 @@ interface ContactResponse {
 }
 
 class DigitalizationContactApiService {
-  private readonly API_BASE = 'http://localhost:3001/api/digitalization-contact';
+  private readonly API_BASE = 'https://matc-backend.onrender.com/api/digitalization-contact';
   private readonly CACHE_KEY = 'digitalization_contact_cache';
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   private cache: { data: ContactData; timestamp: number } | null = null;

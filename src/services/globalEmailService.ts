@@ -1,6 +1,6 @@
 // Service for managing global contact email
 export class GlobalEmailService {
-  private static readonly API_BASE = 'http://localhost:3001/api/partnerships';
+  private static readonly API_BASE = 'https://matc-backend.onrender.com/api/partnerships';
   private static cachedEmail: string = 'ahmedmaalou78l@gmail.com';
 
   // Get global contact email from backend

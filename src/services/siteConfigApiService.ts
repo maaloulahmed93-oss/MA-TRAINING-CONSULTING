@@ -30,7 +30,8 @@ interface ApiResponse<T> {
 }
 
 class SiteConfigService {
-  private readonly API_BASE = 'http://localhost:3001/api/site-config';
+  private readonly API_BASE_URL = 'https://matc-backend.onrender.com/api';
+  private readonly API_BASE = `${this.API_BASE_URL}/site-config`;
   private cache: PublicSiteConfig | null = null;
   private cacheExpiry: number = 0;
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -111,7 +112,7 @@ class SiteConfigService {
         favicon.rel = 'icon';
         document.head.appendChild(favicon);
       }
-      favicon.href = config.favicon.startsWith('/') ? `http://localhost:3001${config.favicon}` : config.favicon;
+      favicon.href = config.favicon.startsWith('/') ? `https://matc-backend.onrender.com${config.favicon}` : config.favicon;
       
       // Ajouter Google Analytics si configuré
       if (config.seo.googleAnalytics) {
@@ -243,7 +244,7 @@ class SiteConfigService {
   // Vérifier la connexion API
   async checkApiConnection(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch('https://matc-backend.onrender.com/api/health');
       const result = await response.json();
       return result.success === true;
     } catch (error) {

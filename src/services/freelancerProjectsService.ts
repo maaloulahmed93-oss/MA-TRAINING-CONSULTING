@@ -1,6 +1,6 @@
 import { Project } from '../types/freelancer';
 
-const API_BASE = 'http://localhost:3001/api/freelancer-projects';
+const API_BASE = 'https://matc-backend.onrender.com/api/freelancer-projects';
 
 // جلب مشاريع الفريلانسر
 export const getFreelancerProjects = async (freelancerId: string, status?: string): Promise<Project[]> => {

@@ -3,7 +3,7 @@
  * تتعامل مع القرارات المرسلة من Admin Panel
  */
 
-const API_BASE = 'http://localhost:3001/api/freelancer-decisions';
+const API_BASE = 'https://matc-backend.onrender.com/api/freelancer-decisions';
 
 export interface FreelancerDecision {
   _id: string;

@@ -3,7 +3,7 @@
  * Handles fetching published events from backend
  */
 
-const API_BASE = 'http://localhost:3001/api/events';
+const API_BASE = 'https://matc-backend.onrender.com/api/events';
 
 export interface ApiEvent {
   _id: string;

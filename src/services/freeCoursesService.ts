@@ -1,5 +1,5 @@
 // Service pour l'accès aux cours gratuits côté site public
-const API_BASE = 'http://localhost:3001/api/free-courses';
+const API_BASE = 'https://matc-backend.onrender.com/api/free-courses';
 
 export interface Domain {
   id: string;
@@ -94,7 +94,7 @@ class FreeCoursesService {
   // Vérifier la santé de l'API
   async checkApiHealth(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch('https://matc-backend.onrender.com/api/health');
       return response.ok;
     } catch (error) {
       console.error('❌ API Health Check Failed:', error);

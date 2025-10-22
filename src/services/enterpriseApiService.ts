@@ -1,7 +1,7 @@
 // Service API pour l'Espace Entreprise - Remplace les mock data
 import { Partner, PartnershipProject, CoAnimatedFormation, PartnershipEvent, PartnershipStats } from '../types/partnership';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api';
 
 // Interface pour les réponses API
 interface ApiResponse<T> {

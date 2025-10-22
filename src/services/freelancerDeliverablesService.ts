@@ -1,7 +1,7 @@
 // Service للتعامل مع API الـ Livrables للفريلانسرز
 import { Deliverable } from '../types/freelancer';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api';
 
 // تحويل البيانات من Backend إلى Frontend format
 const transformDeliverableFromAPI = (apiDeliverable: any): Deliverable => {

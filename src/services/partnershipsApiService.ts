@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api/partnerships';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api';
 
 export interface Partnership {
   _id?: string;
@@ -14,6 +14,7 @@ export interface Partnership {
   requirements: string[];
   ctaLabel?: string;
   isActive?: boolean;
+  isVisible?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -102,12 +103,12 @@ class PartnershipsApiService {
   async getPartnershipsForFrontend(): Promise<any[]> {
     try {
       console.log('🔄 Loading partnerships from Backend API...');
-      const response = await fetch('http://localhost:3001/api/partnerships');
+      const response = await fetch(`${API_BASE_URL}/partnerships`);
       const data = await response.json();
       
       if (data.success && data.data && data.data.length > 0) {
         console.log('✅ Using Backend API data:', data.data.length, 'partnerships');
-        return data.data.map(partnership => this.convertToPartnershipType(partnership));
+        return data.data.map((partnership: Partnership) => this.convertToPartnershipType(partnership));
       }
       
       console.log('⚠️ Backend API incomplete, using fallback data');
@@ -221,7 +222,7 @@ class PartnershipsApiService {
   // Test API connection
   async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch('http://localhost:3001/api/health');
+      const response = await fetch('https://matc-backend.onrender.com/api/health');
       const data = await response.json();
       
       if (data.success) {

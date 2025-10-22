@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api/digitalization-services';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/digitalization-services';
 
 export interface DigitalizationServiceItem {
   id: string;
@@ -61,7 +61,7 @@ class DigitalizationServicesApiService {
     try {
       console.log('🔄 Testing API connection...');
       
-      const response = await fetch('http://localhost:3001/api/health', {
+      const response = await fetch('https://matc-backend.onrender.com/api/health', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

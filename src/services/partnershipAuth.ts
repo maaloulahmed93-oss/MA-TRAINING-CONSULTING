@@ -4,7 +4,7 @@ import { PartnershipSession } from '../types/partnership';
 const PARTNERSHIP_SESSION_KEY = 'partnership_session';
 
 // URL de l'API backend
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'https://matc-backend.onrender.com';
 
 // Vérifier si un ID de partenaire est valide via l'API
 export const verifyPartnerId = async (partnerId: string): Promise<boolean> => {

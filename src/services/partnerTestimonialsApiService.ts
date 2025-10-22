@@ -1,5 +1,5 @@
 // API Service للتعامل مع Partner Testimonials في الموقع الرئيسي
-const API_BASE_URL = 'http://localhost:3001/api/partner-testimonials';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/partner-testimonials';
 
 // Interface للتيمونيال (format الموقع الرئيسي)
 export interface WebsiteTestimonial {

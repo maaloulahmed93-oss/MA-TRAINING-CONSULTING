@@ -1,5 +1,5 @@
 // Service API pour le nouveau système commercial avec 3 niveaux
-const API_BASE_URL = 'http://localhost:3001/api/commercial-new';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/commercial-new';
 
 export interface CommercialNewData {
   partnerId: string;
@@ -155,7 +155,7 @@ class CommercialNewApiService {
   // Authentification commercial
   async login(partnerId: string, email: string): Promise<{ success: boolean; data?: any; message?: string }> {
     try {
-      const response = await fetch(`http://localhost:3001/api/partners/login`, {
+      const response = await fetch(`https://matc-backend.onrender.com/api/partners/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

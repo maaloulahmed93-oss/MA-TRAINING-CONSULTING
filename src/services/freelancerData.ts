@@ -450,7 +450,7 @@ export const getMeetings = async (freelancerId?: string): Promise<Meeting[]> => 
     // ثانياً: محاولة تحميل من API إذا لم توجد بيانات محلية
     if (freelancerId) {
       try {
-        const response = await fetch(`http://localhost:3001/api/freelancer-meetings/freelancer/${freelancerId}`);
+        const response = await fetch(`https://matc-backend.onrender.com/api/freelancer-meetings/freelancer/${freelancerId}`);
         if (response.ok) {
           const apiResponse = await response.json();
           console.log(`📅 API Response:`, apiResponse);
@@ -512,7 +512,7 @@ export const getMeetings = async (freelancerId?: string): Promise<Meeting[]> => 
 // دالة مساعدة لتحديث البيانات من API في الخلفية
 const updateMeetingsFromAPI = async (freelancerId: string, currentMeetings: any[]) => {
   try {
-    const response = await fetch(`http://localhost:3001/api/freelancer-meetings/freelancer/${freelancerId}`);
+    const response = await fetch(`https://matc-backend.onrender.com/api/freelancer-meetings/freelancer/${freelancerId}`);
     if (response.ok) {
       const apiResponse = await response.json();
       let meetings = [];

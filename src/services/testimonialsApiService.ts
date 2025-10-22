@@ -13,7 +13,7 @@ export interface TestimonialData {
   createdAt: string;
 }
 
-const API_BASE_URL = 'http://localhost:3001/api/testimonials';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/testimonials';
 
 export class TestimonialsApiService {
   private static instance: TestimonialsApiService;

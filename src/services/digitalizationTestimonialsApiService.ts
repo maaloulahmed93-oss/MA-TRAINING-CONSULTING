@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001/api/digitalization-testimonials';
+const API_BASE = 'https://matc-backend.onrender.com/api/digitalization-testimonials';
 
 export interface TestimonialItem {
   name: string;

@@ -1,5 +1,5 @@
 // Service API مبسط للنظام التجاري الجديد
-const API_BASE_URL = 'http://localhost:3001/api/commercial-new';
+const API_BASE_URL = 'https://matc-backend.onrender.com/api/commercial-new';
 
 export interface CommercialNewData {
   partnerId: string;
