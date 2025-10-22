@@ -40,6 +40,7 @@ import DigitalizationTestimonialsPage from "./pages/DigitalizationTestimonialsPa
 import SettingsPage from "./pages/SettingsPage";
 import SiteConfigPage from "./pages/SiteConfigPage";
 import AppearancePage from "./pages/AppearancePage";
+import FacturationPage from "./pages/FacturationPage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -82,6 +83,7 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.SETTINGS} element={<Layout><SettingsPage /></Layout>} />
       <Route path={ROUTES.SITE_CONFIG} element={<Layout><SiteConfigPage /></Layout>} />
       <Route path={ROUTES.APPEARANCE} element={<Layout><AppearancePage /></Layout>} />
+      <Route path={ROUTES.FACTURATION} element={<Layout><FacturationPage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
