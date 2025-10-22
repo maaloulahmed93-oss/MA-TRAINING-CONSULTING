@@ -32,6 +32,11 @@ import CommercialServicesPage from "./pages/CommercialServicesPage";
 import FreelancerOffersPage from "./pages/FreelancerOffersPage";
 import FreelancerMeetingsPage from "./pages/FreelancerMeetingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import DigitalizationServicesPage from "./pages/DigitalizationServicesPage";
+import DigitalizationProductsPage from "./pages/DigitalizationProductsPage";
+import DigitalizationPortfolioPage from "./pages/DigitalizationPortfolioPage";
+import DigitalizationContactsPage from "./pages/DigitalizationContactsPage";
+import DigitalizationTestimonialsPage from "./pages/DigitalizationTestimonialsPage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -66,6 +71,11 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.FREELANCER_OFFERS} element={<Layout><FreelancerOffersPage /></Layout>} />
       <Route path={ROUTES.FREELANCER_MEETINGS} element={<Layout><FreelancerMeetingsPage /></Layout>} />
       <Route path={ROUTES.NOTIFICATIONS} element={<Layout><NotificationsPage /></Layout>} />
+      <Route path={ROUTES.DIGITALIZATION_SERVICES} element={<Layout><DigitalizationServicesPage /></Layout>} />
+      <Route path={ROUTES.DIGITALIZATION_PRODUCTS} element={<Layout><DigitalizationProductsPage /></Layout>} />
+      <Route path={ROUTES.DIGITALIZATION_PORTFOLIO} element={<Layout><DigitalizationPortfolioPage /></Layout>} />
+      <Route path={ROUTES.DIGITALIZATION_CONTACTS} element={<Layout><DigitalizationContactsPage /></Layout>} />
+      <Route path={ROUTES.DIGITALIZATION_TESTIMONIALS} element={<Layout><DigitalizationTestimonialsPage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
