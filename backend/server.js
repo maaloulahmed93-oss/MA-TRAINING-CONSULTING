@@ -29,6 +29,7 @@ app.use('/api/', limiter);
 const allowedOrigins = [
   // Production URLs (Vercel deployments)
   'https://matrainingconsulting.vercel.app', // ✅ main site
+  'https://matc-site.vercel.app', // ✅ FIXED: Current frontend deployment
   'https://matc-admin.vercel.app',
   'https://admine-lake.vercel.app', // ✅ admin panel
   'https://admine-git-main-maalouls-projects.vercel.app', // Git-based deployment
