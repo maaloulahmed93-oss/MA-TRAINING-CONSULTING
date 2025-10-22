@@ -27,6 +27,11 @@ import ParticipantsPage from "./pages/ParticipantsPage";
 import AttestationsPage from "./pages/AttestationsPage";
 import FreeCoursesPage from "./pages/FreeCoursesPage";
 import FinancePage from "./pages/FinancePage";
+import PartnerManagementPage from "./pages/PartnerManagementPage";
+import CommercialServicesPage from "./pages/CommercialServicesPage";
+import FreelancerOffersPage from "./pages/FreelancerOffersPage";
+import FreelancerMeetingsPage from "./pages/FreelancerMeetingsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -56,6 +61,11 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.ATTESTATIONS} element={<Layout><AttestationsPage /></Layout>} />
       <Route path={ROUTES.FREE_COURSES} element={<Layout><FreeCoursesPage /></Layout>} />
       <Route path={ROUTES.FINANCE} element={<Layout><FinancePage /></Layout>} />
+      <Route path={ROUTES.PARTNERS} element={<Layout><PartnerManagementPage /></Layout>} />
+      <Route path={ROUTES.COMMERCIAL_SERVICES} element={<Layout><CommercialServicesPage /></Layout>} />
+      <Route path={ROUTES.FREELANCER_OFFERS} element={<Layout><FreelancerOffersPage /></Layout>} />
+      <Route path={ROUTES.FREELANCER_MEETINGS} element={<Layout><FreelancerMeetingsPage /></Layout>} />
+      <Route path={ROUTES.NOTIFICATIONS} element={<Layout><NotificationsPage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
