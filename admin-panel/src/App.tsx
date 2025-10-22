@@ -37,6 +37,9 @@ import DigitalizationProductsPage from "./pages/DigitalizationProductsPage";
 import DigitalizationPortfolioPage from "./pages/DigitalizationPortfolioPage";
 import DigitalizationContactsPage from "./pages/DigitalizationContactsPage";
 import DigitalizationTestimonialsPage from "./pages/DigitalizationTestimonialsPage";
+import SettingsPage from "./pages/SettingsPage";
+import SiteConfigPage from "./pages/SiteConfigPage";
+import AppearancePage from "./pages/AppearancePage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -76,6 +79,9 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.DIGITALIZATION_PORTFOLIO} element={<Layout><DigitalizationPortfolioPage /></Layout>} />
       <Route path={ROUTES.DIGITALIZATION_CONTACTS} element={<Layout><DigitalizationContactsPage /></Layout>} />
       <Route path={ROUTES.DIGITALIZATION_TESTIMONIALS} element={<Layout><DigitalizationTestimonialsPage /></Layout>} />
+      <Route path={ROUTES.SETTINGS} element={<Layout><SettingsPage /></Layout>} />
+      <Route path={ROUTES.SITE_CONFIG} element={<Layout><SiteConfigPage /></Layout>} />
+      <Route path={ROUTES.APPEARANCE} element={<Layout><AppearancePage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
