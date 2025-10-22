@@ -84,7 +84,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Origin', 'Accept'],
+  allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'Pragma', 'Cache-Control', 'X-Requested-With'],
   optionsSuccessStatus: 200 // For legacy browser support
 }));
 
@@ -101,7 +101,7 @@ app.use((req, res, next) => {
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
+  res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, Pragma, Cache-Control, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
@@ -260,6 +260,61 @@ app.use('/api/site-config', siteConfigRoutes);
 // Import website pages routes
 import websitePagesRoutes from './routes/websitePages.js';
 app.use('/api/website-pages', websitePagesRoutes);
+
+// API base endpoint - FIXED: Handle /api requests
+app.get('/api', (req, res) => {
+  res.json({
+    success: true,
+    message: 'MATC Backend API - Base Endpoint',
+    version: '1.0.0',
+    status: 'operational',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    endpoints: {
+      programs: '/api/programs',
+      categories: '/api/categories',
+      packs: '/api/packs',
+      attestations: '/api/attestations',
+      partners: '/api/partners',
+      enterprise: '/api/enterprise',
+      formateurSessions: '/api/formateur-sessions',
+      commercialDeals: '/api/commercial-deals',
+      formateurProgrammes: '/api/formateur-programmes',
+      formateurSeances: '/api/formateur-seances',
+      formateurParticipants: '/api/formateur-participants',
+      formateurEvenements: '/api/formateur-evenements',
+      commercialNew: '/api/commercial-new',
+      commercialServices: '/api/commercial-services',
+      registrations: '/api/registrations',
+      participants: '/api/participants',
+      freelancerOffers: '/api/freelancer-offers',
+      newsletter: '/api/newsletter',
+      digitalizationPortfolio: '/api/digitalization-portfolio',
+      digitalizationTestimonials: '/api/digitalization-testimonials',
+      digitalizationContact: '/api/digitalization-contact',
+      testimonials: '/api/testimonials',
+      partnerTestimonials: '/api/partner-testimonials',
+      freelancerProjects: '/api/freelancer-projects',
+      freelancerDecisions: '/api/freelancer-decisions',
+      freelancerMeetings: '/api/freelancer-meetings',
+      freelancerDeliverables: '/api/freelancer-deliverables',
+      freeCourses: '/api/free-courses',
+      footerSettings: '/api/footer-settings',
+      events: '/api/events',
+      partnerships: '/api/partnerships',
+      digitalizationServices: '/api/digitalization-services',
+      digitalizationProducts: '/api/digitalization-products',
+      siteConfig: '/api/site-config',
+      websitePages: '/api/website-pages',
+      health: '/api/health'
+    },
+    documentation: {
+      baseUrl: 'https://matc-backend.onrender.com',
+      adminPanel: 'https://admine-lake.vercel.app',
+      frontend: 'https://matrainingconsulting.vercel.app'
+    }
+  });
+});
 
 // Basic health check endpoint
 app.get('/api/health', async (req, res) => {
