@@ -40,7 +40,7 @@ class SiteConfigApiService {
   // Obtenir la configuration actuelle
   async getSiteConfig(): Promise<SiteConfig> {
     try {
-      const response = await fetch(this.API_BASE);
+      const response = await fetch(`${this.API_BASE}/site-config`);
       const result: ApiResponse<SiteConfig> = await response.json();
       
       if (result.success && result.data) {
@@ -65,7 +65,7 @@ class SiteConfigApiService {
   // Mettre à jour la configuration
   async updateSiteConfig(config: Partial<SiteConfig>): Promise<SiteConfig> {
     try {
-      const response = await fetch(this.API_BASE, {
+      const response = await fetch(`${this.API_BASE}/site-config`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ class SiteConfigApiService {
       const formData = new FormData();
       formData.append(type, file);
 
-      const response = await fetch(`${this.API_BASE}/upload`, {
+      const response = await fetch(`${this.API_BASE}/site-config/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -121,7 +121,7 @@ class SiteConfigApiService {
   // Réinitialiser la configuration
   async resetSiteConfig(): Promise<SiteConfig> {
     try {
-      const response = await fetch(`${this.API_BASE}/reset`, {
+      const response = await fetch(`${this.API_BASE}/site-config/reset`, {
         method: 'POST',
       });
 

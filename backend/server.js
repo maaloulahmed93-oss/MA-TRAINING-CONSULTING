@@ -120,6 +120,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files serving for uploads
 app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('public/uploads'));
 
 // MongoDB connection
 const connectDB = async () => {

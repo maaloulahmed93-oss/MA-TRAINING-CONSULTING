@@ -30,6 +30,7 @@ const FinancePage: React.FC = () => {
     entreprise: true
   });
   const [isInitialized, setIsInitialized] = useState(false);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'available' | 'deploying'>('checking');
 
   // Safe initialization effect
   useEffect(() => {
@@ -253,11 +254,13 @@ const FinancePage: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         console.log(`✅ ${currentCategory} synced to Backend successfully:`, result.data);
+        setBackendStatus('available');
         alert(`✅ ${getPartnershipTitle(currentCategory)} sauvegardé avec succès!`);
       } else if (response.status === 404) {
-        // 404 is expected - endpoint not implemented yet, but data is saved locally
-        console.log(`📝 ${currentCategory} saved locally (Backend endpoint not available)`);
-        alert(`✅ ${getPartnershipTitle(currentCategory)} sauvegardé avec succès!`);
+        // 404 is expected - endpoint not yet deployed, but data is saved locally
+        console.log(`📝 ${currentCategory} saved locally (Backend endpoint deploying...)`);
+        setBackendStatus('deploying');
+        alert(`✅ ${getPartnershipTitle(currentCategory)} sauvegardé avec succès!\n\n💡 Les données sont synchronisées localement. La synchronisation Backend sera disponible après le déploiement.`);
       } else {
         const errorText = await response.text();
         console.warn(`⚠️ Backend sync failed for ${currentCategory} (${response.status}):`, errorText);
@@ -314,6 +317,29 @@ const FinancePage: React.FC = () => {
           <div className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded-full text-lg font-semibold mb-4">
             Autres infos partenaire
           </div>
+          
+          {/* Backend Status Indicator */}
+          <div className="mb-4">
+            {backendStatus === 'checking' && (
+              <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                Vérification du Backend...
+              </div>
+            )}
+            {backendStatus === 'deploying' && (
+              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                Backend en cours de déploiement
+              </div>
+            )}
+            {backendStatus === 'available' && (
+              <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                Backend synchronisé
+              </div>
+            )}
+          </div>
+          
           <p className="text-gray-600 max-w-2xl mx-auto">
             Gérez les contenus détaillés de vos 4 cartes partenaires. Ces données seront utilisées côté site et dans le module Partenaires.
           </p>
