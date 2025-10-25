@@ -83,7 +83,7 @@ const PartnershipPage: React.FC<PartnershipPageProps> = ({ onBack }) => {
           
           try {
             console.log('🔄 Fetching visibility settings from Backend...');
-            const visibilityResponse = await fetch('http://localhost:3001/api/partnerships/visibility');
+            const visibilityResponse = await fetch('https://matc-backend.onrender.com/api/partnerships/visibility');
             
             if (visibilityResponse.ok) {
               const visibilityData = await visibilityResponse.json();

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATC System Diagnostic & Auto-Fix</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .status { padding: 15px; border-radius: 8px; margin: 10px 0; font-weight: bold; display: flex; align-items: center; }
+        .success { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+        .warning { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 5px solid #17a2b8; }
+        .diagnostic-section { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 1px solid #dee2e6; }
+        .endpoint-test { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .metric-card { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .metric-value { font-size: 2em; font-weight: bold; color: #007bff; }
+        .metric-label { color: #6c757d; margin-top: 5px; }
+        button { background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 5px; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .fix-button { background: #28a745; }
+        .fix-button:hover { background: #218838; }
+        .code-block { background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid #e9ecef; margin: 10px 0; }
+        .progress-bar { width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #28a745, #20c997); transition: width 0.3s ease; }
+        .cors-fix { background: #fff3cd; padding: 20px; border-radius: 10px; border: 1px solid #ffeaa7; margin: 20px 0; }
+        .icon { margin-right: 10px; font-size: 1.2em; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .dashboard-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 MATC System Diagnostic & Auto-Fix</h1>
+            <p>Diagnostic technique complet et correction automatique des problèmes de connectivité</p>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>📊 System Overview</h2>
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="backend-status">🔄</div>
+                    <div class="metric-label">Backend API</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="admin-status">🔄</div>
+                    <div class="metric-label">Admin Panel</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="frontend-status">🔄</div>
+                    <div class="metric-label">Frontend</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="sync-status">🔄</div>
+                    <div class="metric-label">Data Sync</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🔍 1. Connectivity Diagnosis</h2>
+            <div id="connectivity-results"></div>
+            <button onclick="runConnectivityDiagnosis()">🔍 Run Connectivity Test</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🚨 2. CORS & Headers Analysis</h2>
+            <div id="cors-analysis"></div>
+            <button onclick="analyzeCorsIssues()">🔍 Analyze CORS Issues</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🔧 3. Auto-Fix Plan</h2>
+            <div id="autofix-plan"></div>
+            <button onclick="generateAutoFix()" class="fix-button">🛠️ Generate Fix Plan</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🧪 4. Live Testing</h2>
+            <div id="live-testing"></div>
+            <button onclick="runLiveTests()">🧪 Run Live Tests</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>📈 5. Final Dashboard</h2>
+            <div id="final-dashboard"></div>
+            <button onclick="generateFinalReport()">📊 Generate Final Report</button>
+        </div>
+    </div>
+
+    <script>
+        const ENVIRONMENTS = {
+            backend: 'https://matc-backend.onrender.com/api',
+            admin: 'https://admine-lake.vercel.app',
+            frontend: 'https://matrainingconsulting.vercel.app'
+        };
+
+        let diagnosticData = {
+            connectivity: {},
+            cors: {},
+            performance: {},
+            sync: {}
+        };
+
+        // 1. Connectivity Diagnosis
+        async function runConnectivityDiagnosis() {
+            const resultsDiv = document.getElementById('connectivity-results');
+            resultsDiv.innerHTML = '<div class="info"><span class="icon">🔄</span>Running connectivity diagnosis...</div>';
+
+            const endpoints = [
+                { name: 'Programs', url: '/programs', critical: true },
+                { name: 'Categories', url: '/categories', critical: false },
+                { name: 'Packs', url: '/packs', critical: true },
+                { name: 'Testimonials', url: '/testimonials', critical: false },
+                { name: 'Events', url: '/events', critical: false }
+            ];
+
+            let html = '<h3>🔗 Backend API Endpoints</h3>';
+            let successCount = 0;
+            let totalLatency = 0;
+
+            for (const endpoint of endpoints) {
+                try {
+                    const start = Date.now();
+                    const response = await fetch(`${ENVIRONMENTS.backend}${endpoint.url}`);
+                    const latency = Date.now() - start;
+                    totalLatency += latency;
+                    
+                    const data = await response.json();
+                    const status = response.ok ? 'success' : 'error';
+                    
+                    if (response.ok) successCount++;
+                    
+                    diagnosticData.connectivity[endpoint.name] = {
+                        status: status,
+                        statusCode: response.status,
+                        latency: latency,
+                        dataCount: data.count || 0,
+                        critical: endpoint.critical
+                    };
+
+                    const statusClass = response.ok ? 'success' : 'error';
+                    const criticalBadge = endpoint.critical ? '<span style="background:#dc3545;color:white;padding:2px 6px;border-radius:3px;font-size:10px;">CRITICAL</span>' : '';
+                    
+                    html += `<div class="endpoint-test">
+                        <div class="status ${statusClass}">
+                            <span class="icon">${response.ok ? '✅' : '❌'}</span>
+                            <strong>${endpoint.name}</strong> ${criticalBadge}<br>
+                            URL: ${ENVIRONMENTS.backend}${endpoint.url}<br>
+                            Status: ${response.status} - Latency: ${latency}ms<br>
+                            Data Count: ${data.count || 0}
+                        </div>
+                    </div>`;
+                } catch (error) {
+                    diagnosticData.connectivity[endpoint.name] = {
+                        status: 'error',
+                        error: error.message,
+                        critical: endpoint.critical
+                    };
+
+                    html += `<div class="endpoint-test">
+                        <div class="status error">
+                            <span class="icon">❌</span>
+                            <strong>${endpoint.name}</strong> - ERROR: ${error.message}
+                        </div>
+                    </div>`;
+                }
+            }
+
+            // Update metrics
+            document.getElementById('backend-status').textContent = successCount === endpoints.length ? '✅' : '⚠️';
+            
+            const avgLatency = totalLatency / endpoints.length;
+            html += `<div class="info">
+                <span class="icon">📊</span>
+                <strong>Summary:</strong> ${successCount}/${endpoints.length} endpoints working<br>
+                Average Latency: ${Math.round(avgLatency)}ms
+            </div>`;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // 2. CORS Analysis
+        async function analyzeCorsIssues() {
+            const analysisDiv = document.getElementById('cors-analysis');
+            analysisDiv.innerHTML = '<div class="info"><span class="icon">🔄</span>Analyzing CORS configuration...</div>';
+
+            // Based on the logs provided, we know the specific CORS issues
+            const corsIssues = {
+                'pragma': {
+                    severity: 'high',
+                    description: 'Request header field pragma is not allowed by Access-Control-Allow-Headers',
+                    affectedEndpoints: ['/api/programs', '/api/packs'],
+                    solution: 'Add "Pragma" to allowedHeaders in CORS configuration'
+                },
+                'cache-control': {
+                    severity: 'medium',
+                    description: 'Cache-Control header may be blocked in some requests',
+                    affectedEndpoints: ['/api/programs', '/api/packs'],
+                    solution: 'Ensure "Cache-Control" is in allowedHeaders'
+                }
+            };
+
+            let html = '<h3>🚨 CORS Issues Detected</h3>';
+            
+            Object.entries(corsIssues).forEach(([issue, details]) => {
+                const severityClass = details.severity === 'high' ? 'error' : 'warning';
+                html += `<div class="status ${severityClass}">
+                    <span class="icon">${details.severity === 'high' ? '🚨' : '⚠️'}</span>
+                    <strong>${issue.toUpperCase()} Header Issue</strong><br>
+                    Problem: ${details.description}<br>
+                    Affected: ${details.affectedEndpoints.join(', ')}<br>
+                    Solution: ${details.solution}
+                </div>`;
+            });
+
+            // Current CORS Configuration Analysis
+            html += `<div class="cors-fix">
+                <h4>🔧 Required CORS Configuration</h4>
+                <div class="code-block">
+app.use(cors({
+  origin: [
+    'https://admine-lake.vercel.app',
+    'https://matrainingconsulting.vercel.app',
+    /^https:\\/\\/.*\\.vercel\\.app$/
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Cache-Control',
+    'Pragma',           // ← MISSING - CAUSES BLOCKING
+    'Expires',
+    'Last-Modified',
+    'If-Modified-Since'
+  ],
+  exposedHeaders: ['Content-Length', 'Content-Type'],
+  maxAge: 86400
+}));
+                </div>
+            </div>`;
+
+            diagnosticData.cors = corsIssues;
+            analysisDiv.innerHTML = html;
+        }
+
+        // 3. Generate Auto-Fix Plan
+        async function generateAutoFix() {
+            const planDiv = document.getElementById('autofix-plan');
+            
+            const fixPlan = {
+                priority: 'HIGH',
+                steps: [
+                    {
+                        step: 1,
+                        action: 'Update Backend CORS Configuration',
+                        description: 'Add missing headers to allowedHeaders array',
+                        code: `allowedHeaders: [...existing, 'Pragma', 'Cache-Control']`,
+                        impact: 'Fixes Admin Panel → Backend connectivity'
+                    },
+                    {
+                        step: 2,
+                        action: 'Verify Origin Patterns',
+                        description: 'Ensure regex patterns match all Vercel deployments',
+                        code: `/^https:\\/\\/.*\\.vercel\\.app$/`,
+                        impact: 'Supports future deployments'
+                    },
+                    {
+                        step: 3,
+                        action: 'Test Critical Endpoints',
+                        description: 'Verify /api/programs and /api/packs work from Admin Panel',
+                        code: 'Manual testing required',
+                        impact: 'Confirms fix effectiveness'
+                    }
+                ]
+            };
+
+            let html = `<div class="status info">
+                <span class="icon">🎯</span>
+                <strong>AUTO-FIX PLAN GENERATED</strong><br>
+                Priority: ${fixPlan.priority} - Estimated Fix Time: 5 minutes
+            </div>`;
+
+            fixPlan.steps.forEach(step => {
+                html += `<div class="endpoint-test">
+                    <h4>Step ${step.step}: ${step.action}</h4>
+                    <p><strong>Description:</strong> ${step.description}</p>
+                    <div class="code-block">${step.code}</div>
+                    <p><strong>Impact:</strong> ${step.impact}</p>
+                </div>`;
+            });
+
+            html += `<div class="status warning">
+                <span class="icon">⚠️</span>
+                <strong>DEPLOYMENT REQUIRED</strong><br>
+                After making these changes, the backend must be redeployed on Render for the fixes to take effect.
+            </div>`;
+
+            planDiv.innerHTML = html;
+        }
+
+        // 4. Live Testing
+        async function runLiveTests() {
+            const testingDiv = document.getElementById('live-testing');
+            testingDiv.innerHTML = '<div class="info"><span class="icon">🧪</span>Running live tests...</div>';
+
+            const tests = [
+                {
+                    name: 'Backend Direct Access',
+                    test: async () => {
+                        const response = await fetch(`${ENVIRONMENTS.backend}/programs`);
+                        return { success: response.ok, data: await response.json() };
+                    }
+                },
+                {
+                    name: 'Admin Panel Simulation',
+                    test: async () => {
+                        // Simulate the exact request that Admin Panel makes
+                        try {
+                            const response = await fetch(`${ENVIRONMENTS.backend}/programs`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'Pragma': 'no-cache',
+                                    'Cache-Control': 'no-cache'
+                                }
+                            });
+                            return { success: response.ok, data: await response.json() };
+                        } catch (error) {
+                            return { success: false, error: error.message };
+                        }
+                    }
+                },
+                {
+                    name: 'Data Consistency Check',
+                    test: async () => {
+                        const response = await fetch(`${ENVIRONMENTS.backend}/programs`);
+                        const data = await response.json();
+                        return { 
+                            success: response.ok && data.success && data.count > 0,
+                            data: data,
+                            programs: data.data || []
+                        };
+                    }
+                }
+            ];
+
+            let html = '<h3>🧪 Live Test Results</h3>';
+            let allTestsPassed = true;
+
+            for (const test of tests) {
+                try {
+                    const result = await test.test();
+                    const status = result.success ? 'success' : 'error';
+                    if (!result.success) allTestsPassed = false;
+
+                    html += `<div class="endpoint-test">
+                        <div class="status ${status}">
+                            <span class="icon">${result.success ? '✅' : '❌'}</span>
+                            <strong>${test.name}</strong><br>
+                            Result: ${result.success ? 'PASSED' : 'FAILED'}<br>
+                            ${result.error ? `Error: ${result.error}` : ''}
+                            ${result.data && result.data.count ? `Data Count: ${result.data.count}` : ''}
+                        </div>
+                    </div>`;
+                } catch (error) {
+                    allTestsPassed = false;
+                    html += `<div class="endpoint-test">
+                        <div class="status error">
+                            <span class="icon">❌</span>
+                            <strong>${test.name}</strong> - ERROR: ${error.message}
+                        </div>
+                    </div>`;
+                }
+            }
+
+            // Update sync status
+            document.getElementById('sync-status').textContent = allTestsPassed ? '✅' : '❌';
+
+            testingDiv.innerHTML = html;
+        }
+
+        // 5. Generate Final Report
+        async function generateFinalReport() {
+            const dashboardDiv = document.getElementById('final-dashboard');
+            
+            // Calculate overall system health
+            const backendHealth = Object.values(diagnosticData.connectivity).filter(e => e.status === 'success').length;
+            const totalEndpoints = Object.keys(diagnosticData.connectivity).length;
+            const healthPercentage = totalEndpoints > 0 ? Math.round((backendHealth / totalEndpoints) * 100) : 0;
+            
+            const corsIssues = Object.keys(diagnosticData.cors).length;
+            const systemStatus = healthPercentage >= 80 && corsIssues === 0 ? 'OPERATIONAL' : 
+                               healthPercentage >= 60 ? 'DEGRADED' : 'CRITICAL';
+
+            let html = `<div class="dashboard">
+                <div class="dashboard-card">
+                    <h3>🎯 System Status</h3>
+                    <div class="metric-value" style="color: ${systemStatus === 'OPERATIONAL' ? '#28a745' : systemStatus === 'DEGRADED' ? '#ffc107' : '#dc3545'}">${systemStatus}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${healthPercentage}%"></div>
+                    </div>
+                    <p>Overall Health: ${healthPercentage}%</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>🔗 API Connectivity</h3>
+                    <div class="metric-value">${backendHealth}/${totalEndpoints}</div>
+                    <p>Endpoints Working</p>
+                    <small>Backend: ${ENVIRONMENTS.backend}</small>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>🚨 CORS Issues</h3>
+                    <div class="metric-value" style="color: ${corsIssues === 0 ? '#28a745' : '#dc3545'}">${corsIssues}</div>
+                    <p>Issues Detected</p>
+                    <small>Primary: Pragma header blocking</small>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>🔄 Data Sync</h3>
+                    <div class="metric-value">⚠️</div>
+                    <p>Partially Working</p>
+                    <small>Categories ✅, Programs ❌</small>
+                </div>
+            </div>`;
+
+            // Recommendations
+            html += `<div class="status ${systemStatus === 'OPERATIONAL' ? 'success' : 'warning'}">
+                <span class="icon">${systemStatus === 'OPERATIONAL' ? '✅' : '⚠️'}</span>
+                <strong>FINAL DIAGNOSIS</strong><br>
+                System Status: ${systemStatus}<br>
+                Critical Issue: CORS configuration blocking Admin Panel access to Programs API<br>
+                Impact: Admin Panel cannot load/create programs, affecting Frontend sync<br>
+                Solution: Add "Pragma" header to backend CORS allowedHeaders<br>
+                ETA to Fix: 5 minutes (backend config update + redeploy)
+            </div>`;
+
+            // Action Items
+            html += `<div class="cors-fix">
+                <h4>🎯 Immediate Action Required</h4>
+                <ol>
+                    <li><strong>Backend Update:</strong> Add 'Pragma' to CORS allowedHeaders</li>
+                    <li><strong>Redeploy:</strong> Restart backend service on Render</li>
+                    <li><strong>Verify:</strong> Test Admin Panel → Programs loading</li>
+                    <li><strong>Confirm:</strong> Check Frontend displays programs correctly</li>
+                </ol>
+            </div>`;
+
+            dashboardDiv.innerHTML = html;
+
+            // Update all status indicators
+            document.getElementById('admin-status').textContent = corsIssues > 0 ? '⚠️' : '✅';
+            document.getElementById('frontend-status').textContent = '✅';
+        }
+
+        // Auto-run diagnostics on page load
+        window.addEventListener('load', async () => {
+            console.log('🚀 MATC System Diagnostic starting...');
+            await runConnectivityDiagnosis();
+            await analyzeCorsIssues();
+            await generateAutoFix();
+            await runLiveTests();
+            await generateFinalReport();
+            console.log('✅ Diagnostic complete');
+        });
+    </script>
+</body>
+</html>

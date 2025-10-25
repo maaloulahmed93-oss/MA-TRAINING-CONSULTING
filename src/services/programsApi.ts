@@ -119,6 +119,10 @@ export const fetchPrograms = async (filters?: {
 }): Promise<Program[]> => {
   try {
     const params = new URLSearchParams();
+    
+    // Always filter for active programs only in frontend
+    params.append('activeOnly', 'true');
+    
     if (filters?.category && filters.category !== 'Tous') {
       params.append('category', filters.category);
     }
@@ -231,5 +235,33 @@ export const getProgramsWithFallback = async (filters?: {
   } catch (error) {
     console.warn('Using fallback programs due to API error:', error);
     return fallbackPrograms;
+  }
+};
+
+// Fetch categories from API
+export const fetchCategories = async (): Promise<string[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to fetch categories');
+    }
+    
+    // Extract category names from API response
+    const categoryNames = data.data
+      .filter((cat: any) => cat.isActive !== false) // Only active categories
+      .map((cat: any) => cat.name);
+    
+    return ['Tous', ...categoryNames];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    // Return fallback categories
+    return ['Tous', 'Technologies', 'Marketing', 'Data Science', 'Design', 'Business'];
   }
 };

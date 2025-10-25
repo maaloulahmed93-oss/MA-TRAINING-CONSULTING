@@ -95,6 +95,7 @@ const ProgramManager: React.FC = () => {
           'Cache-Control': 'no-cache', // Force no cache
           'Pragma': 'no-cache'
         }
+        // Removed activeOnly filter to show all programs in admin panel
       });
       
       console.log('📊 Response status:', response.status);
@@ -221,24 +222,92 @@ const ProgramManager: React.FC = () => {
 
   // Delete program
   const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce programme ?')) return;
+    console.log('🚀 handleDelete called with ID:', id);
+    
+    if (!id) {
+      console.error('❌ No ID provided to handleDelete');
+      alert('❌ Erreur: ID du programme manquant');
+      return;
+    }
+
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce programme ?')) {
+      console.log('🚫 Delete cancelled by user');
+      return;
+    }
 
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/programs/${id}`, {
-        method: 'DELETE',
+      setError(''); // Clear previous errors
+      
+      console.log('🗑️ Starting delete process for program:', id);
+      console.log('🔗 Delete URL:', `${API_BASE_URL}/programs/${id}`);
+      console.log('🌐 API Base URL:', API_BASE_URL);
+      
+      const response = await axios.delete(`${API_BASE_URL}/programs/${id}`, {
+        timeout: 15000, // 15 seconds timeout
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        await fetchPrograms();
+      
+      console.log('📡 Delete response:', response);
+      console.log('📊 Response status:', response.status);
+      console.log('📄 Response data:', response.data);
+      
+      // Refresh the programs list
+      console.log('🔄 Refreshing programs list...');
+      await fetchPrograms();
+      
+      console.log('✅ Program deleted successfully');
+      alert('✅ Programme supprimé avec succès!');
+      
+    } catch (error: any) {
+      console.error('💥 Delete failed with error:', error);
+      
+      let errorMessage = 'Erreur inconnue';
+      
+      if (error.response) {
+        console.error('❌ Server responded with error:', error.response.status, error.response.data);
+        errorMessage = `Erreur serveur ${error.response.status}: ${error.response.data?.message || error.response.statusText}`;
+        setError(errorMessage);
+      } else if (error.request) {
+        console.error('❌ No response received:', error.request);
+        errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion.';
+        setError(errorMessage);
       } else {
-        setError(data.message || 'Erreur lors de la suppression');
+        console.error('❌ Request setup error:', error.message);
+        errorMessage = `Erreur: ${error.message}`;
+        setError(errorMessage);
       }
-    } catch (err) {
-      setError('Erreur de connexion au serveur');
-      console.error('Error deleting program:', err);
+      
+      alert(`❌ Échec de la suppression: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+      console.log('🏁 Delete process completed');
+    }
+  };
+
+  // Restore program (reactivate)
+  const handleRestore = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir restaurer ce programme ?')) return;
+
+    try {
+      setLoading(true);
+      console.log('🔄 Restoring program:', id);
+      
+      const response = await axios.put(`${API_BASE_URL}/programs/${id}`, {
+        isActive: true
+      });
+      
+      console.log('📡 Restore response:', response.data);
+      await fetchPrograms(); // refresh list
+      
+      console.log('✅ Program restored successfully');
+      alert('✅ Programme restauré avec succès!');
+      
+    } catch (error: any) {
+      console.error('💥 Restore failed:', error);
+      alert('❌ Échec de la restauration du programme');
     } finally {
       setLoading(false);
     }
@@ -376,6 +445,9 @@ const ProgramManager: React.FC = () => {
                 Prix
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Statut
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -383,7 +455,7 @@ const ProgramManager: React.FC = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {programs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                   {loading ? 'Chargement des programmes...' : 'Aucun programme trouvé'}
                 </td>
               </tr>
@@ -409,6 +481,15 @@ const ProgramManager: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {program.price}€
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    program.isActive !== false 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {program.isActive !== false ? 'Actif' : 'Inactif'}
+                  </span>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleEdit(program)}
@@ -416,12 +497,36 @@ const ProgramManager: React.FC = () => {
                   >
                     <PencilIcon className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={() => handleDelete(program._id!)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
+                  {program.isActive !== false ? (
+                    <button
+                      onClick={() => {
+                        console.log('🗑️ Delete button clicked for program:', program);
+                        console.log('🆔 Program ID:', program._id);
+                        if (program._id) {
+                          handleDelete(program._id);
+                        } else {
+                          console.error('❌ Program ID is missing!');
+                          alert('❌ Erreur: ID du programme manquant');
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-900"
+                      disabled={loading}
+                      title="Supprimer le programme"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleRestore(program._id!)}
+                      className="text-green-600 hover:text-green-900"
+                      disabled={loading}
+                      title="Restaurer le programme"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                  )}
                 </td>
               </tr>
               ))

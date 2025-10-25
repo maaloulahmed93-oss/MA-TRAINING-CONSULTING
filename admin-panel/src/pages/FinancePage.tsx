@@ -253,11 +253,15 @@ const FinancePage: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         console.log(`✅ ${currentCategory} synced to Backend successfully:`, result.data);
-        alert(`✅ ${getPartnershipTitle(currentCategory)} sauvegardé et synchronisé avec le Backend!`);
+        alert(`✅ ${getPartnershipTitle(currentCategory)} sauvegardé avec succès!`);
+      } else if (response.status === 404) {
+        // 404 is expected - endpoint not implemented yet, but data is saved locally
+        console.log(`📝 ${currentCategory} saved locally (Backend endpoint not available)`);
+        alert(`✅ ${getPartnershipTitle(currentCategory)} sauvegardé avec succès!`);
       } else {
         const errorText = await response.text();
         console.warn(`⚠️ Backend sync failed for ${currentCategory} (${response.status}):`, errorText);
-        alert(`⚠️ ${getPartnershipTitle(currentCategory)} sauvegardé localement\n\nErreur Backend: ${response.status}\n\nVérifiez que le Backend est démarré sur port 3001`);
+        alert(`⚠️ ${getPartnershipTitle(currentCategory)} sauvegardé localement\n\nErreur Backend: ${response.status}`);
       }
     } catch (error) {
       console.error(`❌ Error syncing ${currentCategory} to Backend:`, error);

@@ -51,6 +51,7 @@ import CurrencySelector from "./CurrencySelector";
 import InteractiveQCMModal from "./InteractiveQCMModal";
 import { Program, getTrainingPrograms } from "../data/trainingPrograms";
 import { getPacksWithFallback } from "../services/packsApi";
+import { fetchCategories } from "../services/programsApi";
 
 interface ETrainingPageProps {
   onBack: () => void;
@@ -76,6 +77,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(true);
   const [apiConnected, setApiConnected] = useState(false);
+  
+  // State for dynamic categories
+  const [categories, setCategories] = useState<string[]>(['Tous', 'Technologies', 'Marketing', 'Data Science', 'Design', 'Business']);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [packs, setPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -106,11 +110,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     loadTestimonials();
   }, []);
 
-  // Load programs and packs from API on component mount
+  // Load programs, packs and categories from API on component mount
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
+        // Load categories first
+        const apiCategories = await fetchCategories();
+        setCategories(apiCategories);
+        console.log('📂 Categories loaded:', apiCategories);
+        
         // Load programs
         const apiPrograms = await getTrainingPrograms();
         setPrograms(apiPrograms);
@@ -125,7 +134,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, []);
 
@@ -423,15 +432,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   ];
 
   // Removed hardcoded programs data - now using API data from MongoDB
-
-  const categories = [
-    "Tous",
-    "Technologies",
-    "Marketing",
-    "Data Science",
-    "Design",
-    "Business",
-  ];
+  // Categories are now loaded dynamically from API in useEffect
   const levels = ["Tous niveaux", "Débutant", "Intermédiaire", "Avancé"];
   const durations = [
     "Moins de 8 semaines",

@@ -1,5 +1,5 @@
-// Force redeploy: 2025-10-13T21:42:16.445Z
-// Force redeploy: 2025-10-13T21:41:07.537Z
+// Force redeploy: 2025-10-25T11:16:00.000Z
+// CRITICAL FIX: Force production API to resolve backend connectivity
 /**
  * MATC Admin Panel API Configuration
  * NUCLEAR FIX: Zero-dependency, ultra-safe configuration
@@ -7,33 +7,11 @@
 
 // HARDCODED VALUES - NO IMPORTS, NO DEPENDENCIES
 const PRODUCTION_API_URL = 'https://matc-backend.onrender.com/api';
-const DEVELOPMENT_API_URL = 'http://localhost:3001/api';
 
-// SIMPLE FUNCTION - NO COMPLEX LOGIC
+// SIMPLE FUNCTION - FORCE PRODUCTION API
 function getApiUrl() {
-  // Check for environment variable first
-  if (import.meta.env.VITE_API_BASE_URL) {
-    console.log('🔗 Environment API URL:', import.meta.env.VITE_API_BASE_URL);
-    return import.meta.env.VITE_API_BASE_URL;
-  }
-  
-  // Check if we're in production
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
-      console.log('🔗 Production API URL:', PRODUCTION_API_URL);
-      return PRODUCTION_API_URL;
-    }
-  }
-  
-  // Check if in production mode
-  if (import.meta.env.PROD) {
-    console.log('🔗 Production mode API URL:', PRODUCTION_API_URL);
-    return PRODUCTION_API_URL;
-  }
-  
-  // Default to production for safety
-  console.log('🔗 Default API URL:', PRODUCTION_API_URL);
+  // ALWAYS use production API to fix connectivity issues
+  console.log('🔗 FORCED Production API URL:', PRODUCTION_API_URL);
   return PRODUCTION_API_URL;
 }
 

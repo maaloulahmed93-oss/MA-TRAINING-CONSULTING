@@ -127,7 +127,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
         console.log("📝 Envoi inscription vers API:", registrationData);
 
         // Envoyer vers l'API Backend
-        const response = await fetch('http://localhost:3001/api/registrations', {
+        const response = await fetch('https://matc-backend.onrender.com/api/registrations', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

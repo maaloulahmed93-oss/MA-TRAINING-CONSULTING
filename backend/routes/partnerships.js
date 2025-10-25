@@ -135,91 +135,121 @@ router.get('/', async (req, res) => {
     // Create partnerships data based on visibility settings
     const partnerships = [];
     
-    const partnershipData = {
-      formateur: {
-        type: 'formateur',
-        title: 'Formateur',
-        icon: '📘',
-        intro: 'Partagez vos connaissances avec nos apprenants et contribuez à leur réussite.',
-        color: 'blue',
-        gradient: 'from-blue-500 to-blue-600',
-        details: [
-          'Encadrer des sessions en présentiel et à distance',
-          'Concevoir des supports pédagogiques de qualité',
-          'Évaluer et suivre la progression des apprenants'
-        ],
-        requirements: [
-          "Minimum 3 ans d'expérience dans votre domaine",
-          'Diplôme ou certifications reconnues',
-          'Excellentes compétences pédagogiques'
-        ],
-        isVisible: visibilitySettings.formateur?.isVisible !== false
-      },
-      freelance: {
-        type: 'freelance',
-        title: 'Freelance',
-        icon: '💻',
-        intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
-        color: 'green',
-        gradient: 'from-green-500 to-green-600',
-        details: [
-          'Missions flexibles selon vos disponibilités',
-          'Projets variés et stimulants',
-          'Rémunération attractive et rapide'
-        ],
-        requirements: [
-          'Portfolio démontrant vos compétences',
-          'Expérience en freelancing ou projets indépendants',
-          'Capacité à respecter les délais'
-        ],
-        isVisible: visibilitySettings.freelance?.isVisible !== false
-      },
-      commercial: {
-        type: 'commercial',
-        title: 'Commercial / Affilié',
-        icon: '📈',
-        intro: 'Devenez notre partenaire commercial et bénéficiez de commissions attractives sur les ventes.',
-        color: 'orange',
-        gradient: 'from-orange-500 to-orange-600',
-        details: [
-          'Commissions attractives sur chaque vente',
-          'Support marketing et commercial',
-          'Formation aux produits et services'
-        ],
-        requirements: [
-          'Expérience en vente ou marketing',
-          'Réseau professionnel développé',
-          'Compétences en négociation'
-        ],
-        isVisible: visibilitySettings.commercial?.isVisible !== false
-      },
-      entreprise: {
-        type: 'entreprise',
-        title: 'Entreprise / École',
-        icon: '🏢',
-        intro: 'Établissez un partenariat institutionnel pour des formations sur mesure et des collaborations durables.',
-        color: 'purple',
-        gradient: 'from-purple-500 to-purple-600',
-        details: [
-          'Formations sur mesure pour vos équipes',
-          'Partenariats à long terme',
-          'Solutions adaptées à vos besoins'
-        ],
-        requirements: [
-          'Entreprise ou institution éducative établie',
-          'Besoin récurrent en formation',
-          'Capacité de collaboration à long terme'
-        ],
-        isVisible: visibilitySettings.entreprise?.isVisible !== false
+    // Use stored data from Admin Panel if available, otherwise use defaults
+    const getPartnershipData = (type) => {
+      if (storedPartnerships[type]) {
+        console.log(`📝 Using Admin Panel data for ${type}`);
+        return storedPartnerships[type];
       }
+      
+      // Return default data if no Admin Panel data
+      const defaults = {
+        formateur: {
+          type: 'formateur',
+          title: 'Formateur',
+          subtitle: 'Rejoignez notre équipe de formateurs experts',
+          intro: 'Partagez vos connaissances avec nos apprenants et contribuez à leur réussite.',
+          icon: '📘',
+          color: 'blue',
+          gradient: 'from-blue-500 to-blue-600',
+          details: [
+            'Encadrer des sessions en présentiel et à distance',
+            'Concevoir des supports pédagogiques de qualité',
+            'Évaluer et suivre la progression des apprenants'
+          ],
+          requirements: [
+            'Minimum 5 ans d\'expérience dans votre domaine',
+            'Diplôme ou certifications reconnues',
+            'Excellentes compétences pédagogiques',
+            'Disponibilité flexible pour les formations',
+            'Maîtrise des outils numériques'
+          ],
+          ctaLabel: 'Rejoindre l\'équipe',
+          isVisible: visibilitySettings.formateur?.isVisible !== false
+        },
+        freelance: {
+          type: 'freelance',
+          title: 'Freelance',
+          subtitle: 'Collaborez avec nous en tant que freelance',
+          intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+          icon: '💻',
+          color: 'green',
+          gradient: 'from-green-500 to-green-600',
+          details: [
+            'Missions de développement et design',
+            'Projets de marketing digital',
+            'Consulting et formation'
+          ],
+          requirements: [
+            'Portfolio démontrant vos compétences',
+            'Expérience en freelance',
+            'Capacité à respecter les délais',
+            'Communication efficace'
+          ],
+          ctaLabel: 'Proposer vos services',
+          isVisible: visibilitySettings.freelance?.isVisible !== false
+        },
+        commercial: {
+          type: 'commercial',
+          title: 'Commercial',
+          subtitle: 'Développez votre carrière commerciale',
+          intro: 'Rejoignez notre équipe commerciale et développez vos compétences en vente.',
+          icon: '📈',
+          color: 'purple',
+          gradient: 'from-purple-500 to-purple-600',
+          details: [
+            'Prospection et développement client',
+            'Négociation et closing',
+            'Suivi et fidélisation'
+          ],
+          requirements: [
+            'Expérience en vente',
+            'Excellent relationnel',
+            'Motivation et ambition',
+            'Maîtrise des outils CRM'
+          ],
+          ctaLabel: 'Postuler',
+          isVisible: visibilitySettings.commercial?.isVisible !== false
+        },
+        entreprise: {
+          type: 'entreprise',
+          title: 'Entreprise',
+          subtitle: 'Partenariat entreprise',
+          intro: 'Développez vos opportunités de collaboration et développez votre carrière avec nos apprenants.',
+          icon: '🏢',
+          color: 'orange',
+          gradient: 'from-orange-500 to-orange-600',
+          details: [
+            'Accès privilégié aux talents formés',
+            'Programmes de formation sur mesure',
+            'Partenariats stratégiques'
+          ],
+          requirements: [
+            'Entreprise établie',
+            'Besoins en formation identifiés',
+            'Engagement long terme',
+            'Ressources dédiées'
+          ],
+          ctaLabel: 'Devenir partenaire',
+          isVisible: visibilitySettings.entreprise?.isVisible !== false
+        }
+      };
+      
+      return defaults[type] || null;
     };
-
-    // Add all partnerships to array (visibility will be filtered on frontend)
-    Object.values(partnershipData).forEach(partnership => {
-      partnerships.push(partnership);
+    
+    // Get partnership data (Admin Panel data takes priority)
+    const types = ['formateur', 'freelance', 'commercial', 'entreprise'];
+    
+    types.forEach(type => {
+      const partnershipInfo = getPartnershipData(type);
+      if (partnershipInfo && partnershipInfo.isVisible !== false) {
+        partnerships.push(partnershipInfo);
+      }
     });
 
-    console.log('✅ Partnerships loaded:', partnerships.length);
+    console.log(`✅ Partnerships loaded: ${partnerships.length}`);
+    console.log('Partnership types:', partnerships.map(p => p.type));
 
     res.json({
       success: true,
@@ -232,6 +262,94 @@ router.get('/', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error loading partnerships',
+      error: error.message
+    });
+  }
+});
+
+// Store partnership data in memory (will be replaced by database later)
+let storedPartnerships = {};
+
+// PUT /api/partnerships/:type - Update specific partnership data
+router.put('/:type', async (req, res) => {
+  try {
+    const { type } = req.params;
+    const partnershipData = req.body;
+    
+    console.log(`📝 Updating ${type} partnership data:`, partnershipData);
+    
+    // Validate partnership type
+    const validTypes = ['formateur', 'freelance', 'commercial', 'entreprise'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid partnership type: ${type}`
+      });
+    }
+    
+    // Store the partnership data in memory
+    storedPartnerships[type] = {
+      ...partnershipData,
+      type,
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log(`✅ ${type} partnership data stored successfully`);
+    
+    res.json({
+      success: true,
+      message: `${type} partnership updated successfully`,
+      data: storedPartnerships[type]
+    });
+    
+  } catch (error) {
+    console.error(`Error updating ${req.params.type} partnership:`, error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating partnership',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/partnerships/:type - Get specific partnership data
+router.get('/:type', async (req, res) => {
+  try {
+    const { type } = req.params;
+    
+    console.log(`📖 Getting ${type} partnership data`);
+    
+    // Validate partnership type
+    const validTypes = ['formateur', 'freelance', 'commercial', 'entreprise'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid partnership type: ${type}`
+      });
+    }
+    
+    // Return default partnership data (Admin Panel manages the actual data)
+    const defaultData = {
+      type,
+      title: type.charAt(0).toUpperCase() + type.slice(1),
+      subtitle: `Partenariat ${type}`,
+      intro: `Description du partenariat ${type}`,
+      details: [],
+      requirements: [],
+      isVisible: visibilitySettings[type]?.isVisible !== false
+    };
+    
+    res.json({
+      success: true,
+      message: `${type} partnership data retrieved`,
+      data: defaultData
+    });
+    
+  } catch (error) {
+    console.error(`Error getting ${req.params.type} partnership:`, error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting partnership',
       error: error.message
     });
   }

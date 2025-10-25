@@ -14,7 +14,7 @@ const Newsletter = () => {
     
     try {
       // Try API first
-      const response = await fetch('http://localhost:3001/api/newsletter/subscribe', {
+      const response = await fetch('https://matc-backend.onrender.com/api/newsletter/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const Newsletter = () => {
                   
                   try {
                     // Try API first
-                    const response = await fetch('http://localhost:3001/api/newsletter/unsubscribe', {
+                    const response = await fetch('https://matc-backend.onrender.com/api/newsletter/unsubscribe', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
