@@ -304,6 +304,11 @@ const SiteConfigPage: React.FC = () => {
                   <PhotoIcon className="h-4 w-4 inline mr-1" />
                   Favicon
                 </label>
+                <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-xs text-yellow-700">
+                    ⚠️ Note: Les fichiers uploadés peuvent être supprimés lors des redéploiements du serveur.
+                  </p>
+                </div>
                 <div className="flex items-center space-x-4">
                   {config.favicon && (
                     <img 

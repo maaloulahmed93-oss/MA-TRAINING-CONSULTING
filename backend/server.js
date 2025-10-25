@@ -144,6 +144,32 @@ app.use((req, res, next) => {
   next();
 });
 
+// Fallback for missing uploaded files (Render ephemeral filesystem issue)
+app.use('/uploads', (req, res, next) => {
+  const fs = require('fs');
+  const path = require('path');
+  
+  // Check if file exists in public/uploads
+  const filePath = path.join(__dirname, 'public/uploads', req.path);
+  
+  if (!fs.existsSync(filePath)) {
+    // Return a default image based on the requested file type
+    if (req.path.includes('favicon')) {
+      return res.redirect('/favicon.ico');
+    } else if (req.path.includes('logo')) {
+      return res.redirect('/logo.png');
+    } else {
+      // Return a generic placeholder
+      return res.status(404).json({
+        success: false,
+        message: 'File not found - using fallback'
+      });
+    }
+  }
+  
+  next();
+});
+
 // MongoDB connection
 const connectDB = async () => {
   try {
