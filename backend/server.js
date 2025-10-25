@@ -34,8 +34,9 @@ const allowedOrigins = [
   'https://admine-lake.vercel.app', // ✅ admin panel
   'https://admine-git-main-maalouls-projects.vercel.app', // Git-based deployment
   // CORS FIX: Additional Vercel admin panel URLs
-  'https://admine-35fgpwv3-maalouls-projects.vercel.app', // ✅ Current admin panel URL
+  'https://admine-35fgpwv3-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
   'https://admine-5zbj6il0v-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
+  'https://admine-lake-cv98927gv-maalouls-projects.vercel.app', // ✅ Current admin panel URL
   // Development URLs
   'http://localhost:5173', // Main site
   'http://localhost:5174', // Main site (alternate port)
@@ -121,6 +122,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files serving for uploads
 app.use('/uploads', express.static('uploads'));
 app.use('/uploads', express.static('public/uploads'));
+
+// Static files serving for public assets (favicon, logo, etc.)
+app.use(express.static('public'));
 
 // MongoDB connection
 const connectDB = async () => {

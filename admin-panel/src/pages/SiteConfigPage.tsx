@@ -310,6 +310,10 @@ const SiteConfigPage: React.FC = () => {
                       src={config.favicon.startsWith('/') ? `${API_BASE_URL.replace('/api', '')}${config.favicon}` : config.favicon}
                       alt="Favicon"
                       className="h-8 w-8"
+                      onError={(e) => {
+                        // Fallback to a default favicon if image fails to load
+                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzNCODJGNiIvPgo8dGV4dCB4PSIxNiIgeT0iMjAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pgo8L3N2Zz4K';
+                      }}
                     />
                   )}
                   <input
@@ -337,6 +341,10 @@ const SiteConfigPage: React.FC = () => {
                       src={config.logo.startsWith('/') ? `${API_BASE_URL.replace('/api', '')}${config.logo}` : config.logo}
                       alt="Logo"
                       className="h-12 w-auto"
+                      onError={(e) => {
+                        // Fallback to a default logo if image fails to load
+                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQ4IiB2aWV3Qm94PSIwIDAgMTIwIDQ4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iIzNCODJGNiIvPgo8dGV4dCB4PSI2MCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NQVRDIE1BVEMgTE9HTzwvdGV4dD4KPC9zdmc+Cg==';
+                      }}
                     />
                   )}
                   <input
