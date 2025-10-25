@@ -103,62 +103,65 @@ router.put('/', async (req, res) => {
   }
 });
 
-// POST /api/site-config/upload - Upload favicon ou logo
-router.post('/upload', upload.fields([
-  { name: 'favicon', maxCount: 1 },
-  { name: 'logo', maxCount: 1 }
-]), async (req, res) => {
+// PUT /api/site-config/images - Update favicon and logo URLs
+router.put('/images', async (req, res) => {
   try {
+    const { favicon, logo } = req.body;
     const config = await SiteConfig.getActiveConfig();
-    const updates = {};
-
-    if (req.files.favicon) {
-      const faviconPath = `/uploads/${req.files.favicon[0].filename}`;
-      updates.favicon = faviconPath;
-      
-      // Supprimer l'ancien favicon s'il existe
-      if (config.favicon && config.favicon !== '/favicon.ico') {
-        const oldPath = path.join(__dirname, '../../public', config.favicon);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      }
+    
+    // Validate URLs if provided
+    if (favicon && !isValidImageUrl(favicon)) {
+      return res.status(400).json({
+        success: false,
+        message: 'URL favicon invalide'
+      });
     }
-
-    if (req.files.logo) {
-      const logoPath = `/uploads/${req.files.logo[0].filename}`;
-      updates.logo = logoPath;
-      
-      // Supprimer l'ancien logo s'il existe
-      if (config.logo && config.logo !== '/logo.png') {
-        const oldPath = path.join(__dirname, '../../public', config.logo);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      }
+    
+    if (logo && !isValidImageUrl(logo)) {
+      return res.status(400).json({
+        success: false,
+        message: 'URL logo invalide'
+      });
     }
-
-    // Mettre à jour la configuration
-    Object.assign(config, updates);
+    
+    // Update the configuration
+    if (favicon !== undefined) config.favicon = favicon;
+    if (logo !== undefined) config.logo = logo;
+    
     await config.save();
 
     res.json({
       success: true,
-      message: 'Fichiers uploadés avec succès',
+      message: 'URLs des images mises à jour avec succès',
       data: {
         favicon: config.favicon,
         logo: config.logo
       }
     });
   } catch (error) {
-    console.error('Erreur lors de l\'upload:', error);
+    console.error('Erreur lors de la mise à jour des images:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de l\'upload des fichiers',
+      message: 'Erreur lors de la mise à jour des images',
       error: error.message
     });
   }
 });
+
+// Helper function to validate image URLs
+function isValidImageUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  
+  // Allow relative paths or valid HTTP/HTTPS URLs
+  if (url.startsWith('/')) return true;
+  
+  try {
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 // GET /api/site-config/public - Configuration publique (pour le site principal)
 router.get('/public', async (req, res) => {

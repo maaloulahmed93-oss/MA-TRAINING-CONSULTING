@@ -94,15 +94,15 @@ class SiteConfigApiService {
     }
   }
 
-  // Upload favicon ou logo
-  async uploadFile(file: File, type: 'favicon' | 'logo'): Promise<{ favicon?: string; logo?: string }> {
+  // Update image URLs
+  async updateImageUrls(images: { favicon?: string; logo?: string }): Promise<{ favicon?: string; logo?: string }> {
     try {
-      const formData = new FormData();
-      formData.append(type, file);
-
-      const response = await fetch(`${this.API_BASE}/site-config/upload`, {
-        method: 'POST',
-        body: formData,
+      const response = await fetch(`${this.API_BASE}/site-config/images`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(images),
       });
 
       const result: ApiResponse<{ favicon?: string; logo?: string }> = await response.json();
@@ -111,9 +111,9 @@ class SiteConfigApiService {
         return result.data;
       }
       
-      throw new Error(result.message || 'Erreur lors de l\'upload');
+      throw new Error(result.message || 'Erreur lors de la mise à jour des images');
     } catch (error) {
-      console.error('Erreur uploadFile:', error);
+      console.error('Erreur updateImageUrls:', error);
       throw error;
     }
   }

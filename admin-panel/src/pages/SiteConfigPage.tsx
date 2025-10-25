@@ -64,24 +64,44 @@ const SiteConfigPage: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (file: File, type: 'favicon' | 'logo') => {
+  const handleImageUrlUpdate = async (type: 'favicon' | 'logo', url: string) => {
     try {
       setUploading(true);
-      const result = await siteConfigApiService.uploadFile(file, type);
+      
+      // Validate URL
+      if (url && !isValidUrl(url)) {
+        alert('URL invalide. Veuillez entrer une URL valide (http/https)');
+        return;
+      }
+      
+      const updates = { [type]: url };
+      const result = await siteConfigApiService.updateImageUrls(updates);
       
       if (config) {
         setConfig({
           ...config,
-          [type]: result[type] || config[type]
+          ...result
         });
       }
       
-      showMessage('success', `${type === 'favicon' ? 'Favicon' : 'Logo'} uploadé avec succès`);
+      alert('URL de l\'image mise à jour avec succès!');
     } catch (error) {
-      console.error('Erreur lors de l\'upload:', error);
-      showMessage('error', 'Erreur lors de l\'upload du fichier');
+      console.error('Erreur lors de la mise à jour:', error);
+      alert('Erreur lors de la mise à jour de l\'URL');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const isValidUrl = (url: string): boolean => {
+    if (!url) return true; // Empty is valid
+    if (url.startsWith('/')) return true; // Relative path is valid
+    
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch {
+      return false;
     }
   };
 
@@ -304,9 +324,9 @@ const SiteConfigPage: React.FC = () => {
                   <PhotoIcon className="h-4 w-4 inline mr-1" />
                   Favicon
                 </label>
-                <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
-                  <p className="text-xs text-yellow-700">
-                    ⚠️ Note: Les fichiers uploadés peuvent être supprimés lors des redéploiements du serveur.
+                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-xs text-blue-700">
+                    💡 Astuce: Utilisez des URLs d'images hébergées en ligne (ex: Imgur, Cloudinary) pour une meilleure stabilité.
                   </p>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -321,18 +341,29 @@ const SiteConfigPage: React.FC = () => {
                       }}
                     />
                   )}
-                  <input
-                    type="file"
-                    accept=".ico,.png,.jpg,.jpeg,.svg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleFileUpload(file, 'favicon');
-                    }}
-                    disabled={uploading}
-                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
+                  <div className="flex-1">
+                    <input
+                      type="url"
+                      placeholder="https://example.com/favicon.ico ou /favicon.ico"
+                      value={config.favicon || ''}
+                      onChange={(e) => {
+                        if (config) {
+                          setConfig({ ...config, favicon: e.target.value });
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleImageUrlUpdate('favicon', config?.favicon || '')}
+                      disabled={uploading}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm"
+                    >
+                      {uploading ? 'Mise à jour...' : 'Mettre à jour'}
+                    </button>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Formats acceptés: .ico, .png, .jpg, .svg (max 5MB)</p>
+                <p className="text-xs text-gray-500 mt-1">Entrez l'URL complète de votre favicon (ex: https://example.com/favicon.ico)</p>
               </div>
 
               {/* Logo Upload */}
@@ -352,18 +383,29 @@ const SiteConfigPage: React.FC = () => {
                       }}
                     />
                   )}
-                  <input
-                    type="file"
-                    accept=".png,.jpg,.jpeg,.svg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleFileUpload(file, 'logo');
-                    }}
-                    disabled={uploading}
-                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
+                  <div className="flex-1">
+                    <input
+                      type="url"
+                      placeholder="https://example.com/logo.png ou /logo.png"
+                      value={config.logo || ''}
+                      onChange={(e) => {
+                        if (config) {
+                          setConfig({ ...config, logo: e.target.value });
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleImageUrlUpdate('logo', config?.logo || '')}
+                      disabled={uploading}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm"
+                    >
+                      {uploading ? 'Mise à jour...' : 'Mettre à jour'}
+                    </button>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Formats acceptés: .png, .jpg, .svg (max 5MB)</p>
+                <p className="text-xs text-gray-500 mt-1">Entrez l'URL complète de votre logo (ex: https://example.com/logo.png)</p>
               </div>
             </div>
 
