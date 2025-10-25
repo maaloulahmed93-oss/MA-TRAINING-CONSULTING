@@ -36,7 +36,8 @@ const allowedOrigins = [
   // CORS FIX: Additional Vercel admin panel URLs
   'https://admine-35fgpwv3-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
   'https://admine-5zbj6il0v-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
-  'https://admine-lake-cv98927gv-maalouls-projects.vercel.app', // ✅ Current admin panel URL
+  'https://admine-lake-cv98927gv-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
+  'https://admine-lake-qj7nzwx70-maalouls-projects.vercel.app', // ✅ Current admin panel URL
   // Development URLs
   'http://localhost:5173', // Main site
   'http://localhost:5174', // Main site (alternate port)
@@ -125,6 +126,23 @@ app.use('/uploads', express.static('public/uploads'));
 
 // Static files serving for public assets (favicon, logo, etc.)
 app.use(express.static('public'));
+
+// CORS headers for static files
+app.use('/uploads', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+app.use((req, res, next) => {
+  if (req.path.match(/\.(ico|png|jpg|jpeg|svg)$/)) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  }
+  next();
+});
 
 // MongoDB connection
 const connectDB = async () => {
