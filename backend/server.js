@@ -37,7 +37,8 @@ const allowedOrigins = [
   'https://admine-35fgpwv3-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
   'https://admine-5zbj6il0v-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
   'https://admine-lake-cv98927gv-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
-  'https://admine-lake-qj7nzwx70-maalouls-projects.vercel.app', // ✅ Current admin panel URL
+  'https://admine-lake-qj7nzwx70-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
+  'https://admine-lake-nih1s2wvy-maalouls-projects.vercel.app', // ✅ Current admin panel URL
   // Development URLs
   'http://localhost:5173', // Main site
   'http://localhost:5174', // Main site (alternate port)
