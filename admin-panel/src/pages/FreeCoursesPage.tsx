@@ -112,10 +112,39 @@ const FreeCoursesPage: React.FC = () => {
     try {
       await freeCoursesApiService.createCourse(courseFormData.domainId, courseFormData);
       setShowCourseForm(false);
+      setEditingCourse(null);
       setCourseFormData({ courseId: '', domainId: '', title: '', description: '', order: 0 });
       loadData();
     } catch (error) {
       alert('Erreur lors de la création du cours');
+    }
+  };
+
+  const handleEditCourse = (course: Course) => {
+    setEditingCourse(course);
+    setCourseFormData({
+      courseId: course.id,
+      domainId: domains.find(d => d.courses.some(c => c.id === course.id))?.id || '',
+      title: course.title,
+      description: course.description,
+      order: 0
+    });
+    setShowCourseForm(true);
+  };
+
+  const handleUpdateCourse = async () => {
+    if (!editingCourse) return;
+    try {
+      await freeCoursesApiService.updateCourse(editingCourse.id, {
+        title: courseFormData.title,
+        description: courseFormData.description
+      });
+      setShowCourseForm(false);
+      setEditingCourse(null);
+      setCourseFormData({ courseId: '', domainId: '', title: '', description: '', order: 0 });
+      loadData();
+    } catch (error) {
+      alert('Erreur lors de la modification du cours');
     }
   };
 
@@ -136,14 +165,31 @@ const FreeCoursesPage: React.FC = () => {
         moduleId: parseInt(moduleFormData.moduleId),
         title: moduleFormData.title,
         duration: moduleFormData.duration,
-        url: moduleFormData.url,
-        order: moduleFormData.order
+        url: moduleFormData.url
       });
       setShowModuleForm(false);
+      setEditingModule(null);
       setModuleFormData({ moduleId: '', courseId: '', title: '', duration: '', url: '', order: 0 });
       loadData();
     } catch (error) {
       alert('Erreur lors de la création du module');
+    }
+  };
+
+  const handleUpdateModule = async () => {
+    if (!editingModule) return;
+    try {
+      await freeCoursesApiService.updateModule(editingModule.id, moduleFormData.courseId, {
+        title: moduleFormData.title,
+        duration: moduleFormData.duration,
+        url: moduleFormData.url
+      });
+      setShowModuleForm(false);
+      setEditingModule(null);
+      setModuleFormData({ moduleId: '', courseId: '', title: '', duration: '', url: '', order: 0 });
+      loadData();
+    } catch (error) {
+      alert('Erreur lors de la modification du module');
     }
   };
 
@@ -317,12 +363,20 @@ const FreeCoursesPage: React.FC = () => {
                           </button>
                           <h4 className="font-semibold">{course.title}</h4>
                         </div>
-                        <button
-                          onClick={() => handleDeleteCourse(course.id)}
-                          className="px-2 py-1 bg-red-100 text-red-600 rounded text-sm"
-                        >
-                          🗑️ Supprimer
-                        </button>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleEditCourse(course)}
+                            className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm hover:bg-blue-200"
+                          >
+                            ✏️ Modifier
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCourse(course.id)}
+                            className="px-2 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200"
+                          >
+                            🗑️ Supprimer
+                          </button>
+                        </div>
                       </div>
                       <p className="text-sm text-gray-600 ml-5 mb-2">{course.description}</p>
 
@@ -340,16 +394,45 @@ const FreeCoursesPage: React.FC = () => {
 
                           {course.modules.map((module) => (
                             <div key={module.id} className="bg-white rounded p-2 flex items-center justify-between">
-                              <div>
+                              <div className="flex-1">
                                 <span className="font-medium">{module.title}</span>
                                 <span className="text-sm text-gray-500 ml-2">{module.duration}</span>
+                                {module.url && (
+                                  <a
+                                    href={module.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="ml-3 px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200"
+                                  >
+                                    🔗 Accéder
+                                  </a>
+                                )}
                               </div>
-                              <button
-                                onClick={() => handleDeleteModule(module.id, course.id)}
-                                className="text-red-600 text-sm"
-                              >
-                                🗑️
-                              </button>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => {
+                                    setEditingModule(module);
+                                    setModuleFormData({
+                                      moduleId: module.id.toString(),
+                                      courseId: course.id,
+                                      title: module.title,
+                                      duration: module.duration,
+                                      url: module.url || '',
+                                      order: 0
+                                    });
+                                    setShowModuleForm(true);
+                                  }}
+                                  className="text-blue-600 text-sm hover:text-blue-800"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteModule(module.id, course.id)}
+                                  className="text-red-600 text-sm hover:text-red-800"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -475,7 +558,7 @@ const FreeCoursesPage: React.FC = () => {
       {showCourseForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-semibold mb-4">Ajouter un Cours</h3>
+            <h3 className="text-xl font-semibold mb-4">{editingCourse ? 'Modifier le Cours' : 'Ajouter un Cours'}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">ID du Cours</label>
@@ -484,6 +567,7 @@ const FreeCoursesPage: React.FC = () => {
                   value={courseFormData.courseId}
                   onChange={(e) => setCourseFormData({ ...courseFormData, courseId: e.target.value })}
                   className="w-full px-3 py-2 border rounded-lg"
+                  disabled={!!editingCourse}
                 />
               </div>
               <div>
@@ -506,13 +590,16 @@ const FreeCoursesPage: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={handleCreateCourse}
+                  onClick={editingCourse ? handleUpdateCourse : handleCreateCourse}
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
                 >
-                  Créer
+                  {editingCourse ? 'Modifier' : 'Créer'}
                 </button>
                 <button
-                  onClick={() => setShowCourseForm(false)}
+                  onClick={() => {
+                    setShowCourseForm(false);
+                    setEditingCourse(null);
+                  }}
                   className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
                 >
                   Annuler
@@ -526,7 +613,7 @@ const FreeCoursesPage: React.FC = () => {
       {showModuleForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-semibold mb-4">Ajouter un Module</h3>
+            <h3 className="text-xl font-semibold mb-4">{editingModule ? 'Modifier le Module' : 'Ajouter un Module'}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">ID du Module</label>
@@ -535,6 +622,7 @@ const FreeCoursesPage: React.FC = () => {
                   value={moduleFormData.moduleId}
                   onChange={(e) => setModuleFormData({ ...moduleFormData, moduleId: e.target.value })}
                   className="w-full px-3 py-2 border rounded-lg"
+                  disabled={!!editingModule}
                 />
               </div>
               <div>
@@ -563,17 +651,21 @@ const FreeCoursesPage: React.FC = () => {
                   value={moduleFormData.url}
                   onChange={(e) => setModuleFormData({ ...moduleFormData, url: e.target.value })}
                   className="w-full px-3 py-2 border rounded-lg"
+                  placeholder="https://..."
                 />
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={handleCreateModule}
+                  onClick={editingModule ? handleUpdateModule : handleCreateModule}
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
                 >
-                  Créer
+                  {editingModule ? 'Modifier' : 'Créer'}
                 </button>
                 <button
-                  onClick={() => setShowModuleForm(false)}
+                  onClick={() => {
+                    setShowModuleForm(false);
+                    setEditingModule(null);
+                  }}
                   className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
                 >
                   Annuler
