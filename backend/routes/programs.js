@@ -189,28 +189,29 @@ router.put('/:id', validateProgramUpdate, async (req, res) => {
   }
 });
 
-// DELETE /api/programs/:id - Delete program (soft delete)
+// DELETE /api/programs/:id - Delete program (hard delete)
 router.delete('/:id', async (req, res) => {
   try {
-    const program = await Program.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
-      { new: true }
-    );
+    console.log('🗑️ DELETE /api/programs/:id - Attempting to delete program:', req.params.id);
+    
+    const program = await Program.findByIdAndDelete(req.params.id);
 
     if (!program) {
+      console.log('❌ Program not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Programme non trouvé'
       });
     }
 
+    console.log('✅ Program deleted successfully:', req.params.id);
     res.json({
       success: true,
-      message: 'Programme supprimé avec succès'
+      message: 'Programme supprimé définitivement avec succès',
+      data: { _id: program._id, title: program.title }
     });
   } catch (error) {
-    console.error('Error deleting program:', error);
+    console.error('❌ Error deleting program:', error);
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la suppression du programme',
