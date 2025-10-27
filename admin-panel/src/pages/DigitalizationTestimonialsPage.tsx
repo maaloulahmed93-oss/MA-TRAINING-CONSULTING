@@ -57,6 +57,13 @@ const DigitalizationTestimonialsPage: React.FC = () => {
 
   const addItem = () => setItems([...items, { author: '', role: '', quote: '', rating: 5 }]);
 
+  const removeItem = (idx: number) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce témoignage ?')) {
+      const newItems = items.filter((_, i) => i !== idx);
+      setItems(newItems);
+    }
+  };
+
   const onSave = async () => {
     try {
       setSaving(true);
@@ -159,10 +166,21 @@ const DigitalizationTestimonialsPage: React.FC = () => {
         </div>
 
         {items.map((t, idx) => (
-          <div key={idx} className="bg-white rounded-xl border p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input placeholder="Nom" value={t.author} onChange={(e) => updateItem(idx, 'author', e.target.value)} className="border rounded-lg px-3 py-2" />
-            <input placeholder="Rôle (optionnel)" value={t.role || ''} onChange={(e) => updateItem(idx, 'role', e.target.value)} className="border rounded-lg px-3 py-2" />
-            <input placeholder="Citation" value={t.quote} onChange={(e) => updateItem(idx, 'quote', e.target.value)} className="border rounded-lg px-3 py-2 md:col-span-3" />
+          <div key={idx} className="bg-white rounded-xl border p-4">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-sm font-medium text-gray-600">Témoignage {idx + 1}</span>
+              <button
+                onClick={() => removeItem(idx)}
+                className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+              >
+                🗑️ Supprimer
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <input placeholder="Nom" value={t.author} onChange={(e) => updateItem(idx, 'author', e.target.value)} className="border rounded-lg px-3 py-2" />
+              <input placeholder="Rôle (optionnel)" value={t.role || ''} onChange={(e) => updateItem(idx, 'role', e.target.value)} className="border rounded-lg px-3 py-2" />
+              <input placeholder="Citation" value={t.quote} onChange={(e) => updateItem(idx, 'quote', e.target.value)} className="border rounded-lg px-3 py-2 md:col-span-3" />
+            </div>
           </div>
         ))}
         <button onClick={addItem} className="text-indigo-600 text-sm">+ Ajouter un témoignage</button>

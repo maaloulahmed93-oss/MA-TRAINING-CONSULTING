@@ -220,6 +220,74 @@ const ProgramManager: React.FC = () => {
     }
   };
 
+  // Delete all programs
+  const handleDeleteAll = async () => {
+    if (!confirm('⚠️ ATTENTION: Êtes-vous ABSOLUMENT sûr de vouloir supprimer TOUS les programmes de façon DÉFINITIVE ?\n\nCette action ne peut pas être annulée!')) {
+      console.log('🚫 Delete all cancelled by user');
+      return;
+    }
+
+    // Double confirmation
+    if (!confirm('⚠️ DERNIÈRE CONFIRMATION: Voulez-vous vraiment supprimer TOUS les programmes? Cette action est IRRÉVERSIBLE!')) {
+      console.log('🚫 Delete all cancelled by user (second confirmation)');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      
+      console.log('🗑️ Starting delete ALL process...');
+      
+      // Delete all programs one by one
+      let deletedCount = 0;
+      let failedCount = 0;
+      
+      for (const program of programs) {
+        try {
+          console.log(`🗑️ Deleting program: ${program._id} - ${program.title}`);
+          
+          const response = await axios.delete(`${API_BASE_URL}/programs/${program._id}`, {
+            timeout: 15000,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (response.data.success) {
+            deletedCount++;
+            console.log(`✅ Deleted: ${program.title}`);
+          } else {
+            failedCount++;
+            console.error(`❌ Failed to delete: ${program.title}`);
+          }
+        } catch (error: any) {
+          failedCount++;
+          console.error(`❌ Error deleting ${program.title}:`, error.message);
+        }
+      }
+      
+      // Clear the programs list locally
+      console.log('🔄 Clearing programs list...');
+      setPrograms([]);
+      
+      // Refresh the programs list from API
+      console.log('🔄 Refreshing programs list from API...');
+      await fetchPrograms();
+      
+      console.log(`✅ Delete all completed: ${deletedCount} deleted, ${failedCount} failed`);
+      alert(`✅ Suppression terminée!\n✅ Supprimés: ${deletedCount}\n❌ Échecs: ${failedCount}`);
+      
+    } catch (error: any) {
+      console.error('💥 Delete all failed:', error);
+      setError('Erreur lors de la suppression en masse');
+      alert('❌ Une erreur est survenue lors de la suppression.');
+    } finally {
+      setLoading(false);
+      console.log('🏁 Delete all process completed');
+    }
+  };
+
   // Delete program
   const handleDelete = async (id: string) => {
     console.log('🚀 handleDelete called with ID:', id);
@@ -389,16 +457,26 @@ const ProgramManager: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Gestion des Programmes</h1>
-        <button
-          onClick={() => {
-            resetForm();
-            setIsModalOpen(true);
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700"
-        >
-          <PlusIcon className="w-5 h-5" />
-          Nouveau Programme
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleDeleteAll}
+            disabled={programs.length === 0 || loading}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <TrashIcon className="w-5 h-5" />
+            Supprimer Tout
+          </button>
+          <button
+            onClick={() => {
+              resetForm();
+              setIsModalOpen(true);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700"
+          >
+            <PlusIcon className="w-5 h-5" />
+            Nouveau Programme
+          </button>
+        </div>
       </div>
 
       {/* Debug Panel */}
