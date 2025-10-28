@@ -68,6 +68,23 @@ class AttestationsApi {
     }
   }
 
+  // Upload single PDF to Cloudinary and return URL
+  async uploadPdf(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/attestations/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Erreur upload PDF');
+    }
+    return data.url as string;
+  }
+
   // Create new attestation
   async create(attestationData: {
     fullName: string;
