@@ -225,9 +225,13 @@ const AttestationsPage: React.FC = () => {
                             <EyeIcon className="h-5 w-5" />
                           </button>
                           <button
-                            onClick={() => handleEditClick(att)}
-                            className="text-gray-500 hover:text-orange-600"
+                            onClick={() => {
+                              console.log('Edit button clicked for:', att.attestationId);
+                              handleEditClick(att);
+                            }}
+                            className="text-gray-500 hover:text-orange-600 p-1 rounded hover:bg-orange-50"
                             title="Modifier l'attestation"
+                            style={{ minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             <PencilIcon className="h-5 w-5" />
                           </button>
