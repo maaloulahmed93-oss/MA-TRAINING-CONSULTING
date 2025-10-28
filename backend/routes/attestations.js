@@ -296,9 +296,14 @@ router.get('/:id/download/:type?', async (req, res) => {
 
     // Resolve document path or URL
     const filePath = attestation.documents[docType];
+    console.log('=== DOWNLOAD DEBUG ===');
+    console.log('Attestation ID:', req.params.id);
+    console.log('Document type:', docType);
+    console.log('Full documents object:', JSON.stringify(attestation.documents, null, 2));
     console.log('Document path for', docType, ':', filePath);
+    
     if (!filePath) {
-      console.log('Document not found for type:', docType);
+      console.log('❌ Document not found for type:', docType);
       return res.status(404).json({
         success: false,
         message: `Fichier de ${docType} non trouvé`
@@ -313,8 +318,17 @@ router.get('/:id/download/:type?', async (req, res) => {
 
     // Otherwise, treat as local file path
     console.log('Checking local file:', filePath);
+    console.log('Current working directory:', process.cwd());
+    console.log('File exists:', fs.existsSync(filePath));
+    console.log('Uploads directory exists:', fs.existsSync('./uploads'));
+    
+    if (fs.existsSync('./uploads')) {
+      console.log('Uploads directory contents:', fs.readdirSync('./uploads'));
+    }
+    
     if (!fs.existsSync(filePath)) {
-      console.log('Local file not found:', filePath);
+      console.log('❌ Local file not found:', filePath);
+      console.log('❌ Absolute path:', path.resolve(filePath));
       return res.status(404).json({
         success: false,
         message: `Fichier de ${docType} non trouvé`
