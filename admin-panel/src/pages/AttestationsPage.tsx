@@ -5,6 +5,7 @@ import {
   TrashIcon,
   EyeIcon,
   ArrowDownTrayIcon,
+  PencilIcon,
 } from "@heroicons/react/24/outline";
 import { attestationsApi, type Attestation } from "../services/attestationsApi";
 import { API_BASE_URL } from "../config/api";
@@ -50,6 +51,12 @@ const AttestationsPage: React.FC = () => {
   const handleAddClick = () => {
     setModalMode("add");
     setSelectedAttestation(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (attestation: Attestation) => {
+    setModalMode("edit");
+    setSelectedAttestation(attestation);
     setIsModalOpen(true);
   };
 
@@ -217,6 +224,13 @@ const AttestationsPage: React.FC = () => {
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
+                          <button
+                            onClick={() => handleEditClick(att)}
+                            className="text-gray-500 hover:text-orange-600"
+                            title="Modifier l'attestation"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </button>
                           <div className="relative group">
                             <button
                               className="text-gray-500 hover:text-green-600"
@@ -318,7 +332,16 @@ const AttestationsPage: React.FC = () => {
               )}
               
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 mb-3">Documents disponibles</h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900">Documents disponibles</h4>
+                  <button
+                    onClick={() => handleEditClick(selectedAttestation)}
+                    className="flex items-center space-x-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                    <span>Modifier</span>
+                  </button>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <button
                     onClick={() => handleDownload(selectedAttestation, 'attestation')}

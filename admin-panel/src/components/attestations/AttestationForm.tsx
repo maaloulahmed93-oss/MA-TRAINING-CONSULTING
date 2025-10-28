@@ -162,14 +162,18 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
         techniques: techniques.filter(technique => technique.trim() !== ''),
       };
       
-      // Fallback: use existing create to keep full flow while backend still expects files; the URLs are already saved by upload endpoint through controller.
-      // So we can just signal success to refresh list.
-      await attestationsApi.create(attestationData, { attestation: null, recommandation: null, evaluation: null });
+      // Use create or update based on whether we have initial data
+      if (initialData) {
+        await attestationsApi.update(initialData.attestationId, attestationData, uploadedFiles);
+      } else {
+        await attestationsApi.create(attestationData, uploadedFiles);
+      }
       onSubmit(true);
       
     } catch (error) {
-      console.error('Error creating attestation:', error);
-      alert('Erreur lors de la création de l\'attestation: ' + (error instanceof Error ? error.message : 'Erreur inconnue'));
+      console.error('Error saving attestation:', error);
+      const action = initialData ? 'mise à jour' : 'création';
+      alert(`Erreur lors de la ${action} de l'attestation: ` + (error instanceof Error ? error.message : 'Erreur inconnue'));
       onSubmit(false);
     } finally {
       setIsSubmitting(false);
@@ -493,7 +497,7 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Création en cours...' : (initialData ? 'Mettre à jour l\'Attestation' : 'Créer l\'Attestation')}
+            {isSubmitting ? (initialData ? 'Mise à jour en cours...' : 'Création en cours...') : (initialData ? 'Mettre à jour l\'Attestation' : 'Créer l\'Attestation')}
           </button>
         </div>
       </form>

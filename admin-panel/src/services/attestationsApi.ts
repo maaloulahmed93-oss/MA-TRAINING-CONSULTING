@@ -193,6 +193,61 @@ class AttestationsApi {
     }
   }
 
+  // Update attestation
+  async update(attestationId: string, attestationData: {
+    fullName: string;
+    programId: string;
+    dateObtention?: string;
+    note: number;
+    niveau: string;
+    skills: string[];
+    techniques: string[];
+  }, files: {
+    attestation: File | null;
+    recommandation: File | null;
+    evaluation: File | null;
+  }): Promise<Attestation> {
+    try {
+      const formData = new FormData();
+      
+      // Add form fields
+      formData.append('fullName', attestationData.fullName);
+      formData.append('programId', attestationData.programId);
+      formData.append('dateObtention', attestationData.dateObtention || new Date().toISOString());
+      formData.append('note', attestationData.note.toString());
+      formData.append('niveau', attestationData.niveau);
+      formData.append('skills', JSON.stringify(attestationData.skills));
+      formData.append('techniques', JSON.stringify(attestationData.techniques));
+      
+      // Add files
+      if (files.attestation) {
+        formData.append('attestation', files.attestation);
+      }
+      if (files.recommandation) {
+        formData.append('recommandation', files.recommandation);
+      }
+      if (files.evaluation) {
+        formData.append('evaluation', files.evaluation);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/attestations/${attestationId}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Erreur lors de la mise à jour de l\'attestation');
+      }
+      
+      return data.data;
+    } catch (error) {
+      console.error('Error updating attestation:', error);
+      throw error;
+    }
+  }
+
   // Delete attestation (soft delete)
   async delete(attestationId: string): Promise<void> {
     try {

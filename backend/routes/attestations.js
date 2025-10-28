@@ -335,6 +335,105 @@ router.get('/:id/download/:type?', async (req, res) => {
   }
 });
 
+// PUT /api/attestations/:id - Update attestation
+router.put('/:id', uploadMultiple, async (req, res) => {
+  try {
+    console.log('Updating attestation:', req.params.id, req.body);
+    
+    // Find existing attestation
+    const existingAttestation = await Attestation.findOne({
+      attestationId: req.params.id,
+      isActive: true
+    });
+
+    if (!existingAttestation) {
+      return res.status(404).json({
+        success: false,
+        message: 'Attestation non trouvée'
+      });
+    }
+
+    // Parse arrays from form data
+    const requestData = {
+      ...req.body,
+      skills: req.body.skills ? JSON.parse(req.body.skills) : existingAttestation.skills,
+      techniques: req.body.techniques ? JSON.parse(req.body.techniques) : existingAttestation.techniques
+    };
+
+    // Validate request data
+    const { error, value } = attestationSchema.validate(requestData);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message
+      });
+    }
+
+    // Check if program exists
+    const program = await Program.findById(value.programId);
+    if (!program) {
+      return res.status(404).json({
+        success: false,
+        message: 'Programme non trouvé'
+      });
+    }
+
+    // Update documents if new files uploaded
+    const documents = { ...existingAttestation.documents };
+    
+    if (req.files && req.files.attestation) {
+      documents.attestation = req.files.attestation[0].path;
+    }
+    
+    if (req.files && req.files.recommandation) {
+      documents.recommandation = req.files.recommandation[0].path;
+    }
+    
+    if (req.files && req.files.evaluation) {
+      documents.evaluation = req.files.evaluation[0].path;
+    }
+
+    // Update attestation
+    const updatedAttestation = await Attestation.findOneAndUpdate(
+      { attestationId: req.params.id },
+      {
+        fullName: value.fullName,
+        programId: value.programId,
+        dateObtention: value.dateObtention || existingAttestation.dateObtention,
+        note: value.note,
+        niveau: value.niveau,
+        skills: value.skills || [],
+        techniques: value.techniques || [],
+        documents: documents
+      },
+      { new: true }
+    ).populate('programId', 'title category level');
+
+    res.json({
+      success: true,
+      message: 'Attestation mise à jour avec succès',
+      data: updatedAttestation
+    });
+
+  } catch (error) {
+    console.error('Error updating attestation:', error);
+    
+    // Delete uploaded files if error occurs
+    if (req.files) {
+      Object.values(req.files).flat().forEach(file => {
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur lors de la mise à jour de l\'attestation'
+    });
+  }
+});
+
 // DELETE /api/attestations/:id - Soft delete attestation
 router.delete('/:id', async (req, res) => {
   try {
