@@ -269,12 +269,14 @@ router.get('/verify/:id', async (req, res) => {
 // GET /api/attestations/:id/download/:type - Download specific document type
 router.get('/:id/download/:type?', async (req, res) => {
   try {
+    console.log('Download request:', { id: req.params.id, type: req.params.type });
     const attestation = await Attestation.findOne({
       attestationId: req.params.id,
       isActive: true
     });
 
     if (!attestation) {
+      console.log('Attestation not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Attestation non trouvée'
@@ -294,7 +296,9 @@ router.get('/:id/download/:type?', async (req, res) => {
 
     // Resolve document path or URL
     const filePath = attestation.documents[docType];
+    console.log('Document path for', docType, ':', filePath);
     if (!filePath) {
+      console.log('Document not found for type:', docType);
       return res.status(404).json({
         success: false,
         message: `Fichier de ${docType} non trouvé`
@@ -303,17 +307,21 @@ router.get('/:id/download/:type?', async (req, res) => {
 
     // If stored as a Cloudinary URL, redirect to it
     if (typeof filePath === 'string' && /^https?:\/\//i.test(filePath)) {
+      console.log('Redirecting to Cloudinary URL:', filePath);
       return res.redirect(filePath);
     }
 
     // Otherwise, treat as local file path
+    console.log('Checking local file:', filePath);
     if (!fs.existsSync(filePath)) {
+      console.log('Local file not found:', filePath);
       return res.status(404).json({
         success: false,
         message: `Fichier de ${docType} non trouvé`
       });
     }
 
+    console.log('Serving local file:', filePath);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${docType}-${attestation.attestationId}.pdf"`);
     fs.createReadStream(filePath).pipe(res);
