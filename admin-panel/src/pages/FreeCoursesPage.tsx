@@ -82,16 +82,24 @@ const FreeCoursesPage: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [adminDomains, statsResp] = await Promise.all([
+      const [rawAdminDomains, statsResp] = await Promise.all([
         freeCoursesApiService.getAdminDomains(),
         fetch(`${API_BASE_URL}/free-courses/admin/stats`).then((r) => r.json()).then((d) => d.data),
       ]);
 
       // Build nested structure: domains -> courses -> modules
       const domainsWithChildren: Domain[] = await Promise.all(
-        adminDomains.map(async (d) => {
-          const courses = await fetchCoursesForDomain(d.id);
-          return { ...d, courses } as Domain;
+        (rawAdminDomains as any[]).map(async (dRaw) => {
+          const domainId: string = dRaw.domainId || dRaw.id;
+          const courses = await fetchCoursesForDomain(domainId);
+          const normalized: Domain = {
+            id: domainId,
+            title: dRaw.title,
+            icon: dRaw.icon,
+            description: dRaw.description,
+            courses,
+          };
+          return normalized;
         })
       );
 
