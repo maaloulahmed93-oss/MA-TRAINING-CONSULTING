@@ -29,6 +29,7 @@ app.use('/api/', limiter);
 const allowedOrigins = [
   // Production URLs (Vercel deployments)
   'https://matrainingconsulting.vercel.app', // ✅ main site
+  'https://matrainingconsulting-eight.vercel.app', // ✅ current live site
   'https://matc-site.vercel.app', // ✅ FIXED: Current frontend deployment
   'https://matc-admin.vercel.app',
   'https://admine-lake.vercel.app', // ✅ admin panel
@@ -74,7 +75,9 @@ app.use(cors({
       (origin.includes('matrainingconsulting') && origin.includes('.vercel.app')) ||
       // Enhanced pattern for admin panel deployments
       /^https:\/\/admine-[a-z0-9]+-maalouls-projects\.vercel\.app$/.test(origin) ||
-      /^https:\/\/matrainingconsulting.*\.vercel\.app$/.test(origin)
+      /^https:\/\/matrainingconsulting.*\.vercel\.app$/.test(origin) ||
+      // Allow current "-eight" deployment and similar suffixes
+      /^https:\/\/matrainingconsulting-[a-z0-9-]+\.vercel\.app$/.test(origin)
     )) {
       return callback(null, true);
     }
