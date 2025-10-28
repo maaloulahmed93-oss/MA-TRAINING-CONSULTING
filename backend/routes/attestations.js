@@ -267,84 +267,129 @@ router.get('/verify/:id', async (req, res) => {
 });
 
 // GET /api/attestations/:id/download/:type - Download specific document type
+// FIXED: Support new ID format CERT-2025-M-M-001 (with multiple hyphens)
 router.get('/:id/download/:type?', async (req, res) => {
   try {
-    console.log('Download request:', { id: req.params.id, type: req.params.type });
+    const attestationId = req.params.id;
+    const docType = req.params.type || 'attestation';
+    
+    console.log('=== DOWNLOAD REQUEST ===');
+    console.log('Full URL:', req.originalUrl);
+    console.log('Attestation ID:', attestationId);
+    console.log('Document Type:', docType);
+    console.log('ID Format Check:', /^CERT-\d{4}-[A-Z]-[A-Z]-\d{3}$/i.test(attestationId));
+    
     const attestation = await Attestation.findOne({
-      attestationId: req.params.id,
+      attestationId: attestationId,
       isActive: true
     });
 
     if (!attestation) {
-      console.log('Attestation not found:', req.params.id);
+      console.log('❌ Attestation not found in database');
+      console.log('Searched for ID:', attestationId);
+      
+      // Debug: List similar attestations
+      const similarAttestations = await Attestation.find({
+        attestationId: { $regex: `^CERT-${new Date().getFullYear()}` }
+      }).limit(5).select('attestationId fullName');
+      
+      console.log('Recent attestations in DB:', similarAttestations.map(a => a.attestationId));
+      
       return res.status(404).json({
         success: false,
-        message: 'Attestation non trouvée'
+        message: 'Aucune attestation trouvée pour cet ID',
+        id: attestationId,
+        hint: 'Vérifiez que l\'attestation existe dans la base de données'
       });
     }
+    
+    console.log('✅ Attestation found:', attestation.attestationId);
 
-    // Determine which document type to download
-    const docType = req.params.type || 'attestation';
+    // Validate document type
     const validTypes = ['attestation', 'recommandation', 'evaluation'];
     
     if (!validTypes.includes(docType)) {
+      console.log('❌ Invalid document type:', docType);
       return res.status(400).json({
         success: false,
-        message: 'Type de document invalide. Types valides: attestation, recommandation, evaluation'
+        message: 'Type de document invalide. Types valides: attestation, recommandation, evaluation',
+        requestedType: docType,
+        validTypes: validTypes
       });
     }
 
     // Resolve document path or URL
     const filePath = attestation.documents[docType];
-    console.log('=== DOWNLOAD DEBUG ===');
-    console.log('Attestation ID:', req.params.id);
-    console.log('Document type:', docType);
-    console.log('Full documents object:', JSON.stringify(attestation.documents, null, 2));
-    console.log('Document path for', docType, ':', filePath);
+    
+    console.log('=== DOCUMENT RESOLUTION ===');
+    console.log('Documents object:', JSON.stringify(attestation.documents, null, 2));
+    console.log('Requested type:', docType);
+    console.log('File path/URL:', filePath);
+    console.log('Available documents:', Object.keys(attestation.documents).filter(k => attestation.documents[k]));
     
     if (!filePath) {
       console.log('❌ Document not found for type:', docType);
+      const availableDocs = Object.keys(attestation.documents).filter(k => attestation.documents[k]);
       return res.status(404).json({
         success: false,
-        message: `Fichier de ${docType} non trouvé`
+        message: `Fichier de ${docType} non trouvé pour cette attestation`,
+        attestationId: attestationId,
+        requestedType: docType,
+        availableDocuments: availableDocs
       });
     }
 
     // If stored as a Cloudinary URL, redirect to it
     if (typeof filePath === 'string' && /^https?:\/\//i.test(filePath)) {
-      console.log('Redirecting to Cloudinary URL:', filePath);
+      console.log('✅ Redirecting to Cloudinary URL:', filePath);
       return res.redirect(filePath);
     }
 
     // Otherwise, treat as local file path
-    console.log('Checking local file:', filePath);
+    console.log('=== LOCAL FILE CHECK ===');
+    console.log('File path:', filePath);
     console.log('Current working directory:', process.cwd());
+    console.log('Absolute path:', path.resolve(filePath));
     console.log('File exists:', fs.existsSync(filePath));
-    console.log('Uploads directory exists:', fs.existsSync('./uploads'));
     
-    if (fs.existsSync('./uploads')) {
-      console.log('Uploads directory contents:', fs.readdirSync('./uploads'));
+    // Check uploads directory
+    const uploadsPath = path.join(process.cwd(), 'uploads', 'attestations');
+    console.log('Uploads directory:', uploadsPath);
+    console.log('Uploads exists:', fs.existsSync(uploadsPath));
+    
+    if (fs.existsSync(uploadsPath)) {
+      const files = fs.readdirSync(uploadsPath);
+      console.log('Files in uploads/attestations:', files.length);
+      if (files.length > 0) {
+        console.log('Sample files:', files.slice(0, 5));
+      }
     }
     
     if (!fs.existsSync(filePath)) {
-      console.log('❌ Local file not found:', filePath);
-      console.log('❌ Absolute path:', path.resolve(filePath));
+      console.log('❌ Local file not found');
       return res.status(404).json({
         success: false,
-        message: `Fichier de ${docType} non trouvé`
+        message: `Fichier de ${docType} non trouvé sur le serveur`,
+        attestationId: attestationId,
+        hint: 'Le fichier peut avoir été supprimé ou déplacé. Contactez l\'administrateur.',
+        filePath: filePath
       });
     }
 
-    console.log('Serving local file:', filePath);
+    console.log('✅ Serving local file:', filePath);
+    const filename = `${docType}-${attestation.attestationId}.pdf`;
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${docType}-${attestation.attestationId}.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('X-Attestation-ID', attestation.attestationId);
     fs.createReadStream(filePath).pipe(res);
 
   } catch (error) {
-    console.error('Error downloading attestation:', error);
+    console.error('❌ Error downloading attestation:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors du téléchargement'
+      message: 'Erreur serveur lors du téléchargement',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
