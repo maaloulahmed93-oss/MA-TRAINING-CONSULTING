@@ -190,22 +190,8 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
   const handleDownload = async (url: string, type: string) => {
     try {
       if (url.startsWith('https://matc-backend.onrender.com/api/attestations/')) {
-        // Real API download
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error('Erreur lors du téléchargement');
-        }
-        
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `${type}-${certificate?.id}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
+        // Open API URL so the browser follows 302 redirect to Cloudinary
+        window.open(url, '_blank', 'noopener');
       } else {
         // Simulation du téléchargement pour les données mockées
         console.log(`Téléchargement ${type}: ${url}`);
