@@ -1,5 +1,11 @@
 // API Configuration for MATC Application
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://matc-backend.onrender.com/api';
+// Resolve API base URL with safety override to avoid localhost in production builds
+const envBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
+const isLocalhostEnv = envBase && /localhost|127\.0\.0\.1/i.test(envBase);
+const runningOnVercel = typeof window !== 'undefined' && /vercel\.app$/i.test(window.location.hostname);
+export const API_BASE_URL = (!runningOnVercel || !isLocalhostEnv)
+  ? (envBase || 'https://matc-backend.onrender.com/api')
+  : 'https://matc-backend.onrender.com/api';
 
 // API Endpoints
 export const API_ENDPOINTS = {
