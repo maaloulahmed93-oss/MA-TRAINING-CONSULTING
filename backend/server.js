@@ -32,6 +32,7 @@ const allowedOrigins = [
   'https://matc-site.vercel.app', // ✅ FIXED: Current frontend deployment
   'https://matc-admin.vercel.app',
   'https://admine-lake.vercel.app', // ✅ admin panel
+  'https://matc-site.vercel.app', // ✅ public site alternate domain
   'https://admine-git-main-maalouls-projects.vercel.app', // Git-based deployment
   // CORS FIX: Additional Vercel admin panel URLs
   'https://admine-35fgpwv3-maalouls-projects.vercel.app', // ✅ Previous admin panel URL
