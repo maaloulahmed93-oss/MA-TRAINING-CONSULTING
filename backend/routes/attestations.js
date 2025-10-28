@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import Attestation from '../models/Attestation.js';
 import Program from '../models/Program.js';
 import Joi from 'joi';
+import cloudinary from '../config/cloudinary.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -53,6 +54,34 @@ const uploadMultiple = upload.fields([
   { name: 'recommandation', maxCount: 1 },
   { name: 'evaluation', maxCount: 1 }
 ]);
+
+// Helper function to upload PDF to Cloudinary
+const uploadToCloudinary = async (filePath, attestationId, docType) => {
+  try {
+    console.log(`📤 Uploading ${docType} to Cloudinary...`);
+    
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: 'matc/attestations',
+      public_id: `${attestationId}-${docType}`,
+      resource_type: 'raw', // Pour les PDFs
+      format: 'pdf',
+      overwrite: true
+    });
+    
+    console.log(`✅ ${docType} uploaded to Cloudinary:`, result.secure_url);
+    
+    // Supprimer le fichier local après upload
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`🗑️  Local file deleted: ${filePath}`);
+    }
+    
+    return result.secure_url;
+  } catch (error) {
+    console.error(`❌ Error uploading ${docType} to Cloudinary:`, error);
+    throw error;
+  }
+};
 
 // Validation schema
 const attestationSchema = Joi.object({
@@ -125,17 +154,55 @@ router.post('/', uploadMultiple, async (req, res) => {
       program.title
     );
 
-    // Prepare document paths
-    const documents = {
-      attestation: req.files.attestation[0].path
-    };
+    console.log('📤 Uploading files to Cloudinary...');
     
-    if (req.files.recommandation) {
-      documents.recommandation = req.files.recommandation[0].path;
-    }
+    // Upload files to Cloudinary and get URLs
+    const documents = {};
     
-    if (req.files.evaluation) {
-      documents.evaluation = req.files.evaluation[0].path;
+    try {
+      // Upload attestation (required)
+      documents.attestation = await uploadToCloudinary(
+        req.files.attestation[0].path,
+        attestationId,
+        'attestation'
+      );
+      
+      // Upload recommandation (optional)
+      if (req.files.recommandation) {
+        documents.recommandation = await uploadToCloudinary(
+          req.files.recommandation[0].path,
+          attestationId,
+          'recommandation'
+        );
+      }
+      
+      // Upload evaluation (optional)
+      if (req.files.evaluation) {
+        documents.evaluation = await uploadToCloudinary(
+          req.files.evaluation[0].path,
+          attestationId,
+          'evaluation'
+        );
+      }
+      
+      console.log('✅ All files uploaded to Cloudinary successfully');
+    } catch (uploadError) {
+      console.error('❌ Error uploading to Cloudinary:', uploadError);
+      
+      // Clean up local files
+      if (req.files) {
+        Object.values(req.files).flat().forEach(file => {
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'upload des fichiers vers Cloudinary',
+        error: uploadError.message
+      });
     }
 
     // Create attestation
@@ -440,16 +507,50 @@ router.put('/:id', uploadMultiple, async (req, res) => {
     // Update documents if new files uploaded
     const documents = { ...existingAttestation.documents };
     
-    if (req.files && req.files.attestation) {
-      documents.attestation = req.files.attestation[0].path;
-    }
-    
-    if (req.files && req.files.recommandation) {
-      documents.recommandation = req.files.recommandation[0].path;
-    }
-    
-    if (req.files && req.files.evaluation) {
-      documents.evaluation = req.files.evaluation[0].path;
+    try {
+      if (req.files && req.files.attestation) {
+        console.log('📤 Updating attestation file...');
+        documents.attestation = await uploadToCloudinary(
+          req.files.attestation[0].path,
+          req.params.id,
+          'attestation'
+        );
+      }
+      
+      if (req.files && req.files.recommandation) {
+        console.log('📤 Updating recommandation file...');
+        documents.recommandation = await uploadToCloudinary(
+          req.files.recommandation[0].path,
+          req.params.id,
+          'recommandation'
+        );
+      }
+      
+      if (req.files && req.files.evaluation) {
+        console.log('📤 Updating evaluation file...');
+        documents.evaluation = await uploadToCloudinary(
+          req.files.evaluation[0].path,
+          req.params.id,
+          'evaluation'
+        );
+      }
+    } catch (uploadError) {
+      console.error('❌ Error uploading to Cloudinary:', uploadError);
+      
+      // Clean up local files
+      if (req.files) {
+        Object.values(req.files).flat().forEach(file => {
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'upload des fichiers vers Cloudinary',
+        error: uploadError.message
+      });
     }
 
     // Update attestation
