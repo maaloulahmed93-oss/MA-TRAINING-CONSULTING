@@ -1,5 +1,4 @@
 import AttestationUpload from '../models/AttestationUpload.js';
-import Participant from '../models/Participant.js';
 
 /**
  * Controller pour l'upload de PDF vers Cloudinary
@@ -34,16 +33,9 @@ export const uploadAndSave = async (req, res) => {
       });
     }
 
-    // Vérifier que le participant existe
-    const participant = await Participant.findOne({ participantId: participantId });
-    if (!participant) {
-      return res.status(404).json({
-        success: false,
-        message: `Participant ${participantId} non trouvé`
-      });
-    }
-
-    console.log('✅ Participant trouvé:', participant.fullName);
+    // Note: Validation du participant désactivée car le modèle Participant n'existe pas
+    // La validation peut être ajoutée plus tard si nécessaire
+    console.log('✅ Participant ID fourni:', participantId);
 
     // Le fichier a déjà été uploadé vers Cloudinary par multer
     // req.file.path contient l'URL Cloudinary

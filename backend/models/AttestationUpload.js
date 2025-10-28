@@ -54,14 +54,6 @@ const attestationUploadSchema = new mongoose.Schema({
 attestationUploadSchema.index({ participantId: 1, type: 1 });
 attestationUploadSchema.index({ createdAt: -1 });
 
-// Méthode pour vérifier si un participant existe
-attestationUploadSchema.statics.validateParticipant = async function(participantId) {
-  // Import dynamique pour éviter les dépendances circulaires
-  const Participant = mongoose.model('Participant');
-  const participant = await Participant.findOne({ participantId: participantId });
-  return !!participant;
-};
-
 // Méthode pour récupérer tous les uploads d'un participant
 attestationUploadSchema.statics.getByParticipant = async function(participantId) {
   return this.find({ participantId: participantId, isActive: true })
