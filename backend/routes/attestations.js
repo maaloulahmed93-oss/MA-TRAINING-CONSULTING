@@ -119,8 +119,11 @@ router.post('/', uploadMultiple, async (req, res) => {
       });
     }
 
-    // Generate unique attestation ID
-    const attestationId = await Attestation.generateAttestationId();
+    // Generate unique attestation ID with fullName and program title
+    const attestationId = await Attestation.generateAttestationId(
+      value.fullName,
+      program.title
+    );
 
     // Prepare document paths
     const documents = {

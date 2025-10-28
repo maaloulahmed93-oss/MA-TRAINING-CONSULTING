@@ -72,24 +72,33 @@ attestationSchema.index({ programId: 1 });
 attestationSchema.index({ fullName: 'text' });
 
 // Static method to generate unique attestation ID
-attestationSchema.statics.generateAttestationId = async function() {
+// Format: CERT-{Année}-{حرف البرنامج}-{حرف الاسم}-{الرقم}
+attestationSchema.statics.generateAttestationId = async function(fullName = '', programTitle = '') {
   const currentYear = new Date().getFullYear();
-  const prefix = `CERT-${currentYear}-`;
   
-  // Find the highest number for current year
+  // Extract first letter from fullName (uppercase)
+  const nameInitial = fullName.trim().charAt(0).toUpperCase();
+  
+  // Extract first letter from program title (uppercase)
+  const programInitial = programTitle.trim().charAt(0).toUpperCase();
+  
+  // Search for last attestation with same pattern
   const lastAttestation = await this.findOne({
-    attestationId: { $regex: `^${prefix}` }
+    attestationId: { $regex: `^CERT-${currentYear}-${programInitial}-${nameInitial}-` }
   }).sort({ attestationId: -1 });
   
   let nextNumber = 1;
   if (lastAttestation) {
-    const lastNumber = parseInt(lastAttestation.attestationId.split('-')[2]);
-    nextNumber = lastNumber + 1;
+    // Extract last number from ID like: CERT-2025-P-A-001 → 1
+    const parts = lastAttestation.attestationId.split('-');
+    if (parts.length >= 5) {
+      nextNumber = parseInt(parts[4]) + 1;
+    }
   }
   
-  // Format with leading zeros (4 digits)
-  const formattedNumber = nextNumber.toString().padStart(4, '0');
-  return `${prefix}${formattedNumber}`;
+  // Format with leading zeros (3 digits)
+  const formattedNumber = nextNumber.toString().padStart(3, '0');
+  return `CERT-${currentYear}-${programInitial}-${nameInitial}-${formattedNumber}`;
 };
 
 const Attestation = mongoose.model('Attestation', attestationSchema);

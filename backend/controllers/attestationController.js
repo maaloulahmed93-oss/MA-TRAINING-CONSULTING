@@ -14,11 +14,18 @@ export const uploadAndSave = async (req, res) => {
 
     const url = req.file.path; // Cloudinary URL from multer-storage-cloudinary
 
+    // Get program info for ID generation
+    const programId = req.body.programId || (await Program.findOne())?._id;
+    const program = await Program.findById(programId);
+
     // If extra creation is requested, save minimal document
     const record = new Attestation({
-      attestationId: await Attestation.generateAttestationId(),
+      attestationId: await Attestation.generateAttestationId(
+        req.body.fullName || 'Sans nom',
+        program?.title || 'Programme'
+      ),
       fullName: req.body.fullName || 'Sans nom',
-      programId: req.body.programId || (await Program.findOne())?._id,
+      programId,
       dateObtention: req.body.dateObtention || new Date(),
       note: Number(req.body.note || 0),
       niveau: req.body.niveau || 'Débutant',
