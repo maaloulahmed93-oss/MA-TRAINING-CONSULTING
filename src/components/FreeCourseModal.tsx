@@ -29,6 +29,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState('');
   const [selectedDomain, setSelectedDomain] = useState<string>('');
+  const [allowedDomainId, setAllowedDomainId] = useState<string | '*'>('*');
   const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
   const [shakeError, setShakeError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,8 +73,12 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
-  // Use API domains if connected, otherwise use static data
-  const activeDomains = isApiConnected ? apiDomains : coursesData.domains;
+  // Use API domains if connected, otherwise use static data, then filter by allowedDomainId
+  const allDomains = isApiConnected ? apiDomains : coursesData.domains;
+  const activeDomains = useMemo(() => {
+    if (allowedDomainId === '*' || !allowedDomainId) return allDomains;
+    return allDomains.filter((d) => d.id === allowedDomainId);
+  }, [allDomains, allowedDomainId]);
 
   // Filtered domains based on search query
   const filteredDomains = useMemo(() => {
@@ -120,6 +125,8 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
         
         if (result.success) {
           console.log('✅ ID validé via API:', accessId);
+          const targetDomain = (result.data && (result.data.domainId as string)) || '*';
+          setAllowedDomainId(targetDomain as any);
           setIsValidating(false);
           setCurrentStep('domain-selection');
         } else {

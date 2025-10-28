@@ -119,6 +119,7 @@ router.post('/validate-access', async (req, res) => {
       message: 'Accès autorisé',
       data: {
         accessId: access.accessId,
+        domainId: access.domainId || '*',
         usageCount: access.usageCount + 1,
         maxUsage: access.maxUsage
       }
