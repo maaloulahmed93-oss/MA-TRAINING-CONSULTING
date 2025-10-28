@@ -9,6 +9,12 @@ const freeCourseAccessSchema = new mongoose.Schema({
     trim: true,
     uppercase: true
   },
+  domainId: {
+    type: String,
+    default: '*', // '*' = all domains, else specific domainId
+    index: true,
+    trim: true,
+  },
   isActive: {
     type: Boolean,
     default: true

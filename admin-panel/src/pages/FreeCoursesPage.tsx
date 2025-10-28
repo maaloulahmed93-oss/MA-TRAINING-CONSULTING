@@ -31,7 +31,7 @@ const FreeCoursesPage: React.FC = () => {
   const [domainFormData, setDomainFormData] = useState({ domainId: '', title: '', icon: '📚', description: '', order: 0 });
   const [courseFormData, setCourseFormData] = useState({ courseId: '', domainId: '', title: '', description: '', order: 0 });
   const [moduleFormData, setModuleFormData] = useState({ moduleId: '', courseId: '', title: '', duration: '', url: '', order: 0 });
-  const [accessFormData, setAccessFormData] = useState({ accessId: '', description: '', maxUsage: -1, expiresAt: '' });
+  const [accessFormData, setAccessFormData] = useState({ accessId: '', description: '', maxUsage: -1, expiresAt: '', domainId: '*' });
   
   // Expandable sections
   const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
@@ -261,9 +261,9 @@ const FreeCoursesPage: React.FC = () => {
   // Access ID handlers
   const handleCreateAccess = async () => {
     try {
-      await freeCoursesApiService.addAccessId(accessFormData.accessId);
+      await freeCoursesApiService.addAccessId(accessFormData.accessId, accessFormData.domainId);
       setShowAccessForm(false);
-      setAccessFormData({ accessId: '', description: '', maxUsage: -1, expiresAt: '' });
+      setAccessFormData({ accessId: '', description: '', maxUsage: -1, expiresAt: '', domainId: '*' });
       loadData();
     } catch (error) {
       alert('Erreur lors de la création du code d\'accès');
@@ -529,6 +529,7 @@ const FreeCoursesPage: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left">Code</th>
+                  <th className="px-4 py-3 text-left">Domaine</th>
                   <th className="px-4 py-3 text-left">Utilisations</th>
                   <th className="px-4 py-3 text-left">Limite</th>
                   <th className="px-4 py-3 text-left">Actions</th>
@@ -538,6 +539,7 @@ const FreeCoursesPage: React.FC = () => {
                 {accessIds.map((access: any) => (
                   <tr key={access.accessId} className="border-t">
                     <td className="px-4 py-3 font-mono">{access.accessId}</td>
+                    <td className="px-4 py-3">{access.domainId === '*' ? 'ALL' : (domains.find(d => d.id === access.domainId)?.title || access.domainId)}</td>
                     <td className="px-4 py-3">{access.usageCount || 0}</td>
                     <td className="px-4 py-3">{access.maxUsage === -1 ? 'Illimité' : access.maxUsage}</td>
                     <td className="px-4 py-3">
@@ -766,7 +768,20 @@ const FreeCoursesPage: React.FC = () => {
                   className="w-full px-3 py-2 border rounded-lg"
                 />
               </div>
-              <div className="flex gap-2">
+              <div>
+                <label className="block text-sm font-medium mb-1">Domaine cible</label>
+                <select
+                  value={accessFormData.domainId}
+                  onChange={(e) => setAccessFormData({ ...accessFormData, domainId: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="*">ALL domaines</option>
+                  {domains.map((d) => (
+                    <option key={d.id} value={d.id}>{d.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2 mt-4">
                 <button
                   onClick={handleCreateAccess}
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"

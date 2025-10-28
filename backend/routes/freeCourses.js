@@ -346,7 +346,7 @@ router.get('/admin/access-ids', async (req, res) => {
 // POST /api/free-courses/admin/access-ids - Créer un ID d'accès
 router.post('/admin/access-ids', async (req, res) => {
   try {
-    const { accessId, description, maxUsage, expiresAt } = req.body;
+    const { accessId, description, maxUsage, expiresAt, domainId } = req.body;
     
     if (!accessId) {
       return res.status(400).json({ 
@@ -360,7 +360,8 @@ router.post('/admin/access-ids', async (req, res) => {
       description: description ? description.trim() : '',
       maxUsage: maxUsage || -1,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
-      createdBy: 'admin'
+      createdBy: 'admin',
+      domainId: (domainId && domainId.trim()) || '*'
     });
     
     await access.save();

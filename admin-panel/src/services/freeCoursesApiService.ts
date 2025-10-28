@@ -224,11 +224,11 @@ class FreeCoursesApiService {
   // === ACCESS ID MANAGEMENT ===
   
   // Ajouter un ID d'accès
-  async addAccessId(accessId: string): Promise<any> {
+  async addAccessId(accessId: string, domainId?: string): Promise<any> {
     try {
       const response = await this.request<any>('/admin/access-ids', {
         method: 'POST',
-        body: JSON.stringify({ accessId }),
+        body: JSON.stringify({ accessId, domainId }),
       });
       return response.data;
     } catch (error) {
