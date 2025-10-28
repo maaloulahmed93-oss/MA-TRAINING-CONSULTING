@@ -1,0 +1,363 @@
+{
+  "info": {
+    "name": "MATC - Upload PDF Cloudinary",
+    "description": "Collection de tests pour l'upload de PDF vers Cloudinary",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Upload PDF vers Cloudinary",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/path/to/your/attestation.pdf",
+              "description": "Fichier PDF à uploader (max 10MB)"
+            },
+            {
+              "key": "participantId",
+              "value": "PART-2025-001",
+              "type": "text",
+              "description": "ID du participant (requis)"
+            },
+            {
+              "key": "type",
+              "value": "attestation",
+              "type": "text",
+              "description": "Type de document (attestation, recommandation, evaluation, autre)"
+            },
+            {
+              "key": "uploadedBy",
+              "value": "admin",
+              "type": "text",
+              "description": "Nom de l'utilisateur qui uploade"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/attestations/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "attestations", "upload"]
+        },
+        "description": "Upload un fichier PDF vers Cloudinary et sauvegarde dans MongoDB"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "attestation.pdf"
+                },
+                {
+                  "key": "participantId",
+                  "value": "PART-2025-001",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "attestation",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "upload"]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Fichier uploadé avec succès\",\n  \"data\": {\n    \"url\": \"https://res.cloudinary.com/djvtktjgc/raw/upload/v1730152800/matc_attestations/attestation_1730152800123.pdf\",\n    \"publicId\": \"matc_attestations/attestation_1730152800123\",\n    \"participantId\": \"PART-2025-001\",\n    \"type\": \"attestation\",\n    \"fileName\": \"attestation.pdf\",\n    \"fileSize\": 245678,\n    \"uploadId\": \"6720a1b2c3d4e5f6g7h8i9j0\"\n  }\n}"
+        },
+        {
+          "name": "Error - No File",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "participantId",
+                  "value": "PART-2025-001",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "upload"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Aucun fichier fourni\"\n}"
+        },
+        {
+          "name": "Error - Participant Not Found",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "attestation.pdf"
+                },
+                {
+                  "key": "participantId",
+                  "value": "INVALID-ID",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "upload"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Participant INVALID-ID non trouvé\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Récupérer uploads d'un participant",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/attestations/uploads/:participantId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "attestations", "uploads", ":participantId"],
+          "variable": [
+            {
+              "key": "participantId",
+              "value": "PART-2025-001",
+              "description": "ID du participant"
+            }
+          ]
+        },
+        "description": "Récupère tous les uploads d'un participant spécifique"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/uploads/PART-2025-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "uploads", "PART-2025-001"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"6720a1b2c3d4e5f6g7h8i9j0\",\n      \"participantId\": \"PART-2025-001\",\n      \"type\": \"attestation\",\n      \"url\": \"https://res.cloudinary.com/djvtktjgc/raw/upload/v1730152800/matc_attestations/attestation_1730152800123.pdf\",\n      \"cloudinaryPublicId\": \"matc_attestations/attestation_1730152800123\",\n      \"fileName\": \"attestation.pdf\",\n      \"fileSize\": 245678,\n      \"uploadedBy\": \"admin\",\n      \"isActive\": true,\n      \"createdAt\": \"2025-10-28T21:00:00.000Z\",\n      \"updatedAt\": \"2025-10-28T21:00:00.000Z\"\n    },\n    {\n      \"_id\": \"6720a1b2c3d4e5f6g7h8i9j1\",\n      \"participantId\": \"PART-2025-001\",\n      \"type\": \"evaluation\",\n      \"url\": \"https://res.cloudinary.com/djvtktjgc/raw/upload/v1730152900/matc_attestations/evaluation_1730152900456.pdf\",\n      \"cloudinaryPublicId\": \"matc_attestations/evaluation_1730152900456\",\n      \"fileName\": \"evaluation.pdf\",\n      \"fileSize\": 189234,\n      \"uploadedBy\": \"admin\",\n      \"isActive\": true,\n      \"createdAt\": \"2025-10-28T21:01:40.000Z\",\n      \"updatedAt\": \"2025-10-28T21:01:40.000Z\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. Récupérer tous les uploads (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/attestations/uploads?page=1&limit=10&type=attestation",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "attestations", "uploads"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Numéro de page"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Nombre de résultats par page"
+            },
+            {
+              "key": "type",
+              "value": "attestation",
+              "description": "Filtrer par type (optionnel)"
+            },
+            {
+              "key": "participantId",
+              "value": "",
+              "description": "Filtrer par participant (optionnel)",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Récupère tous les uploads avec pagination et filtres"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/uploads?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "uploads"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 10,\n  \"total\": 45,\n  \"totalPages\": 5,\n  \"currentPage\": 1,\n  \"data\": [...]\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. Supprimer un upload",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/attestations/uploads/:uploadId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "attestations", "uploads", ":uploadId"],
+          "variable": [
+            {
+              "key": "uploadId",
+              "value": "6720a1b2c3d4e5f6g7h8i9j0",
+              "description": "ID de l'upload à supprimer"
+            }
+          ]
+        },
+        "description": "Supprime un upload (soft delete - isActive = false)"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/uploads/6720a1b2c3d4e5f6g7h8i9j0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "uploads", "6720a1b2c3d4e5f6g7h8i9j0"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Upload supprimé avec succès\"\n}"
+        },
+        {
+          "name": "Error - Upload Not Found",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/attestations/uploads/invalid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attestations", "uploads", "invalid-id"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Upload non trouvé\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "baseUrlProduction",
+      "value": "https://matc-backend.onrender.com",
+      "type": "string"
+    }
+  ]
+}

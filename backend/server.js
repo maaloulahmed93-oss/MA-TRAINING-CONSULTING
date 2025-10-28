@@ -225,7 +225,7 @@ import programRoutes from './routes/programs.js';
 import packRoutes from './routes/packs.js';
 import categoryRoutes from './routes/categories.js';
 import attestationRoutes from './routes/attestations.js';
-import attestationUploadRoutes from './routes/attestationRoutes.js';
+import attestationUploadRoutes from './routes/attestationUploadRoutes.js';
 import partnersRoutes from './routes/partners.js';
 import enterpriseRoutes from './routes/enterpriseRoutes.js';
 import formateurSessionRoutes from './routes/formateurSessions.js';
