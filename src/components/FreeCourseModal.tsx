@@ -489,11 +489,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                     </button>
                   </form>
 
-                  <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-700">
-                      💡 <strong>ID de démonstration :</strong> DEMO2024, FREE-ACCESS, STUDENT-2024
-                    </p>
-                  </div>
+                  {/* Demo IDs hint removed per request */}
                 </motion.div>
               )}
 
