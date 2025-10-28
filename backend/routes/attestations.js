@@ -292,22 +292,31 @@ router.get('/:id/download/:type?', async (req, res) => {
       });
     }
 
-    // Check if the requested document exists
+    // Resolve document path or URL
     const filePath = attestation.documents[docType];
-    if (!filePath || !fs.existsSync(filePath)) {
+    if (!filePath) {
       return res.status(404).json({
         success: false,
         message: `Fichier de ${docType} non trouvé`
       });
     }
 
-    // Set headers for file download
+    // If stored as a Cloudinary URL, redirect to it
+    if (typeof filePath === 'string' && /^https?:\/\//i.test(filePath)) {
+      return res.redirect(filePath);
+    }
+
+    // Otherwise, treat as local file path
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: `Fichier de ${docType} non trouvé`
+      });
+    }
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${docType}-${attestation.attestationId}.pdf"`);
-
-    // Stream the file
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
+    fs.createReadStream(filePath).pipe(res);
 
   } catch (error) {
     console.error('Error downloading attestation:', error);
