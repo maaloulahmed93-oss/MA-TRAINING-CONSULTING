@@ -7,6 +7,7 @@ import {
   ArrowDownTrayIcon,
 } from "@heroicons/react/24/outline";
 import { attestationsApi, type Attestation } from "../services/attestationsApi";
+import { API_BASE_URL } from "../config/api";
 import Modal from "../components/common/Modal";
 import AttestationForm from "../components/attestations/AttestationForm";
 
@@ -82,17 +83,11 @@ const AttestationsPage: React.FC = () => {
 
   const handleDownload = async (attestation: Attestation, type: 'attestation' | 'recommandation' | 'evaluation' = 'attestation') => {
     try {
-      const blob = await attestationsApi.download(attestation.attestationId, type);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${type}-${attestation.attestationId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // Navigate to API endpoint so the browser follows 302 redirect to Cloudinary
+      const downloadUrl = `${API_BASE_URL}/attestations/${attestation.attestationId}/download/${type}`;
+      window.open(downloadUrl, '_blank', 'noopener');
     } catch (error) {
-      console.error('Error downloading attestation:', error);
+      console.error('Error opening download URL:', error);
       alert('Erreur lors du téléchargement');
     }
   };
