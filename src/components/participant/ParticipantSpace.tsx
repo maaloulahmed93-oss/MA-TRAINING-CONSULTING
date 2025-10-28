@@ -34,10 +34,11 @@ const ParticipantSpace = () => {
 
     try {
       // Verify participant credentials with backend
-      const response = await fetch(`http://localhost:3001/api/participants/verify`, {
+      const response = await fetch(`https://matc-backend.onrender.com/api/participants/verify`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ participantId: id.trim(), email: email.trim() })
       });

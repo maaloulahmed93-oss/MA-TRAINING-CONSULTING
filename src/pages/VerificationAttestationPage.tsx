@@ -38,7 +38,7 @@ const VerificationAttestationPage: React.FC = () => {
       setIsLoading(true);
       setHasSearched(true);
       
-      const response = await fetch(`http://localhost:3001/api/attestations/verify/${attestationId.trim()}`);
+      const response = await fetch(`https://matc-backend.onrender.com/api/attestations/verify/${attestationId.trim()}`);
       const data = await response.json();
       
       setResult(data);
@@ -57,7 +57,7 @@ const VerificationAttestationPage: React.FC = () => {
     if (!result?.data?.attestationId) return;
     
     try {
-      const response = await fetch(`http://localhost:3001/api/attestations/${result.data.attestationId}/download/${type}`);
+      const response = await fetch(`https://matc-backend.onrender.com/api/attestations/${result.data.attestationId}/download/${type}`);
       
       if (!response.ok) {
         throw new Error('Erreur lors du téléchargement');

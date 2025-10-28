@@ -264,7 +264,7 @@ const PartenaireEvenementsPage: React.FC = () => {
       };
 
       // Créer via Enterprise API
-      const response = await fetch(`http://localhost:3001/api/enterprise/${currentPartnerId}/events`, {
+      const response = await fetch(`https://matc-backend.onrender.com/api/enterprise/${currentPartnerId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData)

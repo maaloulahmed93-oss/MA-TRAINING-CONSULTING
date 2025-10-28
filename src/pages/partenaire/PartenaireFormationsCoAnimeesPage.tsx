@@ -2229,7 +2229,7 @@ const PartenaireFormationsCoAnimeesPage: React.FC = () => {
               };
               
               // Créer via Enterprise API
-              const response = await fetch(`http://localhost:3001/api/enterprise/${currentPartnerId}/formations`, {
+              const response = await fetch(`https://matc-backend.onrender.com/api/enterprise/${currentPartnerId}/formations`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(enterpriseFormationData)

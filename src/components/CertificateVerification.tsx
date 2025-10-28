@@ -133,7 +133,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
 
     try {
       // Call the real API instead of localStorage
-      const response = await fetch(`http://localhost:3001/api/attestations/verify/${certificateId.trim()}`);
+      const response = await fetch(`https://matc-backend.onrender.com/api/attestations/verify/${certificateId.trim()}`);
       const data = await response.json();
       
       if (response.ok && data.valid && data.data) {
@@ -147,9 +147,9 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
           techniques: data.data.techniques || [],
           grade: data.data.note || 0,
           level: data.data.niveau || 'Non spécifié',
-          certificateUrl: `http://localhost:3001/api/attestations/${data.data.attestationId}/download/attestation`,
-          recommendationUrl: `http://localhost:3001/api/attestations/${data.data.attestationId}/download/recommandation`,
-          evaluationUrl: `http://localhost:3001/api/attestations/${data.data.attestationId}/download/evaluation`,
+          certificateUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/attestation`,
+          recommendationUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/recommandation`,
+          evaluationUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/evaluation`,
           completionDate: new Date(data.data.dateObtention).toLocaleDateString('fr-FR')
         };
         
@@ -189,7 +189,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
 
   const handleDownload = async (url: string, type: string) => {
     try {
-      if (url.startsWith('http://localhost:3001/api/attestations/')) {
+      if (url.startsWith('https://matc-backend.onrender.com/api/attestations/')) {
         // Real API download
         const response = await fetch(url);
         

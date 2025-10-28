@@ -8,6 +8,7 @@ import EspaceCommercialNewPage from "./pages/EspaceCommercialNewPage";
 import EspacePartenaireePage from "./pages/EspacePartenaireePage";
 import PartnershipPage from "./components/PartnershipPage";
 import VerificationAttestationPage from "./pages/VerificationAttestationPage";
+import SystemTestPage from "./pages/SystemTestPage";
 // Pages sections Espace Partenariat
 import PartenaireProjectsPage from "./pages/partenaire/PartenaireProjectsPage";
 import PartenaireFormationsCoAnimeesPage from "./pages/partenaire/PartenaireFormationsCoAnimeesPage";
@@ -71,9 +72,11 @@ function App() {
               path="/partenaire/messages"
               element={<PartenaireMessagesPage />}
             />
-            {/* Verification d'attestation */}
-            <Route path="/verification-attestation" element={<VerificationAttestationPage />} />
-            {/* Test route (temporary) */}
+              {/* Verification d'attestation */}
+              <Route path="/verification-attestation" element={<VerificationAttestationPage />} />
+              {/* System Test Page */}
+              <Route path="/system-test" element={<SystemTestPage />} />
+              {/* Test route (temporary) */}
             <Route path="/test-projects" element={<ProjectsTestPage />} />
           </Routes>
         </main>

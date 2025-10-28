@@ -636,7 +636,7 @@ const PartenaireProjectsPage: React.FC = () => {
             console.log('🔄 Création du projet via Enterprise API...', data);
             
             // Créer le projet via Enterprise API
-            const response = await fetch(`http://localhost:3001/api/enterprise/${currentPartnerId}/projects`, {
+            const response = await fetch(`https://matc-backend.onrender.com/api/enterprise/${currentPartnerId}/projects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data)

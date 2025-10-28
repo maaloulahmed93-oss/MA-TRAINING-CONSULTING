@@ -21,7 +21,16 @@ const EventsSection = () => {
       setLoading(true);
       setError(null);
       
+      console.log('🔄 جلب الأحداث من API...');
       const apiEvents = await eventsApiService.getPublishedEvents();
+      
+      if (!apiEvents || apiEvents.length === 0) {
+        console.warn('⚠️ لا توجد أحداث منشورة في الـ API');
+        setError('لا توجد أحداث متاحة حالياً');
+        setEvents([]);
+        setLastUpdate(new Date());
+        return;
+      }
       
       // تحويل البيانات من API format إلى Event format مع الأيقونات
       const transformedEvents: Event[] = apiEvents.map(apiEvent => ({
@@ -35,10 +44,10 @@ const EventsSection = () => {
       
     } catch (error) {
       console.error('❌ Error loading events from API:', error);
-      setError('فشل في تحميل الأحداث من الخادم. سيتم استخدام البيانات التجريبية.');
+      setError('فشل في تحميل الأحداث من الخادم. تأكد من إضافة أحداث من Admin Panel.');
       
-      // استخدام البيانات التجريبية كـ fallback
-      setEvents(eventsData);
+      // لا نستخدم البيانات التجريبية، فقط نعرض رسالة خطأ
+      setEvents([]);
       setLastUpdate(new Date());
     } finally {
       setLoading(false);
@@ -61,26 +70,22 @@ const EventsSection = () => {
     }
   };
 
-  // Mise à jour automatique des participants toutes les 20 secondes (للبيانات التجريبية فقط)
+  // Mise à jour automatique des participants toutes les 30 ثانية من الـ API
   useEffect(() => {
-    if (error) return; // لا تحديث إذا كان هناك خطأ في API
+    if (error || events.length === 0) return; // لا تحديث إذا كان هناك خطأ أو لا توجد أحداث
     
+    // إعادة تحميل البيانات من الـ API كل 30 ثانية
     const interval = setInterval(() => {
       setIsUpdating(true);
-
-      // Simuler une mise à jour des participants
-      setTimeout(() => {
-        const randomEventId =
-          events[Math.floor(Math.random() * events.length)].id;
-        const updatedEvents = updateEventParticipants(randomEventId);
-        setEvents(updatedEvents);
-        setLastUpdate(new Date());
+      
+      // إعادة جلب البيانات من الـ API
+      fetchEventsFromAPI().finally(() => {
         setIsUpdating(false);
-      }, 1000);
-    }, 20000);
+      });
+    }, 30000);
 
     return () => clearInterval(interval);
-  }, [events, error]);
+  }, [error]);
 
   // Animation variants
   const containerVariants = {
@@ -234,6 +239,27 @@ const EventsSection = () => {
 
             {/* Events List */}
             <div className="divide-y divide-gray-100">
+              {/* عرض رسالة إذا لم تكن هناك أحداث */}
+              {!loading && events.length === 0 && (
+                <div className="p-12 text-center">
+                  <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    لا توجد أحداث متاحة حالياً
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    قم بإضافة أحداث من Admin Panel لعرضها هنا
+                  </p>
+                  <a 
+                    href="https://admine-lake.vercel.app" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    الذهاب إلى Admin Panel
+                  </a>
+                </div>
+              )}
+
               <AnimatePresence>
                 {events.map((event, index) => (
                   <motion.div

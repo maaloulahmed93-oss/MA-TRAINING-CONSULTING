@@ -35,7 +35,7 @@ const SafeFreelancerLoginModal: React.FC<SafeFreelancerLoginModalProps> = ({ onA
 
     try {
       // Try to authenticate using backend API
-      const response = await fetch('http://localhost:3001/api/partners/login', {
+      const response = await fetch('https://matc-backend.onrender.com/api/partners/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -19,7 +19,7 @@ const ParticipantLogin = ({ onLogin }: ParticipantLoginProps) => {
 
     try {
       // Try to authenticate with backend API first
-      const response = await fetch(`http://localhost:3001/api/participants/${accessId}/login`, {
+      const response = await fetch(`https://matc-backend.onrender.com/api/participants/${accessId}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -56,7 +56,7 @@ const PartnershipLoginModal: React.FC<PartnershipLoginModalProps> = ({
 
     try {
       // Appel API avec email et ID
-      const response = await fetch('http://localhost:3001/api/partners/login', {
+      const response = await fetch('https://matc-backend.onrender.com/api/partners/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
