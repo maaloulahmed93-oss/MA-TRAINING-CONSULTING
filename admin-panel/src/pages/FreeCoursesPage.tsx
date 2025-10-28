@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import freeCoursesApiService, { Domain, Course, CourseModule, FreeCourseAccess } from '../services/freeCoursesApiService';
+import { API_BASE_URL } from '../config/api';
 
 interface Stats {
   domains: number;
@@ -41,20 +42,66 @@ const FreeCoursesPage: React.FC = () => {
     loadData();
   }, []);
 
+  // Fetch helpers to enrich domains with courses and modules
+  const fetchCoursesForDomain = async (domainId: string): Promise<Course[]> => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/free-courses/admin/courses?domainId=${encodeURIComponent(domainId)}`);
+      const json = await res.json();
+      const rawCourses: any[] = json?.data || [];
+
+      // For each course, fetch its modules
+      const coursesWithModules: Course[] = await Promise.all(
+        rawCourses.map(async (c) => {
+          const modulesRes = await fetch(`${API_BASE_URL}/free-courses/admin/modules?courseId=${encodeURIComponent(c.courseId)}`);
+          const modulesJson = await modulesRes.json();
+          const rawModules: any[] = modulesJson?.data || [];
+          const modules: CourseModule[] = rawModules.map((m) => ({
+            id: m.moduleId,
+            title: m.title,
+            duration: m.duration,
+            url: m.url || undefined,
+          }));
+
+          const course: Course = {
+            id: c.courseId,
+            title: c.title,
+            description: c.description,
+            modules,
+          };
+          return course;
+        })
+      );
+
+      return coursesWithModules;
+    } catch (e) {
+      console.error('❌ Erreur chargement cours:', e);
+      return [];
+    }
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const [domainsData, accessData, statsData] = await Promise.all([
+      const [adminDomains, statsResp] = await Promise.all([
         freeCoursesApiService.getAdminDomains(),
-        freeCoursesApiService.getAccessIds().then(ids => 
-          Promise.all(ids.map(id => fetch(`https://matc-backend.onrender.com/api/free-courses/admin/access-ids`).then(r => r.json()).then(d => d.data.find((a: any) => a.accessId === id) || {})))
-        ),
-        fetch('https://matc-backend.onrender.com/api/free-courses/admin/stats').then(r => r.json()).then(d => d.data)
+        fetch(`${API_BASE_URL}/free-courses/admin/stats`).then((r) => r.json()).then((d) => d.data),
       ]);
-      
-      setDomains(domainsData);
-      setAccessIds(accessData.flat() as any);
-      setStats(statsData || stats);
+
+      // Build nested structure: domains -> courses -> modules
+      const domainsWithChildren: Domain[] = await Promise.all(
+        adminDomains.map(async (d) => {
+          const courses = await fetchCoursesForDomain(d.id);
+          return { ...d, courses } as Domain;
+        })
+      );
+
+      // Access IDs list
+      const accessIdsResp = await fetch(`${API_BASE_URL}/free-courses/admin/access-ids`).then((r) => r.json());
+      const accessIdsData = accessIdsResp?.data || [];
+
+      setDomains(domainsWithChildren);
+      setAccessIds(accessIdsData);
+      setStats(statsResp || stats);
     } catch (error) {
       console.error('❌ Error loading data:', error);
     } finally {
@@ -328,6 +375,15 @@ const FreeCoursesPage: React.FC = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    onClick={() => {
+                      setCourseFormData({ ...courseFormData, domainId: domain.id });
+                      setShowCourseForm(true);
+                    }}
+                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                  >
+                    + Ajouter un Cours
+                  </button>
+                  <button
                     onClick={() => handleEditDomain(domain)}
                     className="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
                   >
@@ -382,15 +438,17 @@ const FreeCoursesPage: React.FC = () => {
 
                       {expandedCourses.has(course.id) && (
                         <div className="ml-5 space-y-2">
-                          <button
-                            onClick={() => {
-                              setModuleFormData({ ...moduleFormData, courseId: course.id });
-                              setShowModuleForm(true);
-                            }}
-                            className="px-2 py-1 bg-purple-100 text-purple-600 rounded text-sm"
-                          >
-                            + Ajouter un Module
-                          </button>
+                          <div className="flex items-center justify-between">
+                            <button
+                              onClick={() => {
+                                setModuleFormData({ ...moduleFormData, courseId: course.id });
+                                setShowModuleForm(true);
+                              }}
+                              className="px-2 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
+                            >
+                              + Ajouter un Module
+                            </button>
+                          </div>
 
                           {course.modules.map((module) => (
                             <div key={module.id} className="bg-white rounded p-2 flex items-center justify-between">
@@ -713,9 +771,9 @@ const FreeCoursesPage: React.FC = () => {
                 >
                   Annuler
                 </button>
-              </div>
-            </div>
           </div>
+        </div>
+      </div>
         </div>
       )}
     </div>
