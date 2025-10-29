@@ -406,9 +406,49 @@ router.get('/:id/download/:type?', async (req, res) => {
       });
     }
 
-    // If stored as a Cloudinary URL, redirect to it
+    // If stored as a Cloudinary URL, generate signed URL for authenticated files
     if (typeof filePath === 'string' && /^https?:\/\//i.test(filePath)) {
-      console.log('✅ Redirecting to Cloudinary URL:', filePath);
+      console.log('✅ Cloudinary URL detected:', filePath);
+      
+      // Check if it's a Cloudinary URL
+      if (filePath.includes('cloudinary.com')) {
+        try {
+          // Extract public_id from URL
+          const urlParts = filePath.split('/upload/');
+          if (urlParts.length >= 2) {
+            const pathAfterUpload = urlParts[1];
+            const pathParts = pathAfterUpload.split('/');
+            
+            // Remove version if present (v1234567890)
+            const startIndex = pathParts[0].startsWith('v') && !isNaN(pathParts[0].substring(1)) ? 1 : 0;
+            const publicIdWithExt = pathParts.slice(startIndex).join('/');
+            
+            // Remove .pdf extension
+            const publicId = publicIdWithExt.replace(/\.pdf$/, '');
+            
+            console.log('Extracted public_id:', publicId);
+            
+            // Generate signed URL (valid for 1 hour)
+            const cloudinary = (await import('../config/cloudinary.js')).default;
+            const signedUrl = cloudinary.url(publicId, {
+              resource_type: 'raw',
+              type: 'upload',
+              sign_url: true,
+              secure: true,
+              expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+            });
+            
+            console.log('Generated signed URL (valid for 1 hour)');
+            return res.redirect(signedUrl);
+          }
+        } catch (error) {
+          console.error('Error generating signed URL:', error);
+          // Fallback to direct redirect
+          return res.redirect(filePath);
+        }
+      }
+      
+      // For non-Cloudinary URLs, redirect directly
       return res.redirect(filePath);
     }
 
