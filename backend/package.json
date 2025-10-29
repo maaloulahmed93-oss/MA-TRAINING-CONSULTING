@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "fix-cloudinary": "node scripts/fixCloudinaryAccess.js",
+    "fix-cloudinary-paths": "node scripts/fixCloudinaryPaths.js",
     "verify-cloudinary": "node scripts/verifyCloudinaryFiles.js"
   },
   "dependencies": {
