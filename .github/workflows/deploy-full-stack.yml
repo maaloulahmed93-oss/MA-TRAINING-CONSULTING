@@ -280,7 +280,7 @@ jobs:
     
     environment:
       name: production
-      url: https://admine-lake.vercel.app
+      url: https://admine-lake-ten.vercel.app
     
     steps:
       - name: 📥 Checkout Repository
@@ -321,7 +321,7 @@ jobs:
           sleep 45
           
           for i in {1..5}; do
-            response=$(curl -s -o /dev/null -w "%{http_code}" "https://admine-lake.vercel.app")
+            response=$(curl -s -o /dev/null -w "%{http_code}" "https://admine-lake-ten.vercel.app")
             
             if [ "$response" = "200" ]; then
               echo "✅ Admin panel health check passed!"
@@ -381,7 +381,7 @@ jobs:
           
           origins=(
             "https://matrainingconsulting.vercel.app"
-            "https://admine-lake.vercel.app"
+            "https://admine-lake-ten.vercel.app"
           )
           
           for origin in "${origins[@]}"; do
@@ -422,7 +422,7 @@ jobs:
                 "health_check": "passed"
               },
               "admin_panel": {
-                "url": "https://admine-lake.vercel.app",
+                "url": "https://admine-lake-ten.vercel.app",
                 "status": "${{ needs.deploy-admin.result }}",
                 "health_check": "passed"
               }
@@ -454,7 +454,7 @@ jobs:
           echo "### 🔗 Live URLs" >> $GITHUB_STEP_SUMMARY
           echo "- **Backend API**: https://matc-backend.onrender.com/api" >> $GITHUB_STEP_SUMMARY
           echo "- **Frontend**: https://matrainingconsulting.vercel.app" >> $GITHUB_STEP_SUMMARY
-          echo "- **Admin Panel**: https://admine-lake.vercel.app" >> $GITHUB_STEP_SUMMARY
+          echo "- **Admin Panel**: https://admine-lake-ten.vercel.app" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ Validation Results" >> $GITHUB_STEP_SUMMARY
           echo "- **API Health**: ✅ All endpoints responding" >> $GITHUB_STEP_SUMMARY
