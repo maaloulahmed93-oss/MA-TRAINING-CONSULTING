@@ -14,6 +14,8 @@ const storage = new CloudinaryStorage({
     folder: 'matc_attestations', // Dossier dans Cloudinary
     format: async (req, file) => 'pdf', // Forcer format PDF
     resource_type: 'raw', // Type 'raw' pour les PDFs
+    access_mode: 'public', // IMPORTANT: Rendre les fichiers publiquement accessibles
+    type: 'upload', // Type d'upload standard (public)
     public_id: (req, file) => {
       // Générer un public_id unique basé sur la date et le nom du fichier
       const timestamp = Date.now();
