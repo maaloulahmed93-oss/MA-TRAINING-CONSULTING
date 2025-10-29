@@ -131,7 +131,9 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
       return;
     }
     
-    if (!uploadedFiles.attestation) {
+    // En mode création, l'attestation est requise
+    // En mode édition, l'upload est optionnel (garde les fichiers existants si non uploadé)
+    if (!initialData && !uploadedFiles.attestation) {
       alert('Veuillez uploader le fichier PDF de l\'attestation (requis)');
       return;
     }
@@ -173,7 +175,14 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
     } catch (error) {
       console.error('Error saving attestation:', error);
       const action = initialData ? 'mise à jour' : 'création';
-      alert(`Erreur lors de la ${action} de l'attestation: ` + (error instanceof Error ? error.message : 'Erreur inconnue'));
+      
+      // Better error message for connection issues
+      let errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('ERR_CONNECTION_CLOSED')) {
+        errorMessage = 'Le serveur backend est en cours de démarrage. Veuillez patienter 30 secondes et réessayer.';
+      }
+      
+      alert(`Erreur lors de la ${action} de l'attestation: ${errorMessage}`);
       onSubmit(false);
     } finally {
       setIsSubmitting(false);
@@ -360,7 +369,16 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
             📌 Documents disponibles
           </h3>
-          <p className="text-sm text-gray-600 mb-6">Uploadez les documents PDF pour chaque participant</p>
+          <p className="text-sm text-gray-600 mb-2">Uploadez les documents PDF pour chaque participant</p>
+          {initialData && (
+            <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3 mb-4 rounded">
+              <p className="text-sm font-medium">ℹ️ Mode édition</p>
+              <p className="text-xs mt-1">
+                Les fichiers existants seront conservés si vous ne les remplacez pas. 
+                Uploadez uniquement les fichiers que vous souhaitez modifier.
+              </p>
+            </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Attestation (Required) */}

@@ -74,16 +74,31 @@ class AttestationsApi {
     formData.append('file', file);
     formData.append('participantId', participantId);
 
-    const response = await fetch(`${API_BASE_URL}/attestations/upload`, {
-      method: 'POST',
-      body: formData,
-    });
+    // Increase timeout for large files and slow backend startup
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
 
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Erreur upload PDF');
+    try {
+      const response = await fetch(`${API_BASE_URL}/attestations/upload`, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Erreur upload PDF');
+      }
+      return data.url as string;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Le serveur met trop de temps à répondre. Veuillez réessayer dans quelques secondes.');
+      }
+      throw error;
     }
-    return data.url as string;
   }
 
   // Create new attestation
