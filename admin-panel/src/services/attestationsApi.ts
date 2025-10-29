@@ -69,9 +69,10 @@ class AttestationsApi {
   }
 
   // Upload single PDF to Cloudinary and return URL
-  async uploadPdf(file: File): Promise<string> {
+  async uploadPdf(file: File, participantId: string = 'temp'): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('participantId', participantId);
 
     const response = await fetch(`${API_BASE_URL}/attestations/upload`, {
       method: 'POST',
