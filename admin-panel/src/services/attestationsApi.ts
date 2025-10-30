@@ -114,6 +114,10 @@ class AttestationsApi {
     attestation: File | null;
     recommandation: File | null;
     evaluation: File | null;
+  }, urls?: {
+    attestation?: string;
+    recommandation?: string;
+    evaluation?: string;
   }): Promise<Attestation> {
     try {
       const formData = new FormData();
@@ -127,15 +131,23 @@ class AttestationsApi {
       formData.append('skills', JSON.stringify(attestationData.skills));
       formData.append('techniques', JSON.stringify(attestationData.techniques));
       
-      // Add files
+      // Add files or URLs
       if (files.attestation) {
         formData.append('attestation', files.attestation);
+      } else if (urls?.attestation) {
+        formData.append('attestationUrl', urls.attestation);
       }
+      
       if (files.recommandation) {
         formData.append('recommandation', files.recommandation);
+      } else if (urls?.recommandation) {
+        formData.append('recommandationUrl', urls.recommandation);
       }
+      
       if (files.evaluation) {
         formData.append('evaluation', files.evaluation);
+      } else if (urls?.evaluation) {
+        formData.append('evaluationUrl', urls.evaluation);
       }
 
       const response = await fetch(`${API_BASE_URL}/attestations`, {
@@ -222,6 +234,10 @@ class AttestationsApi {
     attestation: File | null;
     recommandation: File | null;
     evaluation: File | null;
+  }, urls?: {
+    attestation?: string;
+    recommandation?: string;
+    evaluation?: string;
   }): Promise<Attestation> {
     try {
       const formData = new FormData();
@@ -235,15 +251,23 @@ class AttestationsApi {
       formData.append('skills', JSON.stringify(attestationData.skills));
       formData.append('techniques', JSON.stringify(attestationData.techniques));
       
-      // Add files
+      // Add files or URLs
       if (files.attestation) {
         formData.append('attestation', files.attestation);
+      } else if (urls?.attestation) {
+        formData.append('attestationUrl', urls.attestation);
       }
+      
       if (files.recommandation) {
         formData.append('recommandation', files.recommandation);
+      } else if (urls?.recommandation) {
+        formData.append('recommandationUrl', urls.recommandation);
       }
+      
       if (files.evaluation) {
         formData.append('evaluation', files.evaluation);
+      } else if (urls?.evaluation) {
+        formData.append('evaluationUrl', urls.evaluation);
       }
 
       const response = await fetch(`${API_BASE_URL}/attestations/${attestationId}`, {

@@ -1,0 +1,136 @@
+{
+  "timestamp": "2025-10-29T22:09:30.013Z",
+  "stats": {
+    "totalDocuments": 6,
+    "cloudinaryDocuments": 6,
+    "localDocuments": 0,
+    "validCloudinaryFiles": 0,
+    "missingCloudinaryFiles": 6,
+    "invalidUrls": 0,
+    "orphanedDocuments": [
+      {
+        "attestationId": "CERT-2025-M-M-003",
+        "fullName": "mohamed",
+        "docType": "attestation",
+        "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761769031/matc_attestations/CERT-2025-M-M-003-attestation.pdf",
+        "publicId": "matc_attestations/CERT-2025-M-M-003-attestation",
+        "resourceType": "raw",
+        "issue": "File missing on Cloudinary",
+        "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+      },
+      {
+        "attestationId": "CERT-2025-M-M-003",
+        "fullName": "mohamed",
+        "docType": "recommandation",
+        "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761769031/matc_attestations/CERT-2025-M-M-003-recommandation.pdf",
+        "publicId": "matc_attestations/CERT-2025-M-M-003-recommandation",
+        "resourceType": "raw",
+        "issue": "File missing on Cloudinary",
+        "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+      },
+      {
+        "attestationId": "CERT-2025-M-M-003",
+        "fullName": "mohamed",
+        "docType": "evaluation",
+        "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761769032/matc_attestations/CERT-2025-M-M-003-evaluation.pdf",
+        "publicId": "matc_attestations/CERT-2025-M-M-003-evaluation",
+        "resourceType": "raw",
+        "issue": "File missing on Cloudinary",
+        "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+      },
+      {
+        "attestationId": "CERT-2025-M-M-004",
+        "fullName": "mohsen",
+        "docType": "attestation",
+        "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761771792/matc/attestations/CERT-2025-M-M-004-attestation.pdf",
+        "publicId": "matc/attestations/CERT-2025-M-M-004-attestation",
+        "resourceType": "raw",
+        "issue": "File missing on Cloudinary",
+        "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+      },
+      {
+        "attestationId": "CERT-2025-M-M-004",
+        "fullName": "mohsen",
+        "docType": "recommandation",
+        "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761775721/matc/attestations/CERT-2025-M-M-004-recommandation.pdf",
+        "publicId": "matc/attestations/CERT-2025-M-M-004-recommandation",
+        "resourceType": "raw",
+        "issue": "File missing on Cloudinary",
+        "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+      },
+      {
+        "attestationId": "CERT-2025-M-M-004",
+        "fullName": "mohsen",
+        "docType": "evaluation",
+        "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761775723/matc/attestations/CERT-2025-M-M-004-evaluation.pdf",
+        "publicId": "matc/attestations/CERT-2025-M-M-004-evaluation",
+        "resourceType": "raw",
+        "issue": "File missing on Cloudinary",
+        "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+      }
+    ]
+  },
+  "orphanedDocuments": [
+    {
+      "attestationId": "CERT-2025-M-M-003",
+      "fullName": "mohamed",
+      "docType": "attestation",
+      "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761769031/matc_attestations/CERT-2025-M-M-003-attestation.pdf",
+      "publicId": "matc_attestations/CERT-2025-M-M-003-attestation",
+      "resourceType": "raw",
+      "issue": "File missing on Cloudinary",
+      "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+    },
+    {
+      "attestationId": "CERT-2025-M-M-003",
+      "fullName": "mohamed",
+      "docType": "recommandation",
+      "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761769031/matc_attestations/CERT-2025-M-M-003-recommandation.pdf",
+      "publicId": "matc_attestations/CERT-2025-M-M-003-recommandation",
+      "resourceType": "raw",
+      "issue": "File missing on Cloudinary",
+      "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+    },
+    {
+      "attestationId": "CERT-2025-M-M-003",
+      "fullName": "mohamed",
+      "docType": "evaluation",
+      "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761769032/matc_attestations/CERT-2025-M-M-003-evaluation.pdf",
+      "publicId": "matc_attestations/CERT-2025-M-M-003-evaluation",
+      "resourceType": "raw",
+      "issue": "File missing on Cloudinary",
+      "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+    },
+    {
+      "attestationId": "CERT-2025-M-M-004",
+      "fullName": "mohsen",
+      "docType": "attestation",
+      "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761771792/matc/attestations/CERT-2025-M-M-004-attestation.pdf",
+      "publicId": "matc/attestations/CERT-2025-M-M-004-attestation",
+      "resourceType": "raw",
+      "issue": "File missing on Cloudinary",
+      "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+    },
+    {
+      "attestationId": "CERT-2025-M-M-004",
+      "fullName": "mohsen",
+      "docType": "recommandation",
+      "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761775721/matc/attestations/CERT-2025-M-M-004-recommandation.pdf",
+      "publicId": "matc/attestations/CERT-2025-M-M-004-recommandation",
+      "resourceType": "raw",
+      "issue": "File missing on Cloudinary",
+      "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+    },
+    {
+      "attestationId": "CERT-2025-M-M-004",
+      "fullName": "mohsen",
+      "docType": "evaluation",
+      "url": "https://res.cloudinary.com/djvtktjgc/raw/upload/v1761775723/matc/attestations/CERT-2025-M-M-004-evaluation.pdf",
+      "publicId": "matc/attestations/CERT-2025-M-M-004-evaluation",
+      "resourceType": "raw",
+      "issue": "File missing on Cloudinary",
+      "error": "File not found on Cloudinary (checked both upload and authenticated types)"
+    }
+  ],
+  "healthScore": 0
+}

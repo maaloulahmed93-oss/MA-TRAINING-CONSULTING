@@ -229,24 +229,10 @@ const AttestationsPage: React.FC = () => {
                               console.log('Edit button clicked for:', att.attestationId);
                               handleEditClick(att);
                             }}
-                            className="text-gray-500 hover:text-orange-600 p-1 rounded hover:bg-orange-50 border border-gray-300 hover:border-orange-300"
+                            className="text-gray-500 hover:text-orange-600 transition-colors"
                             title="Modifier l'attestation"
-                            style={{ minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             <PencilIcon className="h-5 w-5" />
-                            <span className="sr-only">Modifier</span>
-                          </button>
-                          {/* Fallback button with text if icon doesn't show */}
-                          <button
-                            onClick={() => {
-                              console.log('Edit button (text) clicked for:', att.attestationId);
-                              handleEditClick(att);
-                            }}
-                            className="text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 px-2 py-1 rounded border border-orange-300 hover:border-orange-400"
-                            title="Modifier l'attestation"
-                            style={{ display: 'none' }}
-                          >
-                            ✏️ Modifier
                           </button>
                           <div className="relative group">
                             <button

@@ -99,11 +99,11 @@ router.post('/', uploadMultiple, async (req, res) => {
   try {
     console.log('Creating new attestation:', req.body);
     
-    // Check if attestation file was uploaded (required)
-    if (!req.files || !req.files.attestation) {
+    // Check if attestation file was uploaded OR URL provided (required)
+    if ((!req.files || !req.files.attestation) && !req.body.attestationUrl) {
       return res.status(400).json({
         success: false,
-        message: 'Fichier d\'attestation PDF requis'
+        message: 'Fichier d\'attestation PDF ou URL requis'
       });
     }
 
@@ -154,38 +154,49 @@ router.post('/', uploadMultiple, async (req, res) => {
       program.title
     );
 
-    console.log('📤 Uploading files to Cloudinary...');
+    console.log('📤 Processing files and URLs...');
     
-    // Upload files to Cloudinary and get URLs
+    // Upload files to Cloudinary or use provided URLs
     const documents = {};
     
     try {
-      // Upload attestation (required)
-      documents.attestation = await uploadToCloudinary(
-        req.files.attestation[0].path,
-        attestationId,
-        'attestation'
-      );
+      // Attestation (required - either file or URL)
+      if (req.files && req.files.attestation) {
+        documents.attestation = await uploadToCloudinary(
+          req.files.attestation[0].path,
+          attestationId,
+          'attestation'
+        );
+      } else if (req.body.attestationUrl) {
+        documents.attestation = req.body.attestationUrl;
+        console.log('✅ Using provided URL for attestation:', req.body.attestationUrl);
+      }
       
-      // Upload recommandation (optional)
-      if (req.files.recommandation) {
+      // Recommandation (optional - either file or URL)
+      if (req.files && req.files.recommandation) {
         documents.recommandation = await uploadToCloudinary(
           req.files.recommandation[0].path,
           attestationId,
           'recommandation'
         );
+      } else if (req.body.recommandationUrl) {
+        documents.recommandation = req.body.recommandationUrl;
+        console.log('✅ Using provided URL for recommandation:', req.body.recommandationUrl);
       }
       
-      // Upload evaluation (optional)
-      if (req.files.evaluation) {
+      // Evaluation (optional - either file or URL)
+      if (req.files && req.files.evaluation) {
         documents.evaluation = await uploadToCloudinary(
           req.files.evaluation[0].path,
           attestationId,
           'evaluation'
         );
+      } else if (req.body.evaluationUrl) {
+        documents.evaluation = req.body.evaluationUrl;
+        console.log('✅ Using provided URL for evaluation:', req.body.evaluationUrl);
       }
       
-      console.log('✅ All files uploaded to Cloudinary successfully');
+      console.log('✅ All documents processed successfully');
     } catch (uploadError) {
       console.error('❌ Error uploading to Cloudinary:', uploadError);
       
@@ -561,10 +572,11 @@ router.put('/:id', uploadMultiple, async (req, res) => {
       });
     }
 
-    // Update documents if new files uploaded
+    // Update documents if new files uploaded or URLs provided
     const documents = { ...existingAttestation.documents };
     
     try {
+      // Attestation - file or URL
       if (req.files && req.files.attestation) {
         console.log('📤 Updating attestation file...');
         documents.attestation = await uploadToCloudinary(
@@ -572,8 +584,12 @@ router.put('/:id', uploadMultiple, async (req, res) => {
           req.params.id,
           'attestation'
         );
+      } else if (req.body.attestationUrl) {
+        documents.attestation = req.body.attestationUrl;
+        console.log('✅ Using provided URL for attestation:', req.body.attestationUrl);
       }
       
+      // Recommandation - file or URL
       if (req.files && req.files.recommandation) {
         console.log('📤 Updating recommandation file...');
         documents.recommandation = await uploadToCloudinary(
@@ -581,8 +597,12 @@ router.put('/:id', uploadMultiple, async (req, res) => {
           req.params.id,
           'recommandation'
         );
+      } else if (req.body.recommandationUrl) {
+        documents.recommandation = req.body.recommandationUrl;
+        console.log('✅ Using provided URL for recommandation:', req.body.recommandationUrl);
       }
       
+      // Evaluation - file or URL
       if (req.files && req.files.evaluation) {
         console.log('📤 Updating evaluation file...');
         documents.evaluation = await uploadToCloudinary(
@@ -590,6 +610,9 @@ router.put('/:id', uploadMultiple, async (req, res) => {
           req.params.id,
           'evaluation'
         );
+      } else if (req.body.evaluationUrl) {
+        documents.evaluation = req.body.evaluationUrl;
+        console.log('✅ Using provided URL for evaluation:', req.body.evaluationUrl);
       }
     } catch (uploadError) {
       console.error('❌ Error uploading to Cloudinary:', uploadError);

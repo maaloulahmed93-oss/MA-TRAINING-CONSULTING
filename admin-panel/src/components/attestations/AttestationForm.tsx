@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, XMarkIcon, DocumentArrowUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, DocumentArrowUpIcon, CheckCircleIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { attestationsApi, type Attestation, type Program } from '../../services/attestationsApi';
 
 interface AttestationFormProps {
@@ -27,6 +27,20 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
     recommandation: File | null;
     evaluation: File | null;
   }>({ attestation: null, recommandation: null, evaluation: null });
+  
+  // URL input state for 3 document types
+  const [documentUrls, setDocumentUrls] = useState<{
+    attestation: string;
+    recommandation: string;
+    evaluation: string;
+  }>({ attestation: '', recommandation: '', evaluation: '' });
+  
+  // Toggle between upload and URL input
+  const [inputMode, setInputMode] = useState<{
+    attestation: 'upload' | 'url';
+    recommandation: 'upload' | 'url';
+    evaluation: 'upload' | 'url';
+  }>({ attestation: 'upload', recommandation: 'upload', evaluation: 'upload' });
   
   // Programs list and loading states
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -111,6 +125,25 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
   const handleFileUpload = (type: 'attestation' | 'recommandation' | 'evaluation', file: File | null) => {
     setUploadedFiles(prev => ({ ...prev, [type]: file }));
   };
+  
+  // URL input handlers
+  const handleUrlChange = (type: 'attestation' | 'recommandation' | 'evaluation', url: string) => {
+    setDocumentUrls(prev => ({ ...prev, [type]: url }));
+  };
+  
+  // Toggle input mode
+  const toggleInputMode = (type: 'attestation' | 'recommandation' | 'evaluation') => {
+    setInputMode(prev => ({
+      ...prev,
+      [type]: prev[type] === 'upload' ? 'url' : 'upload'
+    }));
+    // Clear the other input when switching
+    if (inputMode[type] === 'upload') {
+      setUploadedFiles(prev => ({ ...prev, [type]: null }));
+    } else {
+      setDocumentUrls(prev => ({ ...prev, [type]: '' }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,29 +164,40 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
       return;
     }
     
-    // En mode création, l'attestation est requise
+    // En mode création, l'attestation est requise (soit upload soit URL)
     // En mode édition, l'upload est optionnel (garde les fichiers existants si non uploadé)
-    if (!initialData && !uploadedFiles.attestation) {
-      alert('Veuillez uploader le fichier PDF de l\'attestation (requis)');
+    if (!initialData && !uploadedFiles.attestation && !documentUrls.attestation.trim()) {
+      alert('Veuillez uploader le fichier PDF de l\'attestation ou fournir un lien URL (requis)');
       return;
+    }
+    
+    // Validate URLs if provided
+    const urlFields: Array<'attestation' | 'recommandation' | 'evaluation'> = ['attestation', 'recommandation', 'evaluation'];
+    for (const field of urlFields) {
+      if (documentUrls[field].trim() && !documentUrls[field].match(/^https?:\/\/.+/)) {
+        alert(`L'URL du ${field} doit commencer par http:// ou https://`);
+        return;
+      }
     }
     
     try {
       setIsSubmitting(true);
       
-      // 1) Upload PDFs to Cloudinary
+      // Prepare URLs object for documents
       const urls: { attestation?: string; recommandation?: string; evaluation?: string } = {};
-      if (uploadedFiles.attestation) {
-        urls.attestation = await attestationsApi.uploadPdf(uploadedFiles.attestation);
+      
+      // Collect URLs from input fields
+      if (documentUrls.attestation.trim()) {
+        urls.attestation = documentUrls.attestation.trim();
       }
-      if (uploadedFiles.recommandation) {
-        urls.recommandation = await attestationsApi.uploadPdf(uploadedFiles.recommandation);
+      if (documentUrls.recommandation.trim()) {
+        urls.recommandation = documentUrls.recommandation.trim();
       }
-      if (uploadedFiles.evaluation) {
-        urls.evaluation = await attestationsApi.uploadPdf(uploadedFiles.evaluation);
+      if (documentUrls.evaluation.trim()) {
+        urls.evaluation = documentUrls.evaluation.trim();
       }
       
-      // 2) Create attestation with URLs embedded (backend existing endpoint still accepts multipart, but it also reads body fields)
+      // Prepare attestation data
       const attestationData = {
         fullName: formData.fullName.trim(),
         programId: formData.programId,
@@ -166,9 +210,9 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
       
       // Use create or update based on whether we have initial data
       if (initialData) {
-        await attestationsApi.update(initialData.attestationId, attestationData, uploadedFiles);
+        await attestationsApi.update(initialData.attestationId, attestationData, uploadedFiles, urls);
       } else {
-        await attestationsApi.create(attestationData, uploadedFiles);
+        await attestationsApi.create(attestationData, uploadedFiles, urls);
       }
       onSubmit(true);
       
@@ -387,36 +431,88 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
                 <DocumentArrowUpIcon className="w-8 h-8 text-blue-600" />
               </div>
               <h4 className="text-center font-medium text-gray-900">Attestation *</h4>
-              <input
-                type="file"
-                id="attestation-upload"
-                accept=".pdf"
-                onChange={(e) => handleFileUpload('attestation', e.target.files?.[0] || null)}
-                className="hidden"
-                disabled={isSubmitting}
-              />
-              <label
-                htmlFor="attestation-upload"
-                className={`block w-full p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-center ${
-                  uploadedFiles.attestation
-                    ? 'border-green-300 bg-green-50 text-green-700'
-                    : 'border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100'
-                } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {uploadedFiles.attestation ? (
-                  <>
-                    <CheckCircleIcon className="w-6 h-6 mx-auto mb-2" />
-                    <span className="text-sm font-medium">Fichier uploadé</span>
-                    <div className="text-xs text-gray-600 mt-1 truncate">{uploadedFiles.attestation.name}</div>
-                  </>
-                ) : (
-                  <>
-                    <DocumentArrowUpIcon className="w-6 h-6 mx-auto mb-2" />
-                    <span className="text-sm font-medium">Cliquez pour uploader</span>
-                    <div className="text-xs text-gray-500 mt-1">PDF requis</div>
-                  </>
-                )}
-              </label>
+              
+              {/* Toggle between Upload and URL */}
+              <div className="flex justify-center gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => toggleInputMode('attestation')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    inputMode.attestation === 'upload'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  <DocumentArrowUpIcon className="w-4 h-4 inline mr-1" />
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleInputMode('attestation')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    inputMode.attestation === 'url'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  <LinkIcon className="w-4 h-4 inline mr-1" />
+                  URL
+                </button>
+              </div>
+              
+              {inputMode.attestation === 'upload' ? (
+                <>
+                  <input
+                    type="file"
+                    id="attestation-upload"
+                    accept=".pdf"
+                    onChange={(e) => handleFileUpload('attestation', e.target.files?.[0] || null)}
+                    className="hidden"
+                    disabled={isSubmitting}
+                  />
+                  <label
+                    htmlFor="attestation-upload"
+                    className={`block w-full p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-center ${
+                      uploadedFiles.attestation
+                        ? 'border-green-300 bg-green-50 text-green-700'
+                        : 'border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploadedFiles.attestation ? (
+                      <>
+                        <CheckCircleIcon className="w-6 h-6 mx-auto mb-2" />
+                        <span className="text-sm font-medium">Fichier uploadé</span>
+                        <div className="text-xs text-gray-600 mt-1 truncate">{uploadedFiles.attestation.name}</div>
+                      </>
+                    ) : (
+                      <>
+                        <DocumentArrowUpIcon className="w-6 h-6 mx-auto mb-2" />
+                        <span className="text-sm font-medium">Cliquez pour uploader</span>
+                        <div className="text-xs text-gray-500 mt-1">PDF requis</div>
+                      </>
+                    )}
+                  </label>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    value={documentUrls.attestation}
+                    onChange={(e) => handleUrlChange('attestation', e.target.value)}
+                    placeholder="https://example.com/attestation.pdf"
+                    className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    disabled={isSubmitting}
+                  />
+                  {documentUrls.attestation && (
+                    <div className="flex items-center justify-center text-green-600 text-xs">
+                      <CheckCircleIcon className="w-4 h-4 mr-1" />
+                      URL fourni
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Recommandation (Optional) */}
@@ -425,36 +521,88 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
                 <DocumentArrowUpIcon className="w-8 h-8 text-green-600" />
               </div>
               <h4 className="text-center font-medium text-gray-900">Recommandation</h4>
-              <input
-                type="file"
-                id="recommandation-upload"
-                accept=".pdf"
-                onChange={(e) => handleFileUpload('recommandation', e.target.files?.[0] || null)}
-                className="hidden"
-                disabled={isSubmitting}
-              />
-              <label
-                htmlFor="recommandation-upload"
-                className={`block w-full p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-center ${
-                  uploadedFiles.recommandation
-                    ? 'border-green-300 bg-green-50 text-green-700'
-                    : 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100'
-                } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {uploadedFiles.recommandation ? (
-                  <>
-                    <CheckCircleIcon className="w-6 h-6 mx-auto mb-2" />
-                    <span className="text-sm font-medium">Fichier uploadé</span>
-                    <div className="text-xs text-gray-600 mt-1 truncate">{uploadedFiles.recommandation.name}</div>
-                  </>
-                ) : (
-                  <>
-                    <DocumentArrowUpIcon className="w-6 h-6 mx-auto mb-2" />
-                    <span className="text-sm font-medium">Cliquez pour uploader</span>
-                    <div className="text-xs text-gray-500 mt-1">PDF optionnel</div>
-                  </>
-                )}
-              </label>
+              
+              {/* Toggle between Upload and URL */}
+              <div className="flex justify-center gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => toggleInputMode('recommandation')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    inputMode.recommandation === 'upload'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  <DocumentArrowUpIcon className="w-4 h-4 inline mr-1" />
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleInputMode('recommandation')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    inputMode.recommandation === 'url'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  <LinkIcon className="w-4 h-4 inline mr-1" />
+                  URL
+                </button>
+              </div>
+              
+              {inputMode.recommandation === 'upload' ? (
+                <>
+                  <input
+                    type="file"
+                    id="recommandation-upload"
+                    accept=".pdf"
+                    onChange={(e) => handleFileUpload('recommandation', e.target.files?.[0] || null)}
+                    className="hidden"
+                    disabled={isSubmitting}
+                  />
+                  <label
+                    htmlFor="recommandation-upload"
+                    className={`block w-full p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-center ${
+                      uploadedFiles.recommandation
+                        ? 'border-green-300 bg-green-50 text-green-700'
+                        : 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100'
+                    } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploadedFiles.recommandation ? (
+                      <>
+                        <CheckCircleIcon className="w-6 h-6 mx-auto mb-2" />
+                        <span className="text-sm font-medium">Fichier uploadé</span>
+                        <div className="text-xs text-gray-600 mt-1 truncate">{uploadedFiles.recommandation.name}</div>
+                      </>
+                    ) : (
+                      <>
+                        <DocumentArrowUpIcon className="w-6 h-6 mx-auto mb-2" />
+                        <span className="text-sm font-medium">Cliquez pour uploader</span>
+                        <div className="text-xs text-gray-500 mt-1">PDF optionnel</div>
+                      </>
+                    )}
+                  </label>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    value={documentUrls.recommandation}
+                    onChange={(e) => handleUrlChange('recommandation', e.target.value)}
+                    placeholder="https://example.com/recommandation.pdf"
+                    className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                    disabled={isSubmitting}
+                  />
+                  {documentUrls.recommandation && (
+                    <div className="flex items-center justify-center text-green-600 text-xs">
+                      <CheckCircleIcon className="w-4 h-4 mr-1" />
+                      URL fourni
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Évaluation (Optional) */}
@@ -463,41 +611,93 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onSubmit, onCancel, i
                 <DocumentArrowUpIcon className="w-8 h-8 text-purple-600" />
               </div>
               <h4 className="text-center font-medium text-gray-900">Évaluation</h4>
-              <input
-                type="file"
-                id="evaluation-upload"
-                accept=".pdf"
-                onChange={(e) => handleFileUpload('evaluation', e.target.files?.[0] || null)}
-                className="hidden"
-                disabled={isSubmitting}
-              />
-              <label
-                htmlFor="evaluation-upload"
-                className={`block w-full p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-center ${
-                  uploadedFiles.evaluation
-                    ? 'border-green-300 bg-green-50 text-green-700'
-                    : 'border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100'
-                } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {uploadedFiles.evaluation ? (
-                  <>
-                    <CheckCircleIcon className="w-6 h-6 mx-auto mb-2" />
-                    <span className="text-sm font-medium">Fichier uploadé</span>
-                    <div className="text-xs text-gray-600 mt-1 truncate">{uploadedFiles.evaluation.name}</div>
-                  </>
-                ) : (
-                  <>
-                    <DocumentArrowUpIcon className="w-6 h-6 mx-auto mb-2" />
-                    <span className="text-sm font-medium">Cliquez pour uploader</span>
-                    <div className="text-xs text-gray-500 mt-1">PDF optionnel</div>
-                  </>
-                )}
-              </label>
+              
+              {/* Toggle between Upload and URL */}
+              <div className="flex justify-center gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => toggleInputMode('evaluation')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    inputMode.evaluation === 'upload'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  <DocumentArrowUpIcon className="w-4 h-4 inline mr-1" />
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleInputMode('evaluation')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    inputMode.evaluation === 'url'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  <LinkIcon className="w-4 h-4 inline mr-1" />
+                  URL
+                </button>
+              </div>
+              
+              {inputMode.evaluation === 'upload' ? (
+                <>
+                  <input
+                    type="file"
+                    id="evaluation-upload"
+                    accept=".pdf"
+                    onChange={(e) => handleFileUpload('evaluation', e.target.files?.[0] || null)}
+                    className="hidden"
+                    disabled={isSubmitting}
+                  />
+                  <label
+                    htmlFor="evaluation-upload"
+                    className={`block w-full p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-center ${
+                      uploadedFiles.evaluation
+                        ? 'border-green-300 bg-green-50 text-green-700'
+                        : 'border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100'
+                    } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploadedFiles.evaluation ? (
+                      <>
+                        <CheckCircleIcon className="w-6 h-6 mx-auto mb-2" />
+                        <span className="text-sm font-medium">Fichier uploadé</span>
+                        <div className="text-xs text-gray-600 mt-1 truncate">{uploadedFiles.evaluation.name}</div>
+                      </>
+                    ) : (
+                      <>
+                        <DocumentArrowUpIcon className="w-6 h-6 mx-auto mb-2" />
+                        <span className="text-sm font-medium">Cliquez pour uploader</span>
+                        <div className="text-xs text-gray-500 mt-1">PDF optionnel</div>
+                      </>
+                    )}
+                  </label>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    value={documentUrls.evaluation}
+                    onChange={(e) => handleUrlChange('evaluation', e.target.value)}
+                    placeholder="https://example.com/evaluation.pdf"
+                    className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                    disabled={isSubmitting}
+                  />
+                  {documentUrls.evaluation && (
+                    <div className="flex items-center justify-center text-green-600 text-xs">
+                      <CheckCircleIcon className="w-4 h-4 mr-1" />
+                      URL fourni
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           
           <div className="mt-4 text-xs text-gray-500 text-center">
-            Formats acceptés: PDF uniquement (max 10MB par fichier)
+            Formats acceptés: PDF uniquement (max 10MB par fichier) ou lien URL vers le document
           </div>
         </div>
 
