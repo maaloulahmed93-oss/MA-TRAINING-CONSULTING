@@ -52,11 +52,23 @@ export const ensureBucketExists = async () => {
 export const uploadToSupabase = async (filePath, attestationId, docType) => {
   try {
     console.log(`📤 Uploading ${docType} to Supabase Storage...`);
+    console.log(`📁 File path: ${filePath}`);
+    console.log(`🆔 Attestation ID: ${attestationId}`);
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File not found: ${filePath}`);
+    }
     
     // Read file
     const fileBuffer = fs.readFileSync(filePath);
+    console.log(`📊 File size: ${fileBuffer.length} bytes`);
+    
     const fileName = `${attestationId}-${docType}.pdf`;
     const filePath_storage = `${attestationId}/${fileName}`;
+    
+    console.log(`📦 Storage path: ${filePath_storage}`);
+    console.log(`🪣 Bucket: ${BUCKET_NAME}`);
     
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
@@ -67,14 +79,32 @@ export const uploadToSupabase = async (filePath, attestationId, docType) => {
       });
     
     if (error) {
-      console.error(`❌ Error uploading ${docType}:`, error);
-      throw error;
+      console.error(`❌ Supabase upload error:`, {
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error
+      });
+      
+      // Provide more helpful error message
+      if (error.message?.includes('not found')) {
+        throw new Error(`Bucket '${BUCKET_NAME}' not found. Please create it in Supabase Dashboard.`);
+      } else if (error.message?.includes('permission')) {
+        throw new Error(`Permission denied. Check bucket policies in Supabase Dashboard.`);
+      } else {
+        throw new Error(`Supabase upload failed: ${error.message || 'Unknown error'}`);
+      }
     }
+    
+    console.log(`✅ Upload successful, getting public URL...`);
     
     // Get public URL
     const { data: publicUrlData } = supabase.storage
       .from(BUCKET_NAME)
       .getPublicUrl(filePath_storage);
+    
+    if (!publicUrlData || !publicUrlData.publicUrl) {
+      throw new Error('Failed to get public URL from Supabase');
+    }
     
     console.log(`✅ ${docType} uploaded successfully:`, publicUrlData.publicUrl);
     
@@ -86,7 +116,21 @@ export const uploadToSupabase = async (filePath, attestationId, docType) => {
     
     return publicUrlData.publicUrl;
   } catch (error) {
-    console.error(`❌ Error in uploadToSupabase for ${docType}:`, error);
+    console.error(`❌ Error in uploadToSupabase for ${docType}:`, {
+      message: error.message,
+      stack: error.stack
+    });
+    
+    // Clean up local file on error
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+        console.log(`🗑️  Local file deleted after error: ${filePath}`);
+      } catch (cleanupError) {
+        console.error(`⚠️  Failed to delete local file:`, cleanupError);
+      }
+    }
+    
     throw error;
   }
 };
