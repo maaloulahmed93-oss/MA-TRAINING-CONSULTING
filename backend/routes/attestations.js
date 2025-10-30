@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import Attestation from '../models/Attestation.js';
 import Program from '../models/Program.js';
 import Joi from 'joi';
-import cloudinary from '../config/cloudinary.js';
+import { uploadToSupabase } from '../utils/supabaseStorage.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -55,33 +55,8 @@ const uploadMultiple = upload.fields([
   { name: 'evaluation', maxCount: 1 }
 ]);
 
-// Helper function to upload PDF to Cloudinary
-const uploadToCloudinary = async (filePath, attestationId, docType) => {
-  try {
-    console.log(`📤 Uploading ${docType} to Cloudinary...`);
-    
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder: 'matc/attestations',
-      public_id: `${attestationId}-${docType}`,
-      resource_type: 'raw', // Pour les PDFs
-      format: 'pdf',
-      overwrite: true
-    });
-    
-    console.log(`✅ ${docType} uploaded to Cloudinary:`, result.secure_url);
-    
-    // Supprimer le fichier local après upload
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`🗑️  Local file deleted: ${filePath}`);
-    }
-    
-    return result.secure_url;
-  } catch (error) {
-    console.error(`❌ Error uploading ${docType} to Cloudinary:`, error);
-    throw error;
-  }
-};
+// Note: uploadToSupabase is now imported from utils/supabaseStorage.js
+// No need for local helper function
 
 // Validation schema
 const attestationSchema = Joi.object({
@@ -160,13 +135,13 @@ router.post('/', uploadMultiple, async (req, res) => {
 
     console.log('📤 Processing files and URLs...');
     
-    // Upload files to Cloudinary or use provided URLs
+    // Upload files to Supabase Storage or use provided URLs
     const documents = {};
     
     try {
       // Attestation (required - either file or URL)
       if (req.files && req.files.attestation) {
-        documents.attestation = await uploadToCloudinary(
+        documents.attestation = await uploadToSupabase(
           req.files.attestation[0].path,
           attestationId,
           'attestation'
@@ -178,7 +153,7 @@ router.post('/', uploadMultiple, async (req, res) => {
       
       // Recommandation (optional - either file or URL)
       if (req.files && req.files.recommandation) {
-        documents.recommandation = await uploadToCloudinary(
+        documents.recommandation = await uploadToSupabase(
           req.files.recommandation[0].path,
           attestationId,
           'recommandation'
@@ -190,7 +165,7 @@ router.post('/', uploadMultiple, async (req, res) => {
       
       // Evaluation (optional - either file or URL)
       if (req.files && req.files.evaluation) {
-        documents.evaluation = await uploadToCloudinary(
+        documents.evaluation = await uploadToSupabase(
           req.files.evaluation[0].path,
           attestationId,
           'evaluation'
@@ -202,7 +177,7 @@ router.post('/', uploadMultiple, async (req, res) => {
       
       console.log('✅ All documents processed successfully');
     } catch (uploadError) {
-      console.error('❌ Error uploading to Cloudinary:', uploadError);
+      console.error('❌ Error uploading to Supabase Storage:', uploadError);
       
       // Clean up local files
       if (req.files) {
@@ -215,7 +190,7 @@ router.post('/', uploadMultiple, async (req, res) => {
       
       return res.status(500).json({
         success: false,
-        message: 'Erreur lors de l\'upload des fichiers vers Cloudinary',
+        message: 'Erreur lors de l\'upload des fichiers vers Supabase Storage',
         error: uploadError.message
       });
     }
@@ -583,7 +558,7 @@ router.put('/:id', uploadMultiple, async (req, res) => {
       // Attestation - file or URL
       if (req.files && req.files.attestation) {
         console.log('📤 Updating attestation file...');
-        documents.attestation = await uploadToCloudinary(
+        documents.attestation = await uploadToSupabase(
           req.files.attestation[0].path,
           req.params.id,
           'attestation'
@@ -596,7 +571,7 @@ router.put('/:id', uploadMultiple, async (req, res) => {
       // Recommandation - file or URL
       if (req.files && req.files.recommandation) {
         console.log('📤 Updating recommandation file...');
-        documents.recommandation = await uploadToCloudinary(
+        documents.recommandation = await uploadToSupabase(
           req.files.recommandation[0].path,
           req.params.id,
           'recommandation'
@@ -609,7 +584,7 @@ router.put('/:id', uploadMultiple, async (req, res) => {
       // Evaluation - file or URL
       if (req.files && req.files.evaluation) {
         console.log('📤 Updating evaluation file...');
-        documents.evaluation = await uploadToCloudinary(
+        documents.evaluation = await uploadToSupabase(
           req.files.evaluation[0].path,
           req.params.id,
           'evaluation'
@@ -619,7 +594,7 @@ router.put('/:id', uploadMultiple, async (req, res) => {
         console.log('✅ Using provided URL for evaluation:', req.body.evaluationUrl);
       }
     } catch (uploadError) {
-      console.error('❌ Error uploading to Cloudinary:', uploadError);
+      console.error('❌ Error uploading to Supabase Storage:', uploadError);
       
       // Clean up local files
       if (req.files) {
@@ -632,7 +607,7 @@ router.put('/:id', uploadMultiple, async (req, res) => {
       
       return res.status(500).json({
         success: false,
-        message: 'Erreur lors de l\'upload des fichiers vers Cloudinary',
+        message: 'Erreur lors de l\'upload des fichiers vers Supabase Storage',
         error: uploadError.message
       });
     }
