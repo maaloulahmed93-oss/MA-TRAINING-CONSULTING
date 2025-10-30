@@ -1,5 +1,5 @@
 import express from 'express';
-import upload from '../middlewares/uploadCloudinary.js';
+import upload from '../middlewares/uploadSupabase.js';
 import {
   uploadAndSave,
   getUploadsByParticipant,
@@ -11,7 +11,7 @@ const router = express.Router();
 
 /**
  * @route   POST /api/attestations/upload
- * @desc    Upload un fichier PDF vers Cloudinary
+ * @desc    Upload un fichier PDF vers Supabase Storage
  * @access  Public (à sécuriser en production)
  * @body    participantId (required), type (optional), uploadedBy (optional)
  * @file    file (PDF, max 10MB)

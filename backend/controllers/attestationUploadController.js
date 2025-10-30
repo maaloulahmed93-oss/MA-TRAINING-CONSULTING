@@ -1,11 +1,12 @@
 import AttestationUpload from '../models/AttestationUpload.js';
+import { uploadToSupabase } from '../utils/supabaseStorage.js';
 
 /**
- * Controller pour l'upload de PDF vers Cloudinary
+ * Controller pour l'upload de PDF vers Supabase Storage
  */
 
 /**
- * Upload un fichier PDF vers Cloudinary
+ * Upload un fichier PDF vers Supabase Storage
  * @route POST /api/attestations/upload
  */
 export const uploadAndSave = async (req, res) => {
@@ -33,23 +34,24 @@ export const uploadAndSave = async (req, res) => {
       });
     }
 
-    // Note: Validation du participant désactivée car le modèle Participant n'existe pas
-    // La validation peut être ajoutée plus tard si nécessaire
     console.log('✅ Participant ID fourni:', participantId);
 
-    // Le fichier a déjà été uploadé vers Cloudinary par multer
-    // req.file.path contient l'URL Cloudinary
-    const cloudinaryUrl = req.file.path;
-    const cloudinaryPublicId = req.file.filename;
+    // Upload vers Supabase Storage
+    const fileId = `${participantId}-${type}-${Date.now()}`;
+    const supabaseUrl = await uploadToSupabase(
+      req.file.path,
+      fileId,
+      type
+    );
 
-    console.log('✅ Fichier uploadé vers Cloudinary:', cloudinaryUrl);
+    console.log('✅ Fichier uploadé vers Supabase Storage:', supabaseUrl);
 
     // Créer l'enregistrement dans MongoDB
     const attestationUpload = new AttestationUpload({
       participantId: participantId,
       type: type,
-      url: cloudinaryUrl,
-      cloudinaryPublicId: cloudinaryPublicId,
+      url: supabaseUrl,
+      cloudinaryPublicId: fileId, // Keep field name for compatibility
       fileName: req.file.originalname,
       fileSize: req.file.size,
       uploadedBy: uploadedBy || 'admin'
@@ -64,8 +66,8 @@ export const uploadAndSave = async (req, res) => {
       success: true,
       message: 'Fichier uploadé avec succès',
       data: {
-        url: cloudinaryUrl,
-        publicId: cloudinaryPublicId,
+        url: supabaseUrl,
+        publicId: fileId,
         participantId: participantId,
         type: type,
         fileName: req.file.originalname,
