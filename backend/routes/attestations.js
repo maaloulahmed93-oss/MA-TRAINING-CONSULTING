@@ -91,7 +91,11 @@ const attestationSchema = Joi.object({
   note: Joi.number().required().min(0).max(20),
   niveau: Joi.string().required().valid('Débutant', 'Intermédiaire', 'Avancé'),
   skills: Joi.array().items(Joi.string().trim()).optional(),
-  techniques: Joi.array().items(Joi.string().trim()).optional()
+  techniques: Joi.array().items(Joi.string().trim()).optional(),
+  // URL fields for documents (optional)
+  attestationUrl: Joi.string().uri().optional().allow(''),
+  recommandationUrl: Joi.string().uri().optional().allow(''),
+  evaluationUrl: Joi.string().uri().optional().allow('')
 });
 
 // POST /api/attestations - Create new attestation
