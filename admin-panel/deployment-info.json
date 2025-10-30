@@ -1,13 +1,16 @@
 {
-  "timestamp": "2025-10-13T17:33:06.422Z",
-  "version": "1.0.1760376786424",
-  "status": "ready-for-deployment",
+  "timestamp": "2025-10-30T00:05:00.000Z",
+  "version": "2.0.1730246700000",
+  "status": "deployed",
+  "latest_feature": "URL input option for attestation documents",
   "fixes_applied": [
     "API_BASE_URL initialization fixed",
     "Minification disabled",
     "Code splitting prevented",
     "Environment variables configured",
-    "Vercel configuration optimized"
+    "Vercel configuration optimized",
+    "Added URL input toggle for documents",
+    "Backend API updated to accept URLs"
   ],
-  "expected_result": "Admin panel should work without any JavaScript errors"
+  "expected_result": "Admin panel with URL/Upload toggle for attestation documents"
 }
