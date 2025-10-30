@@ -1,8 +1,46 @@
-import supabase from '../config/supabase.js';
+import supabase from './supabaseClient.js';
 import path from 'path';
 import fs from 'fs';
 
 const BUCKET_NAME = 'attestations';
+
+/**
+ * Ensure the attestations bucket exists
+ */
+export const ensureBucketExists = async () => {
+  try {
+    const { data: buckets, error } = await supabase.storage.listBuckets();
+    
+    if (error) {
+      console.error('❌ Error listing buckets:', error);
+      return false;
+    }
+    
+    const bucketExists = buckets.some(bucket => bucket.name === BUCKET_NAME);
+    
+    if (!bucketExists) {
+      console.log(`📦 Creating bucket: ${BUCKET_NAME}`);
+      const { error: createError } = await supabase.storage.createBucket(BUCKET_NAME, {
+        public: true,
+        fileSizeLimit: 10485760 // 10MB
+      });
+      
+      if (createError) {
+        console.error('❌ Error creating bucket:', createError);
+        return false;
+      }
+      
+      console.log(`✅ Bucket created: ${BUCKET_NAME}`);
+    } else {
+      console.log(`✅ Bucket exists: ${BUCKET_NAME}`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Error in ensureBucketExists:', error);
+    return false;
+  }
+};
 
 /**
  * Upload a file to Supabase Storage
@@ -142,5 +180,6 @@ export default {
   uploadToSupabase,
   deleteFromSupabase,
   checkFileExists,
-  getSignedUrl
+  getSignedUrl,
+  ensureBucketExists
 };

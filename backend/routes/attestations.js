@@ -396,57 +396,49 @@ router.get('/:id/download/:type?', async (req, res) => {
       });
     }
 
-    // If stored as a Cloudinary URL, generate signed URL with validation
+    // If stored as a URL (Supabase or external), handle accordingly
     if (typeof filePath === 'string' && /^https?:\/\//i.test(filePath)) {
-      console.log('✅ Cloudinary URL detected:', filePath);
+      console.log('✅ URL detected:', filePath);
       
-      // Check if it's a Cloudinary URL
-      if (filePath.includes('cloudinary.com')) {
+      // Check if it's a Supabase URL
+      if (filePath.includes('supabase.co/storage')) {
         try {
-          // Use improved helper for extraction and validation
-          const cloudinaryHelper = (await import('../utils/cloudinaryHelper.js')).default;
+          console.log('📦 Supabase Storage URL detected');
           
-          // Extract public_id
-          const extraction = cloudinaryHelper.extractPublicId(filePath);
-          
-          if (!extraction.success) {
-            console.error('❌ Failed to extract public_id:', extraction.error);
+          // Extract file path from Supabase URL
+          const urlParts = filePath.split('/storage/v1/object/public/attestations/');
+          if (urlParts.length < 2) {
+            console.error('❌ Invalid Supabase URL format');
             return res.status(400).json({
               success: false,
-              message: 'Invalid Cloudinary URL format',
-              error: extraction.error
+              message: 'Invalid Supabase Storage URL format'
             });
           }
           
-          console.log('📝 Extracted public_id:', extraction.publicId);
-          console.log('📦 Resource type:', extraction.resourceType);
+          const storagePath = urlParts[1];
+          console.log('📝 Storage path:', storagePath);
           
-          // Generate signed URL with validation
-          const signedUrlResult = await cloudinaryHelper.generateSignedUrl(
-            extraction.publicId,
-            extraction.resourceType,
-            3600 // 1 hour
-          );
+          // For public files, redirect directly
+          // For private files, generate signed URL
+          const { checkFileExists } = await import('../utils/supabaseStorage.js');
+          const exists = await checkFileExists(filePath);
           
-          if (!signedUrlResult.success) {
-            console.error('❌ File not found on Cloudinary:', signedUrlResult.error);
+          if (!exists) {
+            console.error('❌ File not found in Supabase Storage');
             return res.status(404).json({
               success: false,
-              message: 'File missing on Cloudinary',
-              error: signedUrlResult.error,
-              publicId: extraction.publicId,
+              message: 'File missing in Supabase Storage',
               hint: 'The file may have been deleted or moved. Please re-upload the document.'
             });
           }
           
-          console.log('✅ Generated signed URL (valid for 1 hour)');
-          console.log('🔐 Access mode:', signedUrlResult.accessMode);
-          console.log('📊 File size:', signedUrlResult.fileDetails.bytes, 'bytes');
+          console.log('✅ File exists in Supabase Storage');
+          console.log('🔗 Redirecting to public URL');
           
-          return res.redirect(signedUrlResult.url);
+          return res.redirect(filePath);
           
         } catch (error) {
-          console.error('❌ Error processing Cloudinary URL:', error);
+          console.error('❌ Error processing Supabase URL:', error);
           return res.status(500).json({
             success: false,
             message: 'Error generating download link',
@@ -455,7 +447,8 @@ router.get('/:id/download/:type?', async (req, res) => {
         }
       }
       
-      // For non-Cloudinary URLs, redirect directly
+      // For external URLs (non-Supabase), redirect directly
+      console.log('🌐 External URL, redirecting directly');
       return res.redirect(filePath);
     }
 

@@ -175,6 +175,18 @@ app.use('/uploads', (req, res, next) => {
   next();
 });
 
+// Initialize Supabase Storage
+const initSupabaseStorage = async () => {
+  try {
+    const { ensureBucketExists } = await import('./utils/supabaseStorage.js');
+    await ensureBucketExists();
+    console.log('✅ Supabase Storage initialized');
+  } catch (error) {
+    console.error('⚠️ Supabase Storage initialization failed:', error.message);
+    console.log('ℹ️ File uploads will still work if bucket exists');
+  }
+};
+
 // MongoDB connection
 const connectDB = async () => {
   try {
@@ -187,6 +199,9 @@ const connectDB = async () => {
     await mongoose.connect(mongoURI);
     
     console.log('✅ MongoDB Atlas connecté avec succès');
+    
+    // Initialize Supabase after MongoDB
+    await initSupabaseStorage();
     
     // Créer les données par défaut
     try {
