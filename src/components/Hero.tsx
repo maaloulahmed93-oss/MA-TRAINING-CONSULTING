@@ -33,21 +33,21 @@ const Hero = () => {
           {/* Main content */}
           <div className="text-center mb-16">
             <div className="hero-title-container">
-              <h1 className="font-display text-6xl md:text-8xl font-black text-white mb-8 min-h-[200px] flex items-center justify-center tracking-tight">
-                <span className="word-animation text-white">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-8 min-h-[120px] sm:min-h-[150px] md:min-h-[200px] flex items-center justify-center tracking-tight px-4">
+                <span className="word-animation text-white break-words text-center">
                   {words[currentWordIndex]}
                 </span>
               </h1>
             </div>
             
-            <div className="slogan-container mb-8">
-              <p className="font-display text-2xl md:text-3xl text-sky-300 font-medium tracking-wide">
-                L'excellence par <span className="text-sky-400 font-semibold">MA-TRAINING-CONSULTING</span>
+            <div className="slogan-container mb-8 px-4">
+              <p className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-sky-300 font-medium tracking-wide">
+                L'excellence par <span className="text-sky-400 font-semibold break-words">MA-TRAINING-CONSULTING</span>
               </p>
             </div>
             
-            <div className="description-container mb-8">
-              <p className="font-sans text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light">
+            <div className="description-container mb-8 px-4">
+              <p className="font-sans text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light">
                 Votre partenaire stratégique pour la transformation digitale et le développement des compétences.
               </p>
             </div>
