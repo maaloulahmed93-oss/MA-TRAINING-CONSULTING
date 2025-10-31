@@ -237,15 +237,6 @@ const LoginPage: React.FC = () => {
             </div>
           )}
 
-          {/* Demo Credentials */}
-          <div className="rounded-md bg-blue-50 p-4">
-            <div className="text-sm text-blue-700">
-              <p className="font-medium">Identifiants de démonstration :</p>
-              <p>Email: admin@matc.com</p>
-              <p>Mot de passe: admin123</p>
-            </div>
-          </div>
-
           {/* Submit Button */}
           <div>
             <button
