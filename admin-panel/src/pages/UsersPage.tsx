@@ -23,6 +23,9 @@ const UsersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newUser, setNewUser] = useState<Omit<User, 'id' | 'createdAt'>>({ 
     name: '', 
     email: '', 
@@ -72,6 +75,44 @@ const UsersPage: React.FC = () => {
     setUsers(prevUsers => [createdUser, ...prevUsers]);
     setIsModalOpen(false);
     setNewUser({ name: '', email: '', password: '', role: 'moderator' });
+  };
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setNewUser({
+      name: user.name,
+      email: user.email,
+      password: '',
+      role: user.role,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === selectedUser.id
+          ? { ...user, ...newUser, password: newUser.password || user.password }
+          : user
+      )
+    );
+    setIsEditModalOpen(false);
+    setSelectedUser(null);
+    setNewUser({ name: '', email: '', password: '', role: 'moderator' });
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+    }
   };
 
   const getRoleBadge = (role: string) => {
@@ -194,9 +235,27 @@ const UsersPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(user.createdAt)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <button className="text-indigo-600 hover:text-indigo-900"><EyeIcon className="h-4 w-4" /></button>
-                      <button className="text-yellow-600 hover:text-yellow-900"><PencilIcon className="h-4 w-4" /></button>
-                      <button className="text-red-600 hover:text-red-900"><TrashIcon className="h-4 w-4" /></button>
+                      <button 
+                        onClick={() => handleViewUser(user)}
+                        className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                        title="Voir les détails"
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleEditUser(user)}
+                        className="text-yellow-600 hover:text-yellow-900 transition-colors"
+                        title="Modifier"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="text-red-600 hover:text-red-900 transition-colors"
+                        title="Supprimer"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -239,6 +298,81 @@ const UsersPage: React.FC = () => {
               <div className="mt-8 flex justify-end space-x-3">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">Annuler</button>
                 <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none">Créer Utilisateur</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* View User Modal */}
+      {isViewModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={() => setIsViewModalOpen(false)}>
+          <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-bold mb-6">Détails de l'Utilisateur</h2>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center">
+                  <span className="text-2xl font-medium text-white">{getInitials(selectedUser.name)}</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{selectedUser.name}</h3>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadge(selectedUser.role)}`}>
+                    {getRoleText(selectedUser.role)}
+                  </span>
+                </div>
+              </div>
+              <div className="border-t pt-4 space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">Email</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedUser.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">Date de création</label>
+                  <p className="mt-1 text-sm text-gray-900">{formatDate(selectedUser.createdAt)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">Dernière connexion</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedUser.lastLogin ? formatDate(selectedUser.lastLogin) : 'Jamais'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 flex justify-end">
+              <button onClick={() => setIsViewModalOpen(false)} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">Fermer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6">Modifier l'Utilisateur</h2>
+            <form onSubmit={handleUpdateUser}>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="edit-name" className="block text-sm font-medium text-gray-700">Nom Complet</label>
+                  <input type="text" name="name" id="edit-name" value={newUser.name} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500" required />
+                </div>
+                <div>
+                  <label htmlFor="edit-email" className="block text-sm font-medium text-gray-700">Email</label>
+                  <input type="email" name="email" id="edit-email" value={newUser.email} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500" required />
+                </div>
+                <div>
+                  <label htmlFor="edit-password" className="block text-sm font-medium text-gray-700">Nouveau mot de passe (optionnel)</label>
+                  <input type="password" name="password" id="edit-password" value={newUser.password} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500" placeholder="Laisser vide pour ne pas changer" />
+                </div>
+                <div>
+                  <label htmlFor="edit-role" className="block text-sm font-medium text-gray-700">Rôle</label>
+                  <select name="role" id="edit-role" value={newUser.role} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <option value="moderator">Modérateur</option>
+                    <option value="admin">Administrateur</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-8 flex justify-end space-x-3">
+                <button type="button" onClick={() => { setIsEditModalOpen(false); setSelectedUser(null); setNewUser({ name: '', email: '', password: '', role: 'moderator' }); }} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">Annuler</button>
+                <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none">Enregistrer</button>
               </div>
             </form>
           </div>
