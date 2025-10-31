@@ -25,8 +25,8 @@ const EventsSection = () => {
       const apiEvents = await eventsApiService.getPublishedEvents();
       
       if (!apiEvents || apiEvents.length === 0) {
-        console.warn('⚠️ لا توجد أحداث منشورة في الـ API');
-        setError('لا توجد أحداث متاحة حالياً');
+        console.warn('⚠️ Aucun événement publié dans l\'API');
+        setError('Aucun événement disponible actuellement');
         setEvents([]);
         setLastUpdate(new Date());
         return;
@@ -239,15 +239,15 @@ const EventsSection = () => {
 
             {/* Events List */}
             <div className="divide-y divide-gray-100">
-              {/* عرض رسالة إذا لم تكن هناك أحداث */}
+              {/* Afficher un message s'il n'y a pas d'événements */}
               {!loading && events.length === 0 && (
                 <div className="p-12 text-center">
                   <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    لا توجد أحداث متاحة حالياً
+                    Aucun événement disponible actuellement
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    قم بإضافة أحداث من Admin Panel لعرضها هنا
+                    Ajoutez des événements depuis le panneau d'administration pour les afficher ici
                   </p>
                   <a 
                     href="https://admine-lake.vercel.app" 
@@ -255,7 +255,7 @@ const EventsSection = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    الذهاب إلى Admin Panel
+                    Aller au panneau d'administration
                   </a>
                 </div>
               )}
