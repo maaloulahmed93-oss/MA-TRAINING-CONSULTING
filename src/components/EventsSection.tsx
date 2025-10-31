@@ -212,7 +212,8 @@ const EventsSection = () => {
             animate="visible"
           >
             {/* Table Header */}
-            <div className="event-table-header bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-200">
+            {/* Desktop Header - Hidden on mobile */}
+            <div className="hidden md:block event-table-header bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-200">
               <div className="grid grid-cols-12 gap-4 items-center">
                 <div className="col-span-3 flex items-center space-x-2">
                   <Calendar className="w-5 h-5 text-blue-600" />
@@ -264,7 +265,7 @@ const EventsSection = () => {
                 {events.map((event, index) => (
                   <motion.div
                     key={event.id}
-                    className="event-row p-6 hover:bg-gray-50 transition-colors duration-200"
+                    className="event-row p-4 md:p-6 hover:bg-gray-50 transition-colors duration-200"
                     variants={itemVariants}
                     initial="hidden"
                     animate="visible"
@@ -272,7 +273,76 @@ const EventsSection = () => {
                     whileHover={{ scale: 1.01 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="grid grid-cols-12 gap-4 items-center">
+                    {/* Mobile Layout */}
+                    <div className="md:hidden space-y-4">
+                      {/* Date & Title */}
+                      <div>
+                        <div className="event-date bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium inline-block mb-2">
+                          {event.date}
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          {event.title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getColorClasses(
+                              event.color
+                            )}`}
+                          >
+                            {event.type}
+                          </span>
+                          {event.price === 0 && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                              Gratuit
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Format & Duration */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <event.icon
+                            className={`w-4 h-4 ${
+                              event.color === "blue"
+                                ? "text-blue-600"
+                                : event.color === "purple"
+                                ? "text-purple-600"
+                                : event.color === "green"
+                                ? "text-green-600"
+                                : "text-orange-600"
+                            }`}
+                          />
+                          <span className="text-gray-700 text-sm">
+                            {event.format}
+                          </span>
+                        </div>
+                        <span className="event-duration bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm font-medium">
+                          {event.duration}
+                        </span>
+                      </div>
+
+                      {/* Participants & Action */}
+                      <div className="flex items-center justify-between">
+                        {event.currentParticipants && event.maxParticipants && (
+                          <div className="text-sm text-gray-600">
+                            <span className="font-semibold">{event.currentParticipants}</span>
+                            <span className="text-gray-400"> / {event.maxParticipants} places</span>
+                          </div>
+                        )}
+                        <a
+                          href={event.registrationLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 items-center">
                       {/* Date */}
                       <div className="col-span-3">
                         <div className="event-date bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium">
