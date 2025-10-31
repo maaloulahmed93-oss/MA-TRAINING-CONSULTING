@@ -47,7 +47,7 @@ const EventsPage: React.FC = () => {
       
     } catch (error) {
       console.error('❌ Error loading events:', error);
-      setError('فشل في تحميل الأحداث. سيتم استخدام البيانات التجريبية.');
+      setError('Échec du chargement des événements. Utilisation des données de démonstration.');
       
       // استخدام البيانات التجريبية كـ fallback
       setEvents(mockEvents);
@@ -203,7 +203,7 @@ const EventsPage: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">تحميل الأحداث...</p>
+          <p className="mt-4 text-gray-600">Chargement des événements...</p>
         </div>
       </div>
     );

@@ -44,7 +44,7 @@ const EventsSection = () => {
       
     } catch (error) {
       console.error('❌ Error loading events from API:', error);
-      setError('فشل في تحميل الأحداث من الخادم. تأكد من إضافة أحداث من Admin Panel.');
+      setError('Impossible de charger les événements depuis le serveur. Veuillez ajouter des événements depuis le panneau d\'administration.');
       
       // لا نستخدم البيانات التجريبية، فقط نعرض رسالة خطأ
       setEvents([]);
@@ -152,7 +152,7 @@ const EventsSection = () => {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">تحميل الأحداث...</p>
+                <p className="mt-4 text-gray-600">Chargement des événements...</p>
               </div>
             </div>
           )}

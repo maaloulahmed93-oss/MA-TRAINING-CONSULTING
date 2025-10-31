@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════════
+  إنشاء ملف .env - تعليمات خطوة بخطوة
+═══════════════════════════════════════════════════════════════
+
+📍 المسار: C:\Users\ahmed\Desktop\ss1\MA-TRAINING-CONSULTING\backend\
+
+📝 اسم الملف: .env (بدون امتداد)
+
+═══════════════════════════════════════════════════════════════
+  محتوى الملف - انسخ كل شيء من هنا ↓
+═══════════════════════════════════════════════════════════════
+
+# MongoDB
+MONGODB_URI=mongodb+srv://your-connection-string-here
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# Supabase Configuration
+SUPABASE_URL=https://rkdchtqalnigwdekbmeu.supabase.co
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZGNodHFhbG5pZ3dkZWtibWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NjUwODYsImV4cCI6MjA3NzM0MTA4Nn0.2OqpRvjyQR5QSYpjjqIir78tpGGUJENYY68rDsF07iY
+
+═══════════════════════════════════════════════════════════════
+  ↑ انسخ كل شيء حتى هنا
+═══════════════════════════════════════════════════════════════
+
+🔧 الخطوات:
+
+1. افتح File Explorer
+2. اذهب إلى: C:\Users\ahmed\Desktop\ss1\MA-TRAINING-CONSULTING\backend\
+3. انقر بزر الماوس الأيمن → New → Text Document
+4. اسمه: .env (احذف .txt)
+5. افتح الملف بـ Notepad
+6. الصق المحتوى من أعلاه
+7. احفظ الملف (Ctrl+S)
+8. أغلق Notepad
+
+✅ بعد ذلك، اختبر:
+   node backend/scripts/testSupabaseConnection.js
+
+═══════════════════════════════════════════════════════════════
