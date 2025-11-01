@@ -69,7 +69,8 @@ const LoginPage: React.FC = () => {
         setShowPinInput(true);
         setError(`Trop de tentatives échouées. Veuillez entrer le code PIN de sécurité.`);
       } else {
-        setError(`Email ou mot de passe incorrect (${newAttempts}/${MAX_ATTEMPTS} tentatives)`);
+        const errorMessage = err?.message || 'Email ou mot de passe incorrect';
+        setError(`${errorMessage} (${newAttempts}/${MAX_ATTEMPTS} tentatives)`);
       }
     } finally {
       setIsLoading(false);
