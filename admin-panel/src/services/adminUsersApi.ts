@@ -15,9 +15,9 @@ export interface AdminUser {
   password?: string;
   role: 'admin' | 'moderator';
   avatar?: string;
-  lastLogin?: Date;
-  createdAt: Date;
-  updatedAt?: Date;
+  lastLogin?: Date | string;
+  createdAt: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface CreateAdminUserDto {

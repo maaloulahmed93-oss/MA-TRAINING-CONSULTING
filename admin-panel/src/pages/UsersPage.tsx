@@ -15,8 +15,8 @@ export interface User {
   email: string;
   role: 'admin' | 'moderator';
   avatar?: string;
-  createdAt: Date;
-  lastLogin?: Date;
+  createdAt: Date | string;
+  lastLogin?: Date | string;
   password?: string; // Only for creation
 }
 
@@ -156,8 +156,16 @@ const UsersPage: React.FC = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', {
+  const formatDate = (date: Date | string) => {
+    // Convert string to Date if needed
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if valid date
+    if (!dateObj || isNaN(dateObj.getTime())) {
+      return 'Date invalide';
+    }
+    
+    return dateObj.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

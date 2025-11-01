@@ -18,8 +18,8 @@ export interface AdminUser {
   email: string;
   role: 'admin' | 'moderator';
   avatar?: string;
-  lastLogin?: Date;
-  createdAt: Date;
+  lastLogin?: Date | string;
+  createdAt: Date | string;
 }
 
 /**
