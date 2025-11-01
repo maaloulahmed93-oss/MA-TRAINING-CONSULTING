@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
+import { ROUTES } from '../../config/routes';
 import {
   Bars3Icon,
   UserCircleIcon,
@@ -16,11 +18,14 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     setUserMenuOpen(false);
+    // Redirect to login page
+    navigate(ROUTES.LOGIN);
   };
 
   return (
