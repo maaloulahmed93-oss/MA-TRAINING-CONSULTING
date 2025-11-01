@@ -260,6 +260,7 @@ import digitalizationTestimonialsRoutes from './routes/digitalizationTestimonial
 import digitalizationContactRoutes from './routes/digitalizationContact.js';
 import testimonialsRoutes from './routes/testimonials.js';
 import partnerTestimonialsRoutes from './routes/partnerTestimonials.js';
+import adminUsersRoutes from './routes/adminUsers.js';
 
 app.use('/api/programs', programRoutes);
 app.use('/api/packs', packRoutes);
@@ -285,6 +286,7 @@ app.use('/api/digitalization-testimonials', digitalizationTestimonialsRoutes);
 app.use('/api/digitalization-contact', digitalizationContactRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/partner-testimonials', partnerTestimonialsRoutes);
+app.use('/api/admin-users', adminUsersRoutes);
 
 // Import freelancer projects routes
 import freelancerProjectsRoutes from './routes/freelancerProjects.js';
