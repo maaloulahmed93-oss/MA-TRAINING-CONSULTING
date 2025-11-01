@@ -61,7 +61,7 @@ const LoginPage: React.FC = () => {
     try {
       await login(formData);
       setFailedAttempts(0); // Reset on success
-    } catch {
+    } catch (err: any) {
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);
       

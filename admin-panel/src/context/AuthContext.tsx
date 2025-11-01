@@ -103,22 +103,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'LOGIN_START' });
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock authentication - Replace with real API call
-      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@matc.com';
-      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
-      
-      if (credentials.email === adminEmail && credentials.password === adminPassword) {
-        const user = { ...MOCK_USER, lastLogin: new Date() };
+      // Try real API authentication first
+      try {
+        const { verifyLogin } = await import('../services/authApi');
+        const user = await verifyLogin(credentials);
         
-        // Save to localStorage (replace with secure token storage)
+        // Save to localStorage
         localStorage.setItem('admin_user', JSON.stringify(user));
         
         dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      } else {
-        throw new Error('Invalid credentials');
+        return;
+      } catch (apiError) {
+        console.warn('API authentication failed, trying fallback:', apiError);
+        
+        // Fallback to mock authentication if API fails
+        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@matc.com';
+        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+        
+        if (credentials.email === adminEmail && credentials.password === adminPassword) {
+          const user = { ...MOCK_USER, lastLogin: new Date() };
+          
+          localStorage.setItem('admin_user', JSON.stringify(user));
+          dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+          return;
+        }
+        
+        // If both API and fallback fail, throw the API error
+        throw apiError;
       }
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
