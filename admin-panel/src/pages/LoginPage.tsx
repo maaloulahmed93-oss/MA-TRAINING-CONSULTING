@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { ROUTES } from '../config/routes';
 
 /**
  * Login Page Component
@@ -8,6 +10,7 @@ import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/outli
  */
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -37,20 +40,25 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    if (pinCode === MASTER_PIN) {
-      // PIN correct - login with admin credentials
-      try {
+    try {
+      if (pinCode === MASTER_PIN) {
+        // PIN correct - login with admin credentials
         await login({ email: 'admin@matc.com', password: 'admin123' });
+        // Reset states
         setFailedAttempts(0);
         setShowPinInput(false);
-      } catch {
-        setError('Erreur de connexion');
+        setPinCode('');
+        // Redirect to dashboard
+        navigate(ROUTES.DASHBOARD);
+      } else {
+        setError('Code PIN incorrect');
+        setIsLoading(false);
       }
-    } else {
-      setError('Code PIN incorrect');
+    } catch (error) {
+      console.error('PIN login error:', error);
+      setError('Erreur de connexion. Veuillez réessayer.');
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
