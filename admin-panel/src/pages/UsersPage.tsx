@@ -39,6 +39,7 @@ const UsersPage: React.FC = () => {
       email: 'admin@matc.com',
       name: 'Administrateur MATC',
       role: 'admin',
+      password: 'admin123',
       createdAt: new Date('2024-01-01'),
       lastLogin: new Date('2024-01-20'),
     },
@@ -47,6 +48,7 @@ const UsersPage: React.FC = () => {
       email: 'moderator@matc.com',
       name: 'Modérateur Principal',
       role: 'moderator',
+      password: 'moderator123',
       createdAt: new Date('2024-01-05'),
       lastLogin: new Date('2024-01-19'),
     },
@@ -325,6 +327,12 @@ const UsersPage: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-500">Email</label>
                   <p className="mt-1 text-sm text-gray-900">{selectedUser.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">Mot de passe</label>
+                  <p className="mt-1 text-sm text-gray-900 font-mono bg-gray-100 px-3 py-2 rounded">
+                    {selectedUser.password || '••••••••'}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500">Date de création</label>
