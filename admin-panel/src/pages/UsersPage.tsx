@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -6,6 +6,7 @@ import {
   TrashIcon,
   EyeIcon,
 } from '@heroicons/react/24/outline';
+import * as adminUsersApi from '../services/adminUsersApi';
 
 // Temporarily define User type here to fix import issue
 export interface User {
@@ -33,26 +34,28 @@ const UsersPage: React.FC = () => {
     role: 'moderator' 
   });
 
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      email: 'admin@matc.com',
-      name: 'Administrateur MATC',
-      role: 'admin',
-      password: 'admin123',
-      createdAt: new Date('2024-01-01'),
-      lastLogin: new Date('2024-01-20'),
-    },
-    {
-      id: '2',
-      email: 'moderator@matc.com',
-      name: 'Modérateur Principal',
-      role: 'moderator',
-      password: 'moderator123',
-      createdAt: new Date('2024-01-05'),
-      lastLogin: new Date('2024-01-19'),
-    },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Fetch users from API
+  useEffect(() => {
+    fetchUsers();
+  }, [filterRole]);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await adminUsersApi.getAllAdminUsers(filterRole);
+      setUsers(data);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Erreur lors du chargement des utilisateurs');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,17 +69,22 @@ const UsersPage: React.FC = () => {
     setNewUser(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    const createdUser: User = {
-      id: (users.length + 1).toString(),
-      ...newUser,
-      createdAt: new Date(),
-      lastLogin: new Date(),
-    };
-    setUsers(prevUsers => [createdUser, ...prevUsers]);
-    setIsModalOpen(false);
-    setNewUser({ name: '', email: '', password: '', role: 'moderator' });
+    try {
+      await adminUsersApi.createAdminUser({
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password || '',
+        role: newUser.role
+      });
+      setIsModalOpen(false);
+      setNewUser({ name: '', email: '', password: '', role: 'moderator' });
+      await fetchUsers(); // Refresh list
+    } catch (err) {
+      console.error('Error creating user:', err);
+      alert('Erreur lors de la création de l\'utilisateur');
+    }
   };
 
   const handleViewUser = (user: User) => {
@@ -95,25 +103,36 @@ const UsersPage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateUser = (e: React.FormEvent) => {
+  const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
 
-    setUsers(prevUsers =>
-      prevUsers.map(user =>
-        user.id === selectedUser.id
-          ? { ...user, ...newUser, password: newUser.password || user.password }
-          : user
-      )
-    );
-    setIsEditModalOpen(false);
-    setSelectedUser(null);
-    setNewUser({ name: '', email: '', password: '', role: 'moderator' });
+    try {
+      await adminUsersApi.updateAdminUser(selectedUser.id, {
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password || undefined,
+        role: newUser.role
+      });
+      setIsEditModalOpen(false);
+      setSelectedUser(null);
+      setNewUser({ name: '', email: '', password: '', role: 'moderator' });
+      await fetchUsers(); // Refresh list
+    } catch (err) {
+      console.error('Error updating user:', err);
+      alert('Erreur lors de la mise à jour de l\'utilisateur');
+    }
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+      try {
+        await adminUsersApi.deleteAdminUser(userId);
+        await fetchUsers(); // Refresh list
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        alert('Erreur lors de la suppression de l\'utilisateur');
+      }
     }
   };
 
@@ -163,6 +182,13 @@ const UsersPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
       {/* Filters and Search */}
       <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -209,7 +235,16 @@ const UsersPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                      <span className="ml-3 text-gray-600">Chargement...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -265,7 +300,7 @@ const UsersPage: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {filteredUsers.length === 0 && (
+        {!loading && filteredUsers.length === 0 && (
           <div className="text-center py-12"><p className="text-gray-500">Aucun utilisateur trouvé</p></div>
         )}
       </div>
