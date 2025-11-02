@@ -247,17 +247,9 @@ const EventsSection = () => {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     Aucun événement disponible actuellement
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    Ajoutez des événements depuis le panneau d'administration pour les afficher ici
+                  <p className="text-gray-600">
+                    Revenez bientôt pour découvrir nos prochains événements, webinaires et activités de team building !
                   </p>
-                  <a 
-                    href="https://admine-lake.vercel.app" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Aller au panneau d'administration
-                  </a>
                 </div>
               )}
 
