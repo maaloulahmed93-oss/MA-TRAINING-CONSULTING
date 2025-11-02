@@ -83,6 +83,34 @@ const FinancePage: React.FC = () => {
     initializeData();
   }, []);
 
+  // Check backend status on mount
+  useEffect(() => {
+    const checkBackendStatus = async () => {
+      try {
+        console.log('🔍 Checking backend status...');
+        const response = await fetch(`${API_BASE_URL}/partnerships/global-email`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          console.log('✅ Backend is available');
+          setBackendStatus('available');
+        } else {
+          console.log('⚠️ Backend returned error:', response.status);
+          setBackendStatus('deploying');
+        }
+      } catch (error) {
+        console.log('❌ Backend check failed:', error);
+        setBackendStatus('deploying');
+      }
+    };
+
+    if (isInitialized) {
+      checkBackendStatus();
+    }
+  }, [isInitialized]);
+
   useEffect(() => {
     if (!isInitialized) return;
     
