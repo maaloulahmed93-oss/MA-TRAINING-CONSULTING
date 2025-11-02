@@ -125,15 +125,15 @@ const EventsSection = () => {
     return "bg-green-500";
   };
 
-  // دالة فتح رابط الحدث
+  // Fonction pour ouvrir le lien de l'événement
   const handleViewEvent = (event: Event) => {
     if (event.url) {
-      // فتح الرابط في تبويب جديد
+      // Ouvrir le lien dans un nouvel onglet
       window.open(event.url, '_blank', 'noopener,noreferrer');
       console.log(`🔗 Opening event URL: ${event.url}`);
     } else {
-      // عرض معلومات الحدث إذا لم يكن هناك رابط
-      alert(`معلومات الحدث:\n\nالعنوان: ${event.title}\nالتاريخ: ${event.date}\nالمدة: ${event.duration}\nالمكان: ${event.format}`);
+      // Afficher les informations de l'événement s'il n'y a pas de lien
+      alert(`Informations de l'événement:\n\nTitre: ${event.title}\nDate: ${event.date}\nDurée: ${event.duration}\nLieu: ${event.format}`);
     }
   };
 
