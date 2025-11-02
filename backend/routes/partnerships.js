@@ -1,16 +1,8 @@
 import express from 'express';
+import Partnership from '../models/Partnership.js';
+import PartnershipSettings from '../models/PartnershipSettings.js';
+
 const router = express.Router();
-
-// Global variable to store contact email (can be enhanced with database)
-let globalContactEmail = 'ahmedmaalou78l@gmail.com';
-
-// Global variable to store visibility settings
-let visibilitySettings = {
-  formateur: { isVisible: true },
-  freelance: { isVisible: true },
-  commercial: { isVisible: true },
-  entreprise: { isVisible: true }
-};
 
 // PUT /api/partnerships/global-email - Update global contact email
 router.put('/global-email', async (req, res) => {
@@ -33,14 +25,14 @@ router.put('/global-email', async (req, res) => {
       });
     }
 
-    // Store in global variable (can be enhanced with database later)
-    globalContactEmail = email.trim();
-    console.log('📧 Global contact email updated:', globalContactEmail);
+    // Save to MongoDB
+    const settings = await PartnershipSettings.updateGlobalEmail(email.trim());
+    console.log('📧 Global contact email updated in DB:', settings.globalContactEmail);
 
     res.json({
       success: true,
       message: 'Global contact email updated successfully',
-      data: { email: globalContactEmail }
+      data: { email: settings.globalContactEmail }
     });
     
   } catch (error) {
@@ -56,12 +48,13 @@ router.put('/global-email', async (req, res) => {
 // GET /api/partnerships/global-email - Get global contact email
 router.get('/global-email', async (req, res) => {
   try {
-    console.log('📧 Returning global contact email:', globalContactEmail);
+    const settings = await PartnershipSettings.getSettings();
+    console.log('📧 Returning global contact email from DB:', settings.globalContactEmail);
 
     res.json({
       success: true,
       message: 'Global contact email retrieved successfully',
-      data: { email: globalContactEmail }
+      data: { email: settings.globalContactEmail }
     });
 
   } catch (error) {
@@ -86,14 +79,14 @@ router.put('/visibility', async (req, res) => {
       });
     }
 
-    // Update visibility settings
-    visibilitySettings = { ...visibilitySettings, ...settings };
-    console.log('👁️ Visibility settings updated:', visibilitySettings);
+    // Save to MongoDB
+    const updatedSettings = await PartnershipSettings.updateVisibility(settings);
+    console.log('👁️ Visibility settings updated in DB:', updatedSettings.visibilitySettings);
 
     res.json({
       success: true,
       message: 'Visibility settings updated successfully',
-      data: visibilitySettings
+      data: updatedSettings.visibilitySettings
     });
 
   } catch (error) {
@@ -109,12 +102,13 @@ router.put('/visibility', async (req, res) => {
 // GET /api/partnerships/visibility - Get current visibility settings
 router.get('/visibility', async (req, res) => {
   try {
-    console.log('👁️ Returning visibility settings:', visibilitySettings);
+    const settings = await PartnershipSettings.getSettings();
+    console.log('👁️ Returning visibility settings from DB:', settings.visibilitySettings);
 
     res.json({
       success: true,
       message: 'Visibility settings retrieved successfully',
-      data: visibilitySettings
+      data: settings.visibilitySettings
     });
 
   } catch (error) {
@@ -132,121 +126,20 @@ router.get('/', async (req, res) => {
   try {
     console.log('🔄 Loading partnerships for frontend...');
 
-    // Create partnerships data based on visibility settings
+    // Get visibility settings from DB
+    const settings = await PartnershipSettings.getSettings();
+    const visibilitySettings = settings.visibilitySettings;
+
+    // Create partnerships data
     const partnerships = [];
-    
-    // Use stored data from Admin Panel if available, otherwise use defaults
-    const getPartnershipData = (type) => {
-      if (storedPartnerships[type]) {
-        console.log(`📝 Using Admin Panel data for ${type}`);
-        return storedPartnerships[type];
-      }
-      
-      // Return default data if no Admin Panel data
-      const defaults = {
-        formateur: {
-          type: 'formateur',
-          title: 'Formateur',
-          subtitle: 'Rejoignez notre équipe de formateurs experts',
-          intro: 'Partagez vos connaissances avec nos apprenants et contribuez à leur réussite.',
-          icon: '📘',
-          color: 'blue',
-          gradient: 'from-blue-500 to-blue-600',
-          details: [
-            'Encadrer des sessions en présentiel et à distance',
-            'Concevoir des supports pédagogiques de qualité',
-            'Évaluer et suivre la progression des apprenants'
-          ],
-          requirements: [
-            'Minimum 5 ans d\'expérience dans votre domaine',
-            'Diplôme ou certifications reconnues',
-            'Excellentes compétences pédagogiques',
-            'Disponibilité flexible pour les formations',
-            'Maîtrise des outils numériques'
-          ],
-          ctaLabel: 'Rejoindre l\'équipe',
-          isVisible: visibilitySettings.formateur?.isVisible !== false
-        },
-        freelance: {
-          type: 'freelance',
-          title: 'Freelance',
-          subtitle: 'Collaborez avec nous en tant que freelance',
-          intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
-          icon: '💻',
-          color: 'green',
-          gradient: 'from-green-500 to-green-600',
-          details: [
-            'Missions de développement et design',
-            'Projets de marketing digital',
-            'Consulting et formation'
-          ],
-          requirements: [
-            'Portfolio démontrant vos compétences',
-            'Expérience en freelance',
-            'Capacité à respecter les délais',
-            'Communication efficace'
-          ],
-          ctaLabel: 'Proposer vos services',
-          isVisible: visibilitySettings.freelance?.isVisible !== false
-        },
-        commercial: {
-          type: 'commercial',
-          title: 'Commercial',
-          subtitle: 'Développez votre carrière commerciale',
-          intro: 'Rejoignez notre équipe commerciale et développez vos compétences en vente.',
-          icon: '📈',
-          color: 'purple',
-          gradient: 'from-purple-500 to-purple-600',
-          details: [
-            'Prospection et développement client',
-            'Négociation et closing',
-            'Suivi et fidélisation'
-          ],
-          requirements: [
-            'Expérience en vente',
-            'Excellent relationnel',
-            'Motivation et ambition',
-            'Maîtrise des outils CRM'
-          ],
-          ctaLabel: 'Postuler',
-          isVisible: visibilitySettings.commercial?.isVisible !== false
-        },
-        entreprise: {
-          type: 'entreprise',
-          title: 'Entreprise',
-          subtitle: 'Partenariat entreprise',
-          intro: 'Développez vos opportunités de collaboration et développez votre carrière avec nos apprenants.',
-          icon: '🏢',
-          color: 'orange',
-          gradient: 'from-orange-500 to-orange-600',
-          details: [
-            'Accès privilégié aux talents formés',
-            'Programmes de formation sur mesure',
-            'Partenariats stratégiques'
-          ],
-          requirements: [
-            'Entreprise établie',
-            'Besoins en formation identifiés',
-            'Engagement long terme',
-            'Ressources dédiées'
-          ],
-          ctaLabel: 'Devenir partenaire',
-          isVisible: visibilitySettings.entreprise?.isVisible !== false
-        }
-      };
-      
-      return defaults[type] || null;
-    };
-    
-    // Get partnership data (Admin Panel data takes priority)
     const types = ['formateur', 'freelance', 'commercial', 'entreprise'];
     
-    types.forEach(type => {
-      const partnershipInfo = getPartnershipData(type);
+    for (const type of types) {
+      const partnershipInfo = await getPartnershipData(type, visibilitySettings);
       if (partnershipInfo && partnershipInfo.isVisible !== false) {
         partnerships.push(partnershipInfo);
       }
-    });
+    }
 
     console.log(`✅ Partnerships loaded: ${partnerships.length}`);
     console.log('Partnership types:', partnerships.map(p => p.type));
@@ -267,8 +160,128 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Store partnership data in memory (will be replaced by database later)
-let storedPartnerships = {};
+// Helper function to get partnership data from DB or defaults
+const getPartnershipData = async (type, visibilitySettings) => {
+  try {
+    // Try to get from database first
+    const dbPartnership = await Partnership.findOne({ type, isActive: true });
+    
+    if (dbPartnership) {
+      console.log(`📝 Using DB data for ${type}`);
+      return {
+        type: dbPartnership.type,
+        title: dbPartnership.title,
+        subtitle: dbPartnership.subtitle,
+        intro: dbPartnership.intro,
+        icon: dbPartnership.icon,
+        color: dbPartnership.color,
+        gradient: dbPartnership.gradient,
+        details: dbPartnership.details,
+        requirements: dbPartnership.requirements,
+        ctaLabel: dbPartnership.ctaLabel,
+        isVisible: visibilitySettings[type]?.isVisible !== false
+      };
+    }
+    
+    // Return default data if no DB data
+    const defaults = {
+      formateur: {
+        type: 'formateur',
+        title: 'Formateur',
+        subtitle: 'Rejoignez notre équipe de formateurs experts',
+        intro: 'Partagez vos connaissances avec nos apprenants et contribuez à leur réussite.',
+        icon: '📘',
+        color: 'blue',
+        gradient: 'from-blue-500 to-blue-600',
+        details: [
+          'Encadrer des sessions en présentiel et à distance',
+          'Concevoir des supports pédagogiques de qualité',
+          'Évaluer et suivre la progression des apprenants'
+        ],
+        requirements: [
+          'Minimum 5 ans d\'expérience dans votre domaine',
+          'Diplôme ou certifications reconnues',
+          'Excellentes compétences pédagogiques',
+          'Disponibilité flexible pour les formations',
+          'Maîtrise des outils numériques'
+        ],
+        ctaLabel: 'Rejoindre l\'équipe',
+        isVisible: visibilitySettings.formateur?.isVisible !== false
+      },
+      freelance: {
+        type: 'freelance',
+        title: 'Freelance',
+        subtitle: 'Collaborez avec nous en tant que freelance',
+        intro: 'Collaborez avec nous en tant que freelance pour des missions ponctuelles ou récurrentes.',
+        icon: '💻',
+        color: 'green',
+        gradient: 'from-green-500 to-green-600',
+        details: [
+          'Missions de développement et design',
+          'Projets de marketing digital',
+          'Consulting et formation'
+        ],
+        requirements: [
+          'Portfolio démontrant vos compétences',
+          'Expérience en freelance',
+          'Capacité à respecter les délais',
+          'Communication efficace'
+        ],
+        ctaLabel: 'Proposer vos services',
+        isVisible: visibilitySettings.freelance?.isVisible !== false
+      },
+      commercial: {
+        type: 'commercial',
+        title: 'Commercial',
+        subtitle: 'Développez votre carrière commerciale',
+        intro: 'Rejoignez notre équipe commerciale et développez vos compétences en vente.',
+        icon: '📈',
+        color: 'purple',
+        gradient: 'from-purple-500 to-purple-600',
+        details: [
+          'Prospection et développement client',
+          'Négociation et closing',
+          'Suivi et fidélisation'
+        ],
+        requirements: [
+          'Expérience en vente',
+          'Excellent relationnel',
+          'Motivation et ambition',
+          'Maîtrise des outils CRM'
+        ],
+        ctaLabel: 'Postuler',
+        isVisible: visibilitySettings.commercial?.isVisible !== false
+      },
+      entreprise: {
+        type: 'entreprise',
+        title: 'Entreprise',
+        subtitle: 'Partenariat entreprise',
+        intro: 'Développez vos opportunités de collaboration et développez votre carrière avec nos apprenants.',
+        icon: '🏢',
+        color: 'orange',
+        gradient: 'from-orange-500 to-orange-600',
+        details: [
+          'Accès privilégié aux talents formés',
+          'Programmes de formation sur mesure',
+          'Partenariats stratégiques'
+        ],
+        requirements: [
+          'Entreprise établie',
+          'Besoins en formation identifiés',
+          'Engagement long terme',
+          'Ressources dédiées'
+        ],
+        ctaLabel: 'Devenir partenaire',
+        isVisible: visibilitySettings.entreprise?.isVisible !== false
+      }
+    };
+    
+    return defaults[type] || null;
+  } catch (error) {
+    console.error(`Error getting partnership data for ${type}:`, error);
+    return null;
+  }
+};
 
 // PUT /api/partnerships/:type - Update specific partnership data
 router.put('/:type', async (req, res) => {
@@ -287,19 +300,27 @@ router.put('/:type', async (req, res) => {
       });
     }
     
-    // Store the partnership data in memory
-    storedPartnerships[type] = {
-      ...partnershipData,
-      type,
-      updatedAt: new Date().toISOString()
-    };
+    // Save to MongoDB (upsert: create if doesn't exist, update if exists)
+    const partnership = await Partnership.findOneAndUpdate(
+      { type },
+      {
+        ...partnershipData,
+        type,
+        updatedAt: new Date()
+      },
+      { 
+        new: true, 
+        upsert: true,
+        runValidators: true
+      }
+    );
     
-    console.log(`✅ ${type} partnership data stored successfully`);
+    console.log(`✅ ${type} partnership data saved to DB successfully`);
     
     res.json({
       success: true,
       message: `${type} partnership updated successfully`,
-      data: storedPartnerships[type]
+      data: partnership
     });
     
   } catch (error) {
@@ -328,22 +349,37 @@ router.get('/:type', async (req, res) => {
       });
     }
     
-    // Return default partnership data (Admin Panel manages the actual data)
-    const defaultData = {
-      type,
-      title: type.charAt(0).toUpperCase() + type.slice(1),
-      subtitle: `Partenariat ${type}`,
-      intro: `Description du partenariat ${type}`,
-      details: [],
-      requirements: [],
-      isVisible: visibilitySettings[type]?.isVisible !== false
-    };
+    // Get from MongoDB
+    const partnership = await Partnership.findOne({ type, isActive: true });
+    const settings = await PartnershipSettings.getSettings();
     
-    res.json({
-      success: true,
-      message: `${type} partnership data retrieved`,
-      data: defaultData
-    });
+    if (partnership) {
+      res.json({
+        success: true,
+        message: `${type} partnership data retrieved from DB`,
+        data: {
+          ...partnership.toObject(),
+          isVisible: settings.visibilitySettings[type]?.isVisible !== false
+        }
+      });
+    } else {
+      // Return default data if not in DB
+      const defaultData = {
+        type,
+        title: type.charAt(0).toUpperCase() + type.slice(1),
+        subtitle: `Partenariat ${type}`,
+        intro: `Description du partenariat ${type}`,
+        details: [],
+        requirements: [],
+        isVisible: settings.visibilitySettings[type]?.isVisible !== false
+      };
+      
+      res.json({
+        success: true,
+        message: `${type} partnership data retrieved (default)`,
+        data: defaultData
+      });
+    }
     
   } catch (error) {
     console.error(`Error getting ${req.params.type} partnership:`, error);
