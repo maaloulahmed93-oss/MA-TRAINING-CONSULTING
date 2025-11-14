@@ -295,7 +295,7 @@ Cordialement,
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-100">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
@@ -319,24 +319,24 @@ Cordialement,
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-12">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Hero Section */}
-        <div className="text-center mb-16 animate-fade-in">
-          <div className="inline-flex items-center space-x-3 bg-white rounded-full px-6 py-3 shadow-lg mb-8">
+        <div className="text-center mb-10 sm:mb-16 animate-fade-in">
+          <div className="inline-flex items-center space-x-3 bg-white rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg mb-6 sm:mb-8">
             <span className="text-3xl">🤝</span>
             <span className="text-lg font-semibold text-gray-700">
               Programme de Partenariat
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight break-words">
             Rejoignez Notre
             <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-orange-600 bg-clip-text text-transparent">
               Écosystème de Partenaires
             </span>
           </h1>
 
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">
             Découvrez nos opportunités de collaboration et développez votre
             carrière avec nous. Choisissez le type de partenariat qui correspond
             à vos ambitions.
@@ -344,23 +344,18 @@ Cordialement,
         </div>
 
         {/* Partnership Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20" style={{ minHeight: '600px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-20 w-full">
 {/* Debug: {partnershipTypes.length} partnerships */}
           {partnershipTypes.map((partnership, index) => (
             <div
               key={partnership.id}
-              className={`partnership-card bg-white rounded-3xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 opacity-100`}
-              style={{ 
-                animationDelay: `${index * 0.1}s`,
-                visibility: 'visible',
-                display: 'block'
-              }}
+              className={`partnership-card bg-white rounded-3xl shadow-xl overflow-hidden transform transition-transform duration-300 hover:scale-105 opacity-100`}
+              style={{ animationDelay: `${index * 0.1}s`, visibility: 'visible', display: 'block' }}
             >
               {/* Card Header */}
               <div
-                className="p-8 text-white relative overflow-hidden"
+                className="p-6 sm:p-8 text-white relative overflow-hidden min-h-[140px] sm:min-h-[180px] lg:min-h-[200px]"
                 style={{ 
-                  minHeight: '200px',
                   background: partnership.id === 'formateur' ? 'linear-gradient(to right, #3b82f6, #1d4ed8)' :
                              partnership.id === 'freelance' ? 'linear-gradient(to right, #10b981, #059669)' :
                              partnership.id === 'commercial' ? 'linear-gradient(to right, #f59e0b, #d97706)' :
@@ -370,27 +365,27 @@ Cordialement,
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="text-4xl">{partnership.icon}</div>
-                    {partnership.id === 'formateur' && <BookOpen className="w-8 h-8" />}
-                    {partnership.id === 'freelance' && <Laptop className="w-8 h-8" />}
-                    {partnership.id === 'commercial' && <TrendingUp className="w-8 h-8" />}
-                    {partnership.id === 'entreprise' && <Building className="w-8 h-8" />}
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
+                    <div className="text-3xl sm:text-4xl">{partnership.icon}</div>
+                    {partnership.id === 'formateur' && <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />}
+                    {partnership.id === 'freelance' && <Laptop className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />}
+                    {partnership.id === 'commercial' && <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />}
+                    {partnership.id === 'entreprise' && <Building className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />}
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold mb-2">
                     {partnership.title}
                   </h3>
-                  <p className="text-white/90 leading-relaxed">
+                  <p className="text-white/90 leading-relaxed text-sm sm:text-base">
                     {partnership.description}
                   </p>
                 </div>
               </div>
 
               {/* Card Content */}
-              <div className="p-8">
+              <div className="p-6 sm:p-8">
                 <button
                   onClick={() => toggleCard(partnership.id)}
-                  className="w-full flex items-center justify-center space-x-2 text-white py-4 px-6 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/10"
+                  className="w-full flex items-center justify-center space-x-2 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/10"
                   style={{
                     background: partnership.id === 'formateur' ? 'linear-gradient(to right, #3b82f6, #1d4ed8)' :
                                partnership.id === 'freelance' ? 'linear-gradient(to right, #10b981, #059669)' :
@@ -420,7 +415,7 @@ Cordialement,
                       : "max-h-0 opacity-0"
                   }`}
                 >
-                  <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="bg-gray-50 rounded-xl p-5 sm:p-6">
                     {/* Points de détail */}
                     <h4 className="font-bold text-gray-900 mb-4 flex items-center">
                       <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mr-3"></span>
@@ -430,7 +425,7 @@ Cordialement,
                       {(partnership.details || []).map((detail, idx) => (
                         <li
                           key={idx}
-                          className="flex items-start space-x-3 text-gray-700"
+                          className="flex items-start space-x-3 text-gray-700 text-sm sm:text-base"
                         >
                           <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
                           <span>{detail}</span>
@@ -447,7 +442,7 @@ Cordialement,
                       {(partnership.conditions || []).map((condition, idx) => (
                         <li
                           key={idx}
-                          className="flex items-start space-x-3 text-gray-700"
+                          className="flex items-start space-x-3 text-gray-700 text-sm sm:text-base"
                         >
                           <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
                           <span>{condition}</span>
@@ -458,7 +453,7 @@ Cordialement,
                     {partnership.id === "formateur" ? (
                       <button
                         onClick={handleTrainerAccess}
-                        className="inline-flex items-center space-x-2 text-white py-4 px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #3b82f6, #1d4ed8)',
                           boxShadow: '0 8px 25px rgba(59, 130, 246, 0.3)'
@@ -470,7 +465,7 @@ Cordialement,
                     ) : partnership.id === "freelance" ? (
                       <button
                         onClick={handleFreelancerAccess}
-                        className="inline-flex items-center space-x-2 text-white py-4 px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #10b981, #059669)',
                           boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)'
@@ -482,7 +477,7 @@ Cordialement,
                     ) : partnership.id === "commercial" ? (
                       <button
                         onClick={handleCommercialAccess}
-                        className="inline-flex items-center space-x-2 text-white py-4 px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #f59e0b, #d97706)',
                           boxShadow: '0 8px 25px rgba(245, 158, 11, 0.3)'
@@ -494,7 +489,7 @@ Cordialement,
                     ) : partnership.id === "entreprise" ? (
                       <button
                         onClick={handlePartnershipAccess}
-                        className="inline-flex items-center space-x-2 text-white py-4 px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #8b5cf6, #7c3aed)',
                           boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)'
@@ -520,17 +515,17 @@ Cordialement,
         </div>
 
         {/* Contact Section */}
-        <div className="bg-white rounded-3xl shadow-xl p-12 text-center animate-fade-in">
+        <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 lg:p-12 text-center animate-fade-in">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-center space-x-3 mb-8">
-              <Mail className="w-8 h-8 text-blue-600" />
-              <h2 className="text-3xl font-bold text-gray-900">
+            <div className="flex items-center justify-center space-x-3 mb-6 sm:mb-8">
+              <Mail className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 📩 Envoyer une demande d'inscription
               </h2>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 mb-8">
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-5 sm:p-8 mb-6 sm:mb-8 text-left sm:text-center">
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-4 sm:mb-6">
                 Pour rejoindre notre programme de partenariat, veuillez envoyer
                 les documents suivants par e-mail : vos coordonnées complètes,
                 votre CV, une lettre de motivation, une présentation de votre
@@ -538,33 +533,41 @@ Cordialement,
                 disponible.
               </p>
 
-              <p className="text-lg text-gray-700 mb-6">
+              <p className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6">
                 Nous vous contacterons par e-mail sous{" "}
                 <span className="font-bold text-blue-600">48 heures</span> pour
                 finaliser votre inscription.
               </p>
 
-              <div className="bg-white rounded-xl p-6 shadow-md">
-                <p className="text-sm text-gray-600 mb-3">
+              <div className="bg-white rounded-xl p-5 sm:p-6 shadow-md break-words">
+                <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
                   Adresse email de contact :
                 </p>
                 <a
                   href={`mailto:${globalEmail}`}
-                  className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors duration-200"
+                  className="text-xl sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors duration-200 select-text break-words"
                 >
                   {globalEmail}
                 </a>
               </div>
+              <div className="mt-4 sm:mt-6">
+                <a
+                  href={`mailto:${globalEmail}`}
+                  className="block w-full sm:w-auto mx-auto bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md"
+                >
+                  Envoyer une demande d'inscription
+                </a>
+              </div>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-              <div className="flex items-center justify-center space-x-3 mb-3">
-                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 sm:p-6">
+              <div className="flex items-center justify-center space-x-3 mb-2 sm:mb-3">
+                <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
                 <span className="font-bold text-yellow-800">
                   ⚠️ Remarque importante
                 </span>
               </div>
-              <p className="text-yellow-800">
+              <p className="text-yellow-800 text-sm sm:text-base">
                 Ce mail doit être envoyé manuellement depuis votre propre boîte
                 mail. Le site n'envoie pas les e-mails automatiquement.
               </p>
