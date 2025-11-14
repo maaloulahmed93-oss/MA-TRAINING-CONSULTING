@@ -210,14 +210,14 @@ const ParticipantSpace = () => {
   if (currentPage === 'login') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl px-0">
           <div className="bg-white rounded-3xl shadow-2xl overflow-hidden relative">
-            <div className="flex min-h-[500px]">
+            <div className="flex flex-col lg:flex-row lg:min-h-[500px]">
               {/* Left Side - Login Form */}
-              <div className="w-1/2 p-12 flex flex-col justify-center relative">
-                <div className="mb-8">
-                  <h1 className="text-4xl font-bold text-gray-800 mb-2">Bonjour!</h1>
-                  <p className="text-gray-600">Connectez-vous à votre compte</p>
+              <div className="w-full lg:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative">
+                <div className="mb-6 sm:mb-8">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Bonjour!</h1>
+                  <p className="text-sm sm:text-base text-gray-600">Connectez-vous à votre compte</p>
                 </div>
 
                 {/* Error Message */}
@@ -231,7 +231,7 @@ const ParticipantSpace = () => {
                 <form onSubmit={(e) => {
                   e.preventDefault();
                   handleLogin(loginForm.id, loginForm.email);
-                }} className="space-y-6">
+                }} className="space-y-5 sm:space-y-6">
                   {/* Email Field */}
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -244,7 +244,7 @@ const ParticipantSpace = () => {
                       placeholder="E-mail"
                       value={loginForm.email}
                       onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="block w-full pl-12 pr-4 py-4 bg-blue-50 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-700 placeholder-gray-500"
+                      className="block w-full pl-12 pr-4 py-3 sm:py-4 bg-blue-50 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-700 placeholder-gray-500"
                       required
                       disabled={isLoggingIn}
                     />
@@ -262,7 +262,7 @@ const ParticipantSpace = () => {
                       placeholder="ID Participant"
                       value={loginForm.id}
                       onChange={(e) => setLoginForm(prev => ({ ...prev, id: e.target.value }))}
-                      className="block w-full pl-12 pr-4 py-4 bg-blue-50 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-700 placeholder-gray-500"
+                      className="block w-full pl-12 pr-4 py-3 sm:py-4 bg-blue-50 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-700 placeholder-gray-500"
                       required
                       disabled={isLoggingIn}
                     />
@@ -291,7 +291,7 @@ const ParticipantSpace = () => {
                   <button
                     type="submit"
                     disabled={isLoggingIn || !loginForm.id.trim() || !loginForm.email.trim()}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-2xl hover:from-blue-600 hover:to-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 px-6 rounded-2xl hover:from-blue-600 hover:to-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {isLoggingIn ? (
                       <>
@@ -316,7 +316,7 @@ const ParticipantSpace = () => {
               </div>
 
               {/* Right Side - Welcome Section */}
-              <div className="w-1/2 bg-gradient-to-br from-blue-500 to-purple-600 p-12 flex flex-col justify-center text-white relative overflow-hidden">
+              <div className="w-full lg:w-1/2 bg-gradient-to-br from-blue-500 to-purple-600 p-8 sm:p-10 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden mt-8 lg:mt-0">
                 {/* Decorative Wave Shapes */}
                 <div className="absolute top-0 right-0 w-full h-32">
                   <svg viewBox="0 0 400 100" className="w-full h-full">
@@ -330,8 +330,8 @@ const ParticipantSpace = () => {
                 </div>
 
                 <div className="relative z-10 text-center">
-                  <h2 className="text-4xl font-bold mb-6">Bienvenue!</h2>
-                  <p className="text-lg text-blue-100 leading-relaxed max-w-sm mx-auto">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Bienvenue!</h2>
+                  <p className="text-base sm:text-lg text-blue-100 leading-relaxed max-w-md mx-auto px-2">
                     Accédez à votre espace de formation consultative avec tous vos cours, ressources et outils d'apprentissage.
                   </p>
                 </div>
