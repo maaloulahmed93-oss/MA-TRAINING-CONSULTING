@@ -453,7 +453,7 @@ Cordialement,
                     {partnership.id === "formateur" ? (
                       <button
                         onClick={handleTrainerAccess}
-                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="w-full sm:w-auto mx-auto flex items-center justify-center space-x-2 text-white py-3.5 px-5 sm:px-8 text-base rounded-xl mt-4 font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #3b82f6, #1d4ed8)',
                           boxShadow: '0 8px 25px rgba(59, 130, 246, 0.3)'
@@ -465,7 +465,7 @@ Cordialement,
                     ) : partnership.id === "freelance" ? (
                       <button
                         onClick={handleFreelancerAccess}
-                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="w-full sm:w-auto mx-auto flex items-center justify-center space-x-2 text-white py-3.5 px-5 sm:px-8 text-base rounded-xl mt-4 font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #10b981, #059669)',
                           boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)'
@@ -477,7 +477,7 @@ Cordialement,
                     ) : partnership.id === "commercial" ? (
                       <button
                         onClick={handleCommercialAccess}
-                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="w-full sm:w-auto mx-auto flex items-center justify-center space-x-2 text-white py-3.5 px-5 sm:px-8 text-base rounded-xl mt-4 font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #f59e0b, #d97706)',
                           boxShadow: '0 8px 25px rgba(245, 158, 11, 0.3)'
@@ -489,7 +489,7 @@ Cordialement,
                     ) : partnership.id === "entreprise" ? (
                       <button
                         onClick={handlePartnershipAccess}
-                        className="inline-flex items-center space-x-2 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
+                        className="w-full sm:w-auto mx-auto flex items-center justify-center space-x-2 text-white py-3.5 px-5 sm:px-8 text-base rounded-xl mt-4 font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 border-2 border-white/20"
                         style={{
                           background: 'linear-gradient(to right, #8b5cf6, #7c3aed)',
                           boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)'
@@ -501,7 +501,7 @@ Cordialement,
                     ) : (
                       <a
                         href={generateMailto(partnership)}
-                        className={`inline-flex items-center space-x-2 bg-gradient-to-r ${partnership.gradient} text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg transform hover:scale-105`}
+                        className={`w-full sm:w-auto mx-auto flex items-center justify-center space-x-2 bg-gradient-to-r ${partnership.gradient} text-white py-3.5 px-5 sm:px-6 text-base rounded-xl mt-4 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105`}
                       >
                         <Rocket className="w-5 h-5" />
                         <span>Accéder</span>
