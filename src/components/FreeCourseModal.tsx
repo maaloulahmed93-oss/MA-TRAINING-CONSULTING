@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Users, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
-import { Domain, Course } from '../types/courses';
+import { Domain, Course, CourseModule } from '../types/courses';
 import { freeCoursesService } from '../services/freeCoursesService';
 
 interface FreeCourseModalProps {
@@ -657,12 +657,8 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                   exit="exit"
                 >
                   <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                      Cours {getCurrentDomain()?.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      {getCurrentDomain()?.courses.length} cours disponibles dans ce domaine
-                    </p>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Cours {getCurrentDomain()?.title}</h3>
+                    <p className="text-gray-600">{getCurrentDomain()?.courses.length} cours disponibles dans ce domaine</p>
                   </div>
 
                   <div className="space-y-4">
@@ -691,9 +687,9 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                                   </span>
                                   <span className="flex items-center gap-1">
                                     <Clock className="w-4 h-4" />
-                                    {course.modules.reduce((total: number, module) => {
-                                      const duration = parseInt(module.duration);
-                                      return total + duration;
+                                    {course.modules.reduce((total: number, m) => {
+                                      const d = parseInt(m.duration);
+                                      return total + d;
                                     }, 0)} min
                                   </span>
                                   <span className="flex items-center gap-1">
@@ -703,79 +699,24 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                                 </div>
                               </div>
                             </div>
-                            <p className="text-gray-600 mb-4">
-                              {course.description}
-                            </p>
+                            <p className="text-gray-600 mb-4">{course.description}</p>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 text-green-600 font-medium">
-                </motion.div>
-              )}
-
-              {/* Step 4: Course Modules */}
-              {currentStep === 'course-modules' && selectedCourse && (
-                <motion.div
-                  key="course-modules"
-                  variants={staggerContainer}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                      {getCurrentCourse()?.title}
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      {getCurrentCourse()?.description}
-                    </p>
-                    <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="w-4 h-4" />
-                        {getCurrentCourse()?.modules.length} modules
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {getCurrentCourse()?.modules.reduce((total: number, module) => {
-                          const duration = parseInt(module.duration);
-                          return total + duration;
-                        }, 0)} minutes au total
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        Formation gratuite
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {getCurrentCourse()?.modules.map((module, index: number) => (
-                      <motion.div
-                        key={module.id}
-                        variants={staggerItem}
-                        whileHover={{ scale: 1.02 }}
-                        className="bg-white p-4 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-800 group-hover:text-green-600 transition-colors">
-                                {module.title}
-                              </h4>
-                              <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                                <Clock className="w-4 h-4" />
-                                <span>{module.duration}</span>
+                                <CheckCircle className="w-5 h-5" />
+                                <span>Accès gratuit</span>
                               </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCourseAccess(course);
+                                }}
+                                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-indigo-700 transition-all transform group-hover:scale-105 flex items-center justify-center gap-2"
+                              >
+                                <Play className="w-4 h-4" />
+                                Accéder
+                              </button>
                             </div>
                           </div>
-                          <button 
-                            onClick={() => handleModuleAccess(module)}
-                            className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all transform group-hover:scale-105 flex items-center gap-2"
-                          >
-                            <Play className="w-4 h-4" />
-                            Accéder
-                          </button>
                         </div>
                       </motion.div>
                     ))}
