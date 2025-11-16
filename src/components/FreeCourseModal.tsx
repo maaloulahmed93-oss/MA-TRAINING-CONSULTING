@@ -284,6 +284,12 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
       <div dangerouslySetInnerHTML={{
         __html: `
           <style>
+            /* Mobile modal responsiveness */
+            @media (max-width: 640px) {
+              .modal-responsive { max-width: 90% !important; width: 100%; margin: 0 auto; }
+              .modal-body-responsive { padding: 16px !important; }
+              .modal-content-scroll { max-height: calc(90vh - 88px) !important; }
+            }
             .carousel-container {
               position: relative;
               overflow: hidden;
@@ -362,7 +368,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
           animate="visible"
           exit="exit"
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden ${
+          className={`modal-responsive bg-white rounded-2xl shadow-2xl w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-hidden ${
             shakeError ? 'animate-shake-error' : ''
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -421,7 +427,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+          <div className="modal-body-responsive p-4 sm:p-6 overflow-y-auto modal-content-scroll max-h-[calc(90vh-100px)]">
             <AnimatePresence mode="wait">
               {/* Step 1: Access ID */}
               {currentStep === 'access-id' && (
@@ -473,7 +479,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                     <button
                       type="submit"
                       disabled={isValidating}
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 px-5 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isValidating ? (
                         <>
@@ -702,22 +708,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                             </p>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 text-green-600 font-medium">
-                                <CheckCircle className="w-5 h-5" />
-                                Accès gratuit
-                              </div>
-                              <button 
-                                onClick={() => handleCourseAccess(course)}
-                                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform group-hover:scale-105 flex items-center gap-2"
-                              >
-                                <Play className="w-4 h-4" />
-                                Accéder
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
                 </motion.div>
               )}
 

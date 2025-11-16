@@ -250,22 +250,32 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
         className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
         onClick={onClose}
       >
+        {/* Inject minimal mobile CSS for modal sizing */}
+        <div dangerouslySetInnerHTML={{ __html: `
+          <style>
+            @media (max-width: 640px) {
+              .cv-modal { max-width: 90% !important; width: 100%; margin: 0 auto; }
+              .cv-body { padding: 16px !important; }
+              .cv-scroll { max-height: calc(90vh - 96px) !important; }
+            }
+          </style>
+        `}} />
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: "spring", duration: 0.5 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+          className="cv-modal bg-white rounded-2xl shadow-2xl w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-blue-100 rounded-lg">
                 <Award className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Vérification d'Attestation
                 </h2>
                 <p className="text-gray-600">
@@ -281,7 +291,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
             </button>
           </div>
 
-          <div className="p-6">
+          <div className="cv-body p-4 sm:p-6">
             <AnimatePresence mode="wait">
               {!showResult ? (
                 <motion.div
@@ -294,7 +304,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                   {/* Formulaire de recherche */}
                   <div className="text-center space-y-4">
                     <div className="p-4 bg-blue-50 rounded-xl">
-                      <Search className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                      <Search className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         Rechercher une attestation
                       </h3>
@@ -311,7 +321,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           value={certificateId}
                           onChange={(e) => setCertificateId(e.target.value)}
                           placeholder="Ex: CERT-2024-001"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-center font-mono text-lg"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-center font-mono text-base sm:text-lg"
                           onKeyPress={(e) =>
                             e.key === "Enter" && handleVerify()
                           }
@@ -335,7 +345,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       whileTap={{ scale: 0.98 }}
                       onClick={handleVerify}
                       disabled={isLoading}
-                      className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
+                      className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mx-auto"
                     >
                       {isLoading ? (
                         <>
@@ -360,7 +370,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           <button
                             key={id}
                             onClick={() => setCertificateId(id)}
-                            className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-sm font-mono hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                            className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs sm:text-sm font-mono hover:bg-blue-50 hover:border-blue-300 transition-colors"
                           >
                             {id}
                           </button>
@@ -396,7 +406,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     </div>
 
                     {/* Informations du certificat */}
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                       {/* Informations personnelles */}
                       <div className="bg-gray-50 rounded-xl p-6">
                         <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -516,12 +526,12 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     </div>
 
                     {/* Boutons de téléchargement */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <Download className="w-5 h-5 mr-2 text-blue-600" />
                         Documents disponibles
                       </h4>
-                      <div className="grid md:grid-cols-3 gap-4">
+                      <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
                         <motion.button
                           whileHover={{
                             scale: 1.02,
@@ -534,7 +544,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                               "Attestation"
                             )
                           }
-                          className="flex items-center justify-center space-x-2 p-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                          className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
                           <span>Attestation</span>
@@ -552,7 +562,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                               "Lettre de recommandation"
                             )
                           }
-                          className="flex items-center justify-center space-x-2 p-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
+                          className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
                           <span>Recommandation</span>
@@ -570,7 +580,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                               "Évaluation"
                             )
                           }
-                          className="flex items-center justify-center space-x-2 p-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
+                          className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
                           <span>Évaluation</span>
@@ -584,7 +594,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleNewSearch}
-                        className="px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors flex items-center space-x-2 mx-auto"
+                        className="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 mx-auto"
                       >
                         <RefreshCw className="w-5 h-5" />
                         <span>Nouvelle recherche</span>
