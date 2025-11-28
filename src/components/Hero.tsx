@@ -61,32 +61,36 @@ const Hero = () => {
               <div className="key-point-icon">
                 <Zap className="w-8 h-8 text-blue-400" />
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Technologies avancées</h3>
-              <p className="text-gray-600 text-sm font-medium">Accès aux dernières innovations</p>
+              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Compétences & Ateliers</h3>
+              <p className="text-gray-600 text-sm font-medium">Ateliers professionnels</p>
+              <p className="text-gray-500 text-xs font-light mt-2">Sessions pratiques intensives axées sur l'opérationnel.</p>
             </div>
             
             <div className="key-point-card">
               <div className="key-point-icon">
                 <Target className="w-8 h-8 text-purple-400" />
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Formations pratiques</h3>
-              <p className="text-gray-600 text-sm font-medium">Conseil et accompagnement professionnel</p>
+              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">E-Training</h3>
+              <p className="text-gray-600 text-sm font-medium">Programmes digitalisés</p>
+              <p className="text-gray-500 text-xs font-light mt-2">Apprentissage moderne, flexible et orienté compétences.</p>
             </div>
             
             <div className="key-point-card">
               <div className="key-point-icon">
                 <Headphones className="w-8 h-8 text-orange-400" />
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Support technique</h3>
-              <p className="text-gray-600 text-sm font-medium">Assistance d'experts, accompagnement personnalisé</p>
+              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Digitalisation</h3>
+              <p className="text-gray-600 text-sm font-medium">Transformation & Modernisation</p>
+              <p className="text-gray-500 text-xs font-light mt-2">Outils, méthodes et stratégies pour accélérer votre évolution.</p>
             </div>
             
             <div className="key-point-card">
               <div className="key-point-icon">
                 <Target className="w-8 h-8 text-green-400" />
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Mobilisation des compétences</h3>
-              <p className="text-gray-600 text-sm font-medium">Articulation fonctionnelle</p>
+              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">Coaching & Support</h3>
+              <p className="text-gray-600 text-sm font-medium">Accompagnement professionnel</p>
+              <p className="text-gray-500 text-xs font-light mt-2">Mentorat, suivi personnalisé et assistance technique.</p>
             </div>
           </div>
         </div>
