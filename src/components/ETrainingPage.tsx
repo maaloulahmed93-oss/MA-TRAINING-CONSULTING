@@ -278,23 +278,23 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const heroCards = [
     {
       icon: Users,
-      title: "Espace Participant",
+      title: "Accédez à vos sessions d'accompagnement",
       subtitle: "Accédez à vos formations",
-      buttonText: "Accéder maintenant",
+      buttonText: "👉 Accéder maintenant",
       color: "blue",
     },
     {
       icon: Shield,
-      title: "Vérifier Attestation",
-      subtitle: "Validez vos certificats",
-      buttonText: "Vérifier maintenant",
+      title: "Vérifier Certification",
+      subtitle: "Validez votre certificat professionnel",
+      buttonText: "👉 Vérifier maintenant",
       color: "purple",
     },
     {
       icon: Lightbulb,
-      title: "Cours Gratuit",
+      title: "Session Gratuite",
       subtitle: "Initiation offerte",
-      buttonText: "Commencer gratuitement",
+      buttonText: "👉 Commencer gratuitement",
       color: "yellow",
     },
   ];
@@ -567,11 +567,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       key={index}
                       className="navigation-card group cursor-pointer"
                       onClick={() => {
-                        if (card.title === "Espace Participant") {
+                        if (card.title === "Accédez à vos sessions d'accompagnement") {
                           navigate("/espace-participant");
-                        } else if (card.title === "Vérifier Attestation") {
+                        } else if (card.title === "Vérifier Certification") {
                           setShowCertificateVerification(true);
-                        } else if (card.title === "Cours Gratuit") {
+                        } else if (card.title === "Session Gratuite") {
                           setShowFreeCourseModal(true);
                         }
                       }}
