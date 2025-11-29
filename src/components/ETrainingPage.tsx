@@ -354,7 +354,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: TrendingUp,
       title: "Consulting stratégique par des experts",
       description:
-        "Conseils d'experts reconnus pour accélérer votre croissance",
+        "Conseils d'experts expérimentés pour accélérer votre croissance",
       color: "orange",
     },
   ];
@@ -407,9 +407,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const benefits = [
     {
       icon: Award,
-      title: "Attestation d'expertise",
+      title: "Certificat professionnel de compétences",
       description:
-        "Obtenez des attestations d'expertise reconnues par l'industrie pour valoriser votre profil professionnel",
+        "Délivré à l'issue du parcours d'accompagnement, attestant des compétences développées et validées pendant les ateliers pratiques et les sessions interactives.",
     },
     {
       icon: Mail,
