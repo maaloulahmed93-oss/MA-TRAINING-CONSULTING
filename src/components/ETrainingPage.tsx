@@ -610,7 +610,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   {/* Header */}
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-white font-bold text-lg">
-                      Formation Marketing Digital
+                      Parcours Marketing Digital
                     </h3>
                     <div className="flex items-center space-x-2">
                       <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
