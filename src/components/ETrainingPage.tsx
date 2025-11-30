@@ -845,6 +845,103 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
+      {/* Legal & Pedagogical Information Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            {/* Main Title */}
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                📌 Informations légales{" "}
+                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  /
+                </span>{" "}
+                Mentions pédagogiques
+              </h2>
+            </div>
+
+            {/* About MATC Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+              {/* Left Column */}
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 border border-blue-200">
+                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                    <span className="text-2xl">🎯</span>
+                    Qui sommes-nous ?
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    <strong>MA Training Consulting</strong> est une structure spécialisée dans l'accompagnement professionnel, le coaching personnalisé et les ateliers pratiques destinés à renforcer les compétences opérationnelles dans un contexte international.
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200">
+                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                    <span className="text-2xl">🌍</span>
+                    Notre approche pédagogique
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Nos programmes sont conçus pour offrir une expérience d'apprentissage moderne, flexible et orientée résultats, basée sur des sessions interactives, des cas pratiques issus du marché mondial et un suivi personnalisé.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200">
+                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                    <span className="text-2xl">📜</span>
+                    Nos attestations
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Les attestations délivrées à la fin des sessions constituent une preuve professionnelle des compétences acquises, valorisables dans un contexte international selon les pratiques du marché et les standards professionnels.
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-8 border border-orange-200">
+                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                    <span className="text-2xl">✨</span>
+                    Valorisation internationale
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Vos compétences développées avec nous sont reconnues et valorisables dans un contexte professionnel international selon les standards du marché.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Legal Notice - Highlighted */}
+            <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 rounded-2xl p-10 border-2 border-amber-300 shadow-lg">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">📌</div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-2xl text-gray-900 mb-6">
+                    Mention légale — Marché international
+                  </h3>
+                  
+                  <div className="space-y-4 text-gray-800">
+                    <p className="leading-relaxed">
+                      Les attestations <strong>MA Training Consulting</strong> ne constituent pas des diplômes officiels et ne sont pas équivalentes aux certifications réglementées délivrées par des organismes reconnus ou des institutions éducatives accréditées dans quelque pays que ce soit.
+                    </p>
+                    
+                    <p className="leading-relaxed">
+                      Elles ont pour vocation de renforcer votre profil professionnel et de mettre en valeur vos compétences pratiques, sans se substituer aux certifications étatiques ou universitaires.
+                    </p>
+
+                    <div className="mt-6 pt-6 border-t border-amber-300">
+                      <p className="text-sm text-gray-700 italic">
+                        ✓ Attestations professionnelles reconnues internationalement<br/>
+                        ✓ Compétences pratiques valorisables sur le marché<br/>
+                        ✓ Complément idéal aux certifications officielles
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Journey Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-6">
