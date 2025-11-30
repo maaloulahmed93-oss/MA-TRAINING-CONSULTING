@@ -415,7 +415,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: Mail,
       title: "Lettre de recommandation",
       description:
-        "Recevez une lettre personnalisée de nos experts pour appuyer vos candidatures",
+        "Lettre personnalisée basée sur la participation et l'évolution du candidat",
     },
     {
       icon: Globe,
