@@ -1290,8 +1290,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
           }}
         />
       </section>
-
-      {/* Programs Section */}
       <section id="programs-section" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
@@ -1299,12 +1297,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
                 Nos{" "}
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Programmes
+                  Parcours Professionnels
                 </span>
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Découvrez nos formations expertes conçues pour transformer votre
-                carrière
+                Découvrez nos parcours d'expertise conçus pour transformer votre carrière
               </p>
 
               {/* Currency Selector */}
