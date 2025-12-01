@@ -856,9 +856,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   &
                 </span>{" "}
-                positionnement professionnel
+                Positionnement professionnel
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">Transparence et clarté sur nos attestations professionnelles</p>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">Transparence, valeur et crédibilité de nos attestations</p>
             </div>
 
             {/* About MATC Section */}
@@ -871,9 +871,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     Qui sommes-nous ?
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans le développement des compétences professionnelles, l'accompagnement personnalisé et les programmes pratiques destinés à renforcer l'employabilité et la performance opérationnelle des participants.
+                    <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans le développement de compétences professionnelles, l'accompagnement personnalisé et les programmes pratiques basés sur les standards du marché international.
                     <br/><br/>
-                    Nos formations sont conçues selon les standards internationaux et dispensées par des experts intervenant sur des marchés variés.
+                    Nos formations sont conçues et animées par des experts actifs dans leurs domaines, garantissant une expérience d'apprentissage moderne, pertinente et directement applicable.
                   </p>
                 </div>
 
@@ -883,15 +883,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     Nature et portée de nos attestations
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    À l'issue de chaque programme, MA Training Consulting délivre une attestation professionnelle de compétences, document officiel propre à notre organisme, reconnue dans le marché comme preuve d'un parcours de formation structuré et de compétences pratiques acquises.
-                    <br/><br/>
-                    <strong className="text-gray-900">Ces attestations sont utilisées largement dans le milieu professionnel pour :</strong>
+                    À l'issue de chaque programme, nous délivrons une attestation professionnelle de compétences, document officiel propre à MA Training Consulting et largement utilisé dans le milieu professionnel pour :
                     <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> renforcer un CV</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> démontrer une expertise opérationnelle</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> compléter un dossier de recrutement</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> appuyer une évolution interne ou une reconversion</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> renforcer votre CV</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> valoriser vos compétences techniques</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> démontrer une expérience pratique</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> appuyer une candidature ou une évolution interne</li>
                     </ul>
+                    <br/>
+                    <span className="text-gray-700">Ces attestations s'inscrivent dans les pratiques reconnues du marché international, notamment dans les secteurs du digital, de la technologie, du management et du conseil.</span>
                   </p>
                 </div>
               </div>
@@ -901,29 +901,40 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-green-500">
                   <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-2xl">⚖️</span>
-                    Important — Mention légale
+                    Mention légale
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    Les attestations délivrées par MA Training Consulting ne constituent pas des diplômes d'État et ne confèrent pas une équivalence académique (BTP, BTS, Licence, Certifications officielles…).
+                    Les attestations MA Training Consulting sont des attestations professionnelles privées.
                     <br/><br/>
-                    Elles sont classées dans la catégorie des attestations professionnelles privées, utilisées sur le marché international pour valoriser des compétences techniques et pratiques.
+                    Elles ne relèvent pas du cadre des diplômes d'État ou des certifications réglementées — une catégorie distincte et spécifique — mais constituent une preuve sérieuse et crédible de compétences opérationnelles acquises.
+                    <br/><br/>
+                    <strong className="text-gray-900">Elles complètent efficacement :</strong>
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> diplômes académiques</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> certifications officielles</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> expériences professionnelles existantes</li>
+                    </ul>
+                    <br/>
+                    <span className="text-gray-700">sans s'y substituer.</span>
                   </p>
                 </div>
 
                 <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-orange-500">
                   <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">🎯</span>
-                    Objectifs de nos attestations
+                    <span className="text-2xl">🌍</span>
+                    Positionnement sur le marché international
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    Elles ont pour objectif de :
+                    Nos attestations sont valorisables auprès :
                     <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> certifier des acquis réels</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> attester d'un parcours de formation encadré</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> soutenir l'évolution professionnelle</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> d'entreprises internationales</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> de recruteurs</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> de plateformes freelance</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> de cabinets de conseil</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> d'organisations à la recherche de compétences pratiques</li>
                     </ul>
                     <br/>
-                    <span className="text-gray-700">sans se substituer aux titres universitaires ou certifications réglementées.</span>
+                    <span className="text-gray-700">Elles mettent en avant votre capacité réelle à appliquer des compétences, critère aujourd'hui déterminant dans la majorité des processus de recrutement.</span>
                   </p>
                 </div>
               </div>
@@ -940,28 +951,25 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   
                   <div className="space-y-4 text-blue-50">
                     <p className="leading-relaxed">
-                      Veuillez consulter la rubrique <strong>"FAQ"</strong> disponible dans le bas de page pour toute question supplémentaire concernant nos attestations, nos programmes et notre positionnement professionnel.
+                      Consultez la rubrique <strong>FAQ</strong> dans le bas de page pour découvrir :
                     </p>
 
-                    <div className="mt-6 pt-6 border-t border-blue-400">
-                      <h4 className="font-bold text-white mb-4">Avantages Marketing & Carrière</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-300 font-bold mt-1">✓</span>
-                          <span>Attestation professionnelle à forte valeur ajoutée</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-300 font-bold mt-1">✓</span>
-                          <span>Positionnement crédible sur le marché international</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-300 font-bold mt-1">✓</span>
-                          <span>Mise en avant de vos compétences techniques & opérationnelles</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-300 font-bold mt-1">✓</span>
-                          <span>Document valorisable auprès des employeurs, cabinets et entreprises</span>
-                        </div>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="text-yellow-300 font-bold mt-1">•</span>
+                        <span>comment nos attestations sont utilisées</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-yellow-300 font-bold mt-1">•</span>
+                        <span>leur valeur sur le marché</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-yellow-300 font-bold mt-1">•</span>
+                        <span>leur positionnement face aux diplômes officiels</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-yellow-300 font-bold mt-1">•</span>
+                        <span>les secteurs où elles sont particulièrement reconnues</span>
                       </div>
                     </div>
                   </div>
