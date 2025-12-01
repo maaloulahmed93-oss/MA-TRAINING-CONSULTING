@@ -846,50 +846,51 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       </section>
 
       {/* Legal & Pedagogical Information Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             {/* Main Title */}
             <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 📌 Mentions officielles{" "}
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   &
                 </span>{" "}
                 positionnement professionnel
               </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">Transparence et clarté sur nos attestations professionnelles</p>
             </div>
 
             {/* About MATC Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
               {/* Left Column */}
               <div className="space-y-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 border border-blue-200">
-                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-blue-500">
+                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-2xl">🎯</span>
                     Qui sommes-nous ?
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 leading-relaxed text-sm">
                     <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans le développement des compétences professionnelles, l'accompagnement personnalisé et les programmes pratiques destinés à renforcer l'employabilité et la performance opérationnelle des participants.
                     <br/><br/>
                     Nos formations sont conçues selon les standards internationaux et dispensées par des experts intervenant sur des marchés variés.
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200">
-                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-purple-500">
+                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-2xl">💼</span>
                     Nature et portée de nos attestations
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 leading-relaxed text-sm">
                     À l'issue de chaque programme, MA Training Consulting délivre une attestation professionnelle de compétences, document officiel propre à notre organisme, reconnue dans le marché comme preuve d'un parcours de formation structuré et de compétences pratiques acquises.
                     <br/><br/>
-                    <strong>Ces attestations sont utilisées largement dans le milieu professionnel pour :</strong>
-                    <ul className="mt-3 space-y-2 text-sm">
-                      <li>✓ renforcer un CV,</li>
-                      <li>✓ démontrer une expertise opérationnelle,</li>
-                      <li>✓ compléter un dossier de recrutement,</li>
-                      <li>✓ appuyer une évolution interne ou une reconversion.</li>
+                    <strong className="text-gray-900">Ces attestations sont utilisées largement dans le milieu professionnel pour :</strong>
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> renforcer un CV</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> démontrer une expertise opérationnelle</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> compléter un dossier de recrutement</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> appuyer une évolution interne ou une reconversion</li>
                     </ul>
                   </p>
                 </div>
@@ -897,8 +898,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
               {/* Right Column */}
               <div className="space-y-6">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200">
-                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-green-500">
+                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-2xl">⚖️</span>
                     Important — Mention légale
                   </h3>
@@ -909,47 +910,59 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-8 border border-orange-200">
-                  <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
+                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-orange-500">
+                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-2xl">🎯</span>
                     Objectifs de nos attestations
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
                     Elles ont pour objectif de :
-                    <ul className="mt-3 space-y-2">
-                      <li>✓ certifier des acquis réels,</li>
-                      <li>✓ attester d'un parcours de formation encadré,</li>
-                      <li>✓ soutenir l'évolution professionnelle,</li>
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> certifier des acquis réels</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> attester d'un parcours de formation encadré</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> soutenir l'évolution professionnelle</li>
                     </ul>
                     <br/>
-                    sans se substituer aux titres universitaires ou certifications réglementées.
+                    <span className="text-gray-700">sans se substituer aux titres universitaires ou certifications réglementées.</span>
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Legal Notice - Highlighted */}
-            <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 rounded-2xl p-10 border-2 border-amber-300 shadow-lg">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-10 shadow-lg text-white">
               <div className="flex items-start gap-4">
                 <div className="text-4xl">🔎</div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-2xl text-gray-900 mb-6">
+                  <h3 className="font-bold text-2xl text-white mb-6">
                     Pour plus d'informations
                   </h3>
                   
-                  <div className="space-y-4 text-gray-800">
+                  <div className="space-y-4 text-blue-50">
                     <p className="leading-relaxed">
                       Veuillez consulter la rubrique <strong>"FAQ"</strong> disponible dans le bas de page pour toute question supplémentaire concernant nos attestations, nos programmes et notre positionnement professionnel.
                     </p>
 
-                    <div className="mt-6 pt-6 border-t border-amber-300">
-                      <h4 className="font-bold text-gray-900 mb-3">Avantages Marketing & Carrière</h4>
-                      <p className="text-sm text-gray-700">
-                        ✓ Attestation professionnelle à forte valeur ajoutée<br/>
-                        ✓ Positionnement crédible sur le marché international<br/>
-                        ✓ Mise en avant de vos compétences techniques & opérationnelles<br/>
-                        ✓ Document valorisable auprès des employeurs, cabinets et entreprises
-                      </p>
+                    <div className="mt-6 pt-6 border-t border-blue-400">
+                      <h4 className="font-bold text-white mb-4">Avantages Marketing & Carrière</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div className="flex items-start gap-2">
+                          <span className="text-yellow-300 font-bold mt-1">✓</span>
+                          <span>Attestation professionnelle à forte valeur ajoutée</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-yellow-300 font-bold mt-1">✓</span>
+                          <span>Positionnement crédible sur le marché international</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-yellow-300 font-bold mt-1">✓</span>
+                          <span>Mise en avant de vos compétences techniques & opérationnelles</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-yellow-300 font-bold mt-1">✓</span>
+                          <span>Document valorisable auprès des employeurs, cabinets et entreprises</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
