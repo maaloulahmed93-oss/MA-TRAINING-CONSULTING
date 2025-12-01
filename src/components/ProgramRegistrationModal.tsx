@@ -91,7 +91,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
     }
 
     if (!formData.selectedSession) {
-      newErrors.selectedSession = "Veuillez sélectionner une session";
+      newErrors.selectedSession = "Veuillez sélectionner un cycle";
     }
 
     setErrors(newErrors);
@@ -280,11 +280,11 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                 </p>
               </div>
 
-              {/* Carousel des sessions */}
+              {/* Carousel des cycles */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-blue-500" />
-                  Sessions disponibles
+                  Cycles disponibles
                 </h3>
 
                 <div className="relative">
@@ -309,7 +309,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                       disableOnInteraction: false,
                     }}
                     loop={true}
-                    className="sessions-swiper pb-12"
+                    className="cycles-swiper pb-12"
                   >
                     {program.sessions.map((session) => (
                       <SwiperSlide key={session.id}>
@@ -328,7 +328,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                           <div className="text-center">
                             <Calendar className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                             <p className="font-medium text-gray-900 mb-1">
-                              Session {session.id.split("-").pop()}
+                              Cycle {session.id.split("-").pop()}
                             </p>
                             <p className="text-sm text-gray-600">
                               {session.date}
