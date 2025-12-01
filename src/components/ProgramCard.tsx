@@ -104,7 +104,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           </div>
           <div className="flex items-center gap-3 bg-purple-50 p-3 rounded-xl border border-purple-100">
             <Calendar className="w-5 h-5 text-purple-500" />
-            <span className="text-sm font-medium text-gray-700">{program.sessions.length} sessions / an</span>
+            <span className="text-sm font-medium text-gray-700">{program.sessions.length} cycles / an</span>
           </div>
           <div className="flex items-center gap-3 bg-orange-50 p-3 rounded-xl border border-orange-100">
             <BookOpen className="w-5 h-5 text-orange-500" />
