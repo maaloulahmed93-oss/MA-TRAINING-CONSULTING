@@ -852,11 +852,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             {/* Main Title */}
             <div className="text-center mb-16">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                📌 Informations légales{" "}
+                📌 Mentions officielles{" "}
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  /
+                  &
                 </span>{" "}
-                Mentions pédagogiques
+                positionnement professionnel
               </h2>
             </div>
 
@@ -870,17 +870,27 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     Qui sommes-nous ?
                   </h3>
                   <p className="text-gray-700 leading-relaxed">
-                    <strong>MA Training Consulting</strong> est une structure spécialisée dans l'accompagnement professionnel, le coaching personnalisé et les ateliers pratiques destinés à renforcer les compétences opérationnelles dans un contexte international.
+                    <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans le développement des compétences professionnelles, l'accompagnement personnalisé et les programmes pratiques destinés à renforcer l'employabilité et la performance opérationnelle des participants.
+                    <br/><br/>
+                    Nos formations sont conçues selon les standards internationaux et dispensées par des experts intervenant sur des marchés variés.
                   </p>
                 </div>
 
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200">
                   <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">🌍</span>
-                    Notre approche pédagogique
+                    <span className="text-2xl">💼</span>
+                    Nature et portée de nos attestations
                   </h3>
                   <p className="text-gray-700 leading-relaxed">
-                    Nos programmes sont conçus pour offrir une expérience d'apprentissage moderne, flexible et orientée résultats, basée sur des sessions interactives, des cas pratiques issus du marché mondial et un suivi personnalisé.
+                    À l'issue de chaque programme, MA Training Consulting délivre une attestation professionnelle de compétences, document officiel propre à notre organisme, reconnue dans le marché comme preuve d'un parcours de formation structuré et de compétences pratiques acquises.
+                    <br/><br/>
+                    <strong>Ces attestations sont utilisées largement dans le milieu professionnel pour :</strong>
+                    <ul className="mt-3 space-y-2 text-sm">
+                      <li>✓ renforcer un CV,</li>
+                      <li>✓ démontrer une expertise opérationnelle,</li>
+                      <li>✓ compléter un dossier de recrutement,</li>
+                      <li>✓ appuyer une évolution interne ou une reconversion.</li>
+                    </ul>
                   </p>
                 </div>
               </div>
@@ -889,21 +899,30 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <div className="space-y-6">
                 <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200">
                   <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">📜</span>
-                    Nos attestations
+                    <span className="text-2xl">⚖️</span>
+                    Important — Mention légale
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Les attestations délivrées à la fin des sessions constituent une preuve professionnelle des compétences acquises, valorisables dans un contexte international selon les pratiques du marché et les standards professionnels.
+                  <p className="text-gray-700 leading-relaxed text-sm">
+                    Les attestations délivrées par MA Training Consulting ne constituent pas des diplômes d'État et ne confèrent pas une équivalence académique (BTP, BTS, Licence, Certifications officielles…).
+                    <br/><br/>
+                    Elles sont classées dans la catégorie des attestations professionnelles privées, utilisées sur le marché international pour valoriser des compétences techniques et pratiques.
                   </p>
                 </div>
 
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-8 border border-orange-200">
                   <h3 className="font-bold text-xl text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">✨</span>
-                    Valorisation internationale
+                    <span className="text-2xl">🎯</span>
+                    Objectifs de nos attestations
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Vos compétences développées avec nous sont reconnues et valorisables dans un contexte professionnel international selon les standards du marché.
+                  <p className="text-gray-700 leading-relaxed text-sm">
+                    Elles ont pour objectif de :
+                    <ul className="mt-3 space-y-2">
+                      <li>✓ certifier des acquis réels,</li>
+                      <li>✓ attester d'un parcours de formation encadré,</li>
+                      <li>✓ soutenir l'évolution professionnelle,</li>
+                    </ul>
+                    <br/>
+                    sans se substituer aux titres universitaires ou certifications réglementées.
                   </p>
                 </div>
               </div>
@@ -912,26 +931,24 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             {/* Legal Notice - Highlighted */}
             <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 rounded-2xl p-10 border-2 border-amber-300 shadow-lg">
               <div className="flex items-start gap-4">
-                <div className="text-4xl">📌</div>
+                <div className="text-4xl">🔎</div>
                 <div className="flex-1">
                   <h3 className="font-bold text-2xl text-gray-900 mb-6">
-                    Mention légale — Marché international
+                    Pour plus d'informations
                   </h3>
                   
                   <div className="space-y-4 text-gray-800">
                     <p className="leading-relaxed">
-                      Les attestations <strong>MA Training Consulting</strong> ne constituent pas des diplômes officiels et ne sont pas équivalentes aux certifications réglementées délivrées par des organismes reconnus ou des institutions éducatives accréditées dans quelque pays que ce soit.
-                    </p>
-                    
-                    <p className="leading-relaxed">
-                      Elles ont pour vocation de renforcer votre profil professionnel et de mettre en valeur vos compétences pratiques, sans se substituer aux certifications étatiques ou universitaires.
+                      Veuillez consulter la rubrique <strong>"FAQ"</strong> disponible dans le bas de page pour toute question supplémentaire concernant nos attestations, nos programmes et notre positionnement professionnel.
                     </p>
 
                     <div className="mt-6 pt-6 border-t border-amber-300">
-                      <p className="text-sm text-gray-700 italic">
-                        ✓ Attestations professionnelles reconnues internationalement<br/>
-                        ✓ Compétences pratiques valorisables sur le marché<br/>
-                        ✓ Complément idéal aux certifications officielles
+                      <h4 className="font-bold text-gray-900 mb-3">Avantages Marketing & Carrière</h4>
+                      <p className="text-sm text-gray-700">
+                        ✓ Attestation professionnelle à forte valeur ajoutée<br/>
+                        ✓ Positionnement crédible sur le marché international<br/>
+                        ✓ Mise en avant de vos compétences techniques & opérationnelles<br/>
+                        ✓ Document valorisable auprès des employeurs, cabinets et entreprises
                       </p>
                     </div>
                   </div>
