@@ -32,20 +32,21 @@ export const trainingPrograms: Program[] = [
       }
     ],
     modules: [
-      "React Hooks Avancés",
-      "Gestion d'état avec Redux Toolkit",
-      "Optimisation des performances"
+      "Bloc 1 : Introduction au Développement Web",
+      "Bloc 2 : Front-End avec React",
+      "Bloc 3 : Back-End avec Node.js & Express",
+      "1 bloc avancé supplémentaire"
     ],
     price: 2400,
     duration: "12 semaines",
     level: "Avancé",
     category: "Technologies",
     instructor: "Ahmed Benali",
-    maxStudents: 25,
+    maxStudents: 12,
     features: [
-      "Projets pratiques",
-      "Mentorat personnalisé",
-      "Certificat de fin de formation"
+      "Accompagnement en petit groupe : 12 participants",
+      "Ouvertures programmées tout au long de l'année",
+      "4 blocs d'apprentissage"
     ],
     rating: 4.8
   }
