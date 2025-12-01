@@ -255,7 +255,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                     {program.title}
                   </h2>
                   <p className="text-gray-600 mt-1">
-                    Inscription à la formation
+                    Inscription au parcours professionnel
                   </p>
                   {program.price && (
                     <p className="text-lg font-semibold text-blue-600 mt-2">
@@ -364,10 +364,10 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                 )}
               </div>
 
-              {/* Modules de formation */}
+              {/* Modules du parcours */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  Modules de formation
+                  Modules du parcours
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {program.modules.map((module, index) => (
