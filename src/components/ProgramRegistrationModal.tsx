@@ -523,31 +523,60 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                   </motion.button>
                 </form>
               ) : (
-                /* Message de succès */
+                /* Message de succès avec contrat */
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-8"
+                  className="py-8 space-y-6"
                 >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring" }}
-                    className="mb-4"
-                  >
-                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
-                  </motion.div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    Inscription envoyée !
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Votre demande d'inscription à{" "}
-                    <strong>{program.title}</strong> a été envoyée avec succès.
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Nous vous contacterons sous 24h pour confirmer votre
-                    inscription.
-                  </p>
+                  <div className="text-center">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                      className="mb-4"
+                    >
+                      <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                      Inscription envoyée !
+                    </h3>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-800 font-semibold">
+                      Avant de finaliser votre participation, veuillez télécharger et lire attentivement le contrat ci-dessous :
+                    </p>
+                    
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+                    >
+                      📄 Télécharger le contrat (PDF)
+                    </a>
+
+                    <div className="border-t border-blue-200 pt-4">
+                      <p className="text-gray-800 font-semibold mb-3">
+                        Après lecture du contrat, veuillez confirmer :
+                      </p>
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-5 h-5 mt-1 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                          defaultChecked={false}
+                        />
+                        <span className="text-gray-700">
+                          J'atteste avoir lu et compris le contrat d'inscription.
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="border-t border-blue-200 pt-4 text-sm text-gray-600">
+                      <p>
+                        Une fois cette confirmation enregistrée, vous recevrez un e-mail dans un délai maximum de 48 heures afin de valider votre acceptation et finaliser la procédure d'inscription et de paiement.
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </div>
