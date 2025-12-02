@@ -567,9 +567,11 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                     <a
                       href="/contrat-inscription.pdf"
                       download="Conditions_Generales_Inscription.pdf"
-                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700 font-semibold rounded-lg transition-colors"
                     >
-                      📄 Conditions Générales d'Inscription au Programme de Perfectionnement Professionnel
+                      📄 Télécharger le contrat (PDF)
                     </a>
 
                     <div className="border-t border-blue-200 pt-4">
