@@ -54,6 +54,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [contractAccepted, setContractAccepted] = useState(false);
   const [canClose, setCanClose] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -598,20 +599,32 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                   {/* Terminer Button */}
                   <motion.button
                     onClick={() => {
-                      if (contractAccepted && canClose) {
-                        onClose();
+                      if (contractAccepted && canClose && !isClosing) {
+                        setIsClosing(true);
+                        // Show loading state for 1 second before closing
+                        setTimeout(() => {
+                          onClose();
+                          setIsClosing(false);
+                        }, 1000);
                       }
                     }}
-                    disabled={!contractAccepted || !canClose}
-                    whileHover={contractAccepted && canClose ? { scale: 1.02 } : {}}
-                    whileTap={contractAccepted && canClose ? { scale: 0.98 } : {}}
+                    disabled={!contractAccepted || !canClose || isClosing}
+                    whileHover={contractAccepted && canClose && !isClosing ? { scale: 1.02 } : {}}
+                    whileTap={contractAccepted && canClose && !isClosing ? { scale: 0.98 } : {}}
                     className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-300 ${
-                      contractAccepted && canClose
+                      contractAccepted && canClose && !isClosing
                         ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-lg cursor-pointer"
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
                     }`}
                   >
-                    Terminer
+                    {isClosing ? (
+                      <>
+                        <div className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Fermeture en cours...
+                      </>
+                    ) : (
+                      "Terminer"
+                    )}
                   </motion.button>
                 </motion.div>
               )}
