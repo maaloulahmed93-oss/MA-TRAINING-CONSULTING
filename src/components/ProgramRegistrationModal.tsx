@@ -593,6 +593,25 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                       </p>
                     </div>
                   </div>
+
+                  {/* Terminer Button */}
+                  <motion.button
+                    onClick={() => {
+                      if (contractAccepted && canClose) {
+                        onClose();
+                      }
+                    }}
+                    disabled={!contractAccepted || !canClose}
+                    whileHover={contractAccepted && canClose ? { scale: 1.02 } : {}}
+                    whileTap={contractAccepted && canClose ? { scale: 0.98 } : {}}
+                    className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-300 ${
+                      contractAccepted && canClose
+                        ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-lg cursor-pointer"
+                        : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    Terminer
+                  </motion.button>
                 </motion.div>
               )}
             </div>
