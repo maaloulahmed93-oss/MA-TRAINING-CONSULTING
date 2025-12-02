@@ -52,6 +52,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [contractAccepted, setContractAccepted] = useState(false);
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -264,8 +265,18 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                   )}
                 </div>
                 <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={() => {
+                    if (isSuccess && !contractAccepted) {
+                      return; // Prevent closing if success and contract not accepted
+                    }
+                    onClose();
+                  }}
+                  disabled={isSuccess && !contractAccepted}
+                  className={`p-2 rounded-full transition-colors ${
+                    isSuccess && !contractAccepted
+                      ? "cursor-not-allowed opacity-50"
+                      : "hover:bg-gray-100"
+                  }`}
                 >
                   <X className="w-6 h-6 text-gray-500" />
                 </button>
@@ -562,8 +573,9 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                       <label className="flex items-start gap-3 cursor-pointer">
                         <input
                           type="checkbox"
+                          checked={contractAccepted}
+                          onChange={(e) => setContractAccepted(e.target.checked)}
                           className="w-5 h-5 mt-1 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                          defaultChecked={false}
                         />
                         <span className="text-gray-700">
                           J'atteste avoir lu et compris le contrat d'inscription.
