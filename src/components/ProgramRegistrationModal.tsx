@@ -176,11 +176,6 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
       }
 
       setIsSuccess(true);
-
-      // Fermer le modal après 2 secondes
-      setTimeout(() => {
-        onClose();
-      }, 2000);
     } catch (error) {
       console.error("❌ Erreur lors de l'inscription:", error);
       
@@ -208,9 +203,6 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
       
       // Afficher quand même le succès à l'utilisateur
       setIsSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 2000);
     } finally {
       setIsSubmitting(false);
     }
