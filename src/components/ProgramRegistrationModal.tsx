@@ -53,6 +53,7 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [contractAccepted, setContractAccepted] = useState(false);
+  const [canClose, setCanClose] = useState(false);
 
   // Reset form when modal opens/closes
   React.useEffect(() => {
@@ -66,8 +67,19 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
       });
       setErrors({});
       setIsSuccess(false);
+      setCanClose(false);
     }
   }, [isOpen]);
+
+  // Timer to allow closing after 5 minutes when success is shown
+  React.useEffect(() => {
+    if (isSuccess && !canClose) {
+      const timer = setTimeout(() => {
+        setCanClose(true);
+      }, 300000); // 5 minutes (300,000 milliseconds)
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, canClose]);
 
   // Validation du formulaire
   const validateForm = (): boolean => {
@@ -266,14 +278,14 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                 </div>
                 <button
                   onClick={() => {
-                    if (isSuccess && !contractAccepted) {
-                      return; // Prevent closing if success and contract not accepted
+                    if (isSuccess && (!contractAccepted || !canClose)) {
+                      return; // Prevent closing if success and contract not accepted or timer not finished
                     }
                     onClose();
                   }}
-                  disabled={isSuccess && !contractAccepted}
+                  disabled={isSuccess && (!contractAccepted || !canClose)}
                   className={`p-2 rounded-full transition-colors ${
-                    isSuccess && !contractAccepted
+                    isSuccess && (!contractAccepted || !canClose)
                       ? "cursor-not-allowed opacity-50"
                       : "hover:bg-gray-100"
                   }`}
