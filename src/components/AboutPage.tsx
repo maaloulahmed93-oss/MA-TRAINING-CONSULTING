@@ -127,16 +127,16 @@ const AboutPage: React.FC<AboutPageProps> = ({
       managementTitle: "Équipe de Direction Exécutive",
       programsManager: "Directrice des Programmes",
       programsDesc:
-        "Responsable de la qualité et de la cohérence des contenus et ateliers professionnels",
+        "Pilote le développement des plateformes numériques et la modernisation continue",
       digitalManager: "Responsable Transformation Digitale",
       digitalDesc:
         "Dirige le développement des plateformes numériques et transforme le contenu en expériences interactives innovantes.",
       partnershipsManager: "Responsable Relations",
       partnershipsDesc:
-        "Gère le réseau de partenaires locaux et internationaux, coordonne les projets transfrontaliers.",
+        "Gère la coopération locale et internationale et coordonne les projets multi-pays",
       marketingManager: "Directeur Marketing",
       marketingDesc:
-        "Développe l'image numérique de l'institution et dirige les campagnes de communication avec le marché cible.",
+        "Conçoit la stratégie digitale et supervise la communication institutionnelle",
 
       // Expert Network
       expertNetworkTitle: "Réseau d'Experts",
@@ -226,16 +226,16 @@ const AboutPage: React.FC<AboutPageProps> = ({
       managementTitle: "فريق الإدارة التنفيذية",
       programsManager: "مديرة البرامج",
       programsDesc:
-        "مسؤولة عن جودة واتساق المحتويات والورش المهنية",
+        "تقود تطوير المنصات الرقمية والتحديث المستمر",
       digitalManager: "مسؤول التحول الرقمي",
       digitalDesc:
         "يقود تطوير المنصات الرقمية وتحويل المحتوى إلى تجارب تفاعلية مبتكرة",
       partnershipsManager: "مسؤولة العلاقات",
       partnershipsDesc:
-        "تدير شبكة الشركاء المحليين والدوليين وتنسق المشاريع العابرة للحدود",
+        "تدير التعاون المحلي والدولي وتنسق المشاريع متعددة الدول",
       marketingManager: "مدير التسويق",
       marketingDesc:
-        "يطور الصورة الرقمية للمؤسسة ويقود حملات التواصل مع السوق المستهدف",
+        "تصمم الاستراتيجية الرقمية وتشرف على الاتصالات المؤسساتية",
 
       // Expert Network
       expertNetworkTitle: "شبكة الخبراء",
@@ -325,16 +325,16 @@ const AboutPage: React.FC<AboutPageProps> = ({
       managementTitle: "Executive Management Team",
       programsManager: "Programs Director",
       programsDesc:
-        "Responsible for quality and consistency of professional content and workshops",
+        "Drives the development of digital platforms and continuous modernization",
       digitalManager: "Digital Transformation Manager",
       digitalDesc:
         "Leads the development of digital platforms and transforms content into innovative interactive experiences",
       partnershipsManager: "Relations Manager",
       partnershipsDesc:
-        "Manages the network of local and international partners, coordinates cross-border projects",
+        "Manages local and international cooperation and coordinates multi-country projects",
       marketingManager: "Marketing Director",
       marketingDesc:
-        "Develops the institution's digital image and leads communication campaigns with the target market",
+        "Designs digital strategy and oversees institutional communication",
 
       // Expert Network
       expertNetworkTitle: "Expert Network",
