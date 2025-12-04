@@ -118,9 +118,9 @@ const AboutPage: React.FC<AboutPageProps> = ({
       founderRole:
         "Fondateur et créateur de la plateforme MA-TRAINING-CONSULTING",
       founderDesc:
-        "Consultant stratégique en formation, innovation pédagogique et marketing numérique",
+        "Fondateur et consultant stratégique en innovation pédagogique, digitalisation et marketing numérique.",
       founderStory:
-        "A lancé le projet en 2023 dans le but de connecter les compétences au marché du travail de manière pratique et intelligente, à travers la formation-conseil et les solutions numériques.",
+        "A lancé MATC en 2023 pour connecter les compétences aux besoins réels du marché à travers l'accompagnement-conseil et les solutions numériques.",
       founderLocation: "Tunisie – Partenariats mondiaux",
 
       // Management Team
@@ -217,9 +217,9 @@ const AboutPage: React.FC<AboutPageProps> = ({
       founderName: "أحمد المعلول",
       founderRole: "مؤسس ومبدع منصة MA-TRAINING-CONSULTING",
       founderDesc:
-        "مستشار استراتيجي في التدريب والابتكار التربوي والتسويق الرقمي",
+        "مؤسس ومستشار استراتيجي في الابتكار التربوي والرقمنة والتسويق الرقمي.",
       founderStory:
-        "أطلق المشروع عام 2023 بهدف ربط الكفاءات بسوق العمل بطريقة تطبيقية وذكية من خلال التدريب الاستشاري والحلول الرقمية",
+        "أسس MATC في 2023 لربط المهارات باحتياجات السوق الحقيقية من خلال الدعم الاستشاري والحلول الرقمية.",
       founderLocation: "تونس – شراكات عالمية",
 
       // Management Team
@@ -316,9 +316,9 @@ const AboutPage: React.FC<AboutPageProps> = ({
       founderName: "Ahmed Maaloul",
       founderRole: "Founder and creator of the MA-TRAINING-CONSULTING platform",
       founderDesc:
-        "Strategic consultant in training, educational innovation, and digital marketing",
+        "Founder and strategic consultant in educational innovation, digitalization, and digital marketing.",
       founderStory:
-        "Launched the project in 2023 with the goal of connecting skills to the job market in a practical and intelligent way, through consulting training and digital solutions",
+        "Founded MATC in 2023 to connect skills with real market needs through consulting support and digital solutions.",
       founderLocation: "Tunisia – Global partnerships",
 
       // Management Team
