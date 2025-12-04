@@ -70,9 +70,9 @@ const AboutPage: React.FC<AboutPageProps> = ({
       back: "Retour",
 
       // Hero Section
-      heroTitle: "MATC, votre partenaire pour atteindre l'excellence.",
+      heroTitle: "MATC, votre partenaire stratégique pour la performance et la transformation.",
       heroSubtitle:
-        "Nous connectons la formation pratique, la transformation digitale et l'exploitation professionnelle — pour libérer les compétences vers le succès.",
+        "Nous connectons l'accompagnement professionnel, le développement des compétences et la transformation digitale pour aider les entreprises et les individus à évoluer efficacement et durablement.",
       heroCta: "Découvrez nos services",
 
       // Vision & Mission
@@ -171,9 +171,9 @@ const AboutPage: React.FC<AboutPageProps> = ({
       back: "العودة",
 
       // Hero Section
-      heroTitle: "MATC، شريكك لتحقيق التميز والنجاح",
+      heroTitle: "MATC، شريكك الاستراتيجي للأداء والتحول",
       heroSubtitle:
-        "نربط بين التدريب التطبيقي والتحول الرقمي والتشغيل الاحترافي — لنطلق الكفاءات نحو النجاح",
+        "نربط بين الدعم المهني وتطوير المهارات والتحول الرقمي لمساعدة الشركات والأفراد على التطور بفعالية واستدامة",
       heroCta: "اكتشف خدماتنا",
 
       // Vision & Mission
@@ -270,9 +270,9 @@ const AboutPage: React.FC<AboutPageProps> = ({
       back: "Back",
 
       // Hero Section
-      heroTitle: "MATC, your partner to achieve excellence",
+      heroTitle: "MATC, your strategic partner for performance and transformation",
       heroSubtitle:
-        "We connect practical training, digital transformation, and professional operations — to unleash skills towards success",
+        "We connect professional support, skills development, and digital transformation to help businesses and individuals evolve effectively and sustainably",
       heroCta: "Discover our services",
 
       // Vision & Mission
