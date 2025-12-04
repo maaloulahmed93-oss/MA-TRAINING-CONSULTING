@@ -79,10 +79,10 @@ const AboutPage: React.FC<AboutPageProps> = ({
       visionMissionTitle: "Notre Vision et Mission",
       visionTitle: "Vision",
       visionText:
-        "Créer un impact tangible sur le marché du travail en autonomisant les compétences et en fournissant des solutions intelligentes et intégrées.",
+        "Créer un impact réel sur le marché du travail en renforçant les compétences et en offrant des solutions intelligentes, pratiques et intégrées.",
       missionTitle: "Mission",
       missionText:
-        "Nous proposons des programmes de formation-conseil pratiques et des solutions numériques qui répondent précisément et professionnellement aux besoins des individus et des organisations.",
+        "Proposer des solutions d'accompagnement-conseil, des ateliers pratiques et des outils numériques qui répondent précisément aux besoins des professionnels et des organisations.",
 
       // Values
       valuesTitle: "Nos Valeurs",
@@ -180,10 +180,10 @@ const AboutPage: React.FC<AboutPageProps> = ({
       visionMissionTitle: "رؤيتنا ورسالتنا",
       visionTitle: "الرؤية",
       visionText:
-        "إحداث تأثير ملموس في سوق العمل من خلال تمكين الكفاءات وتقديم حلول ذكية ومتكاملة",
+        "إحداث تأثير حقيقي في سوق العمل من خلال تعزيز المهارات وتقديم حلول ذكية وعملية ومتكاملة",
       missionTitle: "الرسالة",
       missionText:
-        "نقدم برامج تدريب استشاري تطبيقية وحلول رقمية تلبي احتياجات الأفراد والمؤسسات بدقة واحترافية",
+        "تقديم حلول الدعم الاستشاري والورش العملية والأدوات الرقمية التي تلبي احتياجات المهنيين والمؤسسات بدقة",
 
       // Values
       valuesTitle: "قيمنا",
@@ -279,10 +279,10 @@ const AboutPage: React.FC<AboutPageProps> = ({
       visionMissionTitle: "Our Vision and Mission",
       visionTitle: "Vision",
       visionText:
-        "Create a tangible impact on the job market by empowering skills and providing intelligent and integrated solutions",
+        "Create a real impact on the job market by strengthening skills and offering intelligent, practical, and integrated solutions",
       missionTitle: "Mission",
       missionText:
-        "We provide practical consulting-training programs and digital solutions that meet the needs of individuals and organizations with precision and professionalism",
+        "Provide consulting support solutions, practical workshops, and digital tools that precisely meet the needs of professionals and organizations",
 
       // Values
       valuesTitle: "Our Values",
