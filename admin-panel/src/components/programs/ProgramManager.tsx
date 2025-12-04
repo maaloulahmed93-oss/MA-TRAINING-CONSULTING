@@ -506,26 +506,26 @@ const ProgramManager: React.FC = () => {
       )}
 
       {/* Programs List */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="bg-white shadow rounded-lg overflow-x-auto">
+        <table className="w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Titre
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Catégorie
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Niveau
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Prix
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Statut
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Actions
               </th>
             </tr>
@@ -540,11 +540,11 @@ const ProgramManager: React.FC = () => {
             ) : (
               programs.map((program) => (
                 <tr key={program._id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{program.title}</div>
                     <div className="text-sm text-gray-500">{program.duration}</div>
                   </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 py-4 whitespace-nowrap">
                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                     {typeof program.category === 'object' && program.category?.name 
                       ? program.category.name 
@@ -553,13 +553,13 @@ const ProgramManager: React.FC = () => {
                         : 'Non défini'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                   {program.level}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                   {program.price}€
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     program.isActive !== false 
                       ? 'bg-green-100 text-green-800' 
@@ -568,7 +568,7 @@ const ProgramManager: React.FC = () => {
                     {program.isActive !== false ? 'Actif' : 'Inactif'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => handleEdit(program)}
