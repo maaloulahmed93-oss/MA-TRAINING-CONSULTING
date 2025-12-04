@@ -131,7 +131,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       digitalManager: "Responsable Transformation Digitale",
       digitalDesc:
         "Dirige le développement des plateformes numériques et transforme le contenu en expériences interactives innovantes.",
-      partnershipsManager: "Responsable Relations",
+      partnershipsManager: "Responsable Relations & Partenariats",
       partnershipsDesc:
         "Gère la coopération locale et internationale et coordonne les projets multi-pays",
       marketingManager: "Directeur Marketing",
@@ -230,7 +230,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       digitalManager: "مسؤول التحول الرقمي",
       digitalDesc:
         "يقود تطوير المنصات الرقمية وتحويل المحتوى إلى تجارب تفاعلية مبتكرة",
-      partnershipsManager: "مسؤولة العلاقات",
+      partnershipsManager: "مسؤولة العلاقات والشراكات",
       partnershipsDesc:
         "تدير التعاون المحلي والدولي وتنسق المشاريع متعددة الدول",
       marketingManager: "مدير التسويق",
@@ -329,7 +329,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       digitalManager: "Digital Transformation Manager",
       digitalDesc:
         "Leads the development of digital platforms and transforms content into innovative interactive experiences",
-      partnershipsManager: "Relations Manager",
+      partnershipsManager: "Relations & Partnerships Manager",
       partnershipsDesc:
         "Manages local and international cooperation and coordinates multi-country projects",
       marketingManager: "Marketing Director",
