@@ -127,7 +127,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       managementTitle: "Équipe de Direction Exécutive",
       programsManager: "Directrice des Programmes",
       programsDesc:
-        "Supervise la planification et la gestion du contenu de formation pour assurer la qualité et l'adéquation au marché.",
+        "Responsable de la qualité et de la cohérence des contenus et ateliers professionnels",
       digitalManager: "Responsable Transformation Digitale",
       digitalDesc:
         "Dirige le développement des plateformes numériques et transforme le contenu en expériences interactives innovantes.",
@@ -226,7 +226,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       managementTitle: "فريق الإدارة التنفيذية",
       programsManager: "مديرة البرامج",
       programsDesc:
-        "تشرف على تخطيط وإدارة المحتوى التدريبي لضمان الجودة والملاءمة للسوق",
+        "مسؤولة عن جودة واتساق المحتويات والورش المهنية",
       digitalManager: "مسؤول التحول الرقمي",
       digitalDesc:
         "يقود تطوير المنصات الرقمية وتحويل المحتوى إلى تجارب تفاعلية مبتكرة",
@@ -325,7 +325,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       managementTitle: "Executive Management Team",
       programsManager: "Programs Director",
       programsDesc:
-        "Oversees planning and management of training content to ensure quality and market relevance",
+        "Responsible for quality and consistency of professional content and workshops",
       digitalManager: "Digital Transformation Manager",
       digitalDesc:
         "Leads the development of digital platforms and transforms content into innovative interactive experiences",
