@@ -98,16 +98,16 @@ const AboutPage: React.FC<AboutPageProps> = ({
         "Un voyage vers le changement et l'innovation, étape par étape.",
       story2023Title: "Le Lancement",
       story2023Text:
-        "Nous avons commencé notre voyage en Tunisie, dans le but de fournir une formation-conseil pratique orientée vers le marché du travail réel.",
+        "Début du projet en Tunisie avec une vision claire : fournir un accompagnement pratique orienté résultats",
       story2024Title: "Construction de Partenariats",
       story2024Text:
-        "Nous avons signé des accords de coopération stratégique avec des institutions d'Europe, du Golfe et d'Afrique.",
+        "Développement de l'activité avec une perspective internationale",
       story2025Title: "Transformation Digitale Complète",
       story2025Text:
-        "Nous avons lancé notre plateforme numérique de formation-conseil et commencé à offrir des parcours flexibles personnalisés pour les entreprises.",
+        "Lancement de notre plateforme numérique d'accompagnement-conseil et mise en place de parcours flexibles pour les entreprises.",
       storyFutureTitle: "L'Avenir Proche",
       storyFutureText:
-        "Nous continuons à innover, nous étendons les accréditations internationales et développons des programmes mondiaux pour soutenir les compétences de demain.",
+        "Extension de notre réseau, développement de solutions globales et renforcement des accréditations internationales.",
 
       // Team
       teamTitle: "Notre Équipe",
@@ -198,16 +198,16 @@ const AboutPage: React.FC<AboutPageProps> = ({
       storySubtitle: "رحلة نحو التغيير والإبداع، خطوة بخطوة",
       story2023Title: "الانطلاقة",
       story2023Text:
-        "بدأنا رحلتنا في تونس بهدف تقديم تدريب استشاري تطبيقي موجه لسوق العمل الحقيقي",
+        "بداية المشروع في تونس برؤية واضحة: تقديم دعم عملي موجه للنتائج",
       story2024Title: "بناء الشراكات",
       story2024Text:
-        "وقعنا اتفاقيات تعاون استراتيجي مع مؤسسات من أوروبا والخليج وأفريقيا",
+        "تطور النشاط برؤية عالمية",
       story2025Title: "التحول الرقمي الكامل",
       story2025Text:
-        "أطلقنا منصتنا الرقمية للتدريب الاستشاري وبدأنا تقديم مسارات مرنة مخصصة للشركات",
+        "إطلاق منصتنا الرقمية للدعم الاستشاري ووضع مسارات مرنة للشركات",
       storyFutureTitle: "المستقبل القريب",
       storyFutureText:
-        "نواصل الابتكار ونتوسع في الاعتمادات الدولية ونطور برامج عالمية تدعم كفاءات الغد",
+        "توسع شبكتنا وتطوير حلول عالمية وتعزيز الاعتمادات الدولية",
 
       // Team
       teamTitle: "فريقنا",
@@ -297,16 +297,16 @@ const AboutPage: React.FC<AboutPageProps> = ({
       storySubtitle: "A journey towards change and innovation, step by step",
       story2023Title: "The Launch",
       story2023Text:
-        "We started our journey in Tunisia, aiming to provide practical consulting training oriented towards the real job market",
+        "Project launch in Tunisia with a clear vision: provide practical support focused on results",
       story2024Title: "Building Partnerships",
       story2024Text:
-        "We signed strategic cooperation agreements with institutions from Europe, the Gulf, and Africa",
+        "Business development with an international perspective",
       story2025Title: "Complete Digital Transformation",
       story2025Text:
-        "We launched our digital consulting-training platform and began offering flexible customized paths for companies",
+        "Launch of our digital consulting support platform and implementation of flexible paths for companies",
       storyFutureTitle: "The Near Future",
       storyFutureText:
-        "We continue to innovate, expand international accreditations, and work on developing global programs to support tomorrow's skills",
+        "Expansion of our network, development of global solutions, and strengthening of international accreditations",
 
       // Team
       teamTitle: "Our Team",
