@@ -569,42 +569,48 @@ const ProgramManager: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => handleEdit(program)}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
-                  >
-                    <PencilIcon className="w-5 h-5" />
-                  </button>
-                  {program.isActive !== false ? (
+                  <div className="flex gap-2 justify-end">
                     <button
-                      onClick={() => {
-                        console.log('🗑️ Delete button clicked for program:', program);
-                        console.log('🆔 Program ID:', program._id);
-                        if (program._id) {
-                          handleDelete(program._id);
-                        } else {
-                          console.error('❌ Program ID is missing!');
-                          alert('❌ Erreur: ID du programme manquant');
-                        }
-                      }}
-                      className="text-red-600 hover:text-red-900"
-                      disabled={loading}
-                      title="Supprimer le programme"
+                      onClick={() => handleEdit(program)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center gap-1 text-xs font-medium"
+                      title="Modifier le programme"
                     >
-                      <TrashIcon className="w-5 h-5" />
+                      <PencilIcon className="w-4 h-4" />
+                      Modifier
                     </button>
-                  ) : (
-                    <button
-                      onClick={() => handleRestore(program._id!)}
-                      className="text-green-600 hover:text-green-900"
-                      disabled={loading}
-                      title="Restaurer le programme"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </button>
-                  )}
+                    {program.isActive !== false ? (
+                      <button
+                        onClick={() => {
+                          console.log('🗑️ Delete button clicked for program:', program);
+                          console.log('🆔 Program ID:', program._id);
+                          if (program._id) {
+                            handleDelete(program._id);
+                          } else {
+                            console.error('❌ Program ID is missing!');
+                            alert('❌ Erreur: ID du programme manquant');
+                          }
+                        }}
+                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center gap-1 text-xs font-medium"
+                        disabled={loading}
+                        title="Supprimer le programme"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                        Supprimer
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleRestore(program._id!)}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 text-xs font-medium"
+                        disabled={loading}
+                        title="Restaurer le programme"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Restaurer
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
               ))
