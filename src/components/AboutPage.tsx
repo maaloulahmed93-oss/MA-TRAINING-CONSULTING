@@ -112,7 +112,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       // Team
       teamTitle: "Notre Équipe",
       teamIntro:
-        "L'équipe MA-TRAINING-CONSULTING est composée de professionnels unis par une passion commune : fournir des solutions efficaces pour la formation, la numérisation et l'exploitation professionnelle.",
+        "L'équipe MATC réunit des professionnels passionnés par : l'accompagnement stratégique , la digitalisation , l'optimisation des compétences , l'innovation appliquée",
       founderTitle: "Fondateur Principal",
       founderName: "Ahmed Maaloul",
       founderRole:
@@ -212,7 +212,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       // Team
       teamTitle: "فريقنا",
       teamIntro:
-        "يتكون فريق MA-TRAINING-CONSULTING من محترفين يجمعهم شغف واحد: تقديم حلول فعالة للتدريب والرقمنة والتشغيل الاحترافي",
+        "يجمع فريق MATC محترفين متحمسين لـ: الدعم الاستراتيجي والرقمنة وتحسين المهارات والابتكار التطبيقي",
       founderTitle: "المؤسس الرئيسي",
       founderName: "أحمد المعلول",
       founderRole: "مؤسس ومبدع منصة MA-TRAINING-CONSULTING",
@@ -311,7 +311,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       // Team
       teamTitle: "Our Team",
       teamIntro:
-        "The MA-TRAINING-CONSULTING team consists of professionals united by one passion: providing effective solutions for training, digitization, and professional operations",
+        "The MATC team brings together passionate professionals focused on: strategic support, digitalization, skills optimization, and applied innovation",
       founderTitle: "Main Founder",
       founderName: "Ahmed Maaloul",
       founderRole: "Founder and creator of the MA-TRAINING-CONSULTING platform",
