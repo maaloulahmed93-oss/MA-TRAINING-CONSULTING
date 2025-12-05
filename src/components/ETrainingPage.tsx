@@ -726,17 +726,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     <div className="bg-purple-600 rounded-lg p-3 text-center">
                       <BookOpen className="w-6 h-6 text-white mx-auto mb-2" />
                       <div className="text-white font-bold text-lg">12/15</div>
-                      <div className="text-purple-200 text-xs">Cours</div>
+                      <div className="text-purple-200 text-xs">✔ Étapes</div>
                     </div>
                     <div className="bg-orange-600 rounded-lg p-3 text-center">
                       <Target className="w-6 h-6 text-white mx-auto mb-2" />
                       <div className="text-white font-bold text-lg">8/10</div>
-                      <div className="text-orange-200 text-xs">Objectifs</div>
+                      <div className="text-orange-200 text-xs">✔ Objectifs</div>
                     </div>
                     <div className="bg-green-600 rounded-lg p-3 text-center">
                       <Award className="w-6 h-6 text-white mx-auto mb-2" />
                       <div className="text-white font-bold text-lg">3</div>
-                      <div className="text-green-200 text-xs">Attestations</div>
+                      <div className="text-green-200 text-xs">✔ Documents remis</div>
                     </div>
                   </div>
 
