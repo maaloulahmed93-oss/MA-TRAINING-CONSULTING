@@ -403,19 +403,19 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: Mail,
       title: "Lettre de recommandation",
       description:
-        "Lettre personnalisée basée sur la participation et l'évolution du candidat",
+        "Lettre personnalisée mettant en valeur votre engagement, votre progression et la qualité de vos contributions durant l'accompagnement.",
     },
     {
       icon: Globe,
       title: "Accès au réseau d'experts",
       description:
-        "Intégrez notre communauté exclusive de professionnels et développez votre réseau",
+        "Rejoignez notre communauté professionnelle, connectez-vous à des experts et développez votre réseau dans plusieurs secteurs d'activité.",
     },
     {
       icon: TrendingUp,
       title: "Priorité aux opportunités",
       description:
-        "Bénéficiez d'un accès privilégié aux offres d'emploi et missions de nos partenaires",
+        "Accès privilégié à certaines offres, collaborations, missions et opportunités proposées par nos partenaires et notre réseau professionnel.",
     },
   ];
 
