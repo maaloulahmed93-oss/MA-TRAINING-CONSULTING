@@ -696,7 +696,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="flex items-center space-x-4 text-gray-400 text-sm">
                         <div className="flex items-center space-x-1">
                           <Users className="w-4 h-4" />
-                          <span>24 participants</span>
+                          <span>24 Professionnels accompagnés</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <MessageCircle className="w-4 h-4" />
