@@ -846,7 +846,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 </span>{" "}
                 Positionnement professionnel
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">Transparence, valeur et crédibilité de nos attestations</p>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">Transparence, valeur et crédibilité de nos documents professionnels</p>
             </div>
 
             {/* About MATC Section */}
@@ -859,27 +859,34 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     Qui sommes-nous ?
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans le développement de compétences professionnelles, l'accompagnement personnalisé et les programmes pratiques basés sur les standards du marché international.
-                    <br/><br/>
-                    Nos formations sont conçues et animées par des experts actifs dans leurs domaines, garantissant une expérience d'apprentissage moderne, pertinente et directement applicable.
+                    <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans :
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                      <li className="flex items-center gap-2"><span className="text-blue-600 font-bold">•</span> le développement des compétences professionnelles,</li>
+                      <li className="flex items-center gap-2"><span className="text-blue-600 font-bold">•</span> l'accompagnement sur-mesure,</li>
+                      <li className="flex items-center gap-2"><span className="text-blue-600 font-bold">•</span> et les parcours pratiques orientés métier, basés sur des standards reconnus au niveau international.</li>
+                    </ul>
+                    <br/>
+                    Nos programmes d'accompagnement sont réalisés par des experts actifs sur le marché, garantissant une approche moderne, pertinente et directement exploitable dans un contexte professionnel.
                   </p>
                 </div>
 
                 <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-purple-500">
                   <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-2xl">💼</span>
-                    Nature et portée de nos attestations
+                    Nature et portée de nos documents professionnels
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    À l'issue de chaque programme, nous délivrons une attestation professionnelle de compétences, document officiel propre à MA Training Consulting et largement utilisé dans le milieu professionnel pour :
+                    À l'issue de chaque parcours d'accompagnement, nous délivrons un document attestant du suivi et de la validation du parcours, propre à MA Training Consulting.
+                    <br/><br/>
+                    Ce document est professionnel et privé, et largement utilisé dans le milieu professionnel pour :
                     <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> renforcer votre CV</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> valoriser vos compétences techniques</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> démontrer une expérience pratique</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> renforcer un CV</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> valoriser des compétences opérationnelles</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> présenter un travail ou un projet réalisé</li>
                       <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> appuyer une candidature ou une évolution interne</li>
                     </ul>
                     <br/>
-                    <span className="text-gray-700">Ces attestations s'inscrivent dans les pratiques reconnues du marché international, notamment dans les secteurs du digital, de la technologie, du management et du conseil.</span>
+                    <span className="text-gray-700">Nos documents sont alignés avec les pratiques reconnues dans les secteurs : digital, technologie, management, consulting, entrepreneuriat.</span>
                   </p>
                 </div>
               </div>
@@ -892,15 +899,22 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     Mention légale
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    Les attestations MA Training Consulting sont des attestations professionnelles privées.
+                    Les documents délivrés par MA Training Consulting sont des documents professionnels privés.
                     <br/><br/>
-                    Elles ne relèvent pas du cadre des diplômes d'État ou des certifications réglementées — une catégorie distincte et spécifique — mais constituent une preuve sérieuse et crédible de compétences opérationnelles acquises.
+                    Ils ne relèvent pas :
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                      <li className="flex items-center gap-2"><span className="text-gray-600 font-bold">—</span> des diplômes d'État,</li>
+                      <li className="flex items-center gap-2"><span className="text-gray-600 font-bold">—</span> des certifications réglementées,</li>
+                      <li className="flex items-center gap-2"><span className="text-gray-600 font-bold">—</span> ni des titres professionnels officiels.</li>
+                    </ul>
+                    <br/>
+                    <span className="text-gray-700">Ils constituent cependant une preuve sérieuse de participation à un parcours d'accompagnement et d'implication dans un travail pratique.</span>
                     <br/><br/>
-                    <strong className="text-gray-900">Elles complètent efficacement :</strong>
+                    <strong className="text-gray-900">Ils complètent efficacement :</strong>
                     <ul className="mt-3 space-y-2 text-sm text-gray-700">
                       <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> diplômes académiques</li>
                       <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> certifications officielles</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> expériences professionnelles existantes</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> expériences professionnelles</li>
                     </ul>
                     <br/>
                     <span className="text-gray-700">sans s'y substituer.</span>
@@ -913,16 +927,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     Positionnement sur le marché international
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                    Nos attestations sont valorisables auprès :
+                    Nos documents sont valorisés auprès de :
                     <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> d'entreprises internationales</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> de recruteurs</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> de plateformes freelance</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> de cabinets de conseil</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> d'organisations à la recherche de compétences pratiques</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> entreprises internationales</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> recruteurs</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> plateformes freelance</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> cabinets de conseil</li>
+                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> organisations valorisant la maîtrise opérationnelle</li>
                     </ul>
                     <br/>
-                    <span className="text-gray-700">Elles mettent en avant votre capacité réelle à appliquer des compétences, critère aujourd'hui déterminant dans la majorité des processus de recrutement.</span>
+                    <span className="text-gray-700">Ils mettent en avant votre capacité à appliquer concrètement des compétences, un critère essentiel dans les processus de recrutement modernes.</span>
                   </p>
                 </div>
               </div>
@@ -939,13 +953,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   
                   <div className="space-y-4 text-blue-50">
                     <p className="leading-relaxed">
-                      Consultez la rubrique <strong>FAQ</strong> dans le bas de page pour découvrir :
+                      Consultez la rubrique <strong>FAQ</strong> pour découvrir :
                     </p>
 
                     <div className="mt-4 space-y-2 text-sm">
                       <div className="flex items-start gap-2">
                         <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>comment nos attestations sont utilisées</span>
+                        <span>comment nos documents sont utilisés</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-yellow-300 font-bold mt-1">•</span>
@@ -953,11 +967,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>leur positionnement face aux diplômes officiels</span>
+                        <span>leur différence avec les diplômes officiels</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>les secteurs où elles sont particulièrement reconnues</span>
+                        <span>les secteurs où ils sont particulièrement reconnus</span>
                       </div>
                     </div>
                   </div>
