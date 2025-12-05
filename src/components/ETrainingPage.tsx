@@ -319,9 +319,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const pillars = [
     {
       icon: Video,
-      title: "Classes interactives en direct",
+      title: "Sessions interactives en direct",
       description:
-        "Sessions live avec interaction temps réel et engagement maximum",
+        "Échanges live en temps réel pour un accompagnement dynamique",
       color: "blue",
     },
     {
