@@ -141,7 +141,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       // Expert Network
       expertNetworkTitle: "Réseau d'Experts",
       expertNetworkText:
-        "Nous ne travaillons pas seuls. Nous avons un réseau de partenaires et d'experts indépendants en Europe, dans le Golfe et en Afrique travaillant dans les domaines :",
+        "Nous collaborons avec un réseau d'experts et partenaires en Europe, au Golfe et en Afrique dans les domaines de :",
       consultingTraining: "Formation-conseil",
       projectManagement: "Gestion de projets",
       contentProduction: "Production de contenu",
@@ -240,7 +240,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       // Expert Network
       expertNetworkTitle: "شبكة الخبراء",
       expertNetworkText:
-        "لا نعمل وحدنا. لدينا شبكة من الشركاء والخبراء المستقلين في أوروبا والخليج وأفريقيا يعملون في مجالات:",
+        "نتعاون مع شبكة من الخبراء والشركاء في أوروبا والخليج وأفريقيا بطريقة احترافية في مجالات:",
       consultingTraining: "التدريب الاستشاري",
       projectManagement: "إدارة المشاريع",
       contentProduction: "إنتاج المحتوى",
@@ -339,7 +339,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       // Expert Network
       expertNetworkTitle: "Expert Network",
       expertNetworkText:
-        "We don't work alone. We have a network of partners and independent experts in Europe, the Gulf, and Africa working in the fields of:",
+        "We collaborate with a network of experts and partners in Europe, the Gulf, and Africa in the fields of:",
       consultingTraining: "Consulting training",
       projectManagement: "Project management",
       contentProduction: "Content production",
