@@ -70,6 +70,7 @@ const NavigationCards = () => {
       case 'à propos de nous':
         return 'about';
       case 'e-training':
+      case 'e-parcours professionnels':
         return 'etraining';
       case 'digitalisation':
         return 'digitalisation';
