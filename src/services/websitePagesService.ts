@@ -79,7 +79,7 @@ export class WebsitePagesService {
       {
         _id: 'default-2',
         pageId: 'PAGE-ETRAINING',
-        title: 'E-Training',
+        title: 'E-Parcours Professionnels',
         description: 'Formez-vous autrement. Progressez durablement.',
         icon: '🎓',
         buttonText: 'Accéder',
