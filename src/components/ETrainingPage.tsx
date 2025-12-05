@@ -292,13 +292,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     {
       icon: Users,
       number: "5,000+",
-      label: "Profils accompagnés",
+      label: "Professionnels accompagnés",
       color: "blue",
     },
     {
       icon: TrendingUp,
       number: "200+",
-      label: "cycles accompagnement/mois",
+      label: "cycles accompagnement",
       color: "purple",
     },
     {
