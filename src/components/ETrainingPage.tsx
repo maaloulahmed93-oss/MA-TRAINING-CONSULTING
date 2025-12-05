@@ -395,9 +395,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const benefits = [
     {
       icon: Award,
-      title: "Certificat professionnel de compétences",
+      title: "Attestation professionnelle de compétences",
       description:
-        "Délivré à l'issue du parcours d'accompagnement, attestant des compétences développées et validées pendant les ateliers pratiques et les sessions interactives.",
+        "Document professionnel délivré à la fin du parcours, confirmant votre participation et les compétences opérationnelles que vous avez démontrées au cours des ateliers et des sessions interactives.",
     },
     {
       icon: Mail,
