@@ -276,10 +276,10 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  Vérification d'Attestation
+                  Vérification de Participation
                 </h2>
                 <p className="text-gray-600">
-                  Validez l'authenticité de votre certificat
+                  Validez la participation d'un candidat et les documents internes délivrés dans le cadre de son parcours professionnel.
                 </p>
               </div>
             </div>
