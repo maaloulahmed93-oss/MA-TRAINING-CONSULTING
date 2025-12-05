@@ -865,81 +865,130 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Stats & Approach Section */}
-      <section className="py-20 bg-white">
+      {/* Notre Approche Section */}
+      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
             <div className="text-center mb-16">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Notre Approche{" "}
+                Notre{" "}
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  &
-                </span>{" "}
-                Nos Valeurs
+                  Approche
+                </span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-                Accompagnement interactif et personnalisé pour une évolution
-                professionnelle réussie
+              <p className="text-2xl font-semibold text-gray-800 mb-8">
+                Une méthodologie d'accompagnement moderne et orientée résultats
               </p>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-              {stats.map((stat, index) => (
-                <div key={index} className="key-point-card text-center">
-                  <div
-                    className={`key-point-icon mx-auto bg-gradient-to-br ${
-                      stat.color === "blue"
-                        ? "from-blue-500 to-blue-700"
-                        : stat.color === "purple"
-                        ? "from-purple-500 to-purple-700"
-                        : stat.color === "green"
-                        ? "from-green-500 to-green-700"
-                        : "from-orange-500 to-orange-700"
-                    }`}
-                  >
-                    <stat.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <div className="text-3xl font-bold text-gray-900 mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-600">{stat.label}</div>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+              {/* Left Column - Methodology */}
+              <div className="space-y-8">
+                <div>
+                  <p className="text-lg font-semibold text-gray-900 mb-6">
+                    Notre accompagnement repose sur :
+                  </p>
+                  
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700">l'analyse de votre profil et de vos objectifs</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700">des rencontres professionnelles structurées</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700">des études de cas issues du marché</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700">l'application pratique et opérationnelle</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700">un suivi continu assuré par des experts</span>
+                    </li>
+                  </ul>
                 </div>
-              ))}
-            </div>
 
-            {/* Pillars */}
-            <div className="mb-16">
-              <h3 className="font-display text-2xl font-bold text-gray-900 mb-8 text-center">
-                Nos Piliers
-              </h3>
-              <p className="text-gray-600 text-center mb-12">
-                Les fondements de notre approche professionnelle
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {pillars.map((pillar, index) => (
-                  <div key={index} className="services-card text-center">
-                    <div
-                      className={`services-icon mx-auto bg-gradient-to-br ${
-                        pillar.color === "blue"
-                          ? "from-blue-500 to-blue-700"
-                          : pillar.color === "purple"
-                          ? "from-purple-500 to-purple-700"
-                          : pillar.color === "green"
-                          ? "from-green-500 to-green-700"
-                          : "from-orange-500 to-orange-700"
-                      }`}
-                    >
-                      <pillar.icon className="w-8 h-8 text-white" />
+                {/* Summary Box */}
+                <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                  <p className="text-gray-800 leading-relaxed">
+                    <span className="font-semibold text-gray-900">Chaque étape vise à renforcer vos compétences réelles et votre autonomie professionnelle</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Visual Stats */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-3xl"></div>
+                <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+                  <div className="space-y-8">
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                        <div className="text-3xl font-bold text-blue-600 mb-2">5,000+</div>
+                        <p className="text-sm text-gray-700 font-medium">Professionnels accompagnés</p>
+                      </div>
+                      <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+                        <div className="text-3xl font-bold text-purple-600 mb-2">200+</div>
+                        <p className="text-sm text-gray-700 font-medium">cycles accompagnement</p>
+                      </div>
+                      <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+                        <div className="text-3xl font-bold text-green-600 mb-2">98%</div>
+                        <p className="text-sm text-gray-700 font-medium">Taux de satisfaction</p>
+                      </div>
+                      <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
+                        <div className="text-3xl font-bold text-orange-600 mb-2">24/7</div>
+                        <p className="text-sm text-gray-700 font-medium">Support disponible</p>
+                      </div>
                     </div>
-                    <h4 className="font-bold text-gray-900 mb-3">
-                      {pillar.title}
-                    </h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {pillar.description}
-                    </p>
+
+                    {/* Key Points */}
+                    <div className="space-y-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Résultats Mesurables</p>
+                          <p className="text-xs text-gray-600">Accompagnement basé sur des objectifs clairs</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
+                            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Flexibilité Totale</p>
+                          <p className="text-xs text-gray-600">Adapté à votre rythme et vos contraintes</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
