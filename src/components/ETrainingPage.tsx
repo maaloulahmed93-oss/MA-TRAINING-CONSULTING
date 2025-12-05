@@ -833,6 +833,119 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
+      {/* Notre Identité Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Notre{" "}
+                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Identité
+                </span>
+              </h2>
+              <p className="text-2xl font-semibold text-gray-800 mb-8">
+                Cabinet de consulting spécialisé en accompagnement professionnel
+              </p>
+            </div>
+
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+              {/* Left Column - Text Content */}
+              <div className="space-y-8">
+                <div>
+                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                    <span className="font-bold text-gray-900">MA Training Consulting</span> est un cabinet de consulting international spécialisé dans :
+                  </p>
+                  
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1">
+                        <span className="text-sm font-bold">•</span>
+                      </span>
+                      <span className="text-gray-700">l'accompagnement professionnel</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1">
+                        <span className="text-sm font-bold">•</span>
+                      </span>
+                      <span className="text-gray-700">le développement des compétences opérationnelles</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1">
+                        <span className="text-sm font-bold">•</span>
+                      </span>
+                      <span className="text-gray-700">et les parcours pratiques orientés métiers</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Important Note */}
+                <div className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-orange-500 rounded-lg">
+                  <p className="text-sm font-bold text-orange-900 mb-3">
+                    ⚠️ Règle fondamentale
+                  </p>
+                  <p className="text-gray-800 leading-relaxed">
+                    <span className="font-semibold">Nous ne sommes pas un centre de formation.</span> Notre mission est d'offrir un accompagnement sur-mesure basé sur des pratiques professionnelles modernes et directement applicables dans le marché actuel.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Visual Element */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-3xl"></div>
+                <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+                  <div className="space-y-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                          <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Expertise Reconnue</h4>
+                        <p className="text-sm text-gray-600">Accompagnement professionnel de haut niveau basé sur des années d'expérience</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
+                          <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Approche Pratique</h4>
+                        <p className="text-sm text-gray-600">Solutions directement applicables dans votre environnement professionnel</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600">
+                          <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Parcours Personnalisés</h4>
+                        <p className="text-sm text-gray-600">Accompagnement sur-mesure adapté à vos besoins spécifiques</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Legal & Pedagogical Information Section */}
       <section className="py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto px-6">
