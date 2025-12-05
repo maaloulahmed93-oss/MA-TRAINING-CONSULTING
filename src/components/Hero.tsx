@@ -70,7 +70,7 @@ const Hero = () => {
               <div className="key-point-icon">
                 <Target className="w-8 h-8 text-purple-400" />
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">E-Training</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-3 card-title">E-Parcours Professionnels</h3>
               <p className="text-gray-600 text-sm font-medium">Programmes digitalisés</p>
               <p className="text-gray-500 text-xs font-light mt-2">Apprentissage moderne, flexible et orienté compétences.</p>
             </div>
