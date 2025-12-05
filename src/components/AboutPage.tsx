@@ -81,6 +81,11 @@ const AboutPage: React.FC<AboutPageProps> = ({
       internationalPartners: "Partenaires Internationaux",
       clientSatisfaction: "Satisfaction Client",
 
+      // Engagement Section
+      engagementTitle: "Notre Engagement",
+      engagementText:
+        "Chez MA-Training-Consulting, nous nous engageons à fournir des solutions d'accompagnement professionnel, d'analyse, de conseil stratégique et de digitalisation, adaptées aux besoins réels des entreprises et des professionnels en Tunisie et à l'international.",
+
       // Vision & Mission
       visionMissionTitle: "Notre Vision et Mission",
       visionTitle: "Vision",
@@ -188,6 +193,11 @@ const AboutPage: React.FC<AboutPageProps> = ({
       internationalPartners: "شركاء دوليون",
       clientSatisfaction: "رضا العملاء",
 
+      // Engagement Section
+      engagementTitle: "التزامنا",
+      engagementText:
+        "في MA-Training-Consulting، نتعهد بتقديم حلول للدعم المهني، والتحليل، والاستشارة الاستراتيجية، والرقمنة، مع التكيف مع الاحتياجات الفعلية للشركات والمتخصصين في تونس وعالمياً.",
+
       // Vision & Mission
       visionMissionTitle: "رؤيتنا ورسالتنا",
       visionTitle: "الرؤية",
@@ -292,6 +302,11 @@ const AboutPage: React.FC<AboutPageProps> = ({
       projectsCompleted: "Projects Completed",
       internationalPartners: "International Partners",
       clientSatisfaction: "Client Satisfaction",
+
+      // Engagement Section
+      engagementTitle: "Our Commitment",
+      engagementText:
+        "At MA-Training-Consulting, we are committed to providing professional support solutions, analysis, strategic consulting, and digitalization, tailored to the real needs of businesses and professionals in Tunisia and internationally.",
 
       // Vision & Mission
       visionMissionTitle: "Our Vision and Mission",
