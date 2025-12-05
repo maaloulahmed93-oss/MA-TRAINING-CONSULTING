@@ -148,7 +148,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       technicalSkills: "Développement des compétences techniques",
 
       // CTA
-      ctaTitle: "Souhaitez-vous travailler avec nous ou collaborer ?",
+      ctaTitle: "Vous souhaitez collaborer avec MATC ou rejoindre notre réseau professionnel ?",
       ctaDiscover: "Découvrir les opportunités",
       ctaContact: "Nous contacter",
 
@@ -247,7 +247,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       technicalSkills: "تطوير المهارات التقنية",
 
       // CTA
-      ctaTitle: "هل ترغب في العمل معنا أو التعاون؟",
+      ctaTitle: "هل ترغب في التعاون مع MATC أو الانضمام إلى شبكتنا المهنية؟",
       ctaDiscover: "اكتشف الفرص",
       ctaContact: "اتصل بنا",
 
@@ -346,7 +346,7 @@ const AboutPage: React.FC<AboutPageProps> = ({
       technicalSkills: "Technical skills development",
 
       // CTA
-      ctaTitle: "Would you like to work with us or collaborate?",
+      ctaTitle: "Do you want to collaborate with MATC or join our professional network?",
       ctaDiscover: "Discover opportunities",
       ctaContact: "Contact us",
 
