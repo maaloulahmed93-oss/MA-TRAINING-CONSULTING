@@ -995,146 +995,135 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Legal & Pedagogical Information Section */}
-      <section className="py-20 bg-gradient-to-b from-white to-blue-50">
+      {/* Positionnement Professionnel Section */}
+      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
-            {/* Main Title */}
+            {/* Section Header */}
             <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                📌 Mentions officielles{" "}
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Positionnement{" "}
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  &
-                </span>{" "}
-                Positionnement professionnel
+                  Professionnel
+                </span>
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">Transparence, valeur et crédibilité de nos documents professionnels</p>
+              <p className="text-2xl font-semibold text-gray-800 mb-8">
+                Ce que nous faisons — et ce que nous ne faisons pas
+              </p>
             </div>
 
-            {/* About MATC Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-              {/* Left Column */}
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+              {/* Left Column - What We Do */}
               <div className="space-y-6">
-                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-blue-500">
-                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">🎯</span>
-                    Qui sommes-nous ?
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed text-sm">
-                    <strong>MA Training Consulting</strong> est une structure internationale spécialisée dans :
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-blue-600 font-bold">•</span> le développement des compétences professionnelles,</li>
-                      <li className="flex items-center gap-2"><span className="text-blue-600 font-bold">•</span> l'accompagnement sur-mesure,</li>
-                      <li className="flex items-center gap-2"><span className="text-blue-600 font-bold">•</span> et les parcours pratiques orientés métier, basés sur des standards reconnus au niveau international.</li>
-                    </ul>
-                    <br/>
-                    Nos programmes d'accompagnement sont réalisés par des experts actifs sur le marché, garantissant une approche moderne, pertinente et directement exploitable dans un contexte professionnel.
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-purple-500">
-                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">💼</span>
-                    Nature et portée de nos documents professionnels
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed text-sm">
-                    À l'issue de chaque parcours d'accompagnement, nous délivrons un document attestant du suivi et de la validation du parcours, propre à MA Training Consulting.
-                    <br/><br/>
-                    Ce document est professionnel et privé, et largement utilisé dans le milieu professionnel pour :
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> renforcer un CV</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> valoriser des compétences opérationnelles</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> présenter un travail ou un projet réalisé</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> appuyer une candidature ou une évolution interne</li>
-                    </ul>
-                    <br/>
-                    <span className="text-gray-700">Nos documents sont alignés avec les pratiques reconnues dans les secteurs : digital, technologie, management, consulting, entrepreneuriat.</span>
-                  </p>
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-green-500">
-                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">⚖️</span>
-                    Mention légale
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed text-sm">
-                    Les documents délivrés par MA Training Consulting sont des documents professionnels privés.
-                    <br/><br/>
-                    Ils ne relèvent pas :
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-gray-600 font-bold">—</span> des diplômes d'État,</li>
-                      <li className="flex items-center gap-2"><span className="text-gray-600 font-bold">—</span> des certifications réglementées,</li>
-                      <li className="flex items-center gap-2"><span className="text-gray-600 font-bold">—</span> ni des titres professionnels officiels.</li>
-                    </ul>
-                    <br/>
-                    <span className="text-gray-700">Ils constituent cependant une preuve sérieuse de participation à un parcours d'accompagnement et d'implication dans un travail pratique.</span>
-                    <br/><br/>
-                    <strong className="text-gray-900">Ils complètent efficacement :</strong>
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> diplômes académiques</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> certifications officielles</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> expériences professionnelles</li>
-                    </ul>
-                    <br/>
-                    <span className="text-gray-700">sans s'y substituer.</span>
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-orange-500">
-                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-2xl">🌍</span>
-                    Positionnement sur le marché international
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed text-sm">
-                    Nos documents sont valorisés auprès de :
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> entreprises internationales</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> recruteurs</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> plateformes freelance</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> cabinets de conseil</li>
-                      <li className="flex items-center gap-2"><span className="text-green-600 font-bold">✓</span> organisations valorisant la maîtrise opérationnelle</li>
-                    </ul>
-                    <br/>
-                    <span className="text-gray-700">Ils mettent en avant votre capacité à appliquer concrètement des compétences, un critère essentiel dans les processus de recrutement modernes.</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Legal Notice - Highlighted */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-10 shadow-lg text-white">
-              <div className="flex items-start gap-4">
-                <div className="text-4xl">🔎</div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-2xl text-white mb-6">
-                    Pour plus d'informations
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200">
+                  <h3 className="font-bold text-xl text-gray-900 mb-6 flex items-center gap-3">
+                    <span className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+                      ✔
+                    </span>
+                    Ce que nous faisons
                   </h3>
                   
-                  <div className="space-y-4 text-blue-50">
-                    <p className="leading-relaxed">
-                      Consultez la rubrique <strong>FAQ</strong> pour découvrir :
-                    </p>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Accompagnement professionnel</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Développement de compétences pratiques</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Coaching orienté objectifs</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <div>
+                        <p className="text-gray-700 font-medium">Dossiers professionnels privés</p>
+                        <p className="text-sm text-gray-600 mt-1">complètent un parcours professionnel, mais ne remplacent pas les titres officiels</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Valorisation du parcours</span>
+                    </li>
+                  </ul>
+                </div>
 
-                    <div className="mt-4 space-y-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>comment nos documents sont utilisés</span>
+                {/* Key Differentiator */}
+                <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-l-4 border-purple-500 rounded-lg">
+                  <p className="text-gray-800 leading-relaxed">
+                    <span className="font-semibold text-gray-900">Notre force :</span> Une approche centrée sur l'application pratique et immédiate des compétences dans votre contexte professionnel.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Visual Summary */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-3xl"></div>
+                <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+                  <div className="space-y-8">
+                    {/* Professional Positioning */}
+                    <div className="space-y-6">
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 mb-1">Reconnaissance Professionnelle</h4>
+                          <p className="text-sm text-gray-600">Valorisé par les entreprises et recruteurs internationaux</p>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-2">
-                        <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>leur valeur sur le marché</span>
+
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600">
+                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 mb-1">Complémentarité</h4>
+                          <p className="text-sm text-gray-600">Complète diplômes et certifications officiels</p>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-2">
-                        <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>leur différence avec les diplômes officiels</span>
+
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
+                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 mb-1">Transparence Totale</h4>
+                          <p className="text-sm text-gray-600">Documents professionnels privés, clairement identifiés</p>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-2">
-                        <span className="text-yellow-300 font-bold mt-1">•</span>
-                        <span>les secteurs où ils sont particulièrement reconnus</span>
-                      </div>
+                    </div>
+
+                    {/* Highlight Box */}
+                    <div className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
+                      <p className="text-sm text-orange-900 font-medium">
+                        <span className="font-bold">💡 Important :</span> Nous ne délivrons pas de diplômes ou certifications officiels, mais des documents professionnels reconnus.
+                      </p>
                     </div>
                   </div>
                 </div>
