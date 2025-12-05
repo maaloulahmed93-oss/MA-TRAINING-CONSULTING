@@ -704,7 +704,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                       </div>
                       <button className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                        Session Interactive
+                        Cycle Interactive
                       </button>
                     </div>
                   </div>

@@ -346,7 +346,7 @@ export const mockCoachingResources: CoachingResource[] = [
   {
     id: 'COACH-009',
     title: 'Atelier Gestion du Stress',
-    description: 'Session interactive de gestion du stress au travail',
+    description: 'Cycle interactive de gestion du stress au travail',
     type: 'Atelier Interactif',
     category: 'Soft Skills',
     duration: '60 min',
