@@ -801,7 +801,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 Nos Piliers
               </h3>
               <p className="text-gray-600 text-center mb-12">
-                Les fondements de notre excellence pédagogique
+                Les fondements de notre approche professionnelle
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {pillars.map((pillar, index) => (
