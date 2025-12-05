@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Users, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff } from 'lucide-react';
+import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
 import { Domain, Course, CourseModule } from '../types/courses';
 import { freeCoursesService } from '../services/freeCoursesService';
@@ -196,12 +196,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
     return activeDomains.find((d: Domain) => d.id === selectedDomain);
   };
 
-  const getCurrentCourse = (): Course | undefined => {
-    if (!selectedCourse) return undefined;
-    const domain = activeDomains.find((d: Domain) => d.id === selectedCourse.domainId);
-    return domain?.courses.find((c: Course) => c.id === selectedCourse.courseId);
-  };
-
   // Carousel navigation functions
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -227,8 +221,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
   };
 
   const handleModuleAccess = (module: CourseModule) => {
-    console.log('🎯 Accès au module:', module.title);
-    
     if (module.url) {
       // Ouvrir l'URL du module dans un nouvel onglet
       window.open(module.url, '_blank', 'noopener,noreferrer');
