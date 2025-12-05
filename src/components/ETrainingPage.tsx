@@ -354,7 +354,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: BookOpen,
       title: "Contenu de base",
       description:
-        "Acquisition des fondamentaux théoriques et concepts clés de votre domaine",
+        "Découverte des notions essentielles et repères fondamentaux liés à votre domaine d'activité",
       color: "blue",
     },
     {
@@ -362,7 +362,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: Video,
       title: "Ateliers en direct",
       description:
-        "Sessions interactives live avec nos experts pour approfondir vos connaissances",
+        "Sessions interactives en live avec nos experts pour explorer des méthodes, outils et approches concrètes",
       color: "purple",
     },
     {
@@ -370,15 +370,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: Code,
       title: "Applications pratiques",
       description:
-        "Mise en pratique immédiate avec des projets concrets et cas d'usage réels",
+        "Mise en action immédiate à travers des exercices professionnels, projets appliqués et cas réels du marché",
       color: "green",
     },
     {
       step: 4,
       icon: CheckCircle,
-      title: "Évaluations continues",
+      title: "4. Suivi continu",
       description:
-        "Suivi personnalisé de vos progrès avec feedback constructif et adaptatif",
+        "Accompagnement constant de votre évolution avec retours professionnels, ajustements et recommandations personnalisées.",
       color: "orange",
     },
     {
@@ -386,7 +386,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: Users,
       title: "Coaching personnalisé",
       description:
-        "Accompagnement individuel pour optimiser votre parcours et atteindre vos objectifs",
+        "Séances individuelles pour optimiser votre progression, clarifier vos objectifs et renforcer votre performance",
       color: "pink",
     },
   ];
