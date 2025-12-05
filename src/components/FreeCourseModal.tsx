@@ -399,7 +399,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                       {isApiConnected ? (
                         <div className="flex items-center text-green-600 text-xs">
                           <Wifi className="h-4 w-4 mr-1" />
-                          <span>MongoDB</span>
+                          <span>Connecté</span>
                         </div>
                       ) : (
                         <div className="flex items-center text-orange-600 text-xs">
