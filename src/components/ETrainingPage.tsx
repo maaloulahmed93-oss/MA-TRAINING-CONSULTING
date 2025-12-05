@@ -267,7 +267,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     {
       icon: Users,
       title: "Espace Participant",
-      subtitle: "Accédez à vos sessions d'accompagnement",
+      subtitle: "Accédez à votre espace d'accompagnement",
       buttonText: "Accéder maintenant",
       color: "blue",
     },
@@ -544,7 +544,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   •
                   <span className="text-orange-600 font-semibold">
                     {" "}
-                    Suivi sur-mesure
+                    Suivi professionnel
                   </span>
                 </p>
 
