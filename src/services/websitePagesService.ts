@@ -63,7 +63,7 @@ export class WebsitePagesService {
         _id: 'default-1',
         pageId: 'PAGE-ABOUT',
         title: 'À propos de nous',
-        description: 'Des experts humains, une mission claire, une vision tournée vers l\'impact.',
+        description: 'Des experts engagés, une mission claire et une vision orientée vers l\'impact et la transformation professionnelle.',
         icon: '👥',
         buttonText: 'En savoir plus',
         buttonLink: '/about',
