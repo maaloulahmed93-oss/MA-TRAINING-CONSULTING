@@ -273,8 +273,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     },
     {
       icon: Shield,
-      title: "Consulter vos Documents",
-      subtitle: "Accédez à vos rapports et ressources personnalisées",
+      title: "Vérification de Participation",
+      subtitle: "Confirmez l'authenticité des documents liés à un parcours d'accompagnement",
       buttonText: "Consulter maintenant",
       color: "purple",
     },
@@ -557,7 +557,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       onClick={() => {
                         if (card.title === "Espace Participant") {
                           navigate("/espace-participant");
-                        } else if (card.title === "Consulter vos Documents") {
+                        } else if (card.title === "Vérification de Participation") {
                           setShowCertificateVerification(true);
                         } else if (card.title === "Diagnostic Gratuit") {
                           setShowFreeCourseModal(true);
