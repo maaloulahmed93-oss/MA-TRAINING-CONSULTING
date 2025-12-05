@@ -7,18 +7,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import {
-  StarIcon,
-  CheckIcon,
-  PlayIcon,
-  BookOpenIcon,
-  UserGroupIcon,
-  ClockIcon,
-  TrophyIcon,
-  AcademicCapIcon,
-  SparklesIcon,
-  ArrowRightIcon,
-} from "@heroicons/react/24/solid";
-import {
   Mail,
   Users,
   Shield,
