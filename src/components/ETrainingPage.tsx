@@ -765,7 +765,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 Nos Valeurs
               </h2>
               <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-                Apprentissage interactif et personnalisé pour une transformation
+                Accompagnement interactif et personnalisé pour une évolution
                 professionnelle réussie
               </p>
             </div>
