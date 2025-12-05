@@ -991,8 +991,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 Parcours Structuré
               </h2>
               <p className="text-xl text-gray-600">
-                Un apprentissage progressif et méthodique pour garantir votre
-                réussite
+                Un chemin d'accompagnement progressif et méthodique pour garantir votre
+                réussite professionnelle
               </p>
             </div>
 
