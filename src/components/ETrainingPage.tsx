@@ -335,14 +335,14 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       icon: Briefcase,
       title: "Ateliers pratiques et concrets",
       description:
-        "Mise en pratique immédiate avec des projets réels du marché",
+        "Applications immédiates basées sur des situations réelles du marché",
       color: "green",
     },
     {
       icon: TrendingUp,
       title: "Consulting stratégique par des experts",
       description:
-        "Conseils d'experts expérimentés pour accélérer votre croissance",
+        "Conseils ciblés pour optimiser vos performances et accélérer votre croissance",
       color: "orange",
     },
   ];
