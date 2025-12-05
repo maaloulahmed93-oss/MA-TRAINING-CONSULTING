@@ -359,10 +359,43 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       )}
                     </motion.button>
 
+                    {/* Information Section */}
+                    <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <h4 className="font-bold text-gray-900 mb-4 text-lg">
+                        ❓ Pourquoi cette vérification ?
+                      </h4>
+                      <p className="text-gray-700 mb-4 leading-relaxed">
+                        Ce système permet de confirmer qu'une personne a réellement participé à un parcours d'accompagnement professionnel et qu'elle a reçu les documents internes liés à son suivi :
+                      </p>
+                      <ul className="space-y-2 mb-4 text-gray-700">
+                        <li className="flex items-start">
+                          <span className="mr-3 text-blue-600 font-bold">•</span>
+                          <span>Document de participation</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="mr-3 text-blue-600 font-bold">•</span>
+                          <span>Fiche d'évaluation interne</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="mr-3 text-blue-600 font-bold">•</span>
+                          <span>Synthèse des compétences travaillées</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="mr-3 text-blue-600 font-bold">•</span>
+                          <span>Recommandation du consultant</span>
+                        </li>
+                      </ul>
+                      <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                        <p className="text-sm text-orange-900">
+                          <span className="font-bold">⚠️ Important :</span> Il ne s'agit pas d'un certificat de formation mais d'une validation de participation à un accompagnement individuel ou professionnel.
+                        </p>
+                      </div>
+                    </div>
+
                     {/* Exemples d'IDs (depuis localStorage) */}
-                    <div className="mt-8 p-4 bg-gray-50 rounded-xl">
-                      <h4 className="font-semibold text-gray-900 mb-3">
-                        IDs d'exemple pour test :
+                    <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+                      <h4 className="font-semibold text-gray-900 mb-3 text-sm">
+                        Exemples de participation à tester :
                       </h4>
                       <div className="flex flex-wrap gap-2 justify-center">
                         {allIds.map((id) => (
