@@ -273,15 +273,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     },
     {
       icon: Shield,
-      title: "Vérifier Certification",
-      subtitle: "Validez votre certificat professionnel",
-      buttonText: "Vérifier maintenant",
+      title: "Consulter vos Documents",
+      subtitle: "Accédez à vos rapports et ressources personnalisées",
+      buttonText: "Consulter maintenant",
       color: "purple",
     },
     {
       icon: Lightbulb,
-      title: "Session Gratuite",
-      subtitle: "Initiation offerte",
+      title: "Diagnostic Gratuit",
+      subtitle: "Analyse initiale offerte",
       buttonText: "Commencer gratuitement",
       color: "yellow",
     },
@@ -557,9 +557,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       onClick={() => {
                         if (card.title === "Espace Participant") {
                           navigate("/espace-participant");
-                        } else if (card.title === "Vérifier Certification") {
+                        } else if (card.title === "Consulter vos Documents") {
                           setShowCertificateVerification(true);
-                        } else if (card.title === "Session Gratuite") {
+                        } else if (card.title === "Diagnostic Gratuit") {
                           setShowFreeCourseModal(true);
                         }
                       }}
