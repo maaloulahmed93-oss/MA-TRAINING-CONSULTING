@@ -75,6 +75,12 @@ const AboutPage: React.FC<AboutPageProps> = ({
         "Nous connectons l'accompagnement professionnel, le développement des compétences et la transformation digitale pour aider les entreprises et les individus à évoluer efficacement et durablement.",
       heroCta: "Découvrez nos services",
 
+      // Stats Section
+      statsTitle: "Nos Réalisations",
+      projectsCompleted: "Projets Réalisés",
+      internationalPartners: "Partenaires Internationaux",
+      clientSatisfaction: "Satisfaction Client",
+
       // Vision & Mission
       visionMissionTitle: "Notre Vision et Mission",
       visionTitle: "Vision",
@@ -176,6 +182,12 @@ const AboutPage: React.FC<AboutPageProps> = ({
         "نربط بين الدعم المهني وتطوير المهارات والتحول الرقمي لمساعدة الشركات والأفراد على التطور بفعالية واستدامة",
       heroCta: "اكتشف خدماتنا",
 
+      // Stats Section
+      statsTitle: "إنجازاتنا",
+      projectsCompleted: "مشاريع منجزة",
+      internationalPartners: "شركاء دوليون",
+      clientSatisfaction: "رضا العملاء",
+
       // Vision & Mission
       visionMissionTitle: "رؤيتنا ورسالتنا",
       visionTitle: "الرؤية",
@@ -274,6 +286,12 @@ const AboutPage: React.FC<AboutPageProps> = ({
       heroSubtitle:
         "We connect professional support, skills development, and digital transformation to help businesses and individuals evolve effectively and sustainably",
       heroCta: "Discover our services",
+
+      // Stats Section
+      statsTitle: "Our Achievements",
+      projectsCompleted: "Projects Completed",
+      internationalPartners: "International Partners",
+      clientSatisfaction: "Client Satisfaction",
 
       // Vision & Mission
       visionMissionTitle: "Our Vision and Mission",
