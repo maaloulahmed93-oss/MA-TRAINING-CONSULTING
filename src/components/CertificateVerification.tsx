@@ -306,11 +306,10 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     <div className="p-4 bg-blue-50 rounded-xl">
                       <Search className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Rechercher une attestation
+                        Rechercher une participation
                       </h3>
                       <p className="text-gray-600">
-                        Saisissez l'ID de votre attestation pour vérifier son
-                        authenticité
+                        Saisissez l'ID unique pour vérifier l'authenticité des documents fournis
                       </p>
                     </div>
 
