@@ -240,8 +240,13 @@
             resultDiv.innerHTML = '<div class="status info">⏳ جاري فحص البريد الإلكتروني...</div>';
 
             try {
+                // Add timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
                 // Get email from backend
-                const response = await fetch(`${API_BASE}/global-email`);
+                const response = await fetch(`${API_BASE}/global-email`, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 const data = await response.json();
 
                 if (data.success) {
@@ -300,11 +305,16 @@
             try {
                 const correctEmail = 'contact|partenariat@matc.com';
                 
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
                 const response = await fetch(`${API_BASE}/global-email`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: correctEmail })
+                    body: JSON.stringify({ email: correctEmail }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
 
@@ -345,7 +355,11 @@
             resultDiv.innerHTML = '<div class="status info">⏳ جاري فحص بيانات الشراكات...</div>';
 
             try {
-                const response = await fetch(`${API_BASE}`);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(`${API_BASE}`, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 const data = await response.json();
 
                 if (data.success) {
@@ -453,7 +467,11 @@
             resultDiv.innerHTML = '<div class="status info">⏳ جاري فحص إعدادات الظهور...</div>';
 
             try {
-                const response = await fetch(`${API_BASE}/visibility`);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(`${API_BASE}/visibility`, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 const data = await response.json();
 
                 if (data.success) {

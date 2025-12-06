@@ -1859,17 +1859,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                <button
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl transition-colors ${
-                    showAdvancedFilters
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Filter className="w-5 h-5" />
-                  <span>Filtres avancés</span>
-                </button>
               </div>
 
               {/* Category Filters */}

@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+// OPTIMIZATION: In-memory cache for partnership settings
+let settingsCache = null;
+let cacheTimestamp = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+
 const partnershipSettingsSchema = new mongoose.Schema({
   // Global contact email for all partnerships
   globalContactEmail: {
@@ -48,8 +53,15 @@ partnershipSettingsSchema.pre('save', function(next) {
   next();
 });
 
-// Static method to get or create settings (Singleton pattern)
+// Static method to get or create settings (Singleton pattern with CACHE)
 partnershipSettingsSchema.statics.getSettings = async function() {
+  // OPTIMIZATION: Check cache first
+  const now = Date.now();
+  if (settingsCache && cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION) {
+    console.log('✅ Using cached partnership settings');
+    return settingsCache;
+  }
+
   let settings = await this.findOne({ settingsId: 'partnership_settings' });
   
   if (!settings) {
@@ -68,6 +80,10 @@ partnershipSettingsSchema.statics.getSettings = async function() {
     console.log('✅ Default partnership settings created');
   }
   
+  // OPTIMIZATION: Update cache
+  settingsCache = settings;
+  cacheTimestamp = now;
+  
   return settings;
 };
 
@@ -76,6 +92,11 @@ partnershipSettingsSchema.statics.updateGlobalEmail = async function(email) {
   const settings = await this.getSettings();
   settings.globalContactEmail = email;
   await settings.save();
+  
+  // OPTIMIZATION: Invalidate cache
+  settingsCache = null;
+  cacheTimestamp = null;
+  
   return settings;
 };
 
@@ -84,6 +105,11 @@ partnershipSettingsSchema.statics.updateVisibility = async function(visibilityDa
   const settings = await this.getSettings();
   settings.visibilitySettings = { ...settings.visibilitySettings, ...visibilityData };
   await settings.save();
+  
+  // OPTIMIZATION: Invalidate cache
+  settingsCache = null;
+  cacheTimestamp = null;
+  
   return settings;
 };
 

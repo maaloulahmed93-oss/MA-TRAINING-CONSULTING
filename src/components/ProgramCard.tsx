@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Users, BookOpen } from 'lucide-react';
+import { Clock, Users } from 'lucide-react';
 import { Program } from '../data/trainingPrograms';
 import { convertPrice } from '../utils/currencyConverter';
 
@@ -102,33 +102,18 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
             <Users className="w-5 h-5 text-emerald-500" />
             <span className="text-sm font-medium text-gray-700">Max {program.maxStudents}</span>
           </div>
-          <div className="flex items-center gap-3 bg-purple-50 p-3 rounded-xl border border-purple-100">
-            <Calendar className="w-5 h-5 text-purple-500" />
-            <span className="text-sm font-medium text-gray-700">{program.sessions.length} cycles / an</span>
-          </div>
-          <div className="flex items-center gap-3 bg-orange-50 p-3 rounded-xl border border-orange-100">
-            <BookOpen className="w-5 h-5 text-orange-500" />
-            <span className="text-sm font-medium text-gray-700">{program.modules.length} modules</span>
-          </div>
         </div>
 
-
-
-        {/* Modules preview avec design moderne */}
+        {/* Étapes du parcours avec design moderne */}
         <div>
-          <p className="text-sm font-bold text-gray-900 mb-3">Modules inclus:</p>
+          <p className="text-sm font-bold text-gray-900 mb-3">Étapes du parcours :</p>
           <div className="space-y-2">
-            {program.modules.slice(0, 3).map((module, index) => (
+            {['Diagnostic', 'Ateliers', 'Exercices', 'Dossier final', 'Suivi'].map((step, index) => (
               <div key={index} className="flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-100">
                 <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                <span className="text-sm text-gray-700 font-medium">{module}</span>
+                <span className="text-sm text-gray-700 font-medium">{step}</span>
               </div>
             ))}
-            {program.modules.length > 3 && (
-              <p className="text-sm text-gray-500 pl-5 font-medium">
-                +{program.modules.length - 3} autres modules
-              </p>
-            )}
           </div>
         </div>
       </div>
