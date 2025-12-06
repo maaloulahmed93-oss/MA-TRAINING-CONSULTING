@@ -2,23 +2,13 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
-  Calendar,
   User,
   Mail,
   Phone,
   CheckCircle,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { Program } from "../data/trainingPrograms";
 import { addRegistration } from "../services/registrationService";
-
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 
 interface ProgramRegistrationModalProps {
   isOpen: boolean;
@@ -289,120 +279,6 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
             </div>
 
             <div className="p-6">
-              {/* Description du programme */}
-              <div className="mb-8">
-                <p className="text-gray-700 leading-relaxed mb-6">
-                  {program.description}
-                </p>
-              </div>
-
-              {/* Carousel des cycles */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-blue-500" />
-                  Cycles disponibles
-                </h3>
-
-                <div className="relative">
-                  <Swiper
-                    modules={[Navigation, Pagination, Autoplay]}
-                    spaceBetween={20}
-                    slidesPerView={1}
-                    breakpoints={{
-                      640: { slidesPerView: 2 },
-                      1024: { slidesPerView: 3 },
-                    }}
-                    navigation={{
-                      prevEl: ".swiper-button-prev-custom",
-                      nextEl: ".swiper-button-next-custom",
-                    }}
-                    pagination={{
-                      clickable: true,
-                      dynamicBullets: true,
-                    }}
-                    autoplay={{
-                      delay: 3000,
-                      disableOnInteraction: false,
-                    }}
-                    loop={true}
-                    className="cycles-swiper pb-12"
-                  >
-                    {program.sessions.map((session) => (
-                      <SwiperSlide key={session.id}>
-                        <motion.div
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                            formData.selectedSession === session.id
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 hover:border-blue-300"
-                          }`}
-                          onClick={() =>
-                            handleInputChange("selectedSession", session.id)
-                          }
-                        >
-                          <div className="text-center">
-                            <Calendar className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                            <p className="font-medium text-gray-900 mb-1">
-                              Cycle {session.id.split("-").pop()}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {session.date}
-                            </p>
-                            {formData.selectedSession === session.id && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="mt-2"
-                              >
-                                <CheckCircle className="w-5 h-5 text-blue-500 mx-auto" />
-                              </motion.div>
-                            )}
-                          </div>
-                        </motion.div>
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-
-                  {/* Navigation personnalisée */}
-                  <div className="swiper-button-prev-custom absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
-                  </div>
-                  <div className="swiper-button-next-custom absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                    <ChevronRight className="w-5 h-5 text-gray-600" />
-                  </div>
-                </div>
-
-                {errors.selectedSession && (
-                  <p className="text-red-500 text-sm mt-2">
-                    {errors.selectedSession}
-                  </p>
-                )}
-              </div>
-
-              {/* Modules du parcours */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  Modules du parcours
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {program.modules.map((module, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                        {index + 1}
-                      </div>
-                      <span className="text-gray-700 text-sm">{module}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
               {/* Formulaire d'inscription */}
               {!isSuccess ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -518,6 +394,78 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                         {errors.whatsapp}
                       </p>
                     )}
+                  </div>
+
+                  {/* Cycles disponibles */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                      Cycles disponibles
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                      {program.sessions.map((session) => (
+                        <motion.div
+                          key={session.id}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            formData.selectedSession === session.id
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 hover:border-blue-300"
+                          }`}
+                          onClick={() =>
+                            handleInputChange("selectedSession", session.id)
+                          }
+                        >
+                          <div className="text-center">
+                            <p className="font-medium text-gray-900 mb-1">
+                              Cycle {session.id.split("-").pop()}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {session.date}
+                            </p>
+                            {formData.selectedSession === session.id && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="mt-2"
+                              >
+                                <CheckCircle className="w-5 h-5 text-blue-500 mx-auto" />
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {errors.selectedSession && (
+                      <p className="text-red-500 text-sm">
+                        {errors.selectedSession}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Modules du parcours */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                      Module d'Initiation & Fondamentaux au parcours professionnel
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {program.modules.map((module, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                        >
+                          <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                            {index + 1}
+                          </div>
+                          <span className="text-gray-700 text-sm">{module}</span>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Bouton de soumission */}
