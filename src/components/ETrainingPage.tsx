@@ -27,7 +27,8 @@ import {
   MessageCircle,
   Search,
   Filter,
-  X
+  X,
+  FileText
 } from "lucide-react";
 import { testimonialsApiService, TestimonialData } from "../services/testimonialsApiService";
 import CertificateVerification from "./CertificateVerification";
@@ -1261,98 +1262,112 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Parcours Structuré Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Processus d'Accompagnement Section */}
+      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             {/* Section Header */}
             <div className="text-center mb-16">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Parcours{" "}
+                Processus{" "}
                 <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Structuré
+                  d'Accompagnement
                 </span>
               </h2>
               <p className="text-xl text-gray-600">
-                Un chemin d'accompagnement progressif et méthodique pour garantir votre réussite professionnelle
+                Les étapes clés du parcours
               </p>
             </div>
 
-            {/* Journey Steps */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-16">
+            {/* 6 Steps Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
               {/* Step 1 */}
-              <div className="relative">
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-t-4 border-blue-500 text-center">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-700">
-                    <span className="text-white font-bold text-lg">1</span>
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-blue-500">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">1️⃣</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-3">Contenu de base</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Découverte des notions essentielles et repères fondamentaux liés à votre domaine d'activité
-                  </p>
+                  <h3 className="font-bold text-lg text-gray-900 pt-1">Analyse & diagnostic professionnel</h3>
                 </div>
-                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                  <ChevronRight className="w-6 h-6 text-blue-400" />
-                </div>
+                <p className="text-gray-600 text-sm leading-relaxed ml-16">
+                  Évaluation complète de votre profil, vos objectifs et vos besoins spécifiques
+                </p>
               </div>
 
               {/* Step 2 */}
-              <div className="relative">
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-t-4 border-purple-500 text-center">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-700">
-                    <span className="text-white font-bold text-lg">2</span>
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-purple-500">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">2️⃣</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-3">Ateliers en direct</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Sessions interactives en live avec nos experts pour explorer des méthodes, outils et approches concrètes
-                  </p>
+                  <h3 className="font-bold text-lg text-gray-900 pt-1">Rencontres d'accompagnement (en ligne)</h3>
                 </div>
-                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                  <ChevronRight className="w-6 h-6 text-blue-400" />
-                </div>
+                <p className="text-gray-600 text-sm leading-relaxed ml-16">
+                  Sessions interactives régulières avec nos experts pour explorer vos défis
+                </p>
               </div>
 
               {/* Step 3 */}
-              <div className="relative">
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-t-4 border-green-500 text-center ring-2 ring-blue-500">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-700">
-                    <span className="text-white font-bold text-lg">3</span>
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-green-500">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">3️⃣</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-3">Applications pratiques</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Mise en action immédiate à travers des exercices professionnels, projets appliqués et cas réels du marché
-                  </p>
+                  <h3 className="font-bold text-lg text-gray-900 pt-1">Études et cas pratiques du marché</h3>
                 </div>
-                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                  <ChevronRight className="w-6 h-6 text-blue-400" />
-                </div>
+                <p className="text-gray-600 text-sm leading-relaxed ml-16">
+                  Analyse de situations réelles et tendances actuelles de votre secteur
+                </p>
               </div>
 
               {/* Step 4 */}
-              <div className="relative">
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-t-4 border-orange-500 text-center">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-700">
-                    <span className="text-white font-bold text-lg">4</span>
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-orange-500">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">4️⃣</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-3">Suivi continu</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Accompagnement constant de votre évolution avec retours professionnels, ajustements et recommandations personnalisées
-                  </p>
+                  <h3 className="font-bold text-lg text-gray-900 pt-1">Exercices opérationnels appliqués</h3>
                 </div>
-                <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                  <ChevronRight className="w-6 h-6 text-blue-400" />
-                </div>
+                <p className="text-gray-600 text-sm leading-relaxed ml-16">
+                  Mise en pratique immédiate à travers des projets concrets et exercices professionnels
+                </p>
               </div>
 
               {/* Step 5 */}
-              <div className="relative">
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-t-4 border-pink-500 text-center">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-pink-500 to-pink-700">
-                    <span className="text-white font-bold text-lg">5</span>
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-pink-500">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">5️⃣</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-3">Coaching personnalisé</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Séances individuelles pour optimiser votre progression, clarifier vos objectifs et renforcer votre performance
+                  <h3 className="font-bold text-lg text-gray-900 pt-1">Feedback professionnel et ajustements</h3>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed ml-16">
+                  Retours détaillés et recommandations personnalisées pour votre progression
+                </p>
+              </div>
+
+              {/* Step 6 */}
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-indigo-500">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">6️⃣</span>
+                  </div>
+                  <h3 className="font-bold text-lg text-gray-900 pt-1">Validation interne et remise du dossier</h3>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed ml-16">
+                  Validation de vos compétences et remise du dossier professionnel complet
+                </p>
+              </div>
+            </div>
+
+            {/* Summary Box */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-10 shadow-lg text-white">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">✨</div>
+                <div>
+                  <h3 className="font-bold text-2xl mb-3">Un parcours complet et structuré</h3>
+                  <p className="text-blue-50 leading-relaxed">
+                    Chaque étape est conçue pour renforcer vos compétences, valider votre progression et vous préparer à réussir dans votre contexte professionnel. Notre approche garantit un accompagnement personnalisé et des résultats mesurables.
                   </p>
                 </div>
               </div>
@@ -1361,73 +1376,227 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Vos Résultats & Avantages Section */}
-      <section className="py-20 bg-white">
+      {/* Résultats & Avantages Section */}
+      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
             <div className="text-center mb-16">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Vos{" "}
+                Résultats{" "}
                 <span className="text-gradient bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                  Résultats
-                </span>{" "}
-                & Avantages ⭐
+                  & Avantages
+                </span>
               </h2>
               <p className="text-xl text-gray-600">
-                Des bénéfices concrets et durables pour accélérer votre évolution professionnelle
+                Ce que vous gagnez à la fin du parcours
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {/* Benefit 1 */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border border-blue-200">
-                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center mx-auto mb-4">
-                  <Award className="w-7 h-7 text-white" />
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Column - Visual Element */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl blur-3xl"></div>
+                <div className="relative bg-white rounded-2xl p-10 shadow-xl border border-gray-100">
+                  <div className="space-y-6">
+                    {/* Benefit Item 1 */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700">
+                          <Award className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Vision claire de votre domaine</h4>
+                        <p className="text-sm text-gray-600">Compréhension approfondie des enjeux et tendances</p>
+                      </div>
+                    </div>
+
+                    {/* Benefit Item 2 */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700">
+                          <TrendingUp className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Compétences pratiques renforcées</h4>
+                        <p className="text-sm text-gray-600">Maîtrise opérationnelle et immédiatement applicable</p>
+                      </div>
+                    </div>
+
+                    {/* Benefit Item 3 */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-green-700">
+                          <Briefcase className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Projet ou exercice appliqué selon votre niveau</h4>
+                        <p className="text-sm text-gray-600">Travail concret à valoriser dans votre portfolio</p>
+                      </div>
+                    </div>
+
+                    {/* Benefit Item 4 */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700">
+                          <FileText className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Dossier professionnel finalisé</h4>
+                        <p className="text-sm text-gray-600">Document complet attestant votre parcours</p>
+                      </div>
+                    </div>
+
+                    {/* Benefit Item 5 */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-pink-500 to-pink-700">
+                          <Mail className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Recommandation personnalisée</h4>
+                        <p className="text-sm text-gray-600">Lettre valorisant votre engagement et progression</p>
+                      </div>
+                    </div>
+
+                    {/* Benefit Item 6 */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700">
+                          <Users className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-1">Intégration dans notre réseau professionnel</h4>
+                        <p className="text-sm text-gray-600">Accès à une communauté d'experts et d'opportunités</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-bold text-gray-900 mb-3 text-center">
-                  Attestation professionnelle de compétences
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed text-center">
-                  Document professionnel délivré à la fin du parcours, confirmant votre participation et les compétences opérationnelles que vous avez démontrées au cours des ateliers et des sessions interactives.
-                </p>
               </div>
 
-              {/* Benefit 2 */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border border-purple-200">
-                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-7 h-7 text-white" />
+              {/* Right Column - Benefits List */}
+              <div className="space-y-8">
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-10 border border-yellow-200">
+                  <h3 className="font-bold text-2xl text-gray-900 mb-8 flex items-center gap-3">
+                    <span className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600 text-white font-bold text-lg">
+                      ✨
+                    </span>
+                    Vos Avantages
+                  </h3>
+
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Vision claire de votre domaine</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Compétences pratiques renforcées</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Projet ou exercice appliqué selon votre niveau</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Dossier professionnel finalisé</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Recommandation personnalisée</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 font-medium">Intégration dans notre réseau professionnel</span>
+                    </li>
+                  </ul>
                 </div>
-                <h3 className="font-bold text-gray-900 mb-3 text-center">
-                  Lettre de recommandation
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed text-center">
-                  Lettre personnalisée mettant en valeur votre engagement, votre progression et la qualité de vos contributions durant l'accompagnement.
-                </p>
+
+                {/* Highlight Box */}
+                <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
+                  <p className="text-gray-800 leading-relaxed">
+                    <span className="font-semibold text-gray-900">Résultat final :</span> Un parcours complet qui vous transforme professionnellement avec des preuves tangibles de votre progression et des opportunités concrètes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mentions Légales Section */}
+      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-5xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                📝 Mentions Légales
+              </h2>
+              <p className="text-xl text-gray-600">
+                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">
+                  Documents Professionnels
+                </span>
+              </p>
+            </div>
+
+            {/* Legal Notice Box */}
+            <div className="bg-white rounded-2xl p-12 shadow-lg border border-gray-100">
+              {/* Disclaimer Box */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-10 border-l-4 border-blue-600">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white text-xl font-bold">
+                      ⚠️
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-4">Important à retenir</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-600 text-white flex-shrink-0 mt-0.5 font-bold text-sm">
+                          1
+                        </span>
+                        <p className="text-gray-800 leading-relaxed">
+                          <span className="font-semibold text-gray-900">Accompagnement professionnel uniquement :</span> MA Training Consulting propose uniquement de l'accompagnement professionnel, pas de formations réglementées.
+                        </p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-600 text-white flex-shrink-0 mt-0.5 font-bold text-sm">
+                          2
+                        </span>
+                        <p className="text-gray-800 leading-relaxed">
+                          <span className="font-semibold text-gray-900">Documents privés :</span> Les documents délivrés (dossier professionnel, recommandation, preuves de participation) sont privés et attestent du suivi du parcours, sans équivalence à un diplôme ou certification officielle.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Benefit 3 */}
-              <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border border-green-200">
-                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-3 text-center">
-                  Accès au réseau d'experts
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed text-center">
-                  Rejoignez notre communauté professionnelle, connectez-vous à des experts et développez votre réseau dans plusieurs secteurs d'activité.
-                </p>
-              </div>
-
-              {/* Benefit 4 */}
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border border-orange-200">
-                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-3 text-center">
-                  Priorité aux opportunités
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed text-center">
-                  Accès privilégié à certaines offres, collaborations, missions et opportunités proposées par nos partenaires et notre réseau professionnel.
+              {/* Additional Info */}
+              <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-700 leading-relaxed">
+                  Ces documents complètent votre profil professionnel et sont reconnus par les entreprises et recruteurs comme preuve de votre engagement et de vos compétences acquises, sans remplacer les qualifications officielles.
                 </p>
               </div>
             </div>
