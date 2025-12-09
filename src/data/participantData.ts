@@ -475,7 +475,7 @@ export const mockFAQ: FAQ[] = [
   {
     id: 'FAQ-001',
     question: 'Comment accéder à mes formations ?',
-    answer: 'Vous pouvez accéder à vos formations depuis la section "Mes Formations" de votre tableau de bord. Cliquez sur une formation pour voir les cours et modules disponibles.',
+    answer: 'Vous pouvez accéder à vos formations depuis la section "Mes Parcours" de votre tableau de bord. Cliquez sur une formation pour voir les cours et modules disponibles.',
     category: 'Formations',
     isPopular: true
   },

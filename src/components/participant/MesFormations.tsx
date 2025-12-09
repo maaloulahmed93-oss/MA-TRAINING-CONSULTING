@@ -165,7 +165,7 @@ const MesFormations = ({ participantId, onNavigate }: MesFormationsProps) => {
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
                     <Video className="w-5 h-5 text-white" />
                   </div>
-                  Sessions de cours
+                  🎯 Votre Parcours
                 </h2>
                 <div className="bg-white px-4 py-2 rounded-full shadow-sm border">
                   <span className="text-sm font-medium text-gray-600">
@@ -212,7 +212,7 @@ const MesFormations = ({ participantId, onNavigate }: MesFormationsProps) => {
                               <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
                             </svg>
                           </div>
-                          <h4 className="text-lg font-semibold text-gray-800">Liens de session</h4>
+                          <h4 className="text-lg font-semibold text-gray-800">Contenus disponibles</h4>
                           <div className="bg-blue-100 px-3 py-1 rounded-full">
                             <span className="text-xs font-medium text-blue-700">{session.links.length} lien{session.links.length > 1 ? 's' : ''}</span>
                           </div>
@@ -434,9 +434,14 @@ const MesFormations = ({ participantId, onNavigate }: MesFormationsProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Courses List */}
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Cours de la formation
-            </h2>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                Vos Modules
+              </h2>
+              <p className="text-gray-600">
+                Retrouvez ici toutes les étapes de votre parcours
+              </p>
+            </div>
             {selectedFormation.courses.map((course, index) => (
               <motion.div
                 key={course.id}
@@ -482,9 +487,9 @@ const MesFormations = ({ participantId, onNavigate }: MesFormationsProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Mes Formations</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Mes Parcours</h1>
               <p className="text-gray-600">
-                Accédez à vos formations et suivez votre progression
+                Accédez à vos parcours personnalisés et suivez votre progression étape par étape
               </p>
             </div>
             <button

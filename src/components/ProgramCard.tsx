@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Program } from '../data/trainingPrograms';
 import { convertPrice } from '../utils/currencyConverter';
 
@@ -15,6 +16,8 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
   selectedCurrency,
   onRegisterClick
 }) => {
+  const navigate = useNavigate();
+
   // Fonction pour formater le prix selon la devise avec conversion
   const formatPrice = (price?: number) => {
     if (!price) return "Prix sur demande";
@@ -121,7 +124,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
       {/* Bouton d'inscription avec design premium */}
       <div className="p-8 pt-0 relative z-10">
         <motion.button
-          onClick={() => onRegisterClick(program)}
+          onClick={() => navigate('/diagnostic-wonder')}
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
@@ -130,7 +133,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           {/* Effet de brillance */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
           
-          <span className="relative z-10">Inscription</span>
+          <span className="relative z-10">Passer le Diagnostic</span>
         </motion.button>
       </div>
     </motion.div>

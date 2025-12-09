@@ -10,11 +10,9 @@ import {
   Clock,
   Target,
   CheckCircle,
-  PlayCircle,
-  Users,
   AlertCircle
 } from 'lucide-react';
-import { mockParticipants, mockProjects, mockNotifications } from '../../data/participantData';
+import { mockParticipants } from '../../data/participantData';
 import { Participant } from '../../types/participant';
 import { participantApiService, ApiParticipant } from '../../services/participantApiService';
 
@@ -38,13 +36,9 @@ const ParticipantDashboard = ({ participantId, onNavigate }: ParticipantDashboar
   // ALL useState hooks declared at the top - NEVER move these or add conditional logic before them
   const [participant, setParticipant] = useState<Participant | ApiParticipant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const [activeProjects, setActiveProjects] = useState(0);
   
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   
-  const [showActivityToast, setShowActivityToast] = useState(false);
-  const [toastActivity, setToastActivity] = useState<Activity | null>(null);
   const [progressStats, setProgressStats] = useState({
     globalProgress: 0,
     completedCourses: 0,
@@ -63,22 +57,14 @@ const ParticipantDashboard = ({ participantId, onNavigate }: ParticipantDashboar
         const apiParticipant = await participantApiService.getParticipant(participantId);
         if (apiParticipant) {
           setParticipant(apiParticipant);
-          setUnreadNotifications(apiParticipant.notifications?.filter(n => !n.isRead).length || 0);
-          setActiveProjects(apiParticipant.projects?.filter(p => 
-            p.status === 'in_progress' || p.status === 'submitted'
-          ).length || 0);
         } else {
           const mockParticipant = mockParticipants[participantId] || mockParticipants['PART-2024-001'];
           setParticipant(mockParticipant);
-          setUnreadNotifications(mockNotifications.filter(n => !n.isRead).length);
-          setActiveProjects(mockProjects.filter(p => p.status === 'En attente' || p.status === 'En révision').length);
         }
       } catch (error) {
         console.error('Error loading participant data:', error);
         const mockParticipant = mockParticipants[participantId] || mockParticipants['PART-2024-001'];
         setParticipant(mockParticipant);
-        setUnreadNotifications(mockNotifications.filter(n => !n.isRead).length);
-        setActiveProjects(mockProjects.filter(p => p.status === 'En attente' || p.status === 'En révision').length);
       } finally {
         setIsLoading(false);
       }
@@ -288,21 +274,6 @@ const ParticipantDashboard = ({ participantId, onNavigate }: ParticipantDashboar
     return participant.fullName || 'Participant';
   };
 
-  const getCompletedCourses = () => {
-    if (!participant) return 0;
-    if ('completedCourses' in participant) return participant.completedCourses;
-    return participant.formations?.reduce((total, formation) => {
-      return total + (formation.courses?.filter((c: any) => c.isCompleted).length || 0);
-    }, 0) || 0;
-  };
-
-  const getTotalCourses = () => {
-    if (!participant) return 0;
-    if ('totalCourses' in participant) return participant.totalCourses;
-    return participant.formations?.reduce((total, formation) => {
-      return total + (formation.courses?.length || 0);
-    }, 0) || 0;
-  };
 
   const getEnrollmentDate = (): string => {
     if (!participant) return new Date().toISOString();
@@ -382,7 +353,7 @@ const ParticipantDashboard = ({ participantId, onNavigate }: ParticipantDashboar
   const quickActions = [
     {
       id: 'formations',
-      title: 'Mes Formations',
+      title: 'Mes Parcours',
       description: '',
       icon: BookOpen,
       color: 'from-blue-500 to-blue-600',
@@ -591,25 +562,6 @@ const ParticipantDashboard = ({ participantId, onNavigate }: ParticipantDashboar
       </div>
 
       {/* Toast Notifications */}
-      {showActivityToast && toastActivity && (
-        <motion.div
-          initial={{ opacity: 0, x: 300 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 300 }}
-          className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 max-w-sm z-50"
-        >
-          <div className="flex items-start space-x-3">
-            <div className={`flex-shrink-0 w-8 h-8 ${toastActivity.bgColor} rounded-lg flex items-center justify-center`}>
-              <toastActivity.icon className={`w-4 h-4 ${toastActivity.iconColor}`} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">{toastActivity.title}</p>
-              <p className="text-xs text-gray-600">{toastActivity.description}</p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
       {showProgressToast && (
         <motion.div
           initial={{ opacity: 0, y: 50 }}

@@ -332,7 +332,7 @@ const ParticipantSpace = () => {
                 <div className="relative z-10 text-center">
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Bienvenue!</h2>
                   <p className="text-base sm:text-lg text-blue-100 leading-relaxed max-w-md mx-auto px-2">
-                    Accédez à votre espace de formation consultative avec tous vos cours, ressources et outils d'apprentissage.
+                    Accédez à votre espace d'accompagnement avec vos séances, outils pratiques et ressources personnalisées.
                   </p>
                 </div>
               </div>

@@ -283,7 +283,7 @@ const ParticipantDashboard = ({ participantId, onNavigate }: ParticipantDashboar
   const quickActions = [
     {
       id: 'formations',
-      title: 'Mes Formations',
+      title: 'Mes Parcours',
       description: `${getCompletedCourses()}/${getTotalCourses()} cours terminés`,
       icon: BookOpen,
       color: 'from-blue-500 to-blue-600',
