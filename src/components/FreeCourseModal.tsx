@@ -378,7 +378,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
               )}
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                  {currentStep === 'access-id' && '🎓 Accès Cours Gratuit'}
+                  {currentStep === 'access-id' && '🎯 Diagnostic – Pré-Parcours'}
                   {currentStep === 'domain-selection' && '📚 Choisir un Domaine'}
                   {currentStep === 'course-list' && `💻 Cours ${getCurrentDomain()?.title}`}
                   {currentStep === 'course-modules' && '📖 Modules du Cours'}
@@ -403,7 +403,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                   )}
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
-                  {currentStep === 'access-id' && 'Saisissez votre ID d\'accès pour commencer'}
+                  {currentStep === 'access-id' && 'Évaluez votre niveau réel avant de démarrer votre parcours personnalisé'}
                   {currentStep === 'domain-selection' && `Sélectionnez le domaine qui vous intéresse (${activeDomains.length} disponibles)`}
                   {currentStep === 'course-list' && 'Choisissez le cours que vous souhaitez suivre'}
                   {currentStep === 'course-modules' && 'Accédez aux modules de formation'}
@@ -433,10 +433,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                 >
                   <div className="mb-8">
                     <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="w-10 h-10 text-white" />
+                      <Search className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      Initiation Offerte
+                      🔍 Évaluation Offerte
                     </h3>
                     <p className="text-gray-600">
                       Accédez gratuitement à nos cours de formation professionnelle

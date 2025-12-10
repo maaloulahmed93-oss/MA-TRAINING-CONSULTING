@@ -3,12 +3,11 @@ import { motion } from 'framer-motion';
 import { Clock, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Program } from '../data/trainingPrograms';
-import { convertPrice } from '../utils/currencyConverter';
 
 interface ProgramCardProps {
   program: Program;
   selectedCurrency: string;
-  onRegisterClick: (program: Program) => void;
+  onRegisterClick?: (program: Program) => void;
 }
 
 const ProgramCard: React.FC<ProgramCardProps> = ({
@@ -18,19 +17,6 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Fonction pour formater le prix selon la devise avec conversion
-  const formatPrice = (price?: number) => {
-    if (!price) return "Prix sur demande";
-    return convertPrice(price, selectedCurrency);
-  };
-
-  // Couleurs pour les badges de niveau
-  const levelColors = {
-    "Débutant": "bg-green-100 text-green-800",
-    "Intermédiaire": "bg-yellow-100 text-yellow-800",
-    "Avancé": "bg-red-100 text-red-800",
-    "Expert": "bg-purple-100 text-purple-800"
-  };
 
   // Couleurs pour les badges de catégorie
   const categoryColors = {
@@ -56,11 +42,6 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
         <div className="flex items-start justify-between mb-6">
           <div className="flex flex-wrap gap-3">
             <span className={`px-4 py-2 rounded-full text-xs font-semibold border ${
-              levelColors[program.level as keyof typeof levelColors] || "bg-gray-100 text-gray-800"
-            } border-current/20`}>
-              {program.level}
-            </span>
-            <span className={`px-4 py-2 rounded-full text-xs font-semibold border ${
               categoryColors[
                 (typeof program.category === 'object' && program.category?.name 
                   ? program.category.name 
@@ -76,13 +57,14 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
                   : 'Non défini'}
             </span>
           </div>
-          {program.price && (
-            <div className="text-right">
-              <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {formatPrice(program.price)}
-              </p>
-            </div>
-          )}
+          <div className="text-right">
+            <p className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Tarif sur devis
+            </p>
+            <p className="text-xs text-gray-600 font-medium">
+              (après diagnostic)
+            </p>
+          </div>
         </div>
 
         <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">

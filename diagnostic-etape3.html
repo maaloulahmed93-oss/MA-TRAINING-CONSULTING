@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Étape 3 - MA TRAINING CONSULTING</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 60%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: #666;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        /* Main Content */
+        .content {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .step-title {
+            color: #2563eb;
+            font-size: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-title .icon {
+            font-size: 28px;
+        }
+
+        /* Information Box */
+        .info-box {
+            background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-box p {
+            color: #4b5563;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .question-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 15px;
+            margin-bottom: 20px;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .question-label span:first-child {
+            font-size: 18px;
+            min-width: 20px;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .radio-option-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .radio-option label {
+            margin: 0;
+            font-weight: 600;
+            cursor: pointer;
+            color: #2563eb;
+            font-size: 16px;
+        }
+
+        .radio-option-description {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 30px 20px;
+            }
+
+            .step-title {
+                font-size: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div style="margin-bottom: 20px;">
+            <button class="btn btn-back" onclick="goBack()">
+                <span>← Retour</span>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Trouvez votre Parcours Professionnel Recommandé</h1>
+            <p>Diagnostic Complet et Personnalisé</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">Étape 3 sur 5</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="step-title">
+                <span class="icon">👥</span>
+                <span>Format d'Accompagnement</span>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Comment préférez-vous suivre votre parcours lors des séances d'accompagnement ?</strong></p>
+                <p style="margin-top: 15px; color: #666; font-style: italic;">
+                    Remarque : plus le groupe est grand, plus le coût par personne diminue — et inversement.
+                </p>
+            </div>
+
+            <!-- Group Format Selection Form -->
+            <form onsubmit="submitGroupFormat(event)">
+                <div class="form-group">
+                    <label class="question-label">
+                        <span>🎯</span>
+                        <span>Sélectionnez votre format préféré :</span>
+                    </label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="individual" name="groupFormat" value="individual" required>
+                            <div class="radio-option-content">
+                                <label for="individual">🧍 Individuellement</label>
+                                <p class="radio-option-description">Suivi personnalisé en tête-à-tête</p>
+                            </div>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="duo" name="groupFormat" value="duo">
+                            <div class="radio-option-content">
+                                <label for="duo">👥 En duo (2 personnes)</label>
+                                <p class="radio-option-description">Accompagnement à deux avec partage des coûts</p>
+                            </div>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="smallGroup" name="groupFormat" value="smallGroup">
+                            <div class="radio-option-content">
+                                <label for="smallGroup">👨‍👩‍👧 En petit groupe (3–4 personnes)</label>
+                                <p class="radio-option-description">Dynamique de groupe avec coût réduit</p>
+                            </div>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="largeGroup" name="groupFormat" value="largeGroup">
+                            <div class="radio-option-content">
+                                <label for="largeGroup">👫 En groupe élargi (5–8 personnes)</label>
+                                <p class="radio-option-description">Économies maximales avec interaction de groupe</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <span>✓</span>
+                        <span>Continuer</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="skipStep()">
+                        <span>⏭️</span>
+                        <span>Passer cette étape</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        function submitGroupFormat(event) {
+            event.preventDefault();
+            
+            const selectedFormat = document.querySelector('input[name="groupFormat"]:checked');
+            
+            if (!selectedFormat) {
+                alert('Veuillez sélectionner un format d\'accompagnement');
+                return;
+            }
+
+            const formatMap = {
+                'individual': 'Individuellement',
+                'duo': 'En duo (2 personnes)',
+                'smallGroup': 'En petit groupe (3–4 personnes)',
+                'largeGroup': 'En groupe élargi (5–8 personnes)'
+            };
+
+            console.log('Group format submitted:', selectedFormat.value);
+            alert(`✅ Format sélectionné: ${formatMap[selectedFormat.value]}\n\nVous serez redirigé vers l'étape suivante...`);
+            
+            // Redirect to Étape 4
+            setTimeout(() => {
+                window.location.href = './diagnostic-etape4.html';
+            }, 1000);
+        }
+
+        function skipStep() {
+            if (confirm('Êtes-vous sûr de vouloir passer cette étape?')) {
+                console.log('Skipping step...');
+                alert('Vous avez choisi de passer cette étape. Redirection en cours...');
+                // Redirect to Étape 4
+                setTimeout(() => {
+                    window.location.href = './diagnostic-etape4.html';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

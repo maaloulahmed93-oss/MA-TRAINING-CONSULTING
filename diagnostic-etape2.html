@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Étape 2 - MA TRAINING CONSULTING</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: #666;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        /* Main Content */
+        .content {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .step-title {
+            color: #2563eb;
+            font-size: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-title .icon {
+            font-size: 28px;
+        }
+
+        /* Information Box */
+        .info-box {
+            background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-box p {
+            color: #4b5563;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .question-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 15px;
+            margin-bottom: 15px;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .question-label span:first-child {
+            font-size: 18px;
+            min-width: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .radio-option label {
+            margin: 0;
+            font-weight: 500;
+            cursor: pointer;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 30px 20px;
+            }
+
+            .step-title {
+                font-size: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div style="margin-bottom: 20px;">
+            <button class="btn btn-back" onclick="goBack()">
+                <span>← Retour</span>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Trouvez votre Parcours Professionnel Recommandé</h1>
+            <p>Diagnostic Complet et Personnalisé</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">Étape 2 sur 5</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="step-title">
+                <span class="icon">📋</span>
+                <span>Sélection du Niveau</span>
+            </div>
+
+            <div class="info-box">
+                <p>Après avoir complété l'évaluation de votre niveau, nous vous invitons à sélectionner le niveau correspondant aux résultats obtenus dans votre diagnostic :</p>
+                <p style="margin-top: 15px; font-weight: 600; color: #2563eb;">
+                    • Niveau 1 — Débutant<br>
+                    • Niveau 2 — Intermédiaire<br>
+                    • Niveau 3 — Avancé
+                </p>
+                <p style="margin-top: 15px;">Si vous avez le moindre doute ou une hésitation dans votre choix, veuillez contacter notre conseiller commercial.</p>
+            </div>
+
+            <!-- Level Selection Form -->
+            <form onsubmit="submitLevel(event)">
+                <div class="form-group">
+                    <label class="question-label">
+                        <span>🎯</span>
+                        <span>Sélectionnez votre niveau :</span>
+                    </label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="level1" name="selectedLevel" value="beginner" required>
+                            <label for="level1">Niveau 1 — Débutant</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="level2" name="selectedLevel" value="intermediate">
+                            <label for="level2">Niveau 2 — Intermédiaire</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="level3" name="selectedLevel" value="advanced">
+                            <label for="level3">Niveau 3 — Avancé</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <span>✓</span>
+                        <span>Continuer</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="skipStep()">
+                        <span>⏭️</span>
+                        <span>Passer cette étape</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        function submitLevel(event) {
+            event.preventDefault();
+            
+            const selectedLevel = document.querySelector('input[name="selectedLevel"]:checked');
+            
+            if (!selectedLevel) {
+                alert('Veuillez sélectionner un niveau');
+                return;
+            }
+
+            const levelMap = {
+                'beginner': 'Débutant',
+                'intermediate': 'Intermédiaire',
+                'advanced': 'Avancé'
+            };
+
+            console.log('Level submitted:', selectedLevel.value);
+            alert(`✅ Niveau sélectionné: ${levelMap[selectedLevel.value]}\n\nVous serez redirigé vers l'étape suivante...`);
+            
+            // Redirect to Étape 3
+            setTimeout(() => {
+                window.location.href = './diagnostic-etape3.html';
+            }, 1000);
+        }
+
+        function skipStep() {
+            if (confirm('Êtes-vous sûr de vouloir passer cette étape?')) {
+                console.log('Skipping step...');
+                alert('Vous avez choisi de passer cette étape. Redirection en cours...');
+                // Redirect to Étape 3
+                setTimeout(() => {
+                    window.location.href = './diagnostic-etape3.html';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

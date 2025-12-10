@@ -25,8 +25,6 @@ import {
   ArrowLeft,
   ChevronRight,
   MessageCircle,
-  Search,
-  Filter,
   X,
   FileText
 } from "lucide-react";
@@ -36,7 +34,6 @@ import FreeCourseModal from "./FreeCourseModal";
 import ProgramRegistrationModal from "./ProgramRegistrationModal";
 import ProgramCard from "./ProgramCard";
 import ThemePackSection from "./ThemePackSection";
-import CurrencySelector from "./CurrencySelector";
 import InteractiveQCMModal from "./InteractiveQCMModal";
 import { Program, getTrainingPrograms } from "../data/trainingPrograms";
 import { getPacksWithFallback } from "../services/packsApi";
@@ -60,7 +57,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [ratingFilter, setRatingFilter] = useState(0);
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>("€");
   
   // States pour les témoignages
   const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
@@ -1829,208 +1825,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <p className="text-xl text-gray-600 mb-8">
                 Découvrez nos parcours d'expertise conçus pour transformer votre carrière
               </p>
-
-              {/* Currency Selector */}
-              <div className="flex justify-center mb-8">
-                <CurrencySelector
-                  selectedCurrency={selectedCurrency}
-                  onCurrencyChange={setSelectedCurrency}
-                />
-              </div>
-
-              <button
-                onClick={() => setShowUnifiedCatalogModal(true)}
-                className="cta-button mb-12"
-              >
-                🎯 Trouvez votre parcours idéal
-              </button>
             </div>
 
-            {/* Search and Filters */}
-            <div className="bg-gray-50 rounded-2xl p-6 mb-12">
-              <div className="flex flex-col md:flex-row gap-4 mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Rechercher un programme..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Category Filters */}
-              <div className="flex flex-wrap gap-2">
-                {[...categories, ...levels].map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => toggleFilter(filter)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedFilters.includes(filter)
-                        ? "bg-blue-600 text-white"
-                        : "bg-white text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {filter}
-                  </button>
-                ))}
-              </div>
-
-              {/* Advanced Filters Panel */}
-              {showAdvancedFilters && (
-                <div className="mt-6 p-6 bg-white rounded-xl border border-gray-200 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Filtres Avancés
-                    </h3>
-                    <button
-                      onClick={clearAllFilters}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      Effacer tout
-                    </button>
-                  </div>
-
-                  {/* Price Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Prix ({selectedCurrency}): {priceRange[0]} - {priceRange[1]}
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      <input
-                        type="range"
-                        min="0"
-                        max="5000"
-                        step="100"
-                        value={priceRange[0]}
-                        onChange={(e) =>
-                          setPriceRange([
-                            parseInt(e.target.value),
-                            priceRange[1],
-                          ])
-                        }
-                        className="flex-1"
-                      />
-                      <input
-                        type="range"
-                        min="0"
-                        max="5000"
-                        step="100"
-                        value={priceRange[1]}
-                        onChange={(e) =>
-                          setPriceRange([
-                            priceRange[0],
-                            parseInt(e.target.value),
-                          ])
-                        }
-                        className="flex-1"
-                      />
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500 mt-2">
-                      <span>0 {selectedCurrency}</span>
-                      <span>5000 {selectedCurrency}</span>
-                    </div>
-                  </div>
-
-                  {/* Duration Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Durée
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {durations.map((duration) => (
-                        <button
-                          key={duration}
-                          onClick={() => toggleDurationFilter(duration)}
-                          className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                            durationFilter.includes(duration)
-                              ? "bg-purple-600 text-white"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          }`}
-                        >
-                          {duration}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Rating Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Note minimum:{" "}
-                      {ratingFilter > 0 ? `${ratingFilter}+ étoiles` : "Toutes"}
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      {[0, 3, 4, 4.5, 4.8].map((rating) => (
-                        <button
-                          key={rating}
-                          onClick={() => setRatingFilter(rating)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            ratingFilter === rating
-                              ? "bg-yellow-500 text-white"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          }`}
-                        >
-                          {rating === 0 ? "Toutes" : `${rating}+`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Active Filters Summary */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        {filteredPrograms.length} programme(s) trouvé(s)
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedFilters.map((filter) => (
-                          <span
-                            key={filter}
-                            className="inline-flex items-center space-x-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs"
-                          >
-                            <span>{filter}</span>
-                            <button
-                              onClick={() => toggleFilter(filter)}
-                              className="hover:bg-blue-200 rounded-full p-0.5"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ))}
-                        {durationFilter.map((duration) => (
-                          <span
-                            key={duration}
-                            className="inline-flex items-center space-x-1 bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs"
-                          >
-                            <span>{duration}</span>
-                            <button
-                              onClick={() => toggleDurationFilter(duration)}
-                              className="hover:bg-purple-200 rounded-full p-0.5"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ))}
-                        {ratingFilter > 0 && (
-                          <span className="inline-flex items-center space-x-1 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">
-                            <span>{ratingFilter}+ étoiles</span>
-                            <button
-                              onClick={() => setRatingFilter(0)}
-                              className="hover:bg-yellow-200 rounded-full p-0.5"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Programs Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -2043,7 +1839,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div key={program.id} data-program-id={program.id}>
                   <ProgramCard
                     program={program}
-                    selectedCurrency={selectedCurrency}
+                    selectedCurrency="€"
                     onRegisterClick={handleProgramRegistration}
                   />
                 </div>
@@ -2055,7 +1851,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
       {/* Theme Packs Section */}
       <div id="packs-section">
-        <ThemePackSection selectedCurrency={selectedCurrency} />
+        <ThemePackSection selectedCurrency="€" />
       </div>
 
       {/* Interactive QCM Modal */}
@@ -2083,7 +1879,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         isOpen={showProgramModal}
         onClose={() => setShowProgramModal(false)}
         program={selectedProgram}
-        selectedCurrency={selectedCurrency}
+        selectedCurrency="€"
       />
     </div>
   );
