@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock, Users, ArrowRight, Sparkles } from 'lucide-react';
+import { Star, Users, ArrowRight, Sparkles } from 'lucide-react';
 import { Pack } from '../data/themePacks';
 import { convertPrice } from '../utils/currencyConverter';
 
@@ -52,9 +52,8 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
             <span className="text-gray-500 text-sm ml-2 font-medium">(4.9)</span>
           </div>
           <div className="flex items-center space-x-4 text-gray-500 text-sm">
-            <div className="flex items-center space-x-1.5 bg-gray-50 px-2.5 py-1 rounded-full">
-              <Clock className="w-3.5 h-3.5" />
-              <span className="font-medium">1 an</span>
+            <div className="flex items-center space-x-1.5 bg-blue-50 px-2.5 py-1 rounded-full text-blue-600">
+              <span className="font-medium">Accès : Illimité</span>
             </div>
             <div className="flex items-center space-x-1.5 bg-blue-50 px-2.5 py-1 rounded-full text-blue-600">
               <Users className="w-3.5 h-3.5" />
@@ -65,7 +64,7 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
 
         {/* Aperçu des programmes avec design amélioré */}
         <div className="space-y-3">
-          <p className="text-gray-700 text-sm font-medium">Inclut {pack.details.themes.length} programmes spécialisés :</p>
+          <p className="text-gray-700 text-sm font-medium">Contenu du compte :</p>
           <div className="flex flex-wrap gap-2">
             {pack.details.themes.slice(0, 3).map((theme) => (
               <span

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, CheckCircle, User, Mail, Phone, MessageSquare } from 'lucide-react';
+import { X, Calendar, CheckCircle, User, Mail, Phone, MessageSquare } from 'lucide-react';
 import { Pack } from '../data/themePacks';
 import { convertPrice } from '../utils/currencyConverter';
 import { addRegistration } from "../services/registrationService";
@@ -174,7 +174,7 @@ const PackModal: React.FC<PackModalProps> = ({ pack, selectedCurrency, onClose }
                     <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
                       {convertPrice(pack.details.price, selectedCurrency)}
                     </div>
-                    <p className="text-gray-600 font-medium">Formation complète • Accès à vie</p>
+                    <p className="text-gray-600 font-medium">complète • Accès à vie<br />Ressources essentielles</p>
                   </div>
                 </div>
 
@@ -182,17 +182,13 @@ const PackModal: React.FC<PackModalProps> = ({ pack, selectedCurrency, onClose }
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                     <Calendar className="w-6 h-6 mr-3 text-blue-600" />
-                    Programmes et Planning
+                    Contenu du compte :
                   </h3>
                   <div className="space-y-6">
                     {pack.details.themes.map((theme) => (
                       <div key={theme.themeId} className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
                           <h4 className="text-lg font-bold text-gray-900">{theme.name}</h4>
-                          <div className="flex items-center bg-blue-50 px-3 py-1.5 rounded-full text-sm text-blue-700 font-medium">
-                            <Clock className="w-4 h-4 mr-2" />
-                            {new Date(theme.startDate).toLocaleDateString('fr-FR')} - {new Date(theme.endDate).toLocaleDateString('fr-FR')}
-                          </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {theme.modules.map((module) => (
