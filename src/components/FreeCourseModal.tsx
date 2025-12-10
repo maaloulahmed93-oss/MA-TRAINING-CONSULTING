@@ -405,7 +405,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                 <p className="text-gray-600 text-sm mt-1">
                   {currentStep === 'access-id' && 'Évaluez votre niveau réel avant de démarrer votre parcours personnalisé'}
                   {currentStep === 'domain-selection' && `Sélectionnez le domaine qui vous intéresse (${activeDomains.length} disponibles)`}
-                  {currentStep === 'course-list' && 'Choisissez le cours que vous souhaitez suivre'}
+                  {currentStep === 'course-list' && 'Sélectionnez le diagnostic que vous souhaitez effectuer'}
                   {currentStep === 'course-modules' && 'Accédez aux modules de formation'}
                 </p>
               </div>
