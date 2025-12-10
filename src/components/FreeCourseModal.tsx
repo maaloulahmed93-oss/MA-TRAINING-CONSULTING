@@ -640,8 +640,8 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                   exit="exit"
                 >
                   <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Diagnostic—Évaluation Obligatoire {getCurrentDomain()?.title}</h3>
-                    <p className="text-gray-600">{getCurrentDomain()?.courses.length} cours disponibles dans ce domaine</p>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Diagnostic—Évaluation Obligatoire "{getCurrentDomain()?.title}"</h3>
+                    <p className="text-gray-600">Diagnostic obligatoire pour accéder au parcours</p>
                   </div>
 
                   <div className="space-y-4">
