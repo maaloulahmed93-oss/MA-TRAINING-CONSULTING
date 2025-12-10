@@ -379,7 +379,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                   {currentStep === 'access-id' && '🎯 Diagnostic – Pré-Parcours'}
-                  {currentStep === 'domain-selection' && '📚 Choisir un Domaine'}
+                  {currentStep === 'domain-selection' && '🌐 Diagnostic de Compétences'}
                   {currentStep === 'course-list' && `💻 Cours ${getCurrentDomain()?.title}`}
                   {currentStep === 'course-modules' && '📖 Modules du Cours'}
                   
@@ -438,8 +438,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
                       🔍 Évaluation Offerte
                     </h3>
-                    <p className="text-gray-600">
-                      Accédez gratuitement à nos cours de formation professionnelle
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      Avant de finaliser votre inscription au parcours, veuillez compléter les choix ci-dessous afin d'obtenir une évaluation scientifique précise de votre niveau.<br /><br />
+                      <span className="font-semibold text-gray-700">(Pour recevoir votre code d'accès ou pour toute assistance, veuillez contacter notre conseiller commercial.)</span><br /><br />
+                      Une fois le diagnostic terminé, vous pourrez revenir au parcours et finaliser votre inscription.
                     </p>
                   </div>
 
@@ -504,10 +506,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                   {/* Header */}
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                      Choisissez votre domaine de formation
+                      Ce diagnostic nous permettra de déterminer votre niveau réel et de vous orienter vers le parcours le plus adapté à vos objectifs.
                     </h3>
-                    <p className="text-gray-600">
-                      Sélectionnez le domaine qui correspond à vos objectifs professionnels
+                    <p className="text-gray-600 mt-4">
+                      Veuillez sélectionner le domaine dans lequel vous souhaitez effectuer votre diagnostic.
                     </p>
                   </div>
 
