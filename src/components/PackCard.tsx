@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Users, ArrowRight, Sparkles } from 'lucide-react';
+import { Star, Users, ArrowRight } from 'lucide-react';
 import { Pack } from '../data/themePacks';
 import { convertPrice } from '../utils/currencyConverter';
 
@@ -28,11 +28,6 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-8 -translate-y-8"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-xl transform -translate-x-4 translate-y-4"></div>
         
-        {/* Badge économies avec design amélioré */}
-        <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm border border-white/20">
-          <Sparkles className="w-3 h-3 inline mr-1" />
-          -{convertPrice(pack.details.savings, selectedCurrency)}
-        </div>
         
         {/* Contenu du header */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/30 to-transparent">
@@ -85,17 +80,10 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
         {/* Prix avec design premium */}
         <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl p-4 border border-gray-100">
           <div className="text-center space-y-2">
-            <div className="flex items-center justify-center space-x-3">
+            <div className="flex items-center justify-center">
               <span className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
                 {convertPrice(pack.details.price, selectedCurrency)}
               </span>
-              <span className="text-lg text-gray-400 line-through font-medium">
-                {convertPrice(pack.details.originalPrice, selectedCurrency)}
-              </span>
-            </div>
-            <div className="inline-flex items-center bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Économisez {convertPrice(pack.details.savings, selectedCurrency)}
             </div>
           </div>
         </div>
@@ -114,7 +102,7 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
           {/* Effet de brillance */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
           
-          <span className="relative z-10">Découvrir le pack</span>
+          <span className="relative z-10">Découvrir le compte</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
         </motion.button>
       </div>

@@ -224,7 +224,7 @@ const PackModal: React.FC<PackModalProps> = ({ pack, selectedCurrency, onClose }
                 <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl p-8 border border-blue-100 shadow-lg backdrop-blur-sm">
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">Inscription</h3>
-                    <p className="text-gray-600">Rejoignez ce pack dès maintenant</p>
+                    <p className="text-gray-600">Accédez à ce compte dès maintenant</p>
                   </div>
                   
                   <form onSubmit={handleSubmit} className="space-y-6">

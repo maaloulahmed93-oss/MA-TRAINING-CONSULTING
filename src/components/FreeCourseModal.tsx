@@ -379,7 +379,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                   {currentStep === 'access-id' && '🎯 Diagnostic – Pré-Parcours'}
-                  {currentStep === 'domain-selection' && '📚 Choisir un Domaine'}
+                  {currentStep === 'domain-selection' && '🌐 Diagnostic de Compétences'}
                   {currentStep === 'course-list' && `💻 Cours ${getCurrentDomain()?.title}`}
                   {currentStep === 'course-modules' && '📖 Modules du Cours'}
                   
@@ -404,7 +404,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
                   {currentStep === 'access-id' && 'Évaluez votre niveau réel avant de démarrer votre parcours personnalisé'}
-                  {currentStep === 'domain-selection' && `Sélectionnez le domaine qui vous intéresse (${activeDomains.length} disponibles)`}
+                  {currentStep === 'domain-selection' && 'Veuillez sélectionner le domaine dans lequel vous souhaitez effectuer votre diagnostic.'}
                   {currentStep === 'course-list' && 'Choisissez le cours que vous souhaitez suivre'}
                   {currentStep === 'course-modules' && 'Accédez aux modules de formation'}
                 </p>
@@ -438,8 +438,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
                       🔍 Évaluation Offerte
                     </h3>
-                    <p className="text-gray-600">
-                      Accédez gratuitement à nos cours de formation professionnelle
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      Avant de finaliser votre inscription au parcours, veuillez compléter les choix ci-dessous afin d'obtenir une évaluation scientifique précise de votre niveau.<br className="hidden sm:block" />
+                      <span className="text-blue-600 font-medium">(Pour recevoir votre code d'accès ou pour toute assistance, veuillez contacter notre conseiller commercial.)</span><br className="hidden sm:block" />
+                      Une fois le diagnostic terminé, vous pourrez revenir au parcours et finaliser votre inscription.
                     </p>
                   </div>
 
@@ -504,11 +506,8 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                   {/* Header */}
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                      Choisissez votre domaine de formation
+                      Ce diagnostic nous permettra de déterminer votre niveau réel et de vous orienter vers le parcours le plus adapté à vos objectifs.
                     </h3>
-                    <p className="text-gray-600">
-                      Sélectionnez le domaine qui correspond à vos objectifs professionnels
-                    </p>
                   </div>
 
                   {/* Search Bar */}
@@ -523,19 +522,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                     />
                   </div>
 
-                  {/* Statistics */}
-                  <div className="flex justify-center gap-8 text-sm text-gray-600">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{filteredDomains.length}</div>
-                      <div>Domaines</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {filteredDomains.reduce((total, domain) => total + domain.courses.length, 0)}
-                      </div>
-                      <div>Cours Gratuits</div>
-                    </div>
-                  </div>
 
                   {/* Carousel Container */}
                   <div className="relative">
@@ -570,9 +556,11 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                                     <p className="text-gray-600 text-sm mb-4">
                                       {domain.description}
                                     </p>
-                                    <div className="flex items-center justify-center gap-2 text-blue-600 font-medium">
-                                      <span>{domain.courses.length} cours disponibles</span>
-                                      <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+                                    <div className="flex flex-col items-center justify-center gap-2">
+                                      <span className="text-gray-600 text-sm">Diagnostic de Niveau</span>
+                                      <span className="text-blue-600 font-medium flex items-center gap-1">
+                                        ➡️ Lancer le Diagnostic
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
