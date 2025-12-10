@@ -380,7 +380,7 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                   {currentStep === 'access-id' && '🎯 Diagnostic – Pré-Parcours'}
                   {currentStep === 'domain-selection' && '🌐 Diagnostic de Compétences'}
-                  {currentStep === 'course-list' && `💻 Cours ${getCurrentDomain()?.title}`}
+                  {currentStep === 'course-list' && `${getCurrentDomain()?.title}`}
                   {currentStep === 'course-modules' && '📖 Modules du Cours'}
                   
                   {/* API Status Indicator */}
