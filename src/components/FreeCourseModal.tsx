@@ -525,19 +525,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                     />
                   </div>
 
-                  {/* Statistics */}
-                  <div className="flex justify-center gap-8 text-sm text-gray-600">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{filteredDomains.length}</div>
-                      <div>Domaines</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {filteredDomains.reduce((total, domain) => total + domain.courses.length, 0)}
-                      </div>
-                      <div>Cours Gratuits</div>
-                    </div>
-                  </div>
 
                   {/* Carousel Container */}
                   <div className="relative">
@@ -563,19 +550,21 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                                   onClick={() => handleDomainSelect(domain.id)}
                                 >
                                   <div className="text-center">
-                                    <div className="domain-icon">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold mb-4">
                                       {domain.icon}
                                     </div>
                                     <h4 className="text-xl font-bold text-gray-800 mb-2">
                                       {domain.title}
                                     </h4>
-                                    <p className="text-gray-600 text-sm mb-4">
-                                      {domain.description}
-                                    </p>
-                                    <div className="flex items-center justify-center gap-2 text-blue-600 font-medium">
-                                      <span>{domain.courses.length} cours disponibles</span>
-                                      <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
-                                    </div>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDomainSelect(domain.id);
+                                      }}
+                                      className="inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700 transition-colors"
+                                    >
+                                      <span>➡️ Lancer le Diagnostic</span>
+                                    </button>
                                   </div>
                                 </div>
                               </motion.div>
