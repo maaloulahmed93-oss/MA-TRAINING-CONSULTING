@@ -277,9 +277,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     },
     {
       icon: Lightbulb,
-      title: "Diagnostic Gratuit",
-      subtitle: "Analyse initiale offerte",
-      buttonText: "Commencer gratuitement",
+      title: "Diagnostic Gratuit (Obligatoire)",
+      subtitle: "Analyse complète de votre niveau avant votre parcours",
+      buttonText: "Lancer le diagnostic",
       color: "yellow",
     },
   ];
