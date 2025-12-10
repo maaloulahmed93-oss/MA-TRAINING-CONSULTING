@@ -65,11 +65,11 @@ const ThemePackSection: React.FC<ThemePackSectionProps> = ({ selectedCurrency })
                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-200/50 rounded-full text-blue-700 text-sm font-medium mb-6 backdrop-blur-sm"
               >
                 <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                Packs Premium
+                Comptes Participants
               </motion.div>
               
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-6 leading-tight">
-                Packs par Thème
+                Ressources professionnelles clés en main
               </h2>
               
               {/* Ligne décorative */}
@@ -79,10 +79,40 @@ const ThemePackSection: React.FC<ThemePackSectionProps> = ({ selectedCurrency })
                 <div className="h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent w-24"></div>
               </div>
               
-              <p className="text-lg sm:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                Économisez jusqu'à <span className="font-semibold text-blue-600">40%</span> avec nos packs complets et accédez à plusieurs formations spécialisées.<br className="hidden sm:block" />
-                Chaque pack inclut un suivi personnalisé et des attestations d'expertise reconnues.
-              </p>
+              <div className="max-w-4xl mx-auto">
+                <p className="text-lg sm:text-xl text-gray-600 leading-relaxed mb-8">
+                  Accédez instantanément à des comptes thématiques contenant des documents, modèles, outils, vidéos enregistrées et ressources exclusives.<br className="hidden sm:block" />
+                  <span className="font-semibold text-blue-600">Aucun diagnostic ni parcours requis</span> — accès direct et immédiat.
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 text-gray-700">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">📂</span>
+                    <span className="text-sm sm:text-base">Documents & modèles professionnels</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">🎥</span>
+                    <span className="text-sm sm:text-base">Vidéos enregistrées</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">🧰</span>
+                    <span className="text-sm sm:text-base">Outils pratiques & checklists</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">📘</span>
+                    <span className="text-sm sm:text-base">Guides & supports complets</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg p-4 mb-8 text-center">
+                  <p className="text-blue-700 font-semibold text-lg">🔓 Accès illimité</p>
+                </div>
+                
+                <p className="text-center text-gray-600 italic">
+                  <span className="text-2xl font-bold text-blue-600">🔥</span> Comptes par Thème<br />
+                  Découvrez des comptes spécialement organisés par domaine pour vous offrir toutes les ressources essentielles dans un seul espace.
+                </p>
+              </div>
             </motion.div>
 
             {/* Packs Grid avec espacement amélioré */}
