@@ -129,7 +129,45 @@ router.post('/', validateProgramCreation, async (req, res) => {
     console.log('📦 req.body:', JSON.stringify(req.body, null, 2));
     console.log('📋 Headers:', req.headers);
     
-    const program = new Program(req.body);
+    // CRITICAL FIX: Convert category string to ObjectId if needed
+    let programData = { ...req.body };
+    
+    // If category is a string (category name), find the Category document and get its ID
+    if (typeof programData.category === 'string' && !programData.category.match(/^[0-9a-f]{24}$/i)) {
+      console.log('🔍 Category is a string name, converting to ObjectId...');
+      const Category = (await import('../models/Category.js')).default;
+      const categoryDoc = await Category.findOne({ name: programData.category });
+      
+      if (!categoryDoc) {
+        console.error('❌ Category not found:', programData.category);
+        return res.status(400).json({
+          success: false,
+          message: 'Catégorie non trouvée',
+          error: `La catégorie "${programData.category}" n'existe pas`
+        });
+      }
+      
+      programData.category = categoryDoc._id;
+      console.log('✅ Category converted to ObjectId:', categoryDoc._id);
+    }
+    
+    // Ensure all required fields have proper types
+    programData.level = programData.level || 'Débutant';
+    programData.price = Number(programData.price) || 0;
+    programData.sessionsPerYear = Number(programData.sessionsPerYear) || 1;
+    programData.isActive = programData.isActive !== false;
+    
+    // Ensure modules and sessions are arrays with proper structure
+    if (!Array.isArray(programData.modules) || programData.modules.length === 0) {
+      programData.modules = [{ title: 'Module par défaut' }];
+    }
+    if (!Array.isArray(programData.sessions) || programData.sessions.length === 0) {
+      programData.sessions = [{ title: 'Session par défaut', date: 'À définir' }];
+    }
+    
+    console.log('📋 Final program data before save:', JSON.stringify(programData, null, 2));
+    
+    const program = new Program(programData);
     console.log('🔄 Programme créé en mémoire, tentative de sauvegarde...');
     
     const savedProgram = await program.save();
@@ -144,19 +182,26 @@ router.post('/', validateProgramCreation, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Erreur lors de la création du programme:', error);
+    console.error('❌ Stack trace:', error.stack);
     
     if (error.name === 'ValidationError') {
+      console.error('❌ Validation errors:', error.errors);
       return res.status(400).json({
         success: false,
         message: 'Données invalides',
-        errors: Object.values(error.errors).map(err => err.message)
+        errors: Object.values(error.errors).map(err => ({
+          field: err.path,
+          message: err.message,
+          value: err.value
+        }))
       });
     }
 
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la création du programme',
-      error: error.message
+      error: error.message,
+      details: error.name
     });
   }
 });
