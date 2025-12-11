@@ -10,11 +10,9 @@ import './config/api.ts'
 console.log('🚀 MATC Admin Panel starting with Router...');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
 )
 
 console.log('✅ MATC Admin Panel loaded successfully with Router');

@@ -62,8 +62,6 @@ const ProgramManager: React.FC = () => {
     sessions: [{ title: '', date: '' }]
   });
 
-  const levels = ['Débutant', 'Intermédiaire', 'Avancé'];
-
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
@@ -449,21 +447,6 @@ const ProgramManager: React.FC = () => {
     const newModules = formData.modules.filter((_, i) => i !== index);
     setFormData({ ...formData, modules: newModules });
   };
-
-  // Add session
-  const addSession = () => {
-    setFormData({
-      ...formData,
-      sessions: [...formData.sessions, { title: '', date: '' }]
-    });
-  };
-
-  // Remove session
-  const removeSession = (index: number) => {
-    const newSessions = formData.sessions.filter((_, i) => i !== index);
-    setFormData({ ...formData, sessions: newSessions });
-  };
-
 
   // Debug info for current state
   console.log('🎨 Render state:', {

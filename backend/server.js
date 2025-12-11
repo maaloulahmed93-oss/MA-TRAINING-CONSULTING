@@ -50,6 +50,7 @@ const allowedOrigins = [
   'http://localhost:3001', // Backend self
   'http://127.0.0.1:8536', // Admin panel IP
   'http://127.0.0.1:5173', // Main site IP
+  'http://192.168.1.34:8536', // Local network admin panel - CRITICAL FIX
   'file://', // Local file access
 ];
 
