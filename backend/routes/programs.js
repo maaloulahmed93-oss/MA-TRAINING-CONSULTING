@@ -37,10 +37,22 @@ router.get('/', async (req, res) => {
 
     console.log('🔍 Query MongoDB:', query);
     
-    // Try to populate category, but handle errors gracefully
+    // Fetch programs with category population
     let programs;
     try {
-      programs = await Program.find(query).populate('category', 'name').sort({ createdAt: -1 });
+      programs = await Program.find(query)
+        .populate('category', 'name _id')
+        .sort({ createdAt: -1 });
+      
+      // Transform category for frontend compatibility
+      programs = programs.map(program => {
+        const programObj = program.toObject();
+        // Ensure category is a string for frontend
+        if (programObj.category && typeof programObj.category === 'object') {
+          programObj.category = programObj.category.name || programObj.category._id;
+        }
+        return programObj;
+      });
     } catch (populateError) {
       console.warn('⚠️ Populate error, fetching without populate:', populateError.message);
       programs = await Program.find(query).sort({ createdAt: -1 });

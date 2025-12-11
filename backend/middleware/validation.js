@@ -5,11 +5,14 @@ const programSchema = Joi.object({
   title: Joi.string().required().trim().min(3).max(200),
   description: Joi.string().required().trim().min(10).max(1000),
   category: Joi.string().required(),
-  level: Joi.string().required().valid('Débutant', 'Intermédiaire', 'Avancé'),
-  price: Joi.number().required().min(0),
+  level: Joi.string().default('Débutant').valid('Débutant', 'Intermédiaire', 'Avancé'),
+  price: Joi.number().default(0).min(0),
   duration: Joi.string().required().trim().min(3).max(100),
-  maxParticipants: Joi.number().required().min(1).max(1000),
-  sessionsPerYear: Joi.number().required().min(1).max(100),
+  maxParticipants: Joi.alternatives().try(
+    Joi.number().min(1).max(1000),
+    Joi.string().trim().pattern(/^\d+-\d+$/) // Accept range format like "1-10"
+  ).default(10),
+  sessionsPerYear: Joi.number().default(1).min(1).max(100),
   modules: Joi.array().items(
     Joi.object({
       title: Joi.string().required().trim().min(3).max(200)

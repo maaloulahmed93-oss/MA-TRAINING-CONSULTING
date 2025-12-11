@@ -53,9 +53,9 @@ const programSchema = new mongoose.Schema({
     trim: true
   },
   maxParticipants: {
-    type: Number,
+    type: mongoose.Schema.Types.Mixed,
     required: true,
-    min: 1
+    default: 10
   },
   sessionsPerYear: {
     type: Number,

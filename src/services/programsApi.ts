@@ -4,11 +4,11 @@ export interface ApiProgram {
   _id: string;
   title: string;
   description: string;
-  category: string;
+  category: string | { _id: string; name: string };
   level: string;
   price: number;
   duration: string;
-  maxParticipants: number;
+  maxParticipants: string | number;
   sessionsPerYear: number;
   modules: { title: string }[];
   sessions: { title: string; date: string }[];
@@ -35,6 +35,16 @@ export interface Program {
 
 // Transform API program to frontend format
 const transformApiProgram = (apiProgram: ApiProgram): Program => {
+  // Handle category - extract string from object if needed
+  const categoryString = typeof apiProgram.category === 'string' 
+    ? apiProgram.category 
+    : (apiProgram.category?.name || 'Technologies');
+  
+  // Handle maxParticipants - convert to number if string
+  const maxParticipantsNum = typeof apiProgram.maxParticipants === 'string'
+    ? parseInt(apiProgram.maxParticipants.split('-')[1] || '10', 10)
+    : (apiProgram.maxParticipants || 10);
+
   return {
     id: apiProgram._id,
     title: apiProgram.title,
@@ -49,10 +59,10 @@ const transformApiProgram = (apiProgram: ApiProgram): Program => {
     price: apiProgram.price,
     duration: apiProgram.duration,
     level: apiProgram.level,
-    category: apiProgram.category,
-    instructor: getInstructorByCategory(apiProgram.category),
-    maxStudents: apiProgram.maxParticipants,
-    features: getFeaturesByCategory(apiProgram.category),
+    category: categoryString,
+    instructor: getInstructorByCategory(categoryString),
+    maxStudents: maxParticipantsNum,
+    features: getFeaturesByCategory(categoryString),
     rating: 4.5 // Default rating for API programs
   };
 };

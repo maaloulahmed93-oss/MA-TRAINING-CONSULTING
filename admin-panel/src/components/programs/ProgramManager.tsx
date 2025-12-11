@@ -29,7 +29,7 @@ interface Program {
   level: string;
   price: number;
   duration: string;
-  maxParticipants: number;
+  maxParticipants: string | number;
   sessionsPerYear: number;
   modules: Module[];
   sessions: Session[];
@@ -54,10 +54,10 @@ const ProgramManager: React.FC = () => {
     description: '',
     category: '',
     level: 'Débutant',
-    price: 100, // Prix par défaut non-zéro
+    price: 100,
     duration: '',
-    maxParticipants: 10, // Valeur par défaut non-zéro
-    sessionsPerYear: 1, // Valeur par défaut non-zéro
+    maxParticipants: 10,
+    sessionsPerYear: 1,
     modules: [{ title: '' }],
     sessions: [{ title: '', date: '' }]
   });
@@ -163,7 +163,7 @@ const ProgramManager: React.FC = () => {
     setError('');
 
     // Validation des données obligatoires
-    if (!formData.title || !formData.description || !formData.category || !formData.level) {
+    if (!formData.title || !formData.category || !formData.duration) {
       setError('Veuillez remplir tous les champs obligatoires');
       setLoading(false);
       return;
@@ -181,9 +181,19 @@ const ProgramManager: React.FC = () => {
         return;
       }
 
+      // Ensure all required fields are present with defaults
       const programData = {
-        ...formData,
-        category: selectedCategory._id // Send category ID instead of name
+        title: formData.title,
+        description: formData.description,
+        category: selectedCategory._id,
+        level: formData.level || 'Débutant',
+        price: formData.price || 0,
+        duration: formData.duration,
+        maxParticipants: formData.maxParticipants || 10,
+        sessionsPerYear: formData.sessionsPerYear || 1,
+        modules: formData.modules && formData.modules.length > 0 ? formData.modules : [{ title: 'Module par défaut' }],
+        sessions: formData.sessions && formData.sessions.length > 0 ? formData.sessions : [{ title: 'Session par défaut', date: 'À définir' }],
+        isActive: true
       };
 
       let response: any;
@@ -456,7 +466,7 @@ const ProgramManager: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Gestion des Programmes</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Gestion des Programmes de parcours</h1>
         <div className="flex gap-3">
           <button
             onClick={handleDeleteAll}
@@ -643,7 +653,7 @@ const ProgramManager: React.FC = () => {
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Formation React Avancée"
+                      placeholder="Ex: Programme React Avancée"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                       className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -712,50 +722,6 @@ const ProgramManager: React.FC = () => {
                       marginBottom: '8px',
                       border: '2px solid #d1d5db'
                     }}>
-                      <strong style={{color: '#1f2937', fontSize: '16px'}}>Niveau</strong>
-                    </div>
-                    <select
-                      value={formData.level}
-                      onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {levels.map((level) => (
-                        <option key={level} value={level}>{level}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <div style={{
-                      backgroundColor: '#f3f4f6',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      marginBottom: '8px',
-                      border: '2px solid #d1d5db'
-                    }}>
-                      <strong style={{color: '#1f2937', fontSize: '16px'}}>Prix du Programme (€)</strong>
-                    </div>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      placeholder="299"
-                      value={formData.price || ''}
-                      onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) || 0 })}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <div style={{
-                      backgroundColor: '#f3f4f6',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      marginBottom: '8px',
-                      border: '2px solid #d1d5db'
-                    }}>
                       <strong style={{color: '#1f2937', fontSize: '16px'}}>Durée du Programme</strong>
                     </div>
                     <input
@@ -788,50 +754,27 @@ const ProgramManager: React.FC = () => {
                       <strong style={{color: '#1f2937', fontSize: '16px'}}>Nombre Maximum de Participants</strong>
                     </div>
                     <input
-                      type="number"
+                      type="text"
                       required
-                      min="1"
-                      placeholder="20"
+                      placeholder="Ex: 1-10, 2-4, 5-8"
                       value={formData.maxParticipants || ''}
-                      onChange={(e) => setFormData({ ...formData, maxParticipants: Number(e.target.value) || 0 })}
+                      onChange={(e) => setFormData({ ...formData, maxParticipants: e.target.value })}
                       className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <div style={{
-                      backgroundColor: '#f3f4f6',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      marginBottom: '8px',
-                      border: '2px solid #d1d5db'
-                    }}>
-                      <strong style={{color: '#1f2937', fontSize: '16px'}}>Nombre de Sessions par An</strong>
-                    </div>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      placeholder="4"
-                      value={formData.sessionsPerYear || ''}
-                      onChange={(e) => setFormData({ ...formData, sessionsPerYear: Number(e.target.value) || 0 })}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
 
                 {/* Modules */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-gray-700">Modules Inclus</label>
+                    <label className="block text-sm font-medium text-gray-700">Étapes du parcours</label>
                     <button
                       type="button"
                       onClick={addModule}
                       className="text-blue-600 hover:text-blue-800 text-sm"
                     >
-                      Ajouter Module
+                      Ajouter Étapes
                     </button>
                   </div>
                   {formData.modules.map((module, index) => (
@@ -839,7 +782,7 @@ const ProgramManager: React.FC = () => {
                       <input
                         type="text"
                         required
-                        placeholder="Titre du module (minimum 3 caractères)"
+                        placeholder="Titre (minimum 3 caractères)"
                         value={module.title}
                         onChange={(e) => {
                           const newModules = [...formData.modules];
@@ -870,65 +813,6 @@ const ProgramManager: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Sessions */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-gray-700">Sessions Disponibles</label>
-                    <button
-                      type="button"
-                      onClick={addSession}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      Ajouter Session
-                    </button>
-                  </div>
-                  {formData.sessions.map((session, index) => (
-                    <div key={index} className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Titre de la session (minimum 3 caractères)"
-                        value={session.title}
-                        onChange={(e) => {
-                          const newSessions = [...formData.sessions];
-                          newSessions[index].title = e.target.value;
-                          setFormData({ ...formData, sessions: newSessions });
-                        }}
-                        className={`flex-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                          session.title && session.title.length < 3 
-                            ? 'border-red-300 bg-red-50' 
-                            : 'border-gray-300'
-                        }`}
-                      />
-                      {session.title && session.title.length < 3 && (
-                        <span className="text-red-500 text-xs self-center ml-1">
-                          {session.title.length}/3
-                        </span>
-                      )}
-                      <input
-                        type="text"
-                        required
-                        placeholder="Date (ex: 15 Août - 15 Nov)"
-                        value={session.date}
-                        onChange={(e) => {
-                          const newSessions = [...formData.sessions];
-                          newSessions[index].date = e.target.value;
-                          setFormData({ ...formData, sessions: newSessions });
-                        }}
-                        className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {formData.sessions.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSession(index)}
-                          className="text-red-600 hover:text-red-800 px-2"
-                        >
-                          Supprimer
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
 
                 <div className="flex justify-end gap-4 pt-4">
                   <button
