@@ -28,7 +28,7 @@ export interface Program {
   level: string;
   category: string;
   instructor: string;
-  maxStudents: number;
+  maxStudents: string | number;
   features: string[];
   rating?: number;
 }
@@ -40,9 +40,9 @@ const transformApiProgram = (apiProgram: ApiProgram): Program => {
     ? apiProgram.category 
     : (apiProgram.category?.name || 'Technologies');
   
-  // Handle maxParticipants - convert to number if string
-  const maxParticipantsNum = typeof apiProgram.maxParticipants === 'string'
-    ? parseInt(apiProgram.maxParticipants.split('-')[1] || '10', 10)
+  // Handle maxParticipants - preserve range format if it's a string
+  const maxStudents = typeof apiProgram.maxParticipants === 'string'
+    ? apiProgram.maxParticipants
     : (apiProgram.maxParticipants || 10);
 
   return {
@@ -61,7 +61,7 @@ const transformApiProgram = (apiProgram: ApiProgram): Program => {
     level: apiProgram.level,
     category: categoryString,
     instructor: getInstructorByCategory(categoryString),
-    maxStudents: maxParticipantsNum,
+    maxStudents: maxStudents,
     features: getFeaturesByCategory(categoryString),
     rating: 4.5 // Default rating for API programs
   };
