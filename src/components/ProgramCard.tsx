@@ -85,7 +85,11 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           </div>
           <div className="flex items-center gap-3 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
             <Users className="w-5 h-5 text-emerald-500" />
-            <span className="text-sm font-medium text-gray-700">Max {program.maxStudents}</span>
+            <span className="text-sm font-medium text-gray-700">
+              {typeof program.maxStudents === 'string' && program.maxStudents.includes('-')
+                ? `entre ${program.maxStudents}`
+                : `Max ${program.maxStudents}`}
+            </span>
           </div>
         </div>
 
@@ -93,12 +97,20 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
         <div>
           <p className="text-sm font-bold text-gray-900 mb-3">Étapes du parcours :</p>
           <div className="space-y-2">
-            {['Diagnostic', 'Ateliers', 'Exercices', 'Dossier final', 'Suivi'].map((step, index) => (
-              <div key={index} className="flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-100">
-                <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                <span className="text-sm text-gray-700 font-medium">{step}</span>
-              </div>
-            ))}
+            {program.modules && program.modules.length > 0 
+              ? program.modules.map((module, index) => (
+                  <div key={index} className="flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-100">
+                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                    <span className="text-sm text-gray-700 font-medium">{String(module)}</span>
+                  </div>
+                ))
+              : ['Diagnostic', 'Ateliers', 'Exercices', 'Dossier final', 'Suivi'].map((step, index) => (
+                  <div key={index} className="flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-100">
+                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                    <span className="text-sm text-gray-700 font-medium">{step}</span>
+                  </div>
+                ))
+            }
           </div>
         </div>
       </div>
