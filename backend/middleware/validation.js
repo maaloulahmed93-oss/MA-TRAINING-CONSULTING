@@ -1,31 +1,28 @@
 import Joi from 'joi';
 
-// Program validation schema
+// Program validation schema - FLEXIBLE to accept all data formats
 const programSchema = Joi.object({
-  title: Joi.string().required().trim().min(3).max(200),
-  description: Joi.string().required().trim().min(10).max(1000),
+  title: Joi.string().required().trim(),
+  description: Joi.string().required().trim(),
   category: Joi.string().required(),
-  level: Joi.string().default('Débutant').valid('Débutant', 'Intermédiaire', 'Avancé'),
-  price: Joi.number().default(0).min(0),
-  duration: Joi.string().required().trim().min(3).max(100),
+  level: Joi.string().default('Débutant'),
+  price: Joi.alternatives().try(
+    Joi.number(),
+    Joi.string()
+  ).default(0),
+  duration: Joi.string().required().trim(),
   maxParticipants: Joi.alternatives().try(
-    Joi.number().min(1).max(1000),
-    Joi.string().trim().pattern(/^\d+-\d+$/) // Accept range format like "1-10"
+    Joi.number(),
+    Joi.string()
   ).default(10),
-  sessionsPerYear: Joi.number().default(1).min(1).max(100),
-  modules: Joi.array().items(
-    Joi.object({
-      title: Joi.string().trim().min(3).max(200)
-    })
-  ).optional(),
-  sessions: Joi.array().items(
-    Joi.object({
-      title: Joi.string().trim().min(3).max(200),
-      date: Joi.string().trim()
-    })
-  ).optional(),
+  sessionsPerYear: Joi.alternatives().try(
+    Joi.number(),
+    Joi.string()
+  ).default(1),
+  modules: Joi.array().optional(),
+  sessions: Joi.array().optional(),
   isActive: Joi.boolean().default(true)
-});
+}).unknown(true);
 
 // Program update validation schema (all fields optional)
 const programUpdateSchema = Joi.object({
@@ -57,7 +54,7 @@ export const validateProgramCreation = (req, res, next) => {
   
   const { error, value } = programSchema.validate(req.body, { 
     abortEarly: false,
-    stripUnknown: true 
+    stripUnknown: false
   });
 
   if (error) {

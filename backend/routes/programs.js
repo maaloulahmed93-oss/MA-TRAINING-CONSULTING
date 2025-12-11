@@ -157,9 +157,17 @@ router.post('/', validateProgramCreation, async (req, res) => {
     programData.sessionsPerYear = Number(programData.sessionsPerYear) || 1;
     programData.isActive = programData.isActive !== false;
     
-    // Ensure modules and sessions are arrays with proper structure
+    // Filter and clean modules - only keep non-empty ones
+    if (Array.isArray(programData.modules)) {
+      programData.modules = programData.modules.filter(m => m && m.title && m.title.trim());
+    }
     if (!Array.isArray(programData.modules) || programData.modules.length === 0) {
       programData.modules = [{ title: 'Module par défaut' }];
+    }
+    
+    // Filter and clean sessions - only keep non-empty ones
+    if (Array.isArray(programData.sessions)) {
+      programData.sessions = programData.sessions.filter(s => s && s.title && s.title.trim() && s.date && s.date.trim());
     }
     if (!Array.isArray(programData.sessions) || programData.sessions.length === 0) {
       programData.sessions = [{ title: 'Session par défaut', date: 'À définir' }];
