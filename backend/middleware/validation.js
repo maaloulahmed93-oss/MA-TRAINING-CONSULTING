@@ -15,9 +15,9 @@ const programSchema = Joi.object({
   sessionsPerYear: Joi.number().default(1).min(1).max(100),
   modules: Joi.array().items(
     Joi.object({
-      title: Joi.string().required().trim().min(3).max(200)
+      title: Joi.string().trim().min(3).max(200)
     })
-  ).min(1).required(),
+  ).optional(),
   sessions: Joi.array().items(
     Joi.object({
       title: Joi.string().trim().min(3).max(200),

@@ -187,6 +187,11 @@ const ProgramManager: React.FC = () => {
         ? formData.sessions.filter(s => s.title && s.title.trim() && s.date && s.date.trim())
         : [];
       
+      // Filter out empty modules
+      const validModules = formData.modules
+        ? formData.modules.filter(m => m.title && m.title.trim())
+        : [];
+      
       const programData = {
         title: formData.title,
         description: formData.description,
@@ -196,7 +201,7 @@ const ProgramManager: React.FC = () => {
         duration: formData.duration,
         maxParticipants: formData.maxParticipants || 10,
         sessionsPerYear: formData.sessionsPerYear || 1,
-        modules: formData.modules && formData.modules.length > 0 ? formData.modules : [{ title: 'Module par défaut' }],
+        modules: validModules.length > 0 ? validModules : [],
         sessions: validSessions.length > 0 ? validSessions : [],
         isActive: true
       };
