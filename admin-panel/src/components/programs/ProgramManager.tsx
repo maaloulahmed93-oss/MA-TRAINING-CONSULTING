@@ -182,6 +182,11 @@ const ProgramManager: React.FC = () => {
       }
 
       // Ensure all required fields are present with defaults
+      // Filter out empty sessions
+      const validSessions = formData.sessions 
+        ? formData.sessions.filter(s => s.title && s.title.trim() && s.date && s.date.trim())
+        : [];
+      
       const programData = {
         title: formData.title,
         description: formData.description,
@@ -192,7 +197,7 @@ const ProgramManager: React.FC = () => {
         maxParticipants: formData.maxParticipants || 10,
         sessionsPerYear: formData.sessionsPerYear || 1,
         modules: formData.modules && formData.modules.length > 0 ? formData.modules : [{ title: 'Module par défaut' }],
-        sessions: formData.sessions && formData.sessions.length > 0 ? formData.sessions : [{ title: 'Session par défaut', date: 'À définir' }],
+        sessions: validSessions.length > 0 ? validSessions : [],
         isActive: true
       };
 

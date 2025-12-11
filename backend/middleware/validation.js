@@ -20,10 +20,10 @@ const programSchema = Joi.object({
   ).min(1).required(),
   sessions: Joi.array().items(
     Joi.object({
-      title: Joi.string().required().trim().min(3).max(200),
-      date: Joi.string().required().trim()
+      title: Joi.string().trim().min(3).max(200),
+      date: Joi.string().trim()
     })
-  ).min(1).required(),
+  ).optional(),
   isActive: Joi.boolean().default(true)
 });
 
