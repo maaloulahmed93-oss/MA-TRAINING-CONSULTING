@@ -1,4 +1,12 @@
 import Joi from 'joi';
+import DOMPurify from 'isomorphic-dompurify';
+
+// Utility function to sanitize string inputs
+const sanitizeString = (str) => {
+  if (typeof str !== 'string') return str;
+  // Remove HTML tags and trim whitespace
+  return DOMPurify.sanitize(str).trim();
+};
 
 // Pack validation schemas
 const packCreationSchema = Joi.object({
@@ -6,11 +14,13 @@ const packCreationSchema = Joi.object({
   name: Joi.string().required().min(1).max(200),
   description: Joi.string().required().min(1).max(1000),
   image: Joi.string().allow('').optional(),
+  niveau: Joi.string().valid('Débutant', 'Intermédiaire', 'Avancé').optional(),
+  resourcesCount: Joi.number().min(0).optional(),
   details: Joi.object({
     price: Joi.number().required().min(0),
-    originalPrice: Joi.number().required().min(0),
-    savings: Joi.number().required().min(0),
-    advantages: Joi.array().items(Joi.string().required()).min(1).required(),
+    originalPrice: Joi.number().optional().min(0),
+    savings: Joi.number().optional().min(0),
+    advantages: Joi.array().items(Joi.string().required()).optional(),
     themes: Joi.array().items(
       Joi.object({
         themeId: Joi.string().required(),
@@ -24,10 +34,10 @@ const packCreationSchema = Joi.object({
           })
         ).min(1).required()
       })
-    ).min(1).required()
+    ).optional()
   }).required(),
   isActive: Joi.boolean().optional()
-});
+}).unknown(true);
 
 const packUpdateSchema = Joi.object({
   _id: Joi.string().optional(),
@@ -35,12 +45,14 @@ const packUpdateSchema = Joi.object({
   name: Joi.string().optional().min(3).max(200),
   description: Joi.string().optional().min(10).max(1000),
   image: Joi.string().allow('').optional(),
+  niveau: Joi.string().valid('Débutant', 'Intermédiaire', 'Avancé').optional(),
+  resourcesCount: Joi.number().min(0).optional(),
   details: Joi.object({
     _id: Joi.string().optional(),
     price: Joi.number().optional().min(0),
     originalPrice: Joi.number().optional().min(0),
     savings: Joi.number().optional().min(0),
-    advantages: Joi.array().items(Joi.string().required()).min(1).optional(),
+    advantages: Joi.array().items(Joi.string().required()).optional(),
     themes: Joi.array().items(
       Joi.object({
         _id: Joi.string().optional(),
@@ -56,7 +68,7 @@ const packUpdateSchema = Joi.object({
           })
         ).required()
       })
-    ).min(1).optional()
+    ).optional()
   }).optional(),
   isActive: Joi.boolean().optional(),
   createdAt: Joi.date().optional(),
@@ -68,7 +80,18 @@ export const validatePackCreation = (req, res, next) => {
   console.log('🔍 Validation des données de création de pack...');
   console.log('📄 Données reçues:', JSON.stringify(req.body, null, 2));
 
-  // Appliquer des valeurs par défaut si manquantes
+  // Sanitize string inputs to prevent XSS
+  if (req.body.name) {
+    req.body.name = sanitizeString(req.body.name);
+  }
+  if (req.body.description) {
+    req.body.description = sanitizeString(req.body.description);
+  }
+  if (req.body.image) {
+    req.body.image = sanitizeString(req.body.image);
+  }
+
+  // Apply minimal defaults only for critical fields
   if (!req.body.image || req.body.image.trim() === '') {
     req.body.image = 'https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=Pack';
   }
@@ -76,27 +99,10 @@ export const validatePackCreation = (req, res, next) => {
   if (!req.body.details) {
     req.body.details = {};
   }
-  
-  if (!req.body.details.advantages || req.body.details.advantages.length === 0) {
-    req.body.details.advantages = ['Formation complète', 'Support inclus'];
-  }
-  
-  if (!req.body.details.themes || req.body.details.themes.length === 0) {
-    req.body.details.themes = [{
-      themeId: `theme-default-${Date.now()}`,
-      name: 'Thème Principal',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
-      modules: [{
-        moduleId: `module-default-${Date.now()}`,
-        title: 'Module d\'introduction'
-      }]
-    }];
-  }
 
   console.log('🔧 Données après application des défauts:', JSON.stringify(req.body, null, 2));
 
-  const { error, value } = packCreationSchema.validate(req.body, { abortEarly: false });
+  const { error, value } = packCreationSchema.validate(req.body, { abortEarly: false, stripUnknown: false });
   
   if (error) {
     console.log('❌ Erreur de validation:', error.details);
@@ -153,6 +159,17 @@ const cleanPackData = (data) => {
 export const validatePackUpdate = (req, res, next) => {
   console.log('🔍 Validation des données de mise à jour de pack...');
   console.log('📄 Données reçues:', JSON.stringify(req.body, null, 2));
+
+  // Sanitize string inputs to prevent XSS
+  if (req.body.name) {
+    req.body.name = sanitizeString(req.body.name);
+  }
+  if (req.body.description) {
+    req.body.description = sanitizeString(req.body.description);
+  }
+  if (req.body.image) {
+    req.body.image = sanitizeString(req.body.image);
+  }
 
   // Nettoyer les données avant validation
   const cleanedData = cleanPackData(req.body);

@@ -69,6 +69,15 @@ const packSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  niveau: {
+    type: String,
+    enum: ['Débutant', 'Intermédiaire', 'Avancé'],
+    default: 'Débutant'
+  },
+  resourcesCount: {
+    type: Number,
+    default: 0
+  },
   details: {
     type: packDetailsSchema,
     required: true
