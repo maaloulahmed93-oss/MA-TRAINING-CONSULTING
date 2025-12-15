@@ -14,8 +14,8 @@ const packCreationSchema = Joi.object({
   name: Joi.string().required().min(1).max(200),
   description: Joi.string().required().min(1).max(1000),
   image: Joi.string().allow('').optional(),
-  niveau: Joi.string().valid('Débutant', 'Intermédiaire', 'Avancé').optional(),
-  resourcesCount: Joi.number().min(0).optional(),
+  niveau: Joi.string().valid('Débutant', 'Intermédiaire', 'Avancé').optional().default('Débutant'),
+  resourcesCount: Joi.number().min(0).optional().default(0),
   details: Joi.object({
     price: Joi.number().required().min(0),
     originalPrice: Joi.number().optional().min(0),
@@ -37,7 +37,7 @@ const packCreationSchema = Joi.object({
     ).optional()
   }).required(),
   isActive: Joi.boolean().optional()
-}).unknown(true);
+}).unknown(false);
 
 const packUpdateSchema = Joi.object({
   _id: Joi.string().optional(),
@@ -102,7 +102,7 @@ export const validatePackCreation = (req, res, next) => {
 
   console.log('🔧 Données après application des défauts:', JSON.stringify(req.body, null, 2));
 
-  const { error, value } = packCreationSchema.validate(req.body, { abortEarly: false, stripUnknown: false });
+  const { error, value } = packCreationSchema.validate(req.body, { abortEarly: false, stripUnknown: true });
   
   if (error) {
     console.log('❌ Erreur de validation:', error.details);

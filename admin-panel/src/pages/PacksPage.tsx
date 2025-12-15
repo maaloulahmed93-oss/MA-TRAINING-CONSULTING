@@ -13,6 +13,34 @@ const PacksPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Clean pack data before sending to backend
+  const cleanPackData = (pack: Pack) => {
+    return {
+      packId: pack.packId,
+      name: pack.name,
+      description: pack.description,
+      image: pack.image || '',
+      niveau: pack.niveau || 'Débutant',
+      resourcesCount: typeof pack.resourcesCount === 'number' ? pack.resourcesCount : 0,
+      details: {
+        price: pack.details.price || 0,
+        originalPrice: pack.details.originalPrice || 0,
+        savings: pack.details.savings || 0,
+        advantages: pack.details.advantages || [],
+        themes: (pack.details.themes || []).map(theme => ({
+          themeId: theme.themeId,
+          name: theme.name,
+          startDate: theme.startDate,
+          endDate: theme.endDate,
+          modules: (theme.modules || []).map(module => ({
+            moduleId: module.moduleId,
+            title: module.title
+          }))
+        }))
+      }
+    };
+  };
+
   // Fetch packs from backend
   const fetchPacks = async () => {
     console.log('📦 Récupération des packs depuis le backend...');
@@ -73,13 +101,16 @@ const PacksPage: React.FC = () => {
     setError('');
 
     try {
+      const cleanedPack = cleanPackData(packToSave);
+      console.log('🧹 Pack nettoyé avant envoi:', cleanedPack);
+      
       let response: any;
       if (selectedPack) {
         // Update existing pack
-        response = await axios.put(`${API_BASE_URL}/packs/${selectedPack.packId}`, packToSave);
+        response = await axios.put(`${API_BASE_URL}/packs/${selectedPack.packId}`, cleanedPack);
       } else {
         // Create new pack
-        response = await axios.post(`${API_BASE_URL}/packs`, packToSave);
+        response = await axios.post(`${API_BASE_URL}/packs`, cleanedPack);
       }
 
       console.log('📡 Réponse de sauvegarde:', response.data);
@@ -116,7 +147,16 @@ const PacksPage: React.FC = () => {
     } catch (err: any) {
       console.log('💥 Erreur axios:', err);
       console.log('💥 Erreur response:', err.response?.data);
-      setError('Erreur lors de la sauvegarde du pack');
+      const errorData = err.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        console.log('❌ Erreurs de validation détaillées:');
+        errorData.errors.forEach((e: string, i: number) => {
+          console.log(`   ${i + 1}. ${e}`);
+        });
+        setError(`Erreur: ${errorData.errors.join(', ')}`);
+      } else {
+        setError(errorData?.message || 'Erreur lors de la sauvegarde du pack');
+      }
     } finally {
       setLoading(false);
     }
@@ -156,10 +196,10 @@ const PacksPage: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Gestion des Packs
+            Gestion des Compte Premium– Ressources & Templates
           </h1>
           <p className="mt-1 md:mt-2 text-gray-600">
-            Créez, modifiez et gérez vos packs de formation.
+            Créez, modifiez et gérez vosCompte Premium– Ressources & Templates
           </p>
         </div>
         <button
@@ -167,7 +207,7 @@ const PacksPage: React.FC = () => {
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-sm transition-colors"
         >
           <Plus size={18} className="mr-2" />
-          Nouveau Pack
+          Nouveau
         </button>
       </div>
 
@@ -268,7 +308,7 @@ const PacksPage: React.FC = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSavePack}
-          pack={selectedPack}
+          pack={selectedPack as any}
         />
       )}
     </div>

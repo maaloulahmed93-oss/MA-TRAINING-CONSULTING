@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, CheckCircle, User, Mail, Phone, MessageSquare } from 'lucide-react';
+import { X, Calendar, CheckCircle, User, Mail, Phone, MessageSquare, Zap, Sparkles } from 'lucide-react';
 import { Pack } from '../data/themePacks';
 import { convertPrice } from '../utils/currencyConverter';
 import { addRegistration } from "../services/registrationService";
@@ -170,11 +170,27 @@ const PackModal: React.FC<PackModalProps> = ({ pack, selectedCurrency, onClose }
                   <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200/30 rounded-full blur-xl"></div>
                   <div className="absolute bottom-0 left-0 w-16 h-16 bg-purple-200/30 rounded-full blur-lg"></div>
                   
-                  <div className="text-center relative z-10">
-                    <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                  <div className="text-center relative z-10 space-y-4">
+                    <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                       {convertPrice(pack.details.price, selectedCurrency)}
                     </div>
                     <p className="text-gray-600 font-medium">complète • Accès à vie<br />Ressources essentielles</p>
+                    
+                    {/* Niveau et Ressources */}
+                    <div className="space-y-3 pt-4 border-t border-blue-200">
+                      {pack.niveau && (
+                        <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg">
+                          <Zap className="w-4 h-4" />
+                          <span className="font-semibold">{pack.niveau}</span>
+                        </div>
+                      )}
+                      {pack.resourcesCount > 0 && (
+                        <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-2 rounded-lg">
+                          <Sparkles className="w-4 h-4" />
+                          <span className="font-semibold">{pack.resourcesCount} Ressources & Vidéos</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Users, ArrowRight, Sparkles } from 'lucide-react';
+import { Star, Users, ArrowRight, Sparkles, Zap } from 'lucide-react';
 import { Pack } from '../data/themePacks';
 import { convertPrice } from '../utils/currencyConverter';
 
@@ -28,11 +28,13 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-8 -translate-y-8"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-xl transform -translate-x-4 translate-y-4"></div>
         
-        {/* Badge économies avec design amélioré */}
-        <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm border border-white/20">
-          <Sparkles className="w-3 h-3 inline mr-1" />
-          -{convertPrice(pack.details.savings, selectedCurrency)}
-        </div>
+        {/* Badge niveau avec design amélioré */}
+        {pack.niveau && (
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm border border-white/20">
+            <Zap className="w-3 h-3 inline mr-1" />
+            {pack.niveau}
+          </div>
+        )}
         
         {/* Contenu du header */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/30 to-transparent">
@@ -82,22 +84,19 @@ const PackCard: React.FC<PackCardProps> = ({ pack, selectedCurrency, onOpenModal
           </div>
         </div>
 
-        {/* Prix avec design premium */}
-        <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl p-4 border border-gray-100">
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center space-x-3">
-              <span className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
-                {convertPrice(pack.details.price, selectedCurrency)}
-              </span>
-              <span className="text-lg text-gray-400 line-through font-medium">
-                {convertPrice(pack.details.originalPrice, selectedCurrency)}
-              </span>
-            </div>
-            <div className="inline-flex items-center bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Économisez {convertPrice(pack.details.savings, selectedCurrency)}
-            </div>
+        {/* Prix et ressources avec design premium */}
+        <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl p-4 border border-gray-100 space-y-3">
+          <div className="text-center">
+            <span className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
+              {convertPrice(pack.details.price, selectedCurrency)}
+            </span>
           </div>
+          {pack.resourcesCount > 0 && (
+            <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 rounded-lg border border-blue-100">
+              <Sparkles className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-semibold text-blue-700">{pack.resourcesCount} Ressources & Vidéos</span>
+            </div>
+          )}
         </div>
 
         {/* Bouton Plus de détails avec design premium */}

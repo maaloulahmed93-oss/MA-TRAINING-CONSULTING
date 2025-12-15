@@ -7,12 +7,15 @@
 
 // HARDCODED VALUES - NO IMPORTS, NO DEPENDENCIES
 const PRODUCTION_API_URL = 'https://matc-backend.onrender.com/api';
+const LOCAL_API_URL = 'http://localhost:3001/api';
 
-// SIMPLE FUNCTION - FORCE PRODUCTION API
+// SIMPLE FUNCTION - USE LOCAL API IN DEVELOPMENT
 function getApiUrl() {
-  // ALWAYS use production API to fix connectivity issues
-  console.log('🔗 FORCED Production API URL:', PRODUCTION_API_URL);
-  return PRODUCTION_API_URL;
+  // Use local API for development, production API for deployment
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const apiUrl = isDevelopment ? LOCAL_API_URL : PRODUCTION_API_URL;
+  console.log('🔗 API URL:', apiUrl, '(Development:', isDevelopment, ')');
+  return apiUrl;
 }
 
 // DIRECT ASSIGNMENT - NO INITIALIZATION ISSUES

@@ -13,6 +13,7 @@ export interface Course {
   id: string;
   title: string;
   description: string;
+  url?: string;
   modules: CourseModule[];
 }
 
@@ -62,7 +63,16 @@ class FreeCoursesService {
   async getDomains(): Promise<Domain[]> {
     try {
       const response = await this.request<Domain[]>('/domains');
-      return response.data || [];
+      const domains = response.data || [];
+      
+      // Log domains with URLs for debugging
+      domains.forEach(domain => {
+        domain.courses.forEach(course => {
+          console.log(`📚 Cours: ${course.title}, URL: ${course.url || 'AUCUNE'}`);
+        });
+      });
+      
+      return domains;
     } catch (error) {
       console.error('❌ Erreur getDomains:', error);
       throw error;

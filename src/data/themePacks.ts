@@ -26,6 +26,8 @@ export interface Pack {
   name: string;
   description: string;
   image: string;
+  niveau: string;
+  resourcesCount: number;
   details: PackDetails;
 }
 
@@ -35,6 +37,8 @@ export const themePacks: Pack[] = [
     name: "Pack Marketing Digital",
     description: "Maîtrisez le marketing digital de A à Z",
     image: "/images/marketing.png",
+    niveau: "Intermédiaire",
+    resourcesCount: 45,
     details: {
       price: 500,
       originalPrice: 750,
@@ -98,6 +102,8 @@ export const themePacks: Pack[] = [
     name: "Pack Développement Web",
     description: "Devenez développeur full-stack expert",
     image: "/images/development.png",
+    niveau: "Avancé",
+    resourcesCount: 62,
     details: {
       price: 650,
       originalPrice: 950,
@@ -153,6 +159,8 @@ export const themePacks: Pack[] = [
     name: "Pack Data Science & IA",
     description: "Maîtrisez l'analyse de données et l'intelligence artificielle",
     image: "/images/data-science.png",
+    niveau: "Avancé",
+    resourcesCount: 58,
     details: {
       price: 750,
       originalPrice: 1100,
@@ -208,6 +216,8 @@ export const themePacks: Pack[] = [
     name: "Pack Design UX/UI",
     description: "Créez des expériences utilisateur exceptionnelles",
     image: "/images/design.png",
+    niveau: "Intermédiaire",
+    resourcesCount: 52,
     details: {
       price: 450,
       originalPrice: 650,
@@ -263,6 +273,8 @@ export const themePacks: Pack[] = [
     name: "Pack Business & Entrepreneuriat",
     description: "Lancez et développez votre entreprise avec succès",
     image: "/images/business.png",
+    niveau: "Débutant",
+    resourcesCount: 38,
     details: {
       price: 400,
       originalPrice: 600,

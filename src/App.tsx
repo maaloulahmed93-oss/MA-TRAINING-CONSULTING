@@ -9,6 +9,7 @@ import EspacePartenaireePage from "./pages/EspacePartenaireePage";
 import PartnershipPage from "./components/PartnershipPage";
 import VerificationAttestationPage from "./pages/VerificationAttestationPage";
 import SystemTestPage from "./pages/SystemTestPage";
+import DiagnosticWonderPage from "./pages/DiagnosticNewPage";
 // Pages sections Espace Partenariat
 import PartenaireProjectsPage from "./pages/partenaire/PartenaireProjectsPage";
 import PartenaireFormationsCoAnimeesPage from "./pages/partenaire/PartenaireFormationsCoAnimeesPage";
@@ -55,10 +56,6 @@ function App() {
               path="/programme-partenariat"
               element={<PartnershipPage onBack={() => window.history.back()} />}
             />
-            <Route
-              path="/diagnostic-wonder"
-              element={<div style={{ width: '100%', height: '100vh' }}><iframe src="/diagnostic-wonder.html" style={{ width: '100%', height: '100%', border: 'none' }} /></div>}
-            />
             {/* Routes sections Espace Partenariat */}
             <Route
               path="/partenaire/projets"
@@ -76,6 +73,7 @@ function App() {
               path="/partenaire/messages"
               element={<PartenaireMessagesPage />}
             />
+            <Route path="/diagnostic-wonder" element={<DiagnosticWonderPage />} />
               {/* Verification d'attestation */}
               <Route path="/verification-attestation" element={<VerificationAttestationPage />} />
               {/* System Test Page */}

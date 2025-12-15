@@ -211,13 +211,20 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
 
   const handleCourseAccess = (course: Course) => {
     console.log('🎯 Accès au cours:', course.title);
+    console.log('📋 Course object:', course);
+    console.log('🔗 URL value:', course.url);
+    console.log('🔗 URL type:', typeof course.url);
+    console.log('🔗 URL is empty:', !course.url || course.url.trim() === '');
     
-    // Naviguer vers les modules du cours
-    setSelectedCourse({
-      domainId: selectedDomain,
-      courseId: course.id
-    });
-    setCurrentStep('course-modules');
+    // Si le cours a une URL, l'ouvrir directement
+    if (course.url && course.url.trim()) {
+      window.open(course.url, '_blank', 'noopener,noreferrer');
+      console.log('✅ URL du cours ouverte:', course.url);
+    } else {
+      // Sinon afficher un message
+      alert(`📖 Cours: ${course.title}\n\n⚠️ Aucune URL configurée pour ce cours.`);
+      console.log('⚠️ Pas d\'URL pour le cours:', course.title);
+    }
   };
 
   const handleModuleAccess = (module: CourseModule) => {
@@ -405,7 +412,6 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                 <p className="text-gray-600 text-sm mt-1">
                   {currentStep === 'access-id' && 'Évaluez votre niveau réel avant de démarrer votre parcours personnalisé'}
                   {currentStep === 'domain-selection' && `Sélectionnez le domaine qui vous intéresse (${activeDomains.length} disponibles)`}
-                  {currentStep === 'course-list' && 'Sélectionnez le diagnostic que vous souhaitez effectuer'}
                   {currentStep === 'course-modules' && 'Accédez aux modules de formation'}
                 </p>
               </div>

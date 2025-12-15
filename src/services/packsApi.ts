@@ -6,6 +6,8 @@ export interface ApiPack {
   name: string;
   description: string;
   image: string;
+  niveau: string;
+  resourcesCount: number;
   details: {
     price: number;
     originalPrice: number;
@@ -32,6 +34,8 @@ export interface Pack {
   name: string;
   description: string;
   image: string;
+  niveau: string;
+  resourcesCount: number;
   details: {
     themes: {
       themeId: string;
@@ -57,6 +61,8 @@ const transformApiPack = (apiPack: ApiPack): Pack => {
     name: apiPack.name,
     description: apiPack.description,
     image: apiPack.image,
+    niveau: apiPack.niveau || '',
+    resourcesCount: apiPack.resourcesCount || 0,
     details: {
       themes: apiPack.details.themes,
       advantages: apiPack.details.advantages,

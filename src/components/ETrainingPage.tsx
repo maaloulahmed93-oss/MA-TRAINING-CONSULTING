@@ -556,7 +556,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                           navigate("/espace-participant");
                         } else if (card.title === "Vérification de Participation") {
                           setShowCertificateVerification(true);
-                        } else if (card.title === "Diagnostic Gratuit") {
+                        } else if (card.title === "Diagnostic Gratuit (Obligatoire)") {
                           setShowFreeCourseModal(true);
                         }
                       }}

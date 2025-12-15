@@ -82,6 +82,8 @@ export interface Pack {
   name: string;
   description: string;
   image: string;
+  niveau: string;
+  resourcesCount: number;
   details: {
     themes: Theme[];
     advantages: string[];

@@ -1,10 +1,8 @@
 import { useState, useEffect, ChangeEvent, FC } from 'react';
-import { X, Package, Tag, DollarSign, Image as ImageIcon, Info, List, Plus, Trash2, BookOpen, Calendar, LucideProps } from 'lucide-react';
+import { X, Package, Tag, DollarSign, Info, List, Plus, Trash2, BookOpen, Zap, LucideProps } from 'lucide-react';
+import { Pack, Module, Theme } from '../../types/index';
 
 // --- Type Definitions ---
-interface Module { moduleId: string; title: string; }
-interface Theme { themeId: string; name: string; startDate: string; endDate: string; modules: Module[]; }
-interface Pack { packId: string; name: string; description: string; image: string; details: { themes: Theme[]; advantages: string[]; price: number; originalPrice: number; savings: number; }; }
 interface PackFormModalProps { isOpen: boolean; onClose: () => void; onSave: (pack: Pack) => void; pack: Pack | null; }
 
 // --- Reusable Input Component Props ---
@@ -29,19 +27,24 @@ const PackFormModal: React.FC<PackFormModalProps> = ({ isOpen, onClose, onSave, 
 
   useEffect(() => {
     if (pack) setFormData(JSON.parse(JSON.stringify(pack)));
-    else setFormData({ packId: `new-pack-${Date.now()}`, name: '', description: '', image: '', details: { themes: [], advantages: [], price: 0, originalPrice: 0, savings: 0 } });
+    else setFormData({ packId: `new-pack-${Date.now()}`, name: '', description: '', image: '', niveau: '', resourcesCount: 0, details: { themes: [], advantages: [], price: 0, originalPrice: 0, savings: 0 } });
     setNewAdvantage('');
     setNewModuleTitles({});
   }, [pack, isOpen]);
 
   // --- General & Pricing Handlers ---
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (!formData) return;
-    if (['price', 'originalPrice'].includes(name)) {
-        const price = name === 'price' ? parseFloat(value) || 0 : formData.details.price;
-        const originalPrice = name === 'originalPrice' ? parseFloat(value) || 0 : formData.details.originalPrice;
-        setFormData({ ...formData, details: { ...formData.details, [name]: parseFloat(value) || 0, savings: originalPrice > price ? originalPrice - price : 0 } });
+    if (name === 'price') {
+        // Convert to number if it's numeric, otherwise store as 0
+        const numValue = parseInt(value) || 0;
+        setFormData({ ...formData, details: { ...formData.details, price: numValue } });
+    } else if (name === 'resourcesCount') {
+        // Only allow numbers for resourcesCount
+        if (/^\d*$/.test(value)) {
+            setFormData({ ...formData, [name]: parseInt(value) || 0 });
+        }
     } else setFormData({ ...formData, [name]: value });
   };
 
@@ -106,19 +109,25 @@ const PackFormModal: React.FC<PackFormModalProps> = ({ isOpen, onClose, onSave, 
                         <textarea id="description" name="description" rows={3} value={formData.description} onChange={handleChange} placeholder="Une brève description..." className="block w-full rounded-md border-gray-300 pl-10 shadow-sm focus:border-blue-500 sm:text-sm" />
                     </div>
                 </div>
-                <InputField icon={ImageIcon} label="URL de l'image" name="image" value={formData.image} onChange={handleChange} placeholder="https://example.com/image.png" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="niveau" className="block text-sm font-medium text-gray-700 mb-1">Niveau</label>
+                        <select id="niveau" name="niveau" value={formData.niveau} onChange={handleChange} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <option value="">Sélectionner un niveau</option>
+                            <option value="Débutant">Débutant</option>
+                            <option value="Intermédiaire">Intermédiaire</option>
+                            <option value="Avancé">Avancé</option>
+                        </select>
+                    </div>
+                    <InputField icon={Zap} label="Nombre de Resources & Vidéo" name="resourcesCount" type="text" value={formData.resourcesCount.toString()} onChange={handleChange} placeholder="e.g., 25" />
+                </div>
             </div>
 
             {/* Pricing */}
             <div className="space-y-4 p-6 border rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-700 flex items-center"><DollarSign size={20} className="mr-2"/>Tarification</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <InputField icon={DollarSign} label="Prix de Vente (DT)" name="price" type="number" value={formData.details.price.toString()} onChange={handleChange} placeholder="e.g., 2200" />
-                    <InputField icon={DollarSign} label="Prix Original (DT)" name="originalPrice" type="number" value={formData.details.originalPrice.toString()} onChange={handleChange} placeholder="e.g., 3000" />
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Économie</label>
-                        <input type="text" value={`${formData.details.savings} DT`} readOnly className="block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm sm:text-sm" />
-                    </div>
+                    <InputField icon={DollarSign} label="Prix de Vente (DT)" name="price" type="text" value={formData.details.price.toString()} onChange={handleChange} placeholder="e.g., 2200" />
                 </div>
             </div>
 
@@ -152,10 +161,6 @@ const PackFormModal: React.FC<PackFormModalProps> = ({ isOpen, onClose, onSave, 
                                 <input type="text" name="name" value={theme.name} onChange={(e) => handleThemeChange(e, theme.themeId)} placeholder="Nom du thème" className="text-md font-semibold bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none"/>
                                 <button onClick={() => handleRemoveTheme(theme.themeId)} className="p-1 text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
                             </div>
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                <InputField icon={Calendar} label="Date de début" name="startDate" type="date" value={theme.startDate} onChange={(e) => handleThemeChange(e, theme.themeId)} placeholder=""/>
-                                <InputField icon={Calendar} label="Date de fin" name="endDate" type="date" value={theme.endDate} onChange={(e) => handleThemeChange(e, theme.themeId)} placeholder=""/>
-                            </div>
                             {/* Modules subsection */}
                             <div className="pl-4 border-l-2 border-blue-200">
                                 <h4 className="text-sm font-semibold text-gray-600 mb-2">Modules</h4>
@@ -182,7 +187,21 @@ const PackFormModal: React.FC<PackFormModalProps> = ({ isOpen, onClose, onSave, 
 
         <div className="flex justify-end gap-4 p-4 border-t bg-gray-50 sticky bottom-0 rounded-b-2xl z-10">
             <button onClick={onClose} className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold">Annuler</button>
-            <button onClick={() => onSave(formData)} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">{pack ? 'Sauvegarder' : 'Créer le Pack'}</button>
+            <button onClick={() => {
+              if (!formData.name.trim()) {
+                alert('❌ Le nom du pack est requis');
+                return;
+              }
+              if (!formData.niveau) {
+                alert('❌ Le niveau est requis');
+                return;
+              }
+              if (!formData.details.price) {
+                alert('❌ Le prix est requis');
+                return;
+              }
+              onSave(formData);
+            }} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">{pack ? 'Sauvegarder' : 'Créer le Pack'}</button>
         </div>
       </div>
     </div>

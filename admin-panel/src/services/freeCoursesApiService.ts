@@ -14,6 +14,7 @@ export interface Course {
   id: string;
   title: string;
   description: string;
+  url?: string;
   modules: CourseModule[];
 }
 
@@ -267,6 +268,7 @@ class FreeCoursesApiService {
     courseId: string;
     title: string;
     description: string;
+    url?: string;
   }): Promise<any> {
     try {
       const response = await this.request<any>('/admin/courses', {
@@ -287,12 +289,18 @@ class FreeCoursesApiService {
   async updateCourse(courseId: string, courseData: {
     title: string;
     description: string;
+    url?: string;
   }): Promise<any> {
     try {
+      console.log(`🔄 Mise à jour du cours: ${courseId}`);
+      console.log(`📝 Données envoyées:`, courseData);
+      
       const response = await this.request<any>(`/admin/courses/${courseId}`, {
         method: 'PUT',
         body: JSON.stringify(courseData),
       });
+      
+      console.log(`✅ Réponse du serveur:`, response.data);
       return response.data;
     } catch (error) {
       console.error('❌ Erreur updateCourse:', error);

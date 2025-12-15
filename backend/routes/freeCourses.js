@@ -8,6 +8,21 @@ const router = express.Router();
 
 // ==================== ROUTES PUBLIQUES ====================
 
+// GET /api/free-courses/debug/courses - Diagnostic endpoint to check course data
+router.get('/debug/courses', async (req, res) => {
+  try {
+    const courses = await Course.find({}).select('courseId title url');
+    console.log('🔍 DEBUG: All courses in database:');
+    courses.forEach(c => {
+      console.log(`  ${c.courseId}: "${c.title}" -> URL: "${c.url || 'EMPTY'}"`);
+    });
+    res.json({ success: true, data: courses });
+  } catch (error) {
+    console.error('❌ Debug error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // GET /api/free-courses/domains - Récupérer tous les domaines avec cours et modules
 router.get('/domains', async (req, res) => {
   try {
@@ -15,6 +30,13 @@ router.get('/domains', async (req, res) => {
     
     // Récupérer tous les domaines actifs
     const domains = await Domain.find({ isActive: true }).sort({ order: 1, title: 1 });
+    
+    // Debug: Check all courses in database
+    const allCourses = await Course.find({});
+    console.log(`📊 Total courses in DB: ${allCourses.length}`);
+    allCourses.forEach(c => {
+      console.log(`  Course: ${c.title} (${c.courseId}), URL: "${c.url || 'EMPTY'}"`);
+    });
     
     // Pour chaque domaine, récupérer les cours et modules
     const domainsWithCourses = await Promise.all(
@@ -25,6 +47,11 @@ router.get('/domains', async (req, res) => {
           isActive: true 
         }).sort({ order: 1, title: 1 });
         
+        // Log courses with URLs for debugging
+        courses.forEach(course => {
+          console.log(`📚 Cours DB: ${course.title}, URL: ${course.url || 'AUCUNE'}`);
+        });
+        
         // Pour chaque cours, récupérer les modules
         const coursesWithModules = await Promise.all(
           courses.map(async (course) => {
@@ -33,17 +60,21 @@ router.get('/domains', async (req, res) => {
               isActive: true 
             }).sort({ order: 1, moduleId: 1 });
             
-            return {
+            const courseObj = {
               id: course.courseId,
               title: course.title,
               description: course.description,
+              url: course.url || '',
               modules: modules.map(module => ({
                 id: module.moduleId,
                 title: module.title,
                 duration: module.duration,
-                url: module.url || undefined
+                url: module.url || ''
               }))
             };
+            
+            console.log(`  📦 Course object: ${courseObj.title}, url: "${courseObj.url}"`);
+            return courseObj;
           })
         );
         
@@ -243,7 +274,20 @@ router.get('/admin/courses', async (req, res) => {
     const filter = domainId ? { domainId } : {};
     
     const courses = await Course.find(filter).sort({ order: 1, title: 1 });
-    res.json({ success: true, data: courses });
+    
+    // Log all courses with URLs for debugging
+    console.log(`📚 Courses retrieved from DB (${courses.length} total):`);
+    courses.forEach(course => {
+      console.log(`  - ${course.title}: url="${course.url || ''}", hasUrl: ${!!course.url}`);
+    });
+    
+    // Ensure all courses have url field (set to empty string if missing)
+    const coursesWithUrl = courses.map(course => ({
+      ...course.toObject(),
+      url: course.url || ''
+    }));
+    
+    res.json({ success: true, data: coursesWithUrl });
   } catch (error) {
     console.error('❌ Erreur admin courses:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -253,20 +297,24 @@ router.get('/admin/courses', async (req, res) => {
 // POST /api/free-courses/admin/courses - Créer un cours
 router.post('/admin/courses', async (req, res) => {
   try {
-    const { courseId, domainId, title, description, order } = req.body;
+    const { courseId, domainId, title, description, url, order } = req.body;
     
-    if (!courseId || !domainId || !title || !description) {
+    if (!domainId || !title || !description) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Tous les champs sont requis' 
+        message: 'Les champs domainId, title et description sont requis' 
       });
     }
     
+    // Use provided courseId or generate from title
+    const finalCourseId = courseId || title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    
     const course = new Course({
-      courseId: courseId.trim(),
+      courseId: finalCourseId.trim(),
       domainId: domainId.trim(),
       title: title.trim(),
       description: description.trim(),
+      url: url ? url.trim() : '',
       order: order || 0
     });
     
@@ -281,6 +329,93 @@ router.post('/admin/courses', async (req, res) => {
     } else {
       res.status(500).json({ success: false, message: error.message });
     }
+  }
+});
+
+// PUT /api/free-courses/admin/courses/:id - Modifier un cours
+router.put('/admin/courses/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, url } = req.body;
+    
+    console.log(`🔄 Mise à jour du cours: ${id}`);
+    console.log(`📝 Données reçues complètes:`, JSON.stringify(req.body, null, 2));
+    console.log(`   title=${title}, description=${description}, url=${url}`);
+    
+    if (!title || !description) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Les champs title et description sont requis' 
+      });
+    }
+    
+    const updateData = {
+      title: title.trim(),
+      description: description.trim(),
+      url: url ? url.trim() : ''
+    };
+    
+    console.log(`💾 Données à sauvegarder:`, JSON.stringify(updateData, null, 2));
+    console.log(`   URL is empty: ${!url || url.trim() === ''}`);
+    console.log(`   URL length: ${url ? url.length : 0}`);
+    console.log(`   URL value type: ${typeof url}`);
+    
+    // First, get the current course to see what's in the DB before update
+    const beforeUpdate = await Course.findOne({ courseId: id });
+    console.log(`📋 Course avant mise à jour:`, {
+      title: beforeUpdate?.title,
+      url: beforeUpdate?.url
+    });
+    
+    const course = await Course.findOneAndUpdate(
+      { courseId: id },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+    
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Cours non trouvé' });
+    }
+    
+    // Verify the update was successful
+    const verifyUpdate = await Course.findOne({ courseId: id });
+    console.log(`✅ Cours modifié: ${course.title}`);
+    console.log(`   URL envoyée: ${url}`);
+    console.log(`   URL sauvegardée dans réponse: ${course.url}`);
+    console.log(`   URL vérifiée en DB: ${verifyUpdate.url}`);
+    console.log(`   Objet complet après update:`, {
+      courseId: course.courseId,
+      title: course.title,
+      url: course.url
+    });
+    
+    res.json({ success: true, data: course });
+  } catch (error) {
+    console.error('❌ Erreur modification cours:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// DELETE /api/free-courses/admin/courses/:id - Supprimer un cours
+router.delete('/admin/courses/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Supprimer d'abord tous les modules du cours
+    await CourseModule.deleteMany({ courseId: id });
+    
+    // Supprimer le cours
+    const course = await Course.findOneAndDelete({ courseId: id });
+    
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Cours non trouvé' });
+    }
+    
+    console.log(`✅ Cours supprimé: ${course.title}`);
+    res.json({ success: true, message: 'Cours supprimé avec succès' });
+  } catch (error) {
+    console.error('❌ Erreur suppression cours:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

@@ -29,7 +29,7 @@ const FreeCoursesPage: React.FC = () => {
   
   // Form data
   const [domainFormData, setDomainFormData] = useState({ domainId: '', title: '', icon: '📚', description: '', order: 0 });
-  const [courseFormData, setCourseFormData] = useState({ courseId: '', domainId: '', title: '', description: '', order: 0 });
+  const [courseFormData, setCourseFormData] = useState({ courseId: '', domainId: '', title: '', description: '', url: '', order: 0 });
   const [moduleFormData, setModuleFormData] = useState({ moduleId: '', courseId: '', title: '', duration: '', url: '', order: 0 });
   const [accessFormData, setAccessFormData] = useState({ accessId: '', description: '', maxUsage: -1, expiresAt: '', domainId: '*' });
   
@@ -66,6 +66,7 @@ const FreeCoursesPage: React.FC = () => {
             id: c.courseId,
             title: c.title,
             description: c.description,
+            url: c.url || undefined,
             modules,
           };
           return course;
@@ -165,10 +166,12 @@ const FreeCoursesPage: React.FC = () => {
   // Course handlers
   const handleCreateCourse = async () => {
     try {
-      await freeCoursesApiService.createCourse(courseFormData.domainId, courseFormData);
+      const generatedCourseId = courseFormData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const courseData = { ...courseFormData, courseId: generatedCourseId };
+      await freeCoursesApiService.createCourse(courseFormData.domainId, courseData);
       setShowCourseForm(false);
       setEditingCourse(null);
-      setCourseFormData({ courseId: '', domainId: '', title: '', description: '', order: 0 });
+      setCourseFormData({ courseId: '', domainId: '', title: '', description: '', url: '', order: 0 });
       loadData();
     } catch (error) {
       alert('Erreur lors de la création du cours');
@@ -182,6 +185,7 @@ const FreeCoursesPage: React.FC = () => {
       domainId: domains.find(d => d.courses.some(c => c.id === course.id))?.id || '',
       title: course.title,
       description: course.description,
+      url: course.url || '',
       order: 0
     });
     setShowCourseForm(true);
@@ -190,15 +194,31 @@ const FreeCoursesPage: React.FC = () => {
   const handleUpdateCourse = async () => {
     if (!editingCourse) return;
     try {
-      await freeCoursesApiService.updateCourse(editingCourse.id, {
+      const urlValue = courseFormData.url;
+      console.log('🔄 handleUpdateCourse - Données du formulaire:', {
+        courseId: editingCourse.id,
         title: courseFormData.title,
-        description: courseFormData.description
+        description: courseFormData.description,
+        url: urlValue,
+        urlLength: urlValue ? urlValue.length : 0,
+        urlIsEmpty: !urlValue || urlValue.trim() === ''
       });
+      
+      const updatePayload = {
+        title: courseFormData.title,
+        description: courseFormData.description,
+        url: urlValue || ''
+      };
+      
+      console.log('📤 Payload being sent to API:', updatePayload);
+      
+      await freeCoursesApiService.updateCourse(editingCourse.id, updatePayload);
       setShowCourseForm(false);
       setEditingCourse(null);
-      setCourseFormData({ courseId: '', domainId: '', title: '', description: '', order: 0 });
+      setCourseFormData({ courseId: '', domainId: '', title: '', description: '', url: '', order: 0 });
       loadData();
     } catch (error) {
+      console.error('❌ Erreur lors de la modification du cours:', error);
       alert('Erreur lors de la modification du cours');
     }
   };
@@ -443,21 +463,16 @@ const FreeCoursesPage: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 ml-5 mb-2">{course.description}</p>
+                      {course.url && (
+                        <p className="text-sm text-blue-600 ml-5 mb-2">
+                          🔗 <a href={course.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800">
+                            {course.url}
+                          </a>
+                        </p>
+                      )}
 
                       {expandedCourses.has(course.id) && (
                         <div className="ml-5 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <button
-                              onClick={() => {
-                                setModuleFormData({ ...moduleFormData, courseId: course.id });
-                                setShowModuleForm(true);
-                              }}
-                              className="px-2 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
-                            >
-                              + Ajouter un Module
-                            </button>
-                          </div>
-
                           {course.modules.map((module) => (
                             <div key={module.id} className="bg-white rounded p-2 flex items-center justify-between">
                               <div className="flex-1">
@@ -629,16 +644,6 @@ const FreeCoursesPage: React.FC = () => {
             <h3 className="text-xl font-semibold mb-4">{editingCourse ? 'Modifier le Cours' : 'Ajouter un Cours'}</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">ID du Cours</label>
-                <input
-                  type="text"
-                  value={courseFormData.courseId}
-                  onChange={(e) => setCourseFormData({ ...courseFormData, courseId: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  disabled={!!editingCourse}
-                />
-              </div>
-              <div>
                 <label className="block text-sm font-medium mb-1">Titre</label>
                 <input
                   type="text"
@@ -654,6 +659,16 @@ const FreeCoursesPage: React.FC = () => {
                   onChange={(e) => setCourseFormData({ ...courseFormData, description: e.target.value })}
                   className="w-full px-3 py-2 border rounded-lg"
                   rows={3}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">🔗 Accéder (URL)</label>
+                <input
+                  type="url"
+                  value={courseFormData.url}
+                  onChange={(e) => setCourseFormData({ ...courseFormData, url: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  placeholder="https://..."
                 />
               </div>
               <div className="flex gap-2">

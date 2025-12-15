@@ -24,6 +24,11 @@ const courseSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  url: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   isActive: {
     type: Boolean,
     default: true
