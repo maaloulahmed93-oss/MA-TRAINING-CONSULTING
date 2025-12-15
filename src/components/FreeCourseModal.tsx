@@ -657,7 +657,13 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                         variants={staggerItem}
                         whileHover={{ scale: 1.02 }}
                         className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all cursor-pointer group"
-                        onClick={() => handleCourseSelect(selectedDomain, course.id)}
+                        onClick={() => {
+                          if (course.url && course.url.trim()) {
+                            handleCourseAccess(course);
+                          } else {
+                            handleCourseSelect(selectedDomain, course.id);
+                          }
+                        }}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
