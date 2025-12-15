@@ -716,6 +716,88 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
                       </motion.div>
                     ))}
                   </div>
+
+                  {/* Registration Section */}
+                  <motion.div
+                    variants={staggerItem}
+                    className="mt-12 pt-8 border-t border-gray-200"
+                  >
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                        ➡️ Après avoir réalisé votre diagnostic et pris connaissance de vos résultats
+                      </h3>
+                      <p className="text-gray-600 text-lg mb-2">
+                        Passez à l'application concrète au sein du parcours complet, accompagné par nos experts.
+                      </p>
+                      <p className="text-indigo-600 font-semibold text-lg">
+                        👉 Inscrivez-vous pour accéder au parcours complet 👇
+                      </p>
+                    </div>
+
+                    {/* Modern Registration Form */}
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg border border-blue-100">
+                      <form className="space-y-5 max-w-2xl mx-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          {/* Nom */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Nom
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="Votre nom"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                            />
+                          </div>
+
+                          {/* Prénom */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Prénom
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="Votre prénom"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                            />
+                          </div>
+
+                          {/* Email */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Email
+                            </label>
+                            <input
+                              type="email"
+                              placeholder="votre.email@exemple.com"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                            />
+                          </div>
+
+                          {/* WhatsApp */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              WhatsApp
+                            </label>
+                            <input
+                              type="tel"
+                              placeholder="+212 6XX XXX XXX"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="submit"
+                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 mt-6"
+                        >
+                          <CheckCircle className="w-5 h-5" />
+                          S'inscrire au parcours complet
+                        </button>
+                      </form>
+                    </div>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
