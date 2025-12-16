@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff } from 'lucide-react';
+import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff, Mail, FileText } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
+import { API_BASE_URL } from '../config/api';
 import { Domain, Course, CourseModule } from '../types/courses';
 import { freeCoursesService } from '../services/freeCoursesService';
 
@@ -34,6 +35,13 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
   const [shakeError, setShakeError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isRegistrationSubmitted, setIsRegistrationSubmitted] = useState(false);
+  const [registrationFirstName, setRegistrationFirstName] = useState('');
+  const [registrationLastName, setRegistrationLastName] = useState('');
+  const [registrationEmail, setRegistrationEmail] = useState('');
+  const [registrationWhatsapp, setRegistrationWhatsapp] = useState('');
+  const [isSubmittingRegistration, setIsSubmittingRegistration] = useState(false);
+  const [registrationSubmitError, setRegistrationSubmitError] = useState('');
 
   // Initialize API connection and load data
   useEffect(() => {
@@ -103,8 +111,65 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
       setShakeError(false);
       setSearchQuery('');
       setCurrentSlide(0);
+      setIsRegistrationSubmitted(false);
+      setRegistrationFirstName('');
+      setRegistrationLastName('');
+      setRegistrationEmail('');
+      setRegistrationWhatsapp('');
+      setIsSubmittingRegistration(false);
+      setRegistrationSubmitError('');
     }
   }, [isOpen]);
+
+  const handleRegistrationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegistrationSubmitError('');
+    setIsSubmittingRegistration(true);
+
+    try {
+      const domainTitle = getCurrentDomain()?.title;
+      const itemId = selectedDomain ? `parcours-complet-${selectedDomain}` : 'parcours-complet';
+      const itemName = domainTitle ? `Parcours complet - ${domainTitle}` : 'Parcours complet';
+
+      const payload = {
+        type: 'pack',
+        itemId,
+        itemName,
+        price: null,
+        currency: '€',
+        user: {
+          firstName: registrationFirstName.trim(),
+          lastName: registrationLastName.trim(),
+          email: registrationEmail.trim().toLowerCase(),
+          whatsapp: registrationWhatsapp.trim(),
+          phone: registrationWhatsapp.trim(),
+          message: domainTitle ? `Inscription parcours complet après diagnostic: ${domainTitle}` : 'Inscription parcours complet après diagnostic'
+        }
+      };
+
+      const response = await fetch(`${API_BASE_URL}/registrations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        const msg = data?.message || data?.error || `Erreur HTTP ${response.status}`;
+        throw new Error(msg);
+      }
+
+      setIsRegistrationSubmitted(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erreur lors de l\'inscription';
+      setRegistrationSubmitError(msg);
+    } finally {
+      setIsSubmittingRegistration(false);
+    }
+  };
 
   const handleAccessIdSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -736,66 +801,192 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
 
                     {/* Modern Registration Form */}
                     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg border border-blue-100">
-                      <form className="space-y-5 max-w-2xl mx-auto">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                          {/* Nom */}
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Nom
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="Votre nom"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-                            />
+                      {!isRegistrationSubmitted ? (
+                        <form
+                          onSubmit={handleRegistrationSubmit}
+                          className="space-y-5 max-w-2xl mx-auto"
+                        >
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Nom
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Votre nom"
+                                required
+                                value={registrationLastName}
+                                onChange={(e) => setRegistrationLastName(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Prénom
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Votre prénom"
+                                required
+                                value={registrationFirstName}
+                                onChange={(e) => setRegistrationFirstName(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Email
+                              </label>
+                              <input
+                                type="email"
+                                placeholder="votre.email@exemple.com"
+                                required
+                                value={registrationEmail}
+                                onChange={(e) => setRegistrationEmail(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                WhatsApp
+                              </label>
+                              <input
+                                type="tel"
+                                placeholder="+212 6XX XXX XXX"
+                                required
+                                value={registrationWhatsapp}
+                                onChange={(e) => setRegistrationWhatsapp(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                              />
+                            </div>
                           </div>
 
-                          {/* Prénom */}
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Prénom
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="Votre prénom"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-                            />
-                          </div>
+                          {registrationSubmitError && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                              {registrationSubmitError}
+                            </div>
+                          )}
 
-                          {/* Email */}
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Email
-                            </label>
-                            <input
-                              type="email"
-                              placeholder="votre.email@exemple.com"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-                            />
-                          </div>
+                          <button
+                            type="submit"
+                            disabled={isSubmittingRegistration}
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 mt-6"
+                          >
+                            {isSubmittingRegistration ? (
+                              <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Envoi...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-5 h-5" />
+                                S'inscrire au parcours complet
+                              </>
+                            )}
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="max-w-2xl mx-auto">
+                          <div className="bg-white rounded-2xl border border-blue-100 shadow-md overflow-hidden">
+                            <div className="px-6 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                              <div className="flex items-start gap-3">
+                                <div className="bg-white/20 rounded-full p-2">
+                                  <CheckCircle className="w-6 h-6" />
+                                </div>
+                                <div>
+                                  <h4 className="text-lg font-bold leading-tight">
+                                    Votre demande a bien été prise en compte.
+                                  </h4>
+                                  <p className="text-white/90 text-sm mt-1">
+                                    Merci. Voici les prochaines étapes.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
 
-                          {/* WhatsApp */}
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              WhatsApp
-                            </label>
-                            <input
-                              type="tel"
-                              placeholder="+212 6XX XXX XXX"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-                            />
+                            <div className="px-6 py-5">
+                              <div className="max-h-72 overflow-y-auto pr-2 text-gray-700 leading-relaxed">
+                                <p className="mb-4">
+                                  Notre équipe va analyser les résultats de votre diagnostic afin de vous proposer un parcours d’accompagnement adapté à votre profil et à vos objectifs.
+                                </p>
+                                <p className="mb-4">
+                                  Cette prestation est proposée sur devis, après analyse du diagnostic.
+                                </p>
+
+                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
+                                  <div className="flex items-start gap-3">
+                                    <Clock className="w-5 h-5 text-blue-700 mt-0.5" />
+                                    <div>
+                                      <p className="font-semibold text-blue-900">
+                                        Vous recevrez un email dans un délai de 48 heures.
+                                      </p>
+                                      <p className="text-blue-800 text-sm mt-1">
+                                        Merci de vérifier régulièrement votre boîte de réception (y compris les courriers indésirables).
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-4">
+                                  <div className="flex items-start gap-3">
+                                    <Mail className="w-5 h-5 text-indigo-700 mt-0.5" />
+                                    <div>
+                                      <p className="font-semibold text-indigo-900 mb-2">
+                                        Cet email contiendra :
+                                      </p>
+                                      <div className="space-y-2 text-sm text-indigo-900/90">
+                                        <div className="flex items-start gap-2">
+                                          <span className="mt-0.5">–</span>
+                                          <span>des questions complémentaires liées à votre diagnostic,</span>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                          <span className="mt-0.5">–</span>
+                                          <span>une demande de transmission du ou des documents PDF générés lors de votre diagnostic et que vous avez téléchargés,</span>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                          <span className="mt-0.5">–</span>
+                                          <span>une proposition de parcours d’accompagnement accompagnée du devis correspondant.</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                                  <div className="flex items-start gap-3">
+                                    <FileText className="w-5 h-5 text-amber-700 mt-0.5" />
+                                    <div>
+                                      <p className="font-semibold text-amber-900">
+                                        Ces éléments sont indispensables pour finaliser l’analyse et activer votre parcours.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => setIsRegistrationSubmitted(false)}
+                                  className="w-full sm:w-auto px-5 py-3 rounded-lg font-semibold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all"
+                                >
+                                  Modifier mes informations
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={onClose}
+                                  className="w-full sm:w-auto px-5 py-3 rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 transition-all"
+                                >
+                                  Fermer
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
-
-                        {/* Submit Button */}
-                        <button
-                          type="submit"
-                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 mt-6"
-                        >
-                          <CheckCircle className="w-5 h-5" />
-                          S'inscrire au parcours complet
-                        </button>
-                      </form>
+                      )}
                     </div>
                   </motion.div>
                 </motion.div>
