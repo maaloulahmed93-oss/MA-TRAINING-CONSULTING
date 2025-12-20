@@ -641,111 +641,639 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Notre Identité Section */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
-        <div className="container mx-auto px-6">
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Notre{" "}
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Identité
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <TrendingUp className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Cadre méthodologique</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Un parcours professionnel clair,
+                <span className="block text-gradient bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+                  fondé sur le diagnostic — pas sur les promesses
                 </span>
               </h2>
-              <p className="text-2xl font-semibold text-gray-800 mb-8">
-                Cabinet de consulting spécialisé en accompagnement professionnel
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Nous accompagnons des professionnels à partir d'un diagnostic rigoureux de la logique de décision,
+                puis — uniquement si cela a du sens — par un accompagnement orienté transformation en situations réelles.
               </p>
             </div>
 
-            {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-              {/* Left Column - Text Content */}
-              <div className="space-y-8">
-                <div>
-                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                    <span className="font-bold text-gray-900">MA Training Consulting</span> est un cabinet de consulting international spécialisé dans :
-                  </p>
-                  
-                  <ul className="space-y-4">
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1">
-                        <span className="text-sm font-bold">•</span>
-                      </span>
-                      <span className="text-gray-700">l'accompagnement professionnel</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1">
-                        <span className="text-sm font-bold">•</span>
-                      </span>
-                      <span className="text-gray-700">le développement des compétences opérationnelles</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1">
-                        <span className="text-sm font-bold">•</span>
-                      </span>
-                      <span className="text-gray-700">et les parcours pratiques orientés métiers</span>
-                    </li>
-                  </ul>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10" />
+                <div className="relative">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200/70 text-purple-700 text-xs font-bold mb-3">
+                        Phase 1 — Diagnostic & avis professionnel
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900">Obligatoire (pré-requis)</p>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-2xl bg-white/70 border border-slate-200/70 px-4 py-3 shadow-sm">
+                      <FileText className="w-5 h-5 text-purple-600" />
+                      <div>
+                        <p className="text-xs font-bold text-gray-900">Décision</p>
+                        <p className="text-xs text-gray-600">GO / NO-GO / réorientation</p>
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Important Note */}
-                <div className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-orange-500 rounded-lg">
-                  <p className="text-sm font-bold text-orange-900 mb-3">
-                    ⚠️ Règle fondamentale
-                  </p>
-                  <p className="text-gray-800 leading-relaxed">
-                    <span className="font-semibold">Nous ne sommes pas un centre de formation.</span> Notre mission est d'offrir un accompagnement sur-mesure basé sur des pratiques professionnelles modernes et directement applicables dans le marché actuel.
-                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-4">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Déroulé</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
+                          <p className="text-sm text-gray-700">Mises en situation opérationnelles</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
+                          <p className="text-sm text-gray-700">Choix et arbitrages sous contrainte</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">3</span>
+                          <p className="text-sm text-gray-700">Analyse de votre logique de décision et de vos automatismes</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-4">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Livrables</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Profil professionnel objectivé</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Forces, angles morts et facteurs de blocage</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Avis de cadrage : acceptation, refus ou réorientation</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-purple-50/70 border border-purple-200/70 px-4 py-3">
+                    <p className="text-sm text-purple-900 font-semibold">
+                      Aucun cours. Aucun contenu à consommer. Un diagnostic, puis une décision.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Right Column - Visual Element */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-3xl"></div>
-                <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
-                  <div className="space-y-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                          <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                        </div>
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
+                <div className="relative">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-bold mb-3">
+                        Phase 2 — Accompagnement de Transformation
                       </div>
+                      <p className="text-sm font-semibold text-gray-900">Uniquement après validation du diagnostic</p>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-2xl bg-white/70 border border-slate-200/70 px-4 py-3 shadow-sm">
+                      <Briefcase className="w-5 h-5 text-emerald-600" />
                       <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Expertise</h4>
-                        <p className="text-sm text-gray-600">Accompagnement professionnel de haut niveau basé sur des années d'expérience</p>
+                        <p className="text-xs font-bold text-gray-900">Objectif</p>
+                        <p className="text-xs text-gray-600">Transformer la posture en contexte réel</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-4">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Axes de travail</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
+                          <p className="text-sm text-gray-700">Simulations de situations terrain</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
+                          <p className="text-sm text-gray-700">Analyse de posture, de décisions et d'impact</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">3</span>
+                          <p className="text-sm text-gray-700">Feedback stratégique, ajustements, répétition</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">4</span>
+                          <p className="text-sm text-gray-700">Évolution de la logique de décision et des comportements</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
-                          <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-4">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Résultats attendus</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Décisions plus cohérentes, plus rapides, mieux assumées</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Comportement plus stable sous pression</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Plan d'action concret, exécutable, ancré terrain</p>
                         </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Approche Pratique</h4>
-                        <p className="text-sm text-gray-600">Solutions directement applicables dans votre environnement professionnel</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
+                    <p className="text-sm text-emerald-900 font-semibold">
+                      Nous améliorons l'usage des compétences — nous ne les enseignons pas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 sm:mt-10">
+              <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                  <div className="max-w-xl">
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                      Ce qui nous différencie
+                    </h3>
+                    <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                      Nous ne vendons pas des promesses. Nous produisons de la clarté, une décision, puis une transformation observable.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+                    <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-b from-rose-50 to-white p-5">
+                      <p className="text-sm font-bold text-rose-900 mb-3">Ce que nous ne faisons pas</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Formation technique</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Cours ou contenus théoriques</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Exécuter des tâches à la place du participant</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600">
-                          <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                    <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-b from-emerald-50 to-white p-5">
+                      <p className="text-sm font-bold text-emerald-900 mb-3">Ce que nous faisons</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Analyse et diagnostic de la décision</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Réorientation quand c'est le meilleur choix</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Changement de comportement professionnel en situation réelle</p>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <button
+                    onClick={() => setShowFreeCourseModal(true)}
+                    className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                  >
+                    <span>Démarrer le diagnostic (gratuit)</span>
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-blue-50/30 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <Shield className="w-4 h-4 text-blue-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Système & traçabilité</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Un système d'accompagnement professionnel,
+                <span className="block text-gradient bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  officiel et vérifiable
+                </span>
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Chaque participant évolue dans un système fermé garantissant le suivi, la traçabilité et la reconnaissance de la participation,
+                du premier diagnostic jusqu'au dernier document.
+                <span className="block mt-2 text-sm sm:text-base text-gray-600">Un dispositif adapté aux individus comme aux entreprises.</span>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <button
+                type="button"
+                onClick={() => navigate("/espace-participant")}
+                className="group relative text-left rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-50px_rgba(37,99,235,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+              >
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-blue-500/10 via-transparent to-indigo-500/10" />
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <Users className="w-5 h-5" />
+                      </div>
                       <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Parcours Personnalisés / en groupe</h4>
-                        <p className="text-sm text-gray-600">Accompagnement sur-mesure adapté à vos besoins spécifiques</p>
+                        <p className="text-xs font-bold text-blue-700">1 — Espace Participant</p>
+                        <h3 className="text-lg font-bold text-gray-900">Espace professionnel & traçabilité</h3>
                       </div>
                     </div>
+                    <span className="text-xs font-semibold text-gray-700 bg-white/70 border border-slate-200/70 rounded-full px-3 py-1 shadow-sm">
+                      Privé
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Accès aux séances, échanges et décisions associées</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Suivi d'avancement (jalons, objectifs, actions)</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Journal horodaté : notes, feedback, points de décision</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Documents et livrables centralisés (téléchargement)</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 px-4 py-3">
+                    <p className="text-sm text-blue-900 font-semibold">Un espace de travail et de preuve — pas une plateforme d'apprentissage.</p>
+                  </div>
+                </div>
+              </button>
+
+              <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-50px_rgba(16,185,129,0.40)]">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                        <Award className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-emerald-700">2 — Cadre & qualité</p>
+                        <h3 className="text-lg font-bold text-gray-900">Encadré, cohérent, auditable</h3>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-gray-700 bg-white/70 border border-slate-200/70 rounded-full px-3 py-1 shadow-sm">
+                      Encadré
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Critères de validation explicites (GO / NO-GO / réorientation)</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Objectifs, jalons et actions suivis sur la durée</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Confidentialité et accès maîtrisé (système fermé)</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Documentation cohérente : décisions, livrables, synthèses</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
+                    <p className="text-sm text-emerald-900 font-semibold">Un cadre sérieux, documenté et vérifiable.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowCertificateVerification(true)}
+                className="group relative text-left rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-50px_rgba(99,102,241,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
+              >
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10" />
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                        <Shield className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-indigo-700">3 — Vérification & preuves</p>
+                        <h3 className="text-lg font-bold text-gray-900">Participation documentée, vérifiable</h3>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-gray-700 bg-white/70 border border-slate-200/70 rounded-full px-3 py-1 shadow-sm">
+                      Vérifiable
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Toute entreprise peut vérifier l'authenticité d'une participation</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Chaque document dispose d'un identifiant unique</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Ce n'est pas une présence : ce sont des preuves et des documents</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-4 py-3">
+                    <p className="text-sm text-indigo-900 font-semibold">Transparence contrôlée, utile et exploitable pour les entreprises.</p>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="rounded-xl bg-white/70 border border-slate-200/70 px-3 py-2 text-center shadow-sm">
+                      <p className="text-xs font-bold text-gray-900">Document</p>
+                      <p className="text-[11px] text-gray-600">de participation</p>
+                    </div>
+                    <div className="rounded-xl bg-white/70 border border-slate-200/70 px-3 py-2 text-center shadow-sm">
+                      <p className="text-xs font-bold text-gray-900">Synthèse</p>
+                      <p className="text-[11px] text-gray-600">interne</p>
+                    </div>
+                    <div className="rounded-xl bg-white/70 border border-slate-200/70 px-3 py-2 text-center shadow-sm">
+                      <p className="text-xs font-bold text-gray-900">Avis</p>
+                      <p className="text-[11px] text-gray-600">professionnel</p>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="mt-8 sm:mt-10">
+              <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                  <div className="max-w-xl">
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Ce n'est pas du coaching informel</h3>
+                    <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                      Ce dispositif est structuré, fermé, suivi et vérifiable — adapté aux individus comme aux entreprises.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+                    <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-b from-rose-50 to-white p-5">
+                      <p className="text-sm font-bold text-rose-900 mb-3">Ce que ce n'est pas</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Certificats génériques</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Plateformes de cours</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Présence symbolique</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-b from-emerald-50 to-white p-5">
+                      <p className="text-sm font-bold text-emerald-900 mb-3">Ce que c'est</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Système fermé, structuré</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Documents vérifiables</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Accompagnement documenté et traçable</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => navigate("/espace-participant")}
+                    className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(37,99,235,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(37,99,235,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                  >
+                    <span>Accéder à l'Espace Participant</span>
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button
+                    onClick={() => setShowCertificateVerification(true)}
+                    className="group w-full sm:w-auto px-6 py-3 bg-white/85 backdrop-blur-sm text-gray-900 text-sm sm:text-base font-semibold rounded-full border border-gray-200 hover:border-indigo-300 hover:bg-white transition-all duration-300 inline-flex items-center justify-center shadow-sm hover:shadow-lg"
+                  >
+                    <span>Vérifier une participation</span>
+                    <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <Briefcase className="w-4 h-4 text-purple-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Positionnement & réalité métier</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Un accompagnement professionnel ancré dans le réel,
+                <span className="block text-gradient bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+                  pas dans le théorique
+                </span>
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Nous proposons un accompagnement qui vous permet de comprendre le réel des métiers, de décoder les attentes du marché,
+                et de construire un positionnement professionnel clair — crédible et présentable aux entreprises.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-blue-500/10 via-transparent to-indigo-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Pour qui ?</h3>
+                      <p className="text-sm text-gray-600">Profils en entrée de marché ou en clarification</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Étudiants avant l'entrée sur le marché du travail</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Jeunes diplômés en recherche de positionnement</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Professionnels en début de parcours</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Personnes qui veulent tester la réalité d'un métier avant de s'engager</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 px-4 py-3">
+                    <p className="text-sm text-blue-900 font-semibold">Une expérience professionnelle structurée — pas une formation théorique.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden lg:col-span-2">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Ce que nous apportons, concrètement</h3>
+                      <p className="text-sm text-gray-600">Valeur haute, orientée marché</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Clarté & diagnostic</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Compréhension réaliste du métier (missions, contraintes, standards)</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Diagnostic de niveau de préparation et de maturité professionnelle</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Identification des forces et axes de développement</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Documents professionnels (utiles)</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Clarifier le parcours et le positionnement</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Améliorer la présentation (CV, discours, exemples)</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">Parler avec confiance face aux entreprises</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-4 py-3">
+                    <p className="text-sm text-indigo-900 font-semibold">Les documents reflètent la maturité professionnelle — pas une simple présence.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7">
+                <div className="flex items-start gap-3 mb-5">
+                  <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-rose-600 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-rose-600/20">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Pour qui ce n'est pas adapté ?</h3>
+                    <p className="text-sm text-gray-600">Nous filtrons volontairement</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-rose-700 font-bold">✕</span>
+                    <p className="text-sm text-gray-700">Ceux qui veulent des cours ou une formation académique</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-rose-700 font-bold">✕</span>
+                    <p className="text-sm text-gray-700">Ceux qui cherchent une attestation sans expérience</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-rose-700 font-bold">✕</span>
+                    <p className="text-sm text-gray-700">Ceux qui refusent un retour franc et une évaluation claire</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8 overflow-hidden relative">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/12 via-transparent to-blue-500/12" />
+                <div className="relative">
+                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Proposition de valeur</h3>
+                  <p className="text-gray-800 text-sm sm:text-base leading-relaxed">
+                    Nous n'enseignons pas un métier. Nous vous plaçons dans sa logique réelle, puis nous vous donnons des outils professionnels
+                    pour vous présenter avec clarté, crédibilité et cohérence.
+                  </p>
+
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => setShowFreeCourseModal(true)}
+                      className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                    >
+                      <span>Démarrer le diagnostic (gratuit)</span>
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                      onClick={() => navigate("/espace-participant")}
+                      className="group w-full sm:w-auto px-6 py-3 bg-white/85 backdrop-blur-sm text-gray-900 text-sm sm:text-base font-semibold rounded-full border border-gray-200 hover:border-purple-300 hover:bg-white transition-all duration-300 inline-flex items-center justify-center shadow-sm hover:shadow-lg"
+                    >
+                      <span>Voir l'Espace Participant</span>
+                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -754,129 +1282,255 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Notre Approche Section */}
-      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
-        <div className="container mx-auto px-6">
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-emerald-50/30 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Notre{" "}
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Approche
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Résultats concrets</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Des résultats professionnels concrets,
+                <span className="block text-gradient bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
+                  directement utilisables
                 </span>
               </h2>
-              <p className="text-2xl font-semibold text-gray-800 mb-8">
-                Une méthodologie d'accompagnement moderne et orientée résultats
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                L'accompagnement MA Consulting ne vous donne pas du contenu à consommer.
+                Il vous apporte de la clarté, une posture plus mature, et un positionnement plus solide dans le réel professionnel.
               </p>
             </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-              {/* Left Column - Methodology */}
-              <div className="space-y-8">
-                <div>
-                  <p className="text-lg font-semibold text-gray-900 mb-6">
-                    Notre accompagnement repose sur :
-                  </p>
-                  
-                  <ul className="space-y-4">
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">l'analyse de votre profil et de vos objectifs</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">des rencontres professionnelles structurées</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">des études de cas issues du marché</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">l'application pratique et opérationnelle</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white mr-4 flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">un suivi continu assuré par des experts</span>
-                    </li>
-                  </ul>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                      <Lightbulb className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-emerald-700">1 — Clarté professionnelle</p>
+                      <h3 className="text-lg font-bold text-gray-900">Comprendre votre réalité</h3>
+                    </div>
+                  </div>
 
-                {/* Summary Box */}
-                <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                  <p className="text-gray-800 leading-relaxed">
-                    <span className="font-semibold text-gray-900">Chaque étape vise à renforcer vos compétences réelles et votre autonomie professionnelle</span>
-                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Compréhension réelle de votre rôle et de vos responsabilités</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Lecture précise de ce que le marché attend concrètement</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Moins d'hésitation, moins de flou, plus de direction</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
+                    <p className="text-sm text-emerald-900 font-semibold">Vous comprenez le pourquoi — pas seulement le comment.</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Right Column - Visual Stats */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-3xl"></div>
-                <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
-                  <div className="space-y-8">
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                        <div className="text-3xl font-bold text-blue-600 mb-2">5,000+</div>
-                        <p className="text-sm text-gray-700 font-medium">Professionnels accompagnés</p>
-                      </div>
-                      <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                        <div className="text-3xl font-bold text-purple-600 mb-2">200+</div>
-                        <p className="text-sm text-gray-700 font-medium">cycles accompagnement</p>
-                      </div>
-                      <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                        <div className="text-3xl font-bold text-green-600 mb-2">98%</div>
-                        <p className="text-sm text-gray-700 font-medium">Taux de satisfaction</p>
-                      </div>
-                      <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
-                        <div className="text-3xl font-bold text-orange-600 mb-2">24/7</div>
-                        <p className="text-sm text-gray-700 font-medium">Support disponible</p>
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-blue-500/10 via-transparent to-indigo-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-blue-700">2 — Décisions plus solides</p>
+                      <h3 className="text-lg font-bold text-gray-900">Penser mieux, décider mieux</h3>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Méthode de réflexion plus structurée</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Décisions fondées sur une logique professionnelle</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Capacité à assumer et défendre un choix</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 px-4 py-3">
+                    <p className="text-sm text-blue-900 font-semibold">Vous devenez acteur — pas réaction.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-purple-700">3 — Comportement plus mature</p>
+                      <h3 className="text-lg font-bold text-gray-900">Posture visible en situation</h3>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Meilleure gestion de la pression</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Communication plus claire et plus stable</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Réponses plus professionnelles en contexte réel</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-purple-50/70 border border-purple-200/70 px-4 py-3">
+                    <p className="text-sm text-purple-900 font-semibold">C'est le comportement que les entreprises observent.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-amber-600/20">
+                      <Briefcase className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-amber-700">4 — Positionnement présentable</p>
+                      <h3 className="text-lg font-bold text-gray-900">Se présenter avec impact</h3>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Savoir se présenter de façon structurée</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Savoir parler de sa valeur et de ses preuves</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700">Un discours clair pour candidatures et entretiens</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-amber-50/70 border border-amber-200/70 px-4 py-3">
+                    <p className="text-sm text-amber-900 font-semibold">Indispensable pour postuler et convaincre.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden md:col-span-2 lg:col-span-1">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-indigo-700">5 — Documents officiels</p>
+                      <h3 className="text-lg font-bold text-gray-900">Valeur élevée</h3>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Diagnostic professionnel</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Avis professionnel écrit</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Synthèse des compétences</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Documents vérifiables via la plateforme</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-4 py-3">
+                    <p className="text-sm text-indigo-900 font-semibold">Des documents utiles en entreprise — pas décoratifs.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 sm:mt-10 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div className="lg:col-span-2">
+                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Sans promesses vides</h3>
+                  <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                    Nous ne promettons pas un emploi. Nous construisons des résultats observables : clarté, décisions, posture, preuves.
+                  </p>
+
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-b from-rose-50 to-white p-5">
+                      <p className="text-sm font-bold text-rose-900 mb-3">Ce que vous ne trouverez pas</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Certificat général</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Promesse d'embauche</p>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Key Points */}
-                    <div className="space-y-4 pt-4 border-t border-gray-200">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                          </div>
+                    <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-b from-emerald-50 to-white p-5">
+                      <p className="text-sm font-bold text-emerald-900 mb-3">Ce que vous obtenez</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Résultats réalistes et utilisables</p>
                         </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Résultats Mesurables</p>
-                          <p className="text-xs text-gray-600">Accompagnement basé sur des objectifs clairs</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
-                            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Flexibilité Totale</p>
-                          <p className="text-xs text-gray-600">Adapté à votre rythme et vos contraintes</p>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Évolution de posture et de comportement</p>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="flex flex-col justify-between">
+                  <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
+                    <p className="text-sm font-bold text-gray-900 mb-2">CTA</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Commencez par le diagnostic et observez le résultat par vous-même.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowFreeCourseModal(true)}
+                    className="mt-4 group w-full px-6 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(16,185,129,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(16,185,129,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                  >
+                    <span>Commencer par le diagnostic</span>
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -884,6 +1538,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
+      
       {/* Positionnement Professionnel Section */}
       <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
         <div className="container mx-auto px-6">
