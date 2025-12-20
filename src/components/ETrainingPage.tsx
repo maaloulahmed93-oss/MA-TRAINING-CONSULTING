@@ -1293,12 +1293,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
                 Des résultats professionnels concrets,
                 <span className="block text-gradient bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
-                  directement utilisables
+                  directement exploitables
                 </span>
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
                 L'accompagnement MA Consulting ne vous donne pas du contenu à consommer.
-                Il vous apporte de la clarté, une posture plus mature, et un positionnement plus solide dans le réel professionnel.
+                Il vise un changement visible dans votre façon de penser, décider et vous positionner — avec des résultats que vous pouvez présenter
+                en entretien, en entreprise, ou utiliser pour progresser.
               </p>
             </div>
 
@@ -1312,27 +1313,27 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-emerald-700">1 — Clarté professionnelle</p>
-                      <h3 className="text-lg font-bold text-gray-900">Comprendre votre réalité</h3>
+                      <h3 className="text-lg font-bold text-gray-900">Voir clair, tout de suite</h3>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Compréhension réelle de votre rôle et de vos responsabilités</p>
+                      <p className="text-sm text-gray-700">Comprendre précisément votre rôle et vos responsabilités</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Lecture précise de ce que le marché attend concrètement</p>
+                      <p className="text-sm text-gray-700">Identifier vos limites actuelles et vos leviers de progression</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Moins d'hésitation, moins de flou, plus de direction</p>
+                      <p className="text-sm text-gray-700">Décider avec moins d'hésitation et plus de direction</p>
                     </div>
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
-                    <p className="text-sm text-emerald-900 font-semibold">Vous comprenez le pourquoi — pas seulement le comment.</p>
+                    <p className="text-sm text-emerald-900 font-semibold">Un effet direct en entretien et en réunions professionnelles.</p>
                   </div>
                 </div>
               </div>
@@ -1346,27 +1347,27 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-blue-700">2 — Décisions plus solides</p>
-                      <h3 className="text-lg font-bold text-gray-900">Penser mieux, décider mieux</h3>
+                      <h3 className="text-lg font-bold text-gray-900">Décider avec méthode</h3>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Méthode de réflexion plus structurée</p>
+                      <p className="text-sm text-gray-700">Raisonnement plus structuré et plus stable</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Décisions fondées sur une logique professionnelle</p>
+                      <p className="text-sm text-gray-700">Décisions fondées sur une logique — pas sur la réaction</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Capacité à assumer et défendre un choix</p>
+                      <p className="text-sm text-gray-700">Capacité à assumer et défendre vos choix, même sous pression</p>
                     </div>
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 px-4 py-3">
-                    <p className="text-sm text-blue-900 font-semibold">Vous devenez acteur — pas réaction.</p>
+                    <p className="text-sm text-blue-900 font-semibold">Une qualité très recherchée dans les postes à responsabilité.</p>
                   </div>
                 </div>
               </div>
@@ -1380,18 +1381,18 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-purple-700">3 — Comportement plus mature</p>
-                      <h3 className="text-lg font-bold text-gray-900">Posture visible en situation</h3>
+                      <h3 className="text-lg font-bold text-gray-900">Posture professionnelle visible</h3>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Meilleure gestion de la pression</p>
+                      <p className="text-sm text-gray-700">Meilleure gestion de la pression et des imprévus</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Communication plus claire et plus stable</p>
+                      <p className="text-sm text-gray-700">Communication plus claire, plus cohérente</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
@@ -1400,7 +1401,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-purple-50/70 border border-purple-200/70 px-4 py-3">
-                    <p className="text-sm text-purple-900 font-semibold">C'est le comportement que les entreprises observent.</p>
+                    <p className="text-sm text-purple-900 font-semibold">Le comportement que les entreprises observent au quotidien.</p>
                   </div>
                 </div>
               </div>
@@ -1413,28 +1414,28 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <Briefcase className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-amber-700">4 — Positionnement présentable</p>
-                      <h3 className="text-lg font-bold text-gray-900">Se présenter avec impact</h3>
+                      <p className="text-xs font-bold text-amber-700">4 — Positionnement plus solide</p>
+                      <h3 className="text-lg font-bold text-gray-900">Se présenter comme un pro</h3>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Savoir se présenter de façon structurée</p>
+                      <p className="text-sm text-gray-700">Présentation plus structurée et plus convaincante</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Savoir parler de sa valeur et de ses preuves</p>
+                      <p className="text-sm text-gray-700">Capacité à parler de votre valeur et de vos preuves</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">Un discours clair pour candidatures et entretiens</p>
+                      <p className="text-sm text-gray-700">Discours professionnel cohérent pour candidatures et entretiens</p>
                     </div>
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-amber-50/70 border border-amber-200/70 px-4 py-3">
-                    <p className="text-sm text-amber-900 font-semibold">Indispensable pour postuler et convaincre.</p>
+                    <p className="text-sm text-amber-900 font-semibold">Différence nette entre “candidat” et “professionnel”.</p>
                   </div>
                 </div>
               </div>
@@ -1447,32 +1448,40 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <FileText className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-indigo-700">5 — Documents officiels</p>
-                      <h3 className="text-lg font-bold text-gray-900">Valeur élevée</h3>
+                      <p className="text-xs font-bold text-indigo-700">5 — Documents professionnels</p>
+                      <h3 className="text-lg font-bold text-gray-900">Présentables & vérifiables</h3>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Diagnostic professionnel</p>
+                      <p className="text-sm text-gray-700">Document de diagnostic professionnel</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Avis professionnel écrit</p>
+                      <p className="text-sm text-gray-700">Avis professionnel structuré</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Synthèse des compétences</p>
+                      <p className="text-sm text-gray-700">Synthèse des compétences activées</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Documents vérifiables via la plateforme</p>
+                      <p className="text-sm text-gray-700">Document de participation vérifiable (ID)</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Note de positionnement professionnel</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Lettre de recommandation (si nécessaire)</p>
                     </div>
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-4 py-3">
-                    <p className="text-sm text-indigo-900 font-semibold">Des documents utiles en entreprise — pas décoratifs.</p>
+                    <p className="text-sm text-indigo-900 font-semibold">Documents consultatifs et traçables — pas des diplômes, ni des certifications.</p>
                   </div>
                 </div>
               </div>
@@ -1483,7 +1492,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div className="lg:col-span-2">
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Sans promesses vides</h3>
                   <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-                    Nous ne promettons pas un emploi. Nous construisons des résultats observables : clarté, décisions, posture, preuves.
+                    Nous ne promettons pas un emploi. MA Consulting n'ajoute pas une compétence “en plus” : il augmente la valeur de vos compétences
+                    en vous aidant à les mobiliser correctement dans le réel.
                   </p>
 
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1510,6 +1520,10 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
                           <p className="text-sm text-gray-700">Évolution de posture et de comportement</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Alignement plus fort avec les attentes du recrutement / promotion</p>
                         </div>
                       </div>
                     </div>
@@ -1538,609 +1552,301 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      
-      {/* Positionnement Professionnel Section */}
-      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
-        <div className="container mx-auto px-6">
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Positionnement{" "}
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Professionnel
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <Briefcase className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Coaching stratégique</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Coaching stratégique orienté décision,
+                <span className="block text-gradient bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  et posture professionnelle
                 </span>
               </h2>
-              <p className="text-2xl font-semibold text-gray-800 mb-8">
-                Ce que nous faisons — et ce que nous ne faisons pas
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Nous proposons des sessions individuelles dédiées à l'amélioration de la pensée professionnelle, de la qualité de décision
+                et d'une vision plus mature — dans vos rôles actuels ou futurs.
+                <span className="font-semibold text-gray-900"> Nous n'enseignons pas des compétences techniques</span> : nous travaillons sur la façon de penser et d'agir comme un professionnel.
               </p>
             </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-              {/* Left Column - What We Do */}
-              <div className="space-y-6">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200">
-                  <h3 className="font-bold text-xl text-gray-900 mb-6 flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-                      ✔
-                    </span>
-                    Ce que nous faisons
-                  </h3>
-                  
-                  <ul className="space-y-4">
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Accompagnement professionnel</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Développement de compétences pratiques</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Coaching orienté objectifs</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <div>
-                        <p className="text-gray-700 font-medium">Dossiers professionnels privés</p>
-                        <p className="text-sm text-gray-600 mt-1">complètent un parcours professionnel, mais ne remplacent pas les titres officiels</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Valorisation du parcours</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Key Differentiator */}
-                <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-l-4 border-purple-500 rounded-lg">
-                  <p className="text-gray-800 leading-relaxed">
-                    <span className="font-semibold text-gray-900">Notre force :</span> Une approche centrée sur l'application pratique et immédiate des compétences dans votre contexte professionnel.
-                  </p>
-                </div>
-              </div>
-
-              {/* Right Column - Visual Summary */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-3xl"></div>
-                <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
-                  <div className="space-y-8">
-                    {/* Professional Positioning */}
-                    <div className="space-y-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-900 mb-1">Reconnaissance Professionnelle</h4>
-                          <p className="text-sm text-gray-600">Valorisé par les entreprises et recruteurs internationaux</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600">
-                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-900 mb-1">Complémentarité</h4>
-                          <p className="text-sm text-gray-600">Complète diplômes et certifications officiels</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
-                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-900 mb-1">Transparence Totale</h4>
-                          <p className="text-sm text-gray-600">Documents professionnels privés, clairement identifiés</p>
-                        </div>
-                      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8 overflow-hidden relative">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                      <Lightbulb className="w-5 h-5" />
                     </div>
-
-                    {/* Highlight Box */}
-                    <div className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
-                      <p className="text-sm text-orange-900 font-medium">
-                        <span className="font-bold">💡 Important :</span> Nous ne délivrons pas de diplômes ou certifications officiels, mais des documents professionnels reconnus.
-                      </p>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Ce qui se passe pendant la session</h3>
+                      <p className="text-sm text-gray-600">Sans dérive “formation” ni consulting opérationnel</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Nature des Documents Délivrés Section */}
-      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Nature des{" "}
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Documents Délivrés
-                </span>
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Documents professionnels internes et privés
-              </p>
-            </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Ce que nous faisons</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Analyse d'une situation professionnelle réelle</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Déconstruction de votre logique de décision</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Correction du raisonnement et clarification des priorités</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                          <p className="text-sm text-gray-700">Ouverture de perspective et réorientation stratégique</p>
+                        </div>
+                      </div>
+                    </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
-              {/* Left Column - Documents */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-blue-500">
-                  <h3 className="font-bold text-lg text-gray-900 mb-4">
-                    À l'issue d'un parcours d'accompagnement
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed mb-6">
-                    Nous délivrons des documents professionnels propres à MA Training Consulting :
-                  </p>
-                  
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        •
-                      </span>
-                      <span className="text-gray-700 font-medium">Document de participation</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        •
-                      </span>
-                      <span className="text-gray-700 font-medium">Dossier professionnel individuel</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        •
-                      </span>
-                      <span className="text-gray-700 font-medium">Synthèse des compétences travaillées</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        •
-                      </span>
-                      <span className="text-gray-700 font-medium">Lettre de recommandation du consultant</span>
-                    </li>
-                  </ul>
+                    <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-b from-rose-50 to-white p-5">
+                      <p className="text-sm font-bold text-rose-900 mb-3">Ce que nous ne faisons pas</p>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Expliquer des outils ou des étapes techniques</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Exécuter à votre place ou produire un livrable opérationnel</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="mt-1 text-rose-700 font-bold">✕</span>
+                          <p className="text-sm text-gray-700">Donner une “solution prête” comme une recette</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                  <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-gray-700">
-                      <span className="font-semibold text-gray-900">Statut légal :</span> Ces documents sont internes, privés, et utilisés comme éléments de valorisation professionnelle. Ils ne relèvent pas du régime des diplômes ni des certifications contrôlées par l'État.
+                  <div className="mt-6 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-5 py-4">
+                    <p className="text-sm text-indigo-900 font-semibold">
+                      Ces sessions ne remplacent pas un cursus de formation ni une prestation d'exécution : elles aident à prendre des décisions plus justes
+                      dans le réel professionnel.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column - Utilité */}
-              <div className="space-y-6">
-                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-8 border border-purple-200">
-                  <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold">
-                      ✓
-                    </span>
-                    Utilité des Documents
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed mb-6 font-medium">
-                    Comment ils vous aident dans votre carrière
-                  </p>
-                  
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">renforcer votre CV</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">démontrer vos compétences opérationnelles</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">présenter vos projets ou exercices appliqués</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">appuyer une candidature ou évolution interne</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">enrichir votre profil LinkedIn</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">monter un dossier professionnel complet</span>
-                    </li>
-                  </ul>
+              <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7">
+                <div className="flex items-start gap-3 mb-5">
+                  <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Pour qui ?</h3>
+                    <p className="text-sm text-gray-600">Mentalité pro, pas “cours”</p>
+                  </div>
+                </div>
 
-                  <div className="mt-6 p-4 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
-                    <p className="text-sm text-orange-900 font-medium">
-                      <span className="font-bold">💡</span> Ils représentent une preuve de participation, d'engagement et de travail effectif.
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Personnes qui veulent renforcer leur positionnement professionnel</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Professionnels en début ou milieu de parcours</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Profils qui ressentent un manque de vision ou de décision</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Personnes qui veulent comprendre comment pense un professionnel dans un poste ciblé</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
+                  <p className="text-sm text-emerald-900 font-semibold">On travaille la pensée professionnelle — pas la fonction.</p>
+                </div>
+
+                <button
+                  onClick={() => setShowFreeCourseModal(true)}
+                  className="mt-5 group w-full px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                >
+                  <span>Réserver mon diagnostic professionnel</span>
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200/70 px-4 py-3">
+                  <p className="text-xs text-gray-700 leading-relaxed">
+                    Cadre : coaching stratégique (décision + posture) pour individus. Le consulting opérationnel s'adresse aux entreprises.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10 sm:mt-12">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                  <CheckCircle className="w-4 h-4 text-emerald-600" />
+                  <span className="text-xs sm:text-sm font-semibold text-slate-700">Services additionnels</span>
+                </div>
+                <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mt-4 mb-3">Services additionnels pour approfondir l'accompagnement</h3>
+                <p className="text-sm sm:text-base text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                  Modules courts (sans explications longues) pour renforcer l'analyse, la crédibilité et la maturité — selon le niveau et la situation.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-blue-500/10" />
+                  <div className="relative">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Benchmarks professionnels</h4>
+                        <p className="text-sm text-gray-600">Comparaison avec le marché</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">Renforce le discours, clarifie les écarts, et reste lisible pour les entreprises.</p>
+                  </div>
+                </div>
+
+                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
+                  <div className="relative">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                        <Briefcase className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Simulations professionnelles</h4>
+                        <p className="text-sm text-gray-600">Pression, décisions, posture</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">Teste la préparation et fournit un signal de crédibilité en entretien.</p>
+                  </div>
+                </div>
+
+                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
+                  <div className="relative">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Comité d'experts (avancé)</h4>
+                        <p className="text-sm text-gray-600">Regards multiples</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">Élargit la vision et apporte une valeur forte pour profils management.</p>
+                  </div>
+                </div>
+
+                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/10" />
+                  <div className="relative">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-amber-600/20">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Journal de progression</h4>
+                        <p className="text-sm text-gray-600">Traçabilité des décisions</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">Documente l'évolution et peut soutenir un dossier de promotion interne.</p>
+                  </div>
+                </div>
+
+                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/10" />
+                  <div className="relative">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <Shield className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Feedback 360°</h4>
+                        <p className="text-sm text-gray-600">Self-awareness & management</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">Synthèse de retours comportementaux (quand c'est possible) pour renforcer la maturité.</p>
+                  </div>
+                </div>
+
+                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden sm:col-span-2 lg:col-span-3">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-indigo-500/10" />
+                  <div className="relative">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                        <Award className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Diagnostic de maturité (B2B)</h4>
+                        <p className="text-sm text-gray-600">Évaluation d'équipes ou d'individus en entreprise</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Offre entreprise (consulting opérationnel). Portail naturel vers des missions à haute valeur.
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Processus d'Accompagnement Section */}
-      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Processus{" "}
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  d'Accompagnement
-                </span>
-              </h2>
-              <p className="text-xl text-gray-600">
-                Les étapes clés du parcours
-              </p>
-            </div>
-
-            {/* 6 Steps Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {/* Step 1 */}
-              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-blue-500">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">1️⃣</span>
+              <div className="mt-8 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                  <div className="rounded-2xl bg-indigo-50/70 border border-indigo-200/70 p-5">
+                    <p className="text-sm font-bold text-indigo-900 mb-2">Cadre & disponibilité</p>
+                    <p className="text-sm text-gray-800 leading-relaxed">
+                      Certains services sont activés selon le niveau et la préparation,
+                      <span className="font-semibold text-gray-900"> après un diagnostic professionnel préalable</span>.
+                    </p>
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 pt-1">Analyse & diagnostic professionnel</h3>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed ml-16">
-                  Évaluation complète de votre profil, vos objectifs et vos besoins spécifiques
-                </p>
-              </div>
 
-              {/* Step 2 */}
-              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-purple-500">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">2️⃣</span>
+                  <div className="rounded-2xl bg-slate-50 border border-slate-200/70 p-5">
+                    <p className="text-sm font-bold text-gray-900 mb-2">Résumé clair</p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Sessions individuelles : oui</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Coaching stratégique (décision + posture) : oui</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-1 text-rose-700 font-bold">✕</span>
+                        <p className="text-sm text-gray-700">Formation technique : non</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Consulting opérationnel : pour entreprises</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 pt-1">Rencontres d'accompagnement (en ligne)</h3>
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed ml-16">
-                  Sessions interactives régulières avec nos experts pour explorer vos défis
-                </p>
-              </div>
 
-              {/* Step 3 */}
-              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-green-500">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">3️⃣</span>
-                  </div>
-                  <h3 className="font-bold text-lg text-gray-900 pt-1">Études et cas pratiques du marché</h3>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed ml-16">
-                  Analyse de situations réelles et tendances actuelles de votre secteur
-                </p>
-              </div>
+                <button
+                  onClick={() => setShowFreeCourseModal(true)}
+                  className="mt-6 group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(16,185,129,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(16,185,129,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                >
+                  <span>Commencer par le diagnostic professionnel</span>
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
 
-              {/* Step 4 */}
-              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-orange-500">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">4️⃣</span>
-                  </div>
-                  <h3 className="font-bold text-lg text-gray-900 pt-1">Exercices opérationnels appliqués</h3>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed ml-16">
-                  Mise en pratique immédiate à travers des projets concrets et exercices professionnels
-                </p>
-              </div>
-
-              {/* Step 5 */}
-              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-pink-500">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">5️⃣</span>
-                  </div>
-                  <h3 className="font-bold text-lg text-gray-900 pt-1">Feedback professionnel et ajustements</h3>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed ml-16">
-                  Retours détaillés et recommandations personnalisées pour votre progression
-                </p>
-              </div>
-
-              {/* Step 6 */}
-              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-l-4 border-indigo-500">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">6️⃣</span>
-                  </div>
-                  <h3 className="font-bold text-lg text-gray-900 pt-1">Validation interne et remise du dossier</h3>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed ml-16">
-                  Validation de vos compétences et remise du dossier professionnel complet
-                </p>
-              </div>
-            </div>
-
-            {/* Summary Box */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-10 shadow-lg text-white">
-              <div className="flex items-start gap-4">
-                <div className="text-4xl flex-shrink-0">✨</div>
-                <div>
-                  <h3 className="font-bold text-2xl mb-3">Un parcours complet et structuré</h3>
-                  <p className="text-blue-50 leading-relaxed">
-                    Chaque étape est conçue pour renforcer vos compétences, valider votre progression et vous préparer à réussir dans votre contexte professionnel. Notre approche garantit un accompagnement personnalisé et des résultats mesurables.
+                <div className="mt-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
+                  <p className="text-sm sm:text-base font-semibold leading-relaxed">
+                    Nous ne développons pas les compétences techniques,
+                    <span className="text-emerald-300"> nous développons la pensée professionnelle</span> qui les pilote.
                   </p>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Résultats & Avantages Section */}
-      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Résultats{" "}
-                <span className="text-gradient bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                  & Avantages
-                </span>
-              </h2>
-              <p className="text-xl text-gray-600">
-                Ce que vous gagnez à la fin du parcours
-              </p>
-            </div>
-
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              {/* Left Column - Visual Element */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl blur-3xl"></div>
-                <div className="relative bg-white rounded-2xl p-10 shadow-xl border border-gray-100">
-                  <div className="space-y-6">
-                    {/* Benefit Item 1 */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700">
-                          <Award className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Vision claire de votre domaine</h4>
-                        <p className="text-sm text-gray-600">Compréhension approfondie des enjeux et tendances</p>
-                      </div>
-                    </div>
-
-                    {/* Benefit Item 2 */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700">
-                          <TrendingUp className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Compétences pratiques renforcées</h4>
-                        <p className="text-sm text-gray-600">Maîtrise opérationnelle et immédiatement applicable</p>
-                      </div>
-                    </div>
-
-                    {/* Benefit Item 3 */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-green-700">
-                          <Briefcase className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Projet ou exercice appliqué selon votre niveau</h4>
-                        <p className="text-sm text-gray-600">Travail concret à valoriser dans votre portfolio</p>
-                      </div>
-                    </div>
-
-                    {/* Benefit Item 4 */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700">
-                          <FileText className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Dossier professionnel finalisé</h4>
-                        <p className="text-sm text-gray-600">Document complet attestant votre parcours</p>
-                      </div>
-                    </div>
-
-                    {/* Benefit Item 5 */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-pink-500 to-pink-700">
-                          <Mail className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Recommandation personnalisée</h4>
-                        <p className="text-sm text-gray-600">Lettre valorisant votre engagement et progression</p>
-                      </div>
-                    </div>
-
-                    {/* Benefit Item 6 */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700">
-                          <Users className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-1">Intégration dans notre réseau professionnel</h4>
-                        <p className="text-sm text-gray-600">Accès à une communauté d'experts et d'opportunités</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column - Benefits List */}
-              <div className="space-y-8">
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-10 border border-yellow-200">
-                  <h3 className="font-bold text-2xl text-gray-900 mb-8 flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600 text-white font-bold text-lg">
-                      ✨
-                    </span>
-                    Vos Avantages
-                  </h3>
-
-                  <ul className="space-y-4">
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Vision claire de votre domaine</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Compétences pratiques renforcées</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Projet ou exercice appliqué selon votre niveau</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Dossier professionnel finalisé</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Recommandation personnalisée</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-yellow-500 text-white flex-shrink-0 mt-1 font-bold text-sm">
-                        ✓
-                      </span>
-                      <span className="text-gray-700 font-medium">Intégration dans notre réseau professionnel</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Highlight Box */}
-                <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg">
-                  <p className="text-gray-800 leading-relaxed">
-                    <span className="font-semibold text-gray-900">Résultat final :</span> Un parcours complet qui vous transforme professionnellement avec des preuves tangibles de votre progression et des opportunités concrètes.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mentions Légales Section */}
-      <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-5xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                📝 Mentions Légales
-              </h2>
-              <p className="text-xl text-gray-600">
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">
-                  Documents Professionnels
-                </span>
-              </p>
-            </div>
-
-            {/* Legal Notice Box */}
-            <div className="bg-white rounded-2xl p-12 shadow-lg border border-gray-100">
-              {/* Disclaimer Box */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-10 border-l-4 border-blue-600">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white text-xl font-bold">
-                      ⚠️
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-4">Important à retenir</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-600 text-white flex-shrink-0 mt-0.5 font-bold text-sm">
-                          1
-                        </span>
-                        <p className="text-gray-800 leading-relaxed">
-                          <span className="font-semibold text-gray-900">Accompagnement professionnel uniquement :</span> MA Training Consulting propose uniquement de l'accompagnement professionnel, pas de formations réglementées.
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-600 text-white flex-shrink-0 mt-0.5 font-bold text-sm">
-                          2
-                        </span>
-                        <p className="text-gray-800 leading-relaxed">
-                          <span className="font-semibold text-gray-900">Documents privés :</span> Les documents délivrés (dossier professionnel, recommandation, preuves de participation) sont privés et attestent du suivi du parcours, sans équivalence à un diplôme ou certification officielle.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-gray-700 leading-relaxed">
-                  Ces documents complètent votre profil professionnel et sont reconnus par les entreprises et recruteurs comme preuve de votre engagement et de vos compétences acquises, sans remplacer les qualifications officielles.
-                </p>
               </div>
             </div>
           </div>
