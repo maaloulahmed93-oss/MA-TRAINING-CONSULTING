@@ -268,7 +268,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   return (
     <div className="min-h-screen bg-white">
       {/* Back Button */}
-      <div className="container mx-auto px-6 pt-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <button
           onClick={onBack}
           className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
@@ -279,7 +279,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50 overflow-hidden">
+      <section className="relative py-10 sm:py-14 lg:py-20 bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50 overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -289,116 +289,118 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center lg:items-start">
               {/* Left Content */}
-              <div className="text-center lg:text-left order-2 lg:order-1">
-                {/* Badge */}
-                <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-6">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></span>
-                  <span className="text-sm font-medium text-gray-700">Diagnostic gratuit disponible</span>
-                </div>
-
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-[1.15] tracking-tight">
-                  <span className="block mb-2">Accompagnement professionnel</span>
-                  <span className="relative inline-block">
-                    <span className="relative z-10 text-gradient bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-                      sur mesure
-                    </span>
-                    <svg className="absolute -bottom-2 left-0 w-full h-3 opacity-80" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2 10C50 2 150 2 198 10" stroke="url(#gradient)" strokeWidth="3" strokeLinecap="round"/>
-                      <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#2563eb" />
-                          <stop offset="100%" stopColor="#9333ea" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </span>
-                  <span className="block mt-2">basé sur le diagnostic et l'expertise</span>
-                </h1>
-
-                <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  <span className="inline-flex items-center text-blue-600 font-semibold">
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Analyse
-                  </span>{" "}
-                  <span className="text-gray-400">•</span>{" "}
-                  <span className="inline-flex items-center text-purple-600 font-semibold">
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Orientation
-                  </span>{" "}
-                  <span className="text-gray-400">•</span>{" "}
-                  <span className="inline-flex items-center text-orange-600 font-semibold">
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Structuration
-                  </span>{" "}
-                  <span className="text-gray-400">•</span>{" "}
-                  <span className="inline-flex items-center text-green-600 font-semibold">
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Positionnement
-                  </span>
-                </p>
-
-                {/* Social Proof - Enhanced */}
-                <div className="mt-8 space-y-4">
-                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6">
-                    {/* Professionals Count */}
-                    <div className="group flex items-center bg-white/60 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200">
-                      <div className="flex -space-x-3 mr-3">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div key={i} className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 border-3 border-white flex items-center justify-center text-white text-sm font-bold shadow-lg transform group-hover:scale-110 transition-transform">
-                            {i === 1 ? '👨' : i === 2 ? '👩' : i === 3 ? '👤' : '👨‍💼'}
-                          </div>
-                        ))}
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold text-gray-900 leading-tight">+5000</p>
-                        <p className="text-xs text-gray-600 font-medium">professionnels formés</p>
-                      </div>
-                    </div>
-                    
-                    {/* Rating */}
-                    <div className="group flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-orange-50 px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 hover:border-yellow-300">
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400 transform group-hover:scale-110 transition-transform" style={{transitionDelay: `${star * 50}ms`}} />
-                        ))}
-                      </div>
-                      <div className="border-l border-yellow-300 pl-3">
-                        <p className="text-lg font-bold text-gray-900 leading-tight">4.9/5</p>
-                        <p className="text-xs text-gray-600 font-medium">2,500+ avis</p>
-                      </div>
-                    </div>
+              <div className="text-center lg:text-left order-1 lg:order-1">
+                <div className="relative rounded-3xl bg-white/60 backdrop-blur-xl border border-white/70 shadow-[0_24px_70px_-35px_rgba(17,24,39,0.28)] ring-1 ring-black/5 p-6 sm:p-8 lg:p-10">
+                  {/* Badge */}
+                  <div className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm ring-1 ring-black/5 mb-6">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></span>
+                    <span className="text-sm font-medium text-gray-700">Diagnostic gratuit disponible</span>
                   </div>
-                  
-                  {/* Trust Badges */}
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                    <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-xs font-semibold text-green-700">Certifié qualité</span>
+
+                  <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-[1.12] tracking-tight break-words max-w-3xl mx-auto lg:mx-0">
+                    Accompagnement professionnel fondé sur le diagnostic et l'expertise terrain
+                  </h1>
+
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 mb-6 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    Nous analysons votre situation réelle, votre manière de décider et vos compétences existantes,
+                    puis nous construisons un accompagnement professionnel ciblé — sans formation classique.
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3 mb-6 max-w-2xl mx-auto lg:mx-0">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs md:text-sm font-semibold bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200/60 text-gray-900 text-center leading-snug shadow-sm">
+                      Diagnostic professionnel
+                    </span>
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs md:text-sm font-semibold bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/60 text-gray-900 text-center leading-snug shadow-sm">
+                      Analyse décisionnelle
+                    </span>
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs md:text-sm font-semibold bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/60 text-gray-900 text-center leading-snug shadow-sm">
+                      Accompagnement stratégique
+                    </span>
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs md:text-sm font-semibold bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/60 text-gray-900 text-center leading-snug shadow-sm">
+                      Développement en situation réelle
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+                    <button
+                      onClick={() => setShowFreeCourseModal(true)}
+                      className="group w-full sm:w-auto px-5 sm:px-7 py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center ring-1 ring-white/10"
+                    >
+                      <span>🟣 Démarrer mon diagnostic professionnel</span>
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </button>
+
+                    <button
+                      onClick={() => document.getElementById('domains-section')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="w-full sm:w-auto px-5 sm:px-7 py-3 sm:py-3.5 bg-white/85 backdrop-blur-sm text-gray-900 text-sm sm:text-base font-semibold rounded-full border border-gray-200 hover:border-purple-300 hover:bg-white transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-lg"
+                    >
+                      <span>Découvrir nos domaines d’intervention</span>
+                    </button>
+                  </div>
+
+                  {/* Social Proof - Enhanced */}
+                  <div className="mt-8 space-y-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6">
+                      {/* Professionals Count */}
+                      <div className="group flex items-center bg-white/70 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/60 ring-1 ring-black/5">
+                        <div className="flex -space-x-3 mr-3">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 border-3 border-white flex items-center justify-center text-white text-sm font-bold shadow-lg transform group-hover:scale-110 transition-transform">
+                              {i === 1 ? '👨' : i === 2 ? '👩' : i === 3 ? '👤' : '👨‍💼'}
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-gray-900 leading-tight">+5000</p>
+                          <p className="text-xs text-gray-600 font-medium">professionnels accompagnés</p>
+                        </div>
+                      </div>
+
+                      {/* Rating */}
+                      <div className="group flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-orange-50 px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200/70 ring-1 ring-black/5">
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400 transform group-hover:scale-110 transition-transform" style={{transitionDelay: `${star * 50}ms`}} />
+                          ))}
+                        </div>
+                        <div className="border-l border-yellow-300 pl-3">
+                          <p className="text-lg font-bold text-gray-900 leading-tight">4.9/5</p>
+                          <p className="text-xs text-gray-600 font-medium">2,500+ avis</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
-                      <Shield className="w-4 h-4 text-blue-600" />
-                      <span className="text-xs font-semibold text-blue-700">100% sécurisé</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-200">
-                      <Award className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs font-semibold text-purple-700">Experts reconnus</span>
+
+                    {/* Trust Badges */}
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                      <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-200/70 ring-1 ring-black/5">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-xs font-semibold text-green-700">Certifié qualité</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200/70 ring-1 ring-black/5">
+                        <Shield className="w-4 h-4 text-blue-600" />
+                        <span className="text-xs font-semibold text-blue-700">100% sécurisé</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-200/70 ring-1 ring-black/5">
+                        <Award className="w-4 h-4 text-purple-600" />
+                        <span className="text-xs font-semibold text-purple-700">Experts reconnus</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Right - Diagnostic Interface */}
-              <div className="relative order-1 lg:order-2">
+              <div className="relative order-2 lg:order-2 w-full max-w-md mx-auto lg:max-w-none lg:mx-0">
                 {/* Glow effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-2xl opacity-20"></div>
                 
-                <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-4 sm:p-6 shadow-2xl border border-purple-500/20">
+                <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-4 sm:p-5 md:p-6 shadow-[0_24px_80px_-40px_rgba(88,28,135,0.65)] border border-purple-500/20 ring-1 ring-white/10 overflow-hidden">
                   {/* Header avec badge */}
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                     <div>
-                      <h3 className="text-white font-bold text-xl mb-1">
+                      <h3 className="text-white font-bold text-lg sm:text-xl mb-1">
                         Diagnostic Professionnel
                       </h3>
                       <p className="text-gray-400 text-xs">Évaluation gratuite et obligatoire</p>
@@ -433,18 +435,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
                         <p className="text-white text-sm font-semibold mb-2">
-                          ⚠️ Condition d'accès aux parcours:
+                          ⚠️ Point de départ obligatoire :
                         </p>
                         <p className="text-blue-100 text-xs leading-relaxed">
-                          Le diagnostic gratuit est <span className="font-bold text-yellow-300">obligatoire</span> pour identifier 
-                          le parcours professionnel adapté à votre profil et vos objectifs.
+                          Tout commence par un <span className="font-bold text-yellow-300">diagnostic professionnel</span> afin d'analyser votre situation réelle et décider d'un accompagnement ciblé.
                         </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Étapes du diagnostic */}
-                  <div className="bg-gray-800/50 rounded-lg p-4 mb-4 border border-gray-700">
+                  <div className="bg-gray-800/50 rounded-lg p-3 sm:p-4 mb-4 border border-gray-700">
                     <h4 className="text-white font-bold text-sm mb-3 flex items-center">
                       <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-2">
                         <span className="text-white text-xs">1</span>
@@ -462,17 +463,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="w-4 h-4 text-green-400" />
-                        <span className="text-gray-300 text-xs">Recommandation de parcours</span>
+                        <span className="text-gray-300 text-xs">Avis d'expert & orientation</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="w-4 h-4 text-yellow-400" />
-                        <span className="text-gray-300 text-xs">Accès aux programmes adaptés</span>
+                        <span className="text-gray-300 text-xs">Décision Go / No-Go & plan d’action</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Simulation de résultats */}
-                  <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-4 mb-4 border border-purple-500/30">
+                  <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-3 sm:p-4 mb-4 border border-purple-500/30">
                     <div className="space-y-3">
                       <div className="flex items-start space-x-2">
                         <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-xs font-bold text-gray-900 flex-shrink-0">
@@ -480,26 +481,26 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div className="flex-1">
                           <p className="text-white text-sm mb-2">
-                            <span className="font-bold">Expert:</span> Diagnostic complété avec succès ! ✓
+                            <span className="font-bold">Expert:</span> Diagnostic terminé — analyse consolidée ✓
                           </p>
                           <div className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-green-500/30 rounded-lg p-3">
                             <div className="flex items-center justify-between mb-2">
                               <p className="text-green-300 text-xs font-bold">
-                                📊 Profil Identifié
+                                🧾 Synthèse
                               </p>
                               <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
-                                NIVEAU: AVANCÉ
+                                DÉCISION: GO
                               </span>
                             </div>
                             <div className="space-y-1">
                               <p className="text-green-200 text-xs">
-                                ✓ Compétences techniques: <span className="font-bold">85%</span>
+                                ✓ Contexte: <span className="font-bold">situation claire</span>
                               </p>
                               <p className="text-blue-200 text-xs">
-                                ✓ Leadership: <span className="font-bold">92%</span>
+                                ✓ Décision: <span className="font-bold">cohérence élevée</span>
                               </p>
                               <p className="text-purple-200 text-xs">
-                                ✓ Communication: <span className="font-bold">88%</span>
+                                ✓ Priorités: <span className="font-bold">orientation & positionnement</span>
                               </p>
                             </div>
                           </div>
@@ -512,7 +513,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div>
                           <p className="text-white text-sm">
-                            <span className="font-bold">Candidat:</span> Quels parcours me correspondent ?
+                            <span className="font-bold">Candidat:</span> Quelle est la prochaine étape après ce diagnostic ?
                           </p>
                         </div>
                       </div>
@@ -523,11 +524,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div className="flex-1">
                           <p className="text-white text-sm mb-2">
-                            <span className="font-bold">Expert:</span> Basé sur votre diagnostic:
+                            <span className="font-bold">Expert:</span> Voici mon avis et mon orientation:
                           </p>
                           <div className="bg-blue-900/30 border border-blue-500/30 rounded p-2">
                             <p className="text-blue-200 text-xs">
-                              ✨ <span className="font-bold">3 parcours recommandés</span> vous attendent
+                              🔎 <span className="font-bold">Go</span> — entretien stratégique + plan d’action personnalisé
                             </p>
                           </div>
                         </div>
@@ -539,40 +540,40 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         onClick={() => {
                           setShowFreeCourseModal(true);
                         }}
-                        className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-3 rounded-lg text-sm font-bold transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-lg shadow-yellow-500/20 mb-2"
+                        className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-bold transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-lg shadow-yellow-500/20 mb-2"
                       >
                         <Lightbulb className="w-5 h-5" />
                         <span>🎁 Passer le Diagnostic GRATUIT</span>
                       </button>
                       <button 
-                        onClick={() => document.getElementById('programs-section')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg text-sm font-bold transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                        onClick={() => document.getElementById('domains-section')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-bold transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
                       >
-                        <span>📚 Voir Nos Parcours Professionnels</span>
+                        <span>🔎 Découvrir nos domaines d’intervention</span>
                         <ArrowRight className="w-4 h-4" />
                       </button>
                       <p className="text-center text-gray-400 text-xs mt-2">
-                        ⚡ Diagnostic requis pour l'inscription
+                        ⚡ Diagnostic requis avant tout accompagnement
                       </p>
                     </div>
                   </div>
 
                   {/* Statistiques du diagnostic */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg p-3 text-center transform hover:scale-105 transition-transform">
-                      <BookOpen className="w-6 h-6 text-white mx-auto mb-2" />
-                      <div className="text-white font-bold text-lg">20</div>
-                      <div className="text-purple-200 text-xs">Questions</div>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+                    <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg p-2.5 sm:p-3 text-center transform hover:scale-105 transition-transform">
+                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-white mx-auto mb-2" />
+                      <div className="text-white font-bold text-base sm:text-lg">20</div>
+                      <div className="text-purple-200 text-[11px] sm:text-xs">Questions</div>
                     </div>
-                    <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg p-3 text-center transform hover:scale-105 transition-transform">
-                      <Clock className="w-6 h-6 text-white mx-auto mb-2" />
-                      <div className="text-white font-bold text-lg">15</div>
-                      <div className="text-orange-200 text-xs">Minutes</div>
+                    <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg p-2.5 sm:p-3 text-center transform hover:scale-105 transition-transform">
+                      <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white mx-auto mb-2" />
+                      <div className="text-white font-bold text-base sm:text-lg">15</div>
+                      <div className="text-orange-200 text-[11px] sm:text-xs">Minutes</div>
                     </div>
-                    <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-3 text-center transform hover:scale-105 transition-transform">
-                      <Award className="w-6 h-6 text-white mx-auto mb-2" />
-                      <div className="text-white font-bold text-lg">100%</div>
-                      <div className="text-green-200 text-xs">Gratuit</div>
+                    <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-2.5 sm:p-3 text-center transform hover:scale-105 transition-transform">
+                      <Award className="w-5 h-5 sm:w-6 sm:h-6 text-white mx-auto mb-2" />
+                      <div className="text-white font-bold text-base sm:text-lg">100%</div>
+                      <div className="text-green-200 text-[11px] sm:text-xs">Gratuit</div>
                     </div>
                   </div>
 
@@ -598,7 +599,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                           <CheckCircle className="w-3 h-3 text-green-400" />
                         </div>
                         <p className="text-gray-300 text-xs">
-                          <span className="font-semibold text-white">Recommandations personnalisées</span> de parcours
+                          <span className="font-semibold text-white">Avis clair</span> et orientation stratégique
                         </p>
                       </div>
                       <div className="flex items-start space-x-2">
@@ -606,7 +607,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                           <CheckCircle className="w-3 h-3 text-green-400" />
                         </div>
                         <p className="text-gray-300 text-xs">
-                          <span className="font-semibold text-white">Accès direct</span> aux programmes adaptés
+                          <span className="font-semibold text-white">Plan d’action concret</span> en situation réelle
                         </p>
                       </div>
                       <div className="flex items-start space-x-2">
@@ -1703,6 +1704,47 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
           }}
         />
       </section>
+      <section id="domains-section" className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-purple-50/40 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10 sm:mb-14 lg:mb-16">
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Nos{" "}
+                <span className="text-gradient bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  domaines d’intervention
+                </span>
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
+                Nous intervenons par diagnostic, analyse décisionnelle et accompagnement stratégique — sans logique de formation classique.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4 font-bold">1</div>
+                <h3 className="font-bold text-gray-900 mb-2">Diagnostic professionnel</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">Clarification de votre situation réelle, contraintes, objectifs et priorités.</p>
+              </div>
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4 font-bold">2</div>
+                <h3 className="font-bold text-gray-900 mb-2">Analyse décisionnelle</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">Lecture de vos choix, logique de décision, risques et points de blocage.</p>
+              </div>
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center mb-4 font-bold">3</div>
+                <h3 className="font-bold text-gray-900 mb-2">Avis & orientation</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">Retour d’expert + recommandation d’orientation selon votre contexte.</p>
+              </div>
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center mb-4 font-bold">4</div>
+                <h3 className="font-bold text-gray-900 mb-2">Accompagnement stratégique</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">Plan d’action concret et suivi en situation réelle (pas de LMS).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="programs-section" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
