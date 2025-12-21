@@ -481,12 +481,12 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
 
                   <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-[1.12] tracking-tight break-words max-w-3xl mx-auto lg:mx-0">
-                    Accompagnement professionnel fondé sur le diagnostic et l'expertise terrain
+                    Un diagnostic clair. Des décisions plus justes. Une posture professionnelle solide.
                   </h1>
 
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 mb-6 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    Nous analysons votre situation réelle, votre manière de décider et vos compétences existantes,
-                    puis nous construisons un accompagnement professionnel ciblé — sans formation classique.
+                    Nous aidons les professionnels à mieux décider, mieux se positionner et agir avec plus de cohérence —
+                    à partir d'un diagnostic réel, pas de promesses ni de formations classiques.
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3 mb-6 max-w-2xl mx-auto lg:mx-0">
@@ -833,12 +833,12 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
                 Un parcours professionnel clair,
                 <span className="block text-gradient bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-                  fondé sur le diagnostic — pas sur les promesses
+                  fondé sur le diagnostic — pas sur le marketing
                 </span>
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                Nous accompagnons des professionnels à partir d'un diagnostic rigoureux de la logique de décision,
-                puis — uniquement si cela a du sens — par un accompagnement orienté transformation en situations réelles.
+                Nous n'accompagnons pas tout le monde.
+                Nous analysons d'abord votre situation réelle, puis nous décidons si un accompagnement a du sens.
               </p>
             </div>
 
@@ -868,15 +868,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 h-5 w-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
-                          <p className="text-sm text-gray-700">Mises en situation opérationnelles</p>
+                          <p className="text-sm text-gray-700">Situations réelles & mises en contexte</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 h-5 w-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
-                          <p className="text-sm text-gray-700">Choix et arbitrages sous contrainte</p>
+                          <p className="text-sm text-gray-700">Analyse de votre logique de décision</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 h-5 w-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">3</span>
-                          <p className="text-sm text-gray-700">Analyse de votre logique de décision et de vos automatismes</p>
+                          <p className="text-sm text-gray-700">Avis clair : GO / NO-GO / réorientation</p>
                         </div>
                       </div>
                     </div>
@@ -890,11 +890,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Forces, angles morts et facteurs de blocage</p>
+                          <p className="text-sm text-gray-700">Forces, angles morts, priorités</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Avis de cadrage : acceptation, refus ou réorientation</p>
+                          <p className="text-sm text-gray-700">Avis professionnel documenté</p>
                         </div>
                       </div>
                     </div>
@@ -902,7 +902,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                   <div className="mt-5 rounded-2xl bg-purple-50/70 border border-purple-200/70 px-4 py-3">
                     <p className="text-sm text-purple-900 font-semibold">
-                      Aucun cours. Aucun contenu à consommer. Un diagnostic, puis une décision.
+                      Aucun cours. Aucun contenu. Une décision.
                     </p>
                   </div>
                 </div>
@@ -914,7 +914,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
                     <div>
                       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-bold mb-3">
-                        Phase 2 — Accompagnement de Transformation
+                        Phase 2 — Accompagnement stratégique (si GO)
                       </div>
                       <p className="text-sm font-semibold text-gray-900">Uniquement après validation du diagnostic</p>
                     </div>
@@ -937,7 +937,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
-                          <p className="text-sm text-gray-700">Analyse de posture, de décisions et d'impact</p>
+                          <p className="text-sm text-gray-700">Analyse de posture & décisions</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">3</span>
@@ -945,25 +945,25 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] font-bold">4</span>
-                          <p className="text-sm text-gray-700">Évolution de la logique de décision et des comportements</p>
+                          <p className="text-sm text-gray-700">Transformation observable en contexte réel</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-4">
-                      <p className="text-sm font-bold text-gray-900 mb-3">Résultats attendus</p>
+                      <p className="text-sm font-bold text-gray-900 mb-3">Objectif</p>
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Décisions plus cohérentes, plus rapides, mieux assumées</p>
+                          <p className="text-sm text-gray-700">Mieux décider, mieux agir, mieux se positionner</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Comportement plus stable sous pression</p>
+                          <p className="text-sm text-gray-700">Décisions plus cohérentes et assumées</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Plan d'action concret, exécutable, ancré terrain</p>
+                          <p className="text-sm text-gray-700">Posture plus stable sous pression</p>
                         </div>
                       </div>
                     </div>
@@ -971,7 +971,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                   <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
                     <p className="text-sm text-emerald-900 font-semibold">
-                      Nous améliorons l'usage des compétences — nous ne les enseignons pas.
+                      Nous n'enseignons pas des compétences. Nous améliorons l'usage des compétences existantes.
                     </p>
                   </div>
                 </div>
@@ -986,7 +986,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       Ce qui nous différencie
                     </h3>
                     <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-                      Nous ne vendons pas des promesses. Nous produisons de la clarté, une décision, puis une transformation observable.
+                      Pas du contenu. Pas du storytelling. Un diagnostic, une décision, puis une évolution visible en contexte réel.
                     </p>
                   </div>
 
@@ -996,15 +996,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Formation technique</p>
+                          <p className="text-sm text-gray-700">Cours ou formation</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Cours ou contenus théoriques</p>
+                          <p className="text-sm text-gray-700">Promesses marketing</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Exécuter des tâches à la place du participant</p>
+                          <p className="text-sm text-gray-700">Exécuter à votre place</p>
                         </div>
                       </div>
                     </div>
@@ -1014,15 +1014,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Analyse et diagnostic de la décision</p>
+                          <p className="text-sm text-gray-700">Diagnostic professionnel (obligatoire)</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Réorientation quand c'est le meilleur choix</p>
+                          <p className="text-sm text-gray-700">Décision claire : GO / NO-GO / réorientation</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Changement de comportement professionnel en situation réelle</p>
+                          <p className="text-sm text-gray-700">Accompagnement stratégique (si GO)</p>
                         </div>
                       </div>
                     </div>
@@ -1050,18 +1050,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             <div className="text-center mb-10 sm:mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
                 <Shield className="w-4 h-4 text-blue-600" />
-                <span className="text-xs sm:text-sm font-semibold text-slate-700">Système & traçabilité</span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Système officiel</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Un système d'accompagnement professionnel,
+                Pas du coaching informel.
                 <span className="block text-gradient bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  officiel et vérifiable
+                  Un cadre professionnel clair.
                 </span>
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                Chaque participant évolue dans un système fermé garantissant le suivi, la traçabilité et la reconnaissance de la participation,
-                du premier diagnostic jusqu'au dernier document.
-                <span className="block mt-2 text-sm sm:text-base text-gray-600">Un dispositif adapté aux individus comme aux entreprises.</span>
+                Chaque participant évolue dans un système fermé, avec suivi, traçabilité et documents exploitables.
+                <span className="block mt-2 text-sm sm:text-base text-gray-600">Un espace de travail et de preuve — pas une plateforme de cours.</span>
               </p>
             </div>
 
@@ -1108,7 +1107,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 px-4 py-3">
-                    <p className="text-sm text-blue-900 font-semibold">Un espace de travail et de preuve — pas une plateforme d'apprentissage.</p>
+                    <p className="text-sm text-blue-900 font-semibold">Un espace de travail et de preuve — pas une plateforme de cours.</p>
                   </div>
                 </div>
               </button>
@@ -1221,7 +1220,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   <div className="max-w-xl">
                     <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Ce n'est pas du coaching informel</h3>
                     <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-                      Ce dispositif est structuré, fermé, suivi et vérifiable — adapté aux individus comme aux entreprises.
+                      Un cadre fermé, structuré et vérifiable — pensé pour être lisible et exploitable par les entreprises.
                     </p>
                   </div>
 
@@ -1231,15 +1230,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Certificats génériques</p>
+                          <p className="text-sm text-gray-700">Certificats ou diplômes</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Plateformes de cours</p>
+                          <p className="text-sm text-gray-700">Plateforme de cours</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Présence symbolique</p>
+                          <p className="text-sm text-gray-700">Présence symbolique sans preuves</p>
                         </div>
                       </div>
                     </div>
@@ -1295,14 +1294,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <span className="text-xs sm:text-sm font-semibold text-slate-700">Positionnement & réalité métier</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Un accompagnement professionnel ancré dans le réel,
+                Comprendre le réel des métiers —
                 <span className="block text-gradient bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-                  pas dans le théorique
+                  pas leur version théorique
                 </span>
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                Nous proposons un accompagnement qui vous permet de comprendre le réel des métiers, de décoder les attentes du marché,
-                et de construire un positionnement professionnel clair — crédible et présentable aux entreprises.
+                Nous aidons les profils à se positionner clairement, comprendre les attentes du marché et parler le langage des entreprises.
               </p>
             </div>
 
@@ -1331,16 +1329,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Professionnels en début de parcours</p>
+                      <p className="text-sm text-gray-700">Début de carrière</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Personnes qui veulent tester la réalité d'un métier avant de s'engager</p>
+                      <p className="text-sm text-gray-700">Profils en clarification ou reconversion</p>
                     </div>
                   </div>
 
                   <div className="mt-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 px-4 py-3">
-                    <p className="text-sm text-blue-900 font-semibold">Une expérience professionnelle structurée — pas une formation théorique.</p>
+                    <p className="text-sm text-blue-900 font-semibold">Vous passez de candidat flou à profil crédible.</p>
                   </div>
                 </div>
               </div>
@@ -1353,51 +1351,51 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <TrendingUp className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Ce que nous apportons, concrètement</h3>
-                      <p className="text-sm text-gray-600">Valeur haute, orientée marché</p>
+                      <h3 className="text-lg font-bold text-gray-900">Ce que vous obtenez</h3>
+                      <p className="text-sm text-gray-600">Clarté, réalité marché, documents utiles</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
-                      <p className="text-sm font-bold text-gray-900 mb-3">Clarté & diagnostic</p>
+                      <p className="text-sm font-bold text-gray-900 mb-3">Vision réaliste du métier</p>
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Compréhension réaliste du métier (missions, contraintes, standards)</p>
+                          <p className="text-sm text-gray-700">Comprendre les missions, contraintes et standards</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Diagnostic de niveau de préparation et de maturité professionnelle</p>
+                          <p className="text-sm text-gray-700">Diagnostic de maturité professionnelle</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Identification des forces et axes de développement</p>
+                          <p className="text-sm text-gray-700">Clarification du positionnement</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
-                      <p className="text-sm font-bold text-gray-900 mb-3">Documents professionnels (utiles)</p>
+                      <p className="text-sm font-bold text-gray-900 mb-3">Documents utiles</p>
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Clarifier le parcours et le positionnement</p>
+                          <p className="text-sm text-gray-700">Documents utiles pour candidatures & entretiens</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Améliorer la présentation (CV, discours, exemples)</p>
+                          <p className="text-sm text-gray-700">Discours plus crédible, plus clair</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">Parler avec confiance face aux entreprises</p>
+                          <p className="text-sm text-gray-700">Vision réaliste du métier ciblé</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-4 py-3">
-                    <p className="text-sm text-indigo-900 font-semibold">Les documents reflètent la maturité professionnelle — pas une simple présence.</p>
+                    <p className="text-sm text-indigo-900 font-semibold">Vous passez de candidat flou à profil crédible.</p>
                   </div>
                 </div>
               </div>
@@ -1436,8 +1434,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div className="relative">
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Proposition de valeur</h3>
                   <p className="text-gray-800 text-sm sm:text-base leading-relaxed">
-                    Nous n'enseignons pas un métier. Nous vous plaçons dans sa logique réelle, puis nous vous donnons des outils professionnels
-                    pour vous présenter avec clarté, crédibilité et cohérence.
+                    Vision réaliste, maturité objectivée, positionnement clair — et des documents utiles quand c'est pertinent.
                   </p>
 
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
@@ -1472,15 +1469,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <span className="text-xs sm:text-sm font-semibold text-slate-700">Résultats concrets</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Des résultats professionnels concrets,
+                Des résultats visibles,
                 <span className="block text-gradient bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
-                  directement exploitables
+                  exploitables, présentables
                 </span>
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                L'accompagnement MA Consulting ne vous donne pas du contenu à consommer.
-                Il vise un changement visible dans votre façon de penser, décider et vous positionner — avec des résultats que vous pouvez présenter
-                en entretien, en entreprise, ou utiliser pour progresser.
+                L'accompagnement MA Consulting produit un changement réel dans la façon de penser, décider et se positionner.
               </p>
             </div>
 
@@ -1673,8 +1668,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div className="lg:col-span-2">
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Sans promesses vides</h3>
                   <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-                    Nous ne promettons pas un emploi. MA Consulting n'ajoute pas une compétence “en plus” : il augmente la valeur de vos compétences
-                    en vous aidant à les mobiliser correctement dans le réel.
+                    ⚠️ Pas de promesse d'emploi.
+                    ⚠️ Pas de certificat générique.
+                    MA Consulting apporte des preuves professionnelles, pas des slogans.
                   </p>
 
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1683,11 +1679,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Certificat général</p>
+                          <p className="text-sm text-gray-700">Certificat générique</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Promesse d'embauche</p>
+                          <p className="text-sm text-gray-700">Promesse d'emploi</p>
                         </div>
                       </div>
                     </div>
@@ -1696,7 +1692,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Résultats réalistes et utilisables</p>
+                          <p className="text-sm text-gray-700">Des preuves. Pas des slogans.</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
@@ -1704,7 +1700,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Alignement plus fort avec les attentes du recrutement / promotion</p>
+                          <p className="text-sm text-gray-700">Documents vérifiables (si pertinents)</p>
                         </div>
                       </div>
                     </div>
@@ -1742,15 +1738,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <span className="text-xs sm:text-sm font-semibold text-slate-700">Coaching stratégique</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Coaching stratégique orienté décision,
+                Améliorer la décision et la posture —
                 <span className="block text-gradient bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  et posture professionnelle
+                  pas enseigner un métier
                 </span>
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                Nous proposons des sessions individuelles dédiées à l'amélioration de la pensée professionnelle, de la qualité de décision
-                et d'une vision plus mature — dans vos rôles actuels ou futurs.
-                <span className="font-semibold text-gray-900"> Nous n'enseignons pas des compétences techniques</span> : nous travaillons sur la façon de penser et d'agir comme un professionnel.
+                Sessions individuelles orientées pensée professionnelle, arbitrage et vision.
               </p>
             </div>
 
@@ -1763,7 +1757,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <Lightbulb className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Ce qui se passe pendant la session</h3>
+                      <h3 className="text-lg font-bold text-gray-900">Pendant la session</h3>
                       <p className="text-sm text-gray-600">Sans dérive “formation” ni consulting opérationnel</p>
                     </div>
                   </div>
@@ -1774,19 +1768,19 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Analyse d'une situation professionnelle réelle</p>
+                          <p className="text-sm text-gray-700">Analyse d'une situation réelle</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Déconstruction de votre logique de décision</p>
+                          <p className="text-sm text-gray-700">Déconstruction du raisonnement</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Correction du raisonnement et clarification des priorités</p>
+                          <p className="text-sm text-gray-700">Clarification des priorités</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                          <p className="text-sm text-gray-700">Ouverture de perspective et réorientation stratégique</p>
+                          <p className="text-sm text-gray-700">Réorientation stratégique si nécessaire</p>
                         </div>
                       </div>
                     </div>
@@ -1796,15 +1790,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Expliquer des outils ou des étapes techniques</p>
+                          <p className="text-sm text-gray-700">Enseigner des outils</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Exécuter à votre place ou produire un livrable opérationnel</p>
+                          <p className="text-sm text-gray-700">Produire à votre place</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="mt-1 text-rose-700 font-bold">✕</span>
-                          <p className="text-sm text-gray-700">Donner une “solution prête” comme une recette</p>
+                          <p className="text-sm text-gray-700">Donner des recettes</p>
                         </div>
                       </div>
                     </div>
@@ -1812,8 +1806,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                   <div className="mt-6 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-5 py-4">
                     <p className="text-sm text-indigo-900 font-semibold">
-                      Ces sessions ne remplacent pas un cursus de formation ni une prestation d'exécution : elles aident à prendre des décisions plus justes
-                      dans le réel professionnel.
+                      Coaching stratégique = décision + posture. Consulting opérationnel = entreprises uniquement.
                     </p>
                   </div>
                 </div>
@@ -1826,14 +1819,14 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-900">Pour qui ?</h3>
-                    <p className="text-sm text-gray-600">Mentalité pro, pas “cours”</p>
+                    <p className="text-sm text-gray-600">Décision + posture, en situation réelle</p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">
                     <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                    <p className="text-sm text-gray-700">Personnes qui veulent renforcer leur positionnement professionnel</p>
+                    <p className="text-sm text-gray-700">Profils qui veulent décider avec plus de cohérence</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="mt-1 text-emerald-700 font-bold">✓</span>
@@ -1841,11 +1834,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                    <p className="text-sm text-gray-700">Profils qui ressentent un manque de vision ou de décision</p>
+                    <p className="text-sm text-gray-700">Profils qui manquent de vision, d'arbitrage ou de posture sous pression</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                    <p className="text-sm text-gray-700">Personnes qui veulent comprendre comment pense un professionnel dans un poste ciblé</p>
+                    <p className="text-sm text-gray-700">Personnes qui veulent comprendre la logique réelle d'un poste</p>
                   </div>
                 </div>
 
@@ -1875,9 +1868,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   <CheckCircle className="w-4 h-4 text-emerald-600" />
                   <span className="text-xs sm:text-sm font-semibold text-slate-700">Services additionnels</span>
                 </div>
-                <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mt-4 mb-3">Services additionnels pour approfondir l'accompagnement</h3>
+                <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mt-4 mb-3">Pour approfondir, quand c'est pertinent</h3>
                 <p className="text-sm sm:text-base text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  Modules courts (sans explications longues) pour renforcer l'analyse, la crédibilité et la maturité — selon le niveau et la situation.
+                  Activés uniquement selon le niveau et la situation.
                 </p>
               </div>
 
@@ -1986,8 +1979,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   <div className="rounded-2xl bg-indigo-50/70 border border-indigo-200/70 p-5">
                     <p className="text-sm font-bold text-indigo-900 mb-2">Cadre & disponibilité</p>
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      Certains services sont activés selon le niveau et la préparation,
-                      <span className="font-semibold text-gray-900"> après un diagnostic professionnel préalable</span>.
+                      ⚠️ Activés uniquement selon le niveau et la situation,
+                      <span className="font-semibold text-gray-900"> après un diagnostic professionnel</span>.
                     </p>
                   </div>
 
@@ -2107,15 +2100,13 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               className="text-center mb-16"
             >
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Découvrez les{" "}
+                Ils ont évolué{" "}
                 <span className="text-gradient bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
-                  réussites
-                </span>{" "}
-                de nos participants
+                  avec nous
+                </span>
               </h2>
               <p className="text-xl text-gray-600">
-                Des transformations professionnelles inspirantes qui témoignent
-                de l'efficacité de notre approche
+                Des parcours réels. Des transformations visibles. Pas de storytelling.
               </p>
               {import.meta.env.DEV && (
                 <div className="mt-4">
@@ -2319,7 +2310,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 </span>
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
-                Nous intervenons par diagnostic, analyse décisionnelle et accompagnement stratégique — sans logique de formation classique.
+                Clair, simple, sans confusion : diagnostic, analyse décisionnelle, avis & orientation, accompagnement stratégique (si GO).
               </p>
             </div>
 
@@ -2327,23 +2318,37 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
                 <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4 font-bold">1</div>
                 <h3 className="font-bold text-gray-900 mb-2">Diagnostic professionnel</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Clarification de votre situation réelle, contraintes, objectifs et priorités.</p>
+                <p className="text-sm text-gray-600 leading-relaxed">Point de départ obligatoire : situation réelle, contraintes, priorités.</p>
               </div>
               <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
                 <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4 font-bold">2</div>
                 <h3 className="font-bold text-gray-900 mb-2">Analyse décisionnelle</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Lecture de vos choix, logique de décision, risques et points de blocage.</p>
+                <p className="text-sm text-gray-600 leading-relaxed">Lecture de votre logique de décision, risques, blocages.</p>
               </div>
               <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
                 <div className="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center mb-4 font-bold">3</div>
                 <h3 className="font-bold text-gray-900 mb-2">Avis & orientation</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Retour d’expert + recommandation d’orientation selon votre contexte.</p>
+                <p className="text-sm text-gray-600 leading-relaxed">Avis clair : GO / NO-GO / réorientation.</p>
               </div>
               <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
                 <div className="w-12 h-12 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center mb-4 font-bold">4</div>
                 <h3 className="font-bold text-gray-900 mb-2">Accompagnement stratégique</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Plan d’action concret et suivi en situation réelle (pas de LMS).</p>
+                <p className="text-sm text-gray-600 leading-relaxed">Activé uniquement si GO — en situation réelle.</p>
               </div>
+            </div>
+
+            <div className="mt-10 flex flex-col items-center">
+              <button
+                onClick={() => setShowFreeCourseModal(true)}
+                className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+              >
+                <span>🟣 Commencer par le diagnostic professionnel (gratuit)</span>
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <p className="mt-3 text-sm text-gray-600 text-center max-w-2xl">
+                Tout commence par une décision claire.
+              </p>
             </div>
           </div>
         </div>
