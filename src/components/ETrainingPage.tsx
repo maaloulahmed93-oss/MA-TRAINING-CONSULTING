@@ -54,6 +54,187 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [packs, setPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const faqItems: Array<{ question: string; answer: React.ReactNode }> = [
+    {
+      question: "Quel est exactement le type de service ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            Il s'agit d'un <span className="font-semibold text-gray-900">consulting professionnel</span> : consulting stratégique & comportemental.
+          </p>
+          <div>
+            <p className="font-semibold text-gray-900">MA Consulting propose :</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Diagnostic professionnel</li>
+              <li>Analyse des modes de pensée et de prise de décision</li>
+              <li>Réorientation comportementale dans un contexte professionnel réel</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-900">Ce que ce n'est pas :</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Une formation</li>
+              <li>Un coaching motivationnel</li>
+              <li>Un consulting opérationnel pour particuliers</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    {
+      question: "Est-ce une formation ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            Non. Nous ne proposons pas de cours, de contenu théorique, de programmes d'enseignement ni d'explication d'outils ou de techniques.
+          </p>
+          <p>
+            Nous travaillons sur <span className="font-semibold text-gray-900">l'analyse du comportement professionnel</span> et sur la manière d'utiliser efficacement des compétences dans le réel.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Délivrez-vous des certificats ?",
+      answer: (
+        <div className="space-y-3">
+          <p>Non, nous ne délivrons pas de certificats de formation.</p>
+          <p>
+            Nous fournissons des <span className="font-semibold text-gray-900">documents professionnels formels, vérifiables</span>, qui reflètent :
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>La participation effective</li>
+            <li>Le niveau de maturité professionnelle</li>
+            <li>La nature de l'accompagnement</li>
+          </ul>
+          <p className="text-gray-700">
+            Ces documents sont destinés aux entreprises (recrutement, mobilité, promotion), et non à un usage académique.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Quelle différence entre vos documents et un certificat de formation ?",
+      answer: (
+        <div className="space-y-3">
+          <p className="font-semibold text-gray-900">Un certificat de formation :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Peut être reconnu dans un pays et pas dans un autre</li>
+            <li>Peut être peu valorisé par certaines entreprises</li>
+            <li>Ne reflète pas toujours la posture, la maturité ou la préparation</li>
+          </ul>
+          <p className="font-semibold text-gray-900">Les documents MA Consulting :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Sont liés à une expérience professionnelle réelle</li>
+            <li>Reflètent la pensée, la posture et le comportement</li>
+            <li>Sont vérifiables</li>
+            <li>Sont lisibles et utiles pour les entreprises</li>
+          </ul>
+          <p>
+            En recrutement et en promotion, l'essentiel reste souvent : l'expérience, un diplôme officiel, et un comportement professionnel clair.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Est-ce du consulting opérationnel ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            Non pour les particuliers. Oui pour les entreprises, uniquement sur demande.
+          </p>
+          <p className="font-semibold text-gray-900">Pour les particuliers, nous ne :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Fournissons pas de stratégies prêtes à l'emploi</li>
+            <li>N'exécutons pas à la place de la personne</li>
+            <li>Ne délivrons pas de solutions opérationnelles directes</li>
+          </ul>
+          <p>
+            Nous proposons un <span className="font-semibold text-gray-900">consulting stratégique & comportemental</span> : analyse, orientation, correction de logique, élargissement de la vision.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Proposez-vous des sessions individuelles pour élargir les idées ?",
+      answer: (
+        <div className="space-y-3">
+          <p>Oui.</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Élargir la vision professionnelle</li>
+            <li>Développer la manière de penser</li>
+            <li>Comprendre la logique d'un poste et du marché</li>
+            <li>Corriger les erreurs de raisonnement</li>
+          </ul>
+          <p>
+            Sans recettes toutes faites, et sans exécution à la place du participant.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Développez-vous les compétences professionnelles ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            Nous n'enseignons pas des compétences à partir de zéro.
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Nous analysons comment la compétence est utilisée</li>
+            <li>Nous corrigeons les mauvais usages</li>
+            <li>Nous faisons progresser la maturité dans la décision et le comportement</li>
+          </ul>
+          <p>
+            La différence est majeure entre apprendre une compétence et l'utiliser efficacement en situation réelle.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Le prix est-il fixe ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            Non. Le prix est défini après un diagnostic professionnel, selon : le niveau, l'objectif, le type d'accompagnement et le cadre temporel.
+          </p>
+          <p>
+            Chaque accompagnement est conçu sur mesure, et non sous forme de pack standard.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "Y a-t-il un contrat et une facture ?",
+      answer: (
+        <div className="space-y-3">
+          <p>Oui, toujours.</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Contrat de service clair</li>
+            <li>Facture officielle</li>
+            <li>Planning initial</li>
+            <li>Description précise de la nature du service</li>
+          </ul>
+          <p>Transparence complète dès le départ.</p>
+        </div>
+      ),
+    },
+    {
+      question: "Les entreprises peuvent-elles vérifier les documents ?",
+      answer: (
+        <div className="space-y-3">
+          <p>Oui.</p>
+          <p>
+            Via un système de vérification : chaque document possède un <span className="font-semibold text-gray-900">ID unique</span> permettant de confirmer son authenticité.
+          </p>
+          <p>
+            Cela renforce la crédibilité et la transparence.
+          </p>
+        </div>
+      ),
+    },
+  ];
 
   // Load testimonials from API
   useEffect(() => {
@@ -1848,6 +2029,68 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">FAQ</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Questions fréquentes
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Comprendre clairement le cadre de MA Consulting : ce que nous faisons, et ce que nous ne faisons pas.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {faqItems.map((item, idx) => {
+                const isOpen = openFaqIndex === idx;
+
+                return (
+                  <div
+                    key={item.question}
+                    className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full flex items-start justify-between gap-4 px-5 sm:px-6 py-4 text-left"
+                    >
+                      <span className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">
+                        {item.question}
+                      </span>
+                      <span
+                        className={`mt-0.5 flex-shrink-0 h-8 w-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center transition-transform ${
+                          isOpen ? "rotate-90" : "rotate-0"
+                        }`}
+                      >
+                        <ChevronRight className="w-4 h-4 text-gray-700" />
+                      </span>
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-5 sm:px-6 pb-5 text-sm text-gray-700 leading-relaxed">
+                        {item.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
+              <p className="text-sm sm:text-base font-semibold leading-relaxed">
+                MA Consulting n'est pas une formation. C'est une démarche professionnelle qui fait évoluer la pensée et le comportement dans le réel,
+                et apporte une clarté crédible et présentable aux entreprises.
+              </p>
             </div>
           </div>
         </div>
