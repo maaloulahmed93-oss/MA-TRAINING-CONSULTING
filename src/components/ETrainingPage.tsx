@@ -28,10 +28,8 @@ import CertificateVerification from "./CertificateVerification";
 import FreeCourseModal from "./FreeCourseModal";
 import ProgramRegistrationModal from "./ProgramRegistrationModal";
 import ProgramCard from "./ProgramCard";
-import ThemePackSection from "./ThemePackSection";
 import InteractiveQCMModal from "./InteractiveQCMModal";
 import { Program, getTrainingPrograms } from "../data/trainingPrograms";
-import { getPacksWithFallback } from "../services/packsApi";
 
 interface ETrainingPageProps {
   onBack: () => void;
@@ -52,7 +50,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   
   // State for dynamic data
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [packs, setPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
@@ -77,7 +74,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             <ul className="list-disc pl-5 space-y-1">
               <li>Une formation</li>
               <li>Un coaching motivationnel</li>
-              <li>Un consulting opérationnel pour particuliers</li>
+              <li>Une mission opérationnelle vendue sans diagnostic, ni validation</li>
             </ul>
           </div>
         </div>
@@ -116,6 +113,34 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       ),
     },
     {
+      question: "Proposez-vous des stratégies prêtes à l'emploi ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            <span className="font-semibold text-gray-900">Non</span> dans l'accompagnement principal : nous ne livrons pas de solutions prêtes ni de “recettes”.
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">Oui, uniquement</span> dans le cadre d'une <span className="font-semibold text-gray-900">mission de consulting opérationnel</span> (Service 2),
+            contractuelle, sur validation, et toujours liée à un diagnostic préalable.
+          </p>
+        </div>
+      ),
+    },
+    {
+      question: "La mission de consulting opérationnel (Service 2) est-elle accessible à tous ?",
+      answer: (
+        <div className="space-y-3">
+          <p>
+            <span className="font-semibold text-gray-900">Non.</span> Cette prestation n'est pas automatique, ni ouverte au public.
+          </p>
+          <p>
+            Elle est proposée uniquement <span className="font-semibold text-gray-900">sur validation</span>, après diagnostic,
+            et dans un <span className="font-semibold text-gray-900">cadre contractuel</span> pour un projet spécifique.
+          </p>
+        </div>
+      ),
+    },
+    {
       question: "Quelle différence entre vos documents et un certificat de formation ?",
       answer: (
         <div className="space-y-3">
@@ -143,7 +168,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       answer: (
         <div className="space-y-3">
           <p>
-            Non pour les particuliers. Oui pour les entreprises, uniquement sur demande.
+            <span className="font-semibold text-gray-900">Service 1 :</span> non — c'est un accompagnement stratégique & comportemental (diagnostic, analyse, feedback, posture), sans exécution.
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">Service 2 :</span> oui — uniquement sous forme de <span className="font-semibold text-gray-900">mission de consulting opérationnel</span>,
+            <span className="font-semibold text-gray-900"> sur validation</span>, contractuelle, et toujours liée à un diagnostic préalable.
           </p>
           <p className="font-semibold text-gray-900">Pour les particuliers, nous ne :</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -270,10 +299,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         // Load programs
         const apiPrograms = await getTrainingPrograms();
         setPrograms(apiPrograms as Program[]);
-        
-        // Load packs
-        const apiPacks = await getPacksWithFallback();
-        setPacks(apiPacks);
       } catch (error) {
         console.error('Error loading data:', error);
         // Keep fallback data if API fails
@@ -311,29 +336,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   // Fonction pour créer le catalogue unifié
   const createUnifiedCatalog = (): CatalogItem[] => {
     const catalogItems: CatalogItem[] = [];
-
-    // Ajouter les packs
-    packs.forEach((pack) => {
-      catalogItems.push({
-        id: `pack-${pack.packId}`,
-        name: pack.name,
-        type: "pack",
-        category: pack.name.includes("Marketing")
-          ? "Marketing"
-          : pack.name.includes("Développement")
-          ? "Technologies"
-          : pack.name.includes("Data Science")
-          ? "Data Science"
-          : pack.name.includes("Design")
-          ? "Design"
-          : "Business",
-        price: pack.details.price,
-        originalPrice: pack.details.originalPrice,
-        savings: pack.details.savings,
-        description: pack.description,
-        themes: pack.details.themes.length,
-      });
-    });
 
     // Ajouter les programmes
     programs.forEach((program) => {
@@ -487,6 +489,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 mb-6 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                     Nous aidons les professionnels à mieux décider, mieux se positionner et agir avec plus de cohérence —
                     à partir d'un diagnostic réel, pas de promesses ni de formations classiques.
+                    <span className="block mt-2 text-sm sm:text-base text-gray-600">Service 1 = l'offre principale. Service 2 = mission opérationnelle sur validation, liée au diagnostic.</span>
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3 mb-6 max-w-2xl mx-auto lg:mx-0">
@@ -1758,7 +1761,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900">Pendant la session</h3>
-                      <p className="text-sm text-gray-600">Sans dérive “formation” ni consulting opérationnel</p>
+                      <p className="text-sm text-gray-600">Sans dérive “formation” ni exécution opérationnelle</p>
                     </div>
                   </div>
 
@@ -1806,7 +1809,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                   <div className="mt-6 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-5 py-4">
                     <p className="text-sm text-indigo-900 font-semibold">
-                      Coaching stratégique = décision + posture. Consulting opérationnel = entreprises uniquement.
+                      Service 1 = décision + posture. Service 2 = mission opérationnelle sur validation (cadre contractuel).
                     </p>
                   </div>
                 </div>
@@ -1856,7 +1859,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                 <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200/70 px-4 py-3">
                   <p className="text-xs text-gray-700 leading-relaxed">
-                    Cadre : coaching stratégique (décision + posture) pour individus. Le consulting opérationnel s'adresse aux entreprises.
+                    Cadre : Service 1 (principal) = coaching stratégique (décision + posture). Service 2 = mission opérationnelle, sur validation, contractuelle.
                   </p>
                 </div>
               </div>
@@ -2001,7 +2004,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                        <p className="text-sm text-gray-700">Consulting opérationnel : pour entreprises</p>
+                        <p className="text-sm text-gray-700">Service 2 (mission opérationnelle) : sur validation + contractuel</p>
                       </div>
                     </div>
                   </div>
@@ -2022,68 +2025,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-                <span className="text-xs sm:text-sm font-semibold text-slate-700">FAQ</span>
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Questions fréquentes
-              </h2>
-              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                Comprendre clairement le cadre de MA Consulting : ce que nous faisons, et ce que nous ne faisons pas.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {faqItems.map((item, idx) => {
-                const isOpen = openFaqIndex === idx;
-
-                return (
-                  <div
-                    key={item.question}
-                    className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 overflow-hidden"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                      className="w-full flex items-start justify-between gap-4 px-5 sm:px-6 py-4 text-left"
-                    >
-                      <span className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">
-                        {item.question}
-                      </span>
-                      <span
-                        className={`mt-0.5 flex-shrink-0 h-8 w-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center transition-transform ${
-                          isOpen ? "rotate-90" : "rotate-0"
-                        }`}
-                      >
-                        <ChevronRight className="w-4 h-4 text-gray-700" />
-                      </span>
-                    </button>
-
-                    {isOpen && (
-                      <div className="px-5 sm:px-6 pb-5 text-sm text-gray-700 leading-relaxed">
-                        {item.answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
-              <p className="text-sm sm:text-base font-semibold leading-relaxed">
-                MA Consulting n'est pas une formation. C'est une démarche professionnelle qui fait évoluer la pensée et le comportement dans le réel,
-                et apporte une clarté crédible et présentable aux entreprises.
-              </p>
             </div>
           </div>
         </div>
@@ -2391,11 +2332,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Theme Packs Section */}
-      <div id="packs-section">
-        <ThemePackSection selectedCurrency="€" />
-      </div>
-
       {/* Bottom Cards Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
@@ -2454,6 +2390,235 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="packs-section" className="py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <Briefcase className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">Service 2 — Sur demande</span>
+              </div>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6 mt-5">
+                Consulting{" "}
+                <span className="text-gradient bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  opérationnel
+                </span>{" "}
+                (mission complémentaire)
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                Pour certains profils <span className="font-semibold text-gray-900">validés</span>, nous proposons des missions de consulting opérationnel ciblées,
+                basées <span className="font-semibold text-gray-900">exclusivement</span> sur les résultats du diagnostic et de l’accompagnement principal.
+              </p>
+
+              <div className="mt-6 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                  <div className="flex items-start gap-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 ring-1 ring-black/5 px-4 py-3">
+                    <span className="text-emerald-700 font-bold">✔</span>
+                    <p className="text-sm text-gray-700">Objectifs professionnels précis</p>
+                  </div>
+                  <div className="flex items-start gap-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 ring-1 ring-black/5 px-4 py-3">
+                    <span className="text-emerald-700 font-bold">✔</span>
+                    <p className="text-sm text-gray-700">Stratégie concrète</p>
+                  </div>
+                  <div className="flex items-start gap-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 ring-1 ring-black/5 px-4 py-3">
+                    <span className="text-emerald-700 font-bold">✔</span>
+                    <p className="text-sm text-gray-700">Outils & plan d’action</p>
+                  </div>
+                  <div className="flex items-start gap-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 ring-1 ring-black/5 px-4 py-3">
+                    <span className="text-emerald-700 font-bold">✔</span>
+                    <p className="text-sm text-gray-700">Cadre contractuel spécifique</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-5 py-4">
+                  <p className="text-sm text-indigo-900 font-semibold">📌 Cette prestation n’est pas automatique.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Ce que c'est</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-700">Une prestation d'exécution et de planification, construite sur Service 1.</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-700">Objectifs professionnels précis, stratégie concrète, outils & plan d'action.</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-700">Cadre contractuel spécifique (mission / projet), sur demande.</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 p-5">
+                  <p className="text-sm font-bold text-indigo-900 mb-2">Conditions (non négociables)</p>
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-800">Pas vendue seule</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-800">Pas d'accès sans diagnostic</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-800">Pas automatique / pas pour tout le monde</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-800">Sur validation + projet spécifique + contractuel</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Différence vs Service 1</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
+                    <p className="text-sm font-bold text-gray-900 mb-3">Service 1 (principal)</p>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Correction du raisonnement</p>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Analyse comportementale</p>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Feedback, clarification, posture</p>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Sans solutions prêtes</p>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="rounded-2xl bg-gradient-to-b from-indigo-50 to-white border border-indigo-200/70 p-5">
+                    <p className="text-sm font-bold text-gray-900 mb-3">Service 2 (complémentaire)</p>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Stratégie opérationnelle</p>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Roadmap + tâches + outils</p>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">Solutions personnalisées</p>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                        <p className="text-sm text-gray-700">70–80% de stratégie prête (mission)</p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-slate-50 border border-slate-200/70 p-5">
+                  <p className="text-sm font-bold text-gray-900 mb-2">Exemple (projet validé)</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    Objectif : <span className="font-semibold text-gray-900">Responsable Marketing — Parapharmacie</span>.
+                    Nous pouvons construire : stratégie d'entrée, positionnement, roadmap de tâches, outils, préparation interview,
+                    et accompagnement après intégration (sur demande).
+                  </p>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
+                  <p className="text-sm sm:text-base font-semibold leading-relaxed">
+                    Facturation (Service 2) : <span className="text-emerald-300">Mission de consulting opérationnel</span> — accompagnement stratégique personnalisé.
+                    <span className="block mt-2 text-white/90 text-sm font-medium">
+                      (Jamais : Formation / Coaching / Encadrement pédagogique)
+                    </span>
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowFreeCourseModal(true)}
+                  className="mt-6 group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                >
+                  <span>Commencer par le diagnostic (obligatoire)</span>
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">FAQ</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                Questions fréquentes
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Comprendre clairement le cadre de MA Consulting : ce que nous faisons, et ce que nous ne faisons pas.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {faqItems.map((item, idx) => {
+                const isOpen = openFaqIndex === idx;
+
+                return (
+                  <div
+                    key={item.question}
+                    className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full flex items-start justify-between gap-4 px-5 sm:px-6 py-4 text-left"
+                    >
+                      <span className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">
+                        {item.question}
+                      </span>
+                      <span
+                        className={`mt-0.5 flex-shrink-0 h-8 w-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center transition-transform ${
+                          isOpen ? "rotate-90" : "rotate-0"
+                        }`}
+                      >
+                        <ChevronRight className="w-4 h-4 text-gray-700" />
+                      </span>
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-5 sm:px-6 pb-5 text-sm text-gray-700 leading-relaxed">
+                        {item.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
+              <p className="text-sm sm:text-base font-semibold leading-relaxed">
+                MA Consulting n'est pas une formation. C'est une démarche professionnelle qui fait évoluer la pensée et le comportement dans le réel,
+                et apporte une clarté crédible et présentable aux entreprises.
+              </p>
             </div>
           </div>
         </div>
