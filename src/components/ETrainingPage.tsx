@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
@@ -52,6 +52,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [serviceExplainerTab, setServiceExplainerTab] = useState<"service1" | "service2">("service1");
 
   const faqItems: Array<{ question: string; answer: React.ReactNode }> = [
     {
@@ -820,6 +821,117 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="parcours-section" className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Parcours d'accompagnement{" "}
+                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  (Service 1 + option Service 2)
+                </span>
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                Chaque parcours se lit comme un système complet.
+                <span className="block mt-2">
+                  <span className="font-semibold text-gray-900">Service 1</span> = diagnostic + décision + posture (obligatoire).{" "}
+                  <span className="font-semibold text-gray-900">Service 2</span> = mission opérationnelle (sur demande), uniquement après validation.
+                </span>
+              </p>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200/70 px-4 py-2 text-sm text-gray-700">
+                <span className="font-semibold">📌</span>
+                <span>Service 2 n’est pas automatique et n’est jamais vendu sans diagnostic.</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {loading ? (
+                <div className="col-span-full text-center py-10">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <p className="mt-3 text-gray-600">Chargement des parcours...</p>
+                </div>
+              ) : programs.length === 0 ? (
+                <div className="col-span-full text-center py-10">
+                  <p className="text-gray-600">Aucun parcours disponible pour le moment.</p>
+                </div>
+              ) : (
+                programs.map((program) => (
+                  <div
+                    key={program.id}
+                    data-program-id={program.id}
+                    className="group rounded-3xl bg-white border border-slate-200/70 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5 p-6"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200/70 px-3 py-1 text-xs font-semibold text-slate-700">
+                        <span>{program.category || "Parcours"}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-bold text-indigo-700">Tarif sur devis</p>
+                        <p className="text-[11px] text-gray-500">(après diagnostic)</p>
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{program.title}</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-5">{program.description}</p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-gradient-to-b from-emerald-50 to-white border border-emerald-200/70 p-4">
+                        <p className="text-xs font-bold text-emerald-800 mb-2">Service 1 (obligatoire)</p>
+                        <ul className="space-y-2">
+                          <li className="flex items-start gap-2">
+                            <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                            <p className="text-sm text-gray-700">Diagnostic + avis GO / NO-GO</p>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                            <p className="text-sm text-gray-700">Clarification + posture</p>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="rounded-2xl bg-gradient-to-b from-indigo-50 to-white border border-indigo-200/70 p-4">
+                        <p className="text-xs font-bold text-indigo-800 mb-2">Service 2 (option)</p>
+                        <ul className="space-y-2">
+                          <li className="flex items-start gap-2">
+                            <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                            <p className="text-sm text-gray-700">Roadmap + tâches + outils</p>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="mt-1 text-rose-700 font-bold">✕</span>
+                            <p className="text-sm text-gray-700">Uniquement sur validation</p>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-gray-700">
+                      {program.duration && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 border border-slate-200/70 px-3 py-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{program.duration}</span>
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 border border-slate-200/70 px-3 py-1">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Point d’entrée unique : diagnostic</span>
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate("/diagnostic-wonder")}
+                      className="mt-6 w-full px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300"
+                    >
+                      Passer le diagnostic
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -2295,43 +2407,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      <section id="programs-section" className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Nos{" "}
-                <span className="text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Parcours Professionnels
-                </span>
-              </h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Découvrez nos parcours d'expertise conçus pour transformer votre carrière
-              </p>
-            </div>
-
-
-            {/* Programs Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {loading ? (
-                <div className="col-span-full text-center py-8">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <p className="mt-2 text-gray-600">Chargement des programmes...</p>
-                </div>
-              ) : programs.map((program) => (
-                <div key={program.id} data-program-id={program.id}>
-                  <ProgramCard
-                    program={program}
-                    selectedCurrency="€"
-                    onRegisterClick={handleProgramRegistration}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Bottom Cards Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
@@ -2404,15 +2479,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <span className="text-xs sm:text-sm font-semibold text-slate-700">Service 2 — Sur demande</span>
               </div>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6 mt-5">
-                Consulting{" "}
-                <span className="text-gradient bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  opérationnel
-                </span>{" "}
-                (mission complémentaire)
+                Passer de la décision à l’exécution maîtrisée
+                <span className="block text-2xl sm:text-3xl md:text-4xl font-bold text-gradient bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mt-3">
+                  Mission opérationnelle — sur demande
+                </span>
               </h2>
               <p className="text-lg sm:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                Pour certains profils <span className="font-semibold text-gray-900">validés</span>, nous proposons des missions de consulting opérationnel ciblées,
-                basées <span className="font-semibold text-gray-900">exclusivement</span> sur les résultats du diagnostic et de l’accompagnement principal.
+                Après clarification et prise de décision (Service 1), certaines personnes ou organisations préfèrent ne pas repartir de zéro.
+                <span className="block mt-2">
+                  Ici, nous passons — <span className="font-semibold text-gray-900">sur demande</span> — à une mission opérationnelle : transformer la décision en stratégie prête à exécuter,
+                  avec des outils et des tâches clairement cadrés.
+                </span>
               </p>
 
               <div className="mt-6 max-w-4xl mx-auto">
@@ -2436,26 +2513,26 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 </div>
 
                 <div className="mt-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-5 py-4">
-                  <p className="text-sm text-indigo-900 font-semibold">📌 Cette prestation n’est pas automatique.</p>
+                  <p className="text-sm text-indigo-900 font-semibold">📌 Ce n’est ni une étape automatique, ni une offre grand public.</p>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Ce que c'est</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Ce que c’est vraiment</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm sm:text-base text-gray-700">Une prestation d'exécution et de planification, construite sur Service 1.</p>
+                    <p className="text-sm sm:text-base text-gray-700">Transformer un objectif professionnel clair en plan d’action exécutable.</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm sm:text-base text-gray-700">Objectifs professionnels précis, stratégie concrète, outils & plan d'action.</p>
+                    <p className="text-sm sm:text-base text-gray-700">Construire une stratégie d’entrée, de positionnement et d’organisation du travail.</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm sm:text-base text-gray-700">Cadre contractuel spécifique (mission / projet), sur demande.</p>
+                    <p className="text-sm sm:text-base text-gray-700">Livrer une roadmap personnalisée, une liste de tâches et des outils couvrant 70–80% du terrain.</p>
                   </div>
                 </div>
 
@@ -2484,6 +2561,120 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
               <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Différence vs Service 1</h3>
+
+                <div className="rounded-2xl bg-white/70 border border-slate-200/70 p-4 sm:p-5 shadow-sm ring-1 ring-black/5">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setServiceExplainerTab("service1")}
+                      className={`w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                        serviceExplainerTab === "service1"
+                          ? "bg-emerald-600 text-white border-emerald-600"
+                          : "bg-white/80 text-gray-900 border-slate-200 hover:border-emerald-300"
+                      }`}
+                    >
+                      Service 1 — Décision & posture
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setServiceExplainerTab("service2")}
+                      className={`w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                        serviceExplainerTab === "service2"
+                          ? "bg-indigo-600 text-white border-indigo-600"
+                          : "bg-white/80 text-gray-900 border-slate-200 hover:border-indigo-300"
+                      }`}
+                    >
+                      Service 2 — Exécution maîtrisée
+                    </button>
+                  </div>
+
+                  <div className="mt-4">
+                    <AnimatePresence mode="wait">
+                      {serviceExplainerTab === "service1" ? (
+                        <motion.div
+                          key="service1"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.25 }}
+                          className="rounded-2xl bg-gradient-to-b from-emerald-50 to-white border border-emerald-200/70 p-4"
+                        >
+                          <p className="text-sm font-bold text-gray-900 mb-2">But</p>
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            Clarifier la situation, améliorer la logique de décision et stabiliser la posture en contexte réel.
+                          </p>
+                          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                              <p className="text-sm text-gray-700">Diagnostic professionnel (obligatoire)</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                              <p className="text-sm text-gray-700">Avis GO / NO-GO / réorientation</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                              <p className="text-sm text-gray-700">Feedback + clarification + posture</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-rose-700 font-bold">✕</span>
+                              <p className="text-sm text-gray-700">Pas d’exécution à votre place</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="service2"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.25 }}
+                          className="rounded-2xl bg-gradient-to-b from-indigo-50 to-white border border-indigo-200/70 p-4"
+                        >
+                          <p className="text-sm font-bold text-gray-900 mb-2">But</p>
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            Transformer la décision en plan d’action exécutable : roadmap, tâches, outils — dans un cadre contractuel, sur demande.
+                          </p>
+                          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                              <p className="text-sm text-gray-700">Roadmap stratégique personnalisée</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                              <p className="text-sm text-gray-700">Liste de tâches & outils validés</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-indigo-700 font-bold">✓</span>
+                              <p className="text-sm text-gray-700">70–80% du terrain cadré</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="mt-1 text-rose-700 font-bold">✕</span>
+                              <p className="text-sm text-gray-700">Pas disponible sans diagnostic validé</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/diagnostic-wonder")}
+                      className="group w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 inline-flex items-center justify-center"
+                    >
+                      <span>Commencer par le diagnostic professionnel</span>
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-5 rounded-2xl bg-slate-50 border border-slate-200/70 px-4 py-3">
+                  <p className="text-sm text-gray-800 font-semibold">
+                    👉 Service 1 change votre manière de penser. Service 2 vous fait gagner du temps.
+                  </p>
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
@@ -2542,18 +2733,19 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                 <div className="mt-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
                   <p className="text-sm sm:text-base font-semibold leading-relaxed">
-                    Facturation (Service 2) : <span className="text-emerald-300">Mission de consulting opérationnel</span> — accompagnement stratégique personnalisé.
+                    Livrables (Service 2) : <span className="text-emerald-300">mission opérationnelle</span> cadrée et contractuelle.
                     <span className="block mt-2 text-white/90 text-sm font-medium">
-                      (Jamais : Formation / Coaching / Encadrement pédagogique)
+                      Documents possibles : Document de mission opérationnelle, Roadmap stratégique personnalisée, Liste de tâches & outils validés,
+                      Synthèse de stratégie opérationnelle.
                     </span>
                   </p>
                 </div>
 
                 <button
-                  onClick={() => setShowFreeCourseModal(true)}
+                  onClick={() => navigate("/diagnostic-wonder")}
                   className="mt-6 group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
                 >
-                  <span>Commencer par le diagnostic (obligatoire)</span>
+                  <span>Disponible uniquement après diagnostic validé → Commencer par le diagnostic professionnel</span>
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
