@@ -21,7 +21,8 @@ import {
   Briefcase,
   FileText,
   Mail,
-  ChevronRight
+  ChevronRight,
+  X
 } from "lucide-react";
 import { testimonialsApiService, TestimonialData } from "../services/testimonialsApiService";
 import CertificateVerification from "./CertificateVerification";
@@ -53,6 +54,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [serviceExplainerTab, setServiceExplainerTab] = useState<"service1" | "service2">("service1");
+  const [isParcoursInfoOpen, setIsParcoursInfoOpen] = useState(false);
 
   const faqItems: Array<{ question: string; answer: React.ReactNode }> = [
     {
@@ -826,6 +828,226 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
+      <AnimatePresence>
+        {isParcoursInfoOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl border border-white/60"
+            >
+              <div className="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-slate-200/70 px-6 sm:px-8 py-5 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-600">🧠</p>
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-gray-900">
+                    Comment fonctionne notre accompagnement ?
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsParcoursInfoOpen(false)}
+                  className="h-10 w-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors"
+                  aria-label="Fermer"
+                >
+                  <X className="w-5 h-5 text-slate-700" />
+                </button>
+              </div>
+
+              <div className="px-6 sm:px-8 py-6">
+                <div className="rounded-2xl bg-slate-50 border border-slate-200/70 p-5">
+                  <p className="text-sm text-gray-800 leading-relaxed">
+                    Ce parcours n’est ni une formation, ni un coaching classique.
+                    <span className="block mt-2">
+                      Il s’agit d’un consulting professionnel structuré, basé sur l’analyse réelle, la décision et l’exécution ciblée.
+                    </span>
+                  </p>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="rounded-3xl bg-gradient-to-b from-emerald-50 to-white border border-emerald-200/70 p-6">
+                    <p className="text-sm font-bold text-emerald-900">🟢 Service 1 — Diagnostic & Décision (obligatoire)</p>
+                    <p className="mt-2 text-sm text-gray-700">C’est le point d’entrée unique.</p>
+
+                    <div className="mt-4">
+                      <p className="text-sm font-semibold text-gray-900">Ce que nous faisons :</p>
+                      <ul className="mt-2 list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li>Analyse de votre situation professionnelle réelle</li>
+                        <li>Lecture de votre logique de décision et de votre posture</li>
+                        <li>Avis clair : GO / NO-GO / réorientation</li>
+                        <li>Clarification des priorités et des risques</li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-4">
+                      <p className="text-sm font-semibold text-gray-900">Ce que vous obtenez :</p>
+                      <ul className="mt-2 list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li>Un avis professionnel argumenté</li>
+                        <li>Une vision claire de votre positionnement</li>
+                        <li>Des documents consultatifs vérifiables</li>
+                        <li>Une base solide pour décider (ou non) d’aller plus loin</li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl bg-white/70 border border-emerald-200/70 px-4 py-3">
+                      <p className="text-sm text-emerald-900 font-semibold">📌 Aucune solution prête. Aucun contenu pédagogique.</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl bg-gradient-to-b from-indigo-50 to-white border border-indigo-200/70 p-6">
+                    <p className="text-sm font-bold text-indigo-900">🔵 Service 2 — Mission opérationnelle (optionnelle, sur validation)</p>
+                    <p className="mt-2 text-sm text-gray-700">Uniquement si le diagnostic le justifie.</p>
+
+                    <div className="mt-4">
+                      <p className="text-sm font-semibold text-gray-900">Ce que nous faisons :</p>
+                      <ul className="mt-2 list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li>Construction d’une stratégie opérationnelle claire</li>
+                        <li>Définition d’une roadmap de tâches</li>
+                        <li>Mise à disposition d’outils adaptés</li>
+                        <li>Accompagnement ciblé selon l’objectif (poste, projet, entreprise)</li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-4">
+                      <p className="text-sm font-semibold text-gray-900">Ce que vous obtenez :</p>
+                      <ul className="mt-2 list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li>70–80% de la stratégie déjà construite</li>
+                        <li>Un cadre prêt à être appliqué</li>
+                        <li>Un gain de temps et de cohérence</li>
+                        <li>Un accompagnement contractuel clair</li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl bg-white/70 border border-indigo-200/70 px-4 py-3">
+                      <p className="text-sm text-indigo-900 font-semibold">📌 Jamais vendue seule. Toujours liée au diagnostic.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-3xl bg-white border border-slate-200/70 p-6">
+                  <p className="text-sm font-bold text-gray-900">⚖️ Cadre légal & professionnel</p>
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                    <div className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✔</span><span>Contrat de service</span></div>
+                    <div className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✔</span><span>Facture officielle</span></div>
+                    <div className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✔</span><span>Planning défini</span></div>
+                    <div className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✔</span><span>Documents traçables</span></div>
+                    <div className="flex items-start gap-2"><span className="text-rose-700 font-bold">❌</span><span>Pas de diplôme</span></div>
+                    <div className="flex items-start gap-2"><span className="text-rose-700 font-bold">❌</span><span>Pas de certification</span></div>
+                    <div className="flex items-start gap-2"><span className="text-rose-700 font-bold">❌</span><span>Pas de promesse d’emploi</span></div>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-3xl bg-slate-50 border border-slate-200/70 p-6">
+                  <p className="text-sm font-bold text-gray-900">📂 Documents possibles (selon service)</p>
+                  <ul className="mt-3 list-disc pl-5 space-y-1 text-sm text-gray-700">
+                    <li>Diagnostic professionnel</li>
+                    <li>Avis professionnel (GO / NO-GO)</li>
+                    <li>Synthèse de positionnement</li>
+                    <li>Document de mission (Service 2)</li>
+                    <li>Attestation de participation vérifiable</li>
+                  </ul>
+                  <p className="mt-3 text-sm text-gray-700">
+                    🔎 Tous les documents peuvent être vérifiés par une entreprise.
+                  </p>
+                </div>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/diagnostic-wonder")}
+                    className="group w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 inline-flex items-center justify-center"
+                  >
+                    <span>Commencer par le diagnostic</span>
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <a
+                    href="mailto:contact@ma-training-consulting.com?subject=Demande%20de%20diagnostic"
+                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white text-gray-900 text-sm font-semibold border border-slate-200/70 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 inline-flex items-center justify-center"
+                  >
+                    Être contacté pour le diagnostic
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <section id="domains-section" className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-purple-50/40 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10 sm:mb-14 lg:mb-16">
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Notre{" "}
+                <span className="text-gradient bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  méthode de consulting professionnel
+                </span>
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
+                Un processus unique, structuré, orienté décision. Diagnostic obligatoire → avis professionnel → accompagnement stratégique si GO.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4 font-bold">1</div>
+                <h3 className="font-bold text-gray-900 mb-2">Diagnostic professionnel</h3>
+                <div className="text-sm text-gray-600 leading-relaxed space-y-1">
+                  <p>✔️ Point de départ obligatoire</p>
+                  <p>✔️ Analyse de la situation réelle</p>
+                </div>
+              </div>
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4 font-bold">2</div>
+                <h3 className="font-bold text-gray-900 mb-2">Analyse décisionnelle</h3>
+                <div className="text-sm text-gray-600 leading-relaxed space-y-1">
+                  <p>✔️ Lecture du raisonnement</p>
+                  <p>✔️ Identification des risques & blocages</p>
+                </div>
+              </div>
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center mb-4 font-bold">3</div>
+                <h3 className="font-bold text-gray-900 mb-2">Avis & orientation</h3>
+                <div className="text-sm text-gray-600 leading-relaxed space-y-1">
+                  <p>✔️ Décision claire : GO / NO-GO / réorientation</p>
+                  <p>✔️ Aucun flou</p>
+                </div>
+              </div>
+              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
+                <div className="w-12 h-12 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center mb-4 font-bold">4</div>
+                <h3 className="font-bold text-gray-900 mb-2">Accompagnement stratégique</h3>
+                <div className="text-sm text-gray-600 leading-relaxed space-y-1">
+                  <p>✔️ Activé uniquement si GO</p>
+                  <p>✔️ En situation réelle (non pédagogique)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10 flex flex-col items-center">
+              <button
+                onClick={() => setShowFreeCourseModal(true)}
+                className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+              >
+                <span>🟣 Commencer par le diagnostic professionnel (gratuit)</span>
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <p className="mt-3 text-sm text-gray-600 text-center max-w-2xl">
+                Tout commence par une décision claire.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="parcours-section" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
@@ -924,10 +1146,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                     <button
                       type="button"
-                      onClick={() => navigate("/diagnostic-wonder")}
-                      className="mt-6 w-full px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300"
+                      onClick={() => setIsParcoursInfoOpen(true)}
+                      className="mt-6 w-full px-5 py-3 rounded-2xl bg-white text-gray-900 text-sm font-semibold border border-slate-200/70 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 inline-flex items-center justify-center gap-2"
                     >
-                      Passer le diagnostic
+                      <span>En savoir plus</span>
+                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 ))
@@ -1144,15 +1367,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <button
-                    onClick={() => setShowFreeCourseModal(true)}
-                    className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-                  >
-                    <span>Démarrer le diagnostic (gratuit)</span>
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -1554,13 +1768,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <button
-                      onClick={() => setShowFreeCourseModal(true)}
-                      className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-                    >
-                      <span>Démarrer le diagnostic (gratuit)</span>
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <button
                       onClick={() => navigate("/espace-participant")}
                       className="group w-full sm:w-auto px-6 py-3 bg-white/85 backdrop-blur-sm text-gray-900 text-sm sm:text-base font-semibold rounded-full border border-gray-200 hover:border-purple-300 hover:bg-white transition-all duration-300 inline-flex items-center justify-center shadow-sm hover:shadow-lg"
                     >
@@ -1779,8 +1986,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             </div>
 
             <div className="mt-8 sm:mt-10 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 gap-6">
+                <div>
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Sans promesses vides</h3>
                   <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
                     ⚠️ Pas de promesse d'emploi.
@@ -1820,23 +2027,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex flex-col justify-between">
-                  <div className="rounded-2xl bg-gradient-to-b from-slate-50 to-white border border-slate-200/70 p-5">
-                    <p className="text-sm font-bold text-gray-900 mb-2">CTA</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      Commencez par le diagnostic et observez le résultat par vous-même.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setShowFreeCourseModal(true)}
-                    className="mt-4 group w-full px-6 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(16,185,129,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(16,185,129,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-                  >
-                    <span>Commencer par le diagnostic</span>
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -1960,14 +2150,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div className="mt-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 px-4 py-3">
                   <p className="text-sm text-emerald-900 font-semibold">On travaille la pensée professionnelle — pas la fonction.</p>
                 </div>
-
-                <button
-                  onClick={() => setShowFreeCourseModal(true)}
-                  className="mt-5 group w-full px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-                >
-                  <span>Réserver mon diagnostic professionnel</span>
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
 
                 <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200/70 px-4 py-3">
                   <p className="text-xs text-gray-700 leading-relaxed">
@@ -2121,14 +2303,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </div>
                   </div>
                 </div>
-
-                <button
-                  onClick={() => setShowFreeCourseModal(true)}
-                  className="mt-6 group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(16,185,129,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(16,185,129,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-                >
-                  <span>Commencer par le diagnostic professionnel</span>
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
 
                 <div className="mt-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 px-6 py-5 text-white shadow-[0_18px_50px_-28px_rgba(30,64,175,0.7)]">
                   <p className="text-sm sm:text-base font-semibold leading-relaxed">
@@ -2351,60 +2525,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
           `,
           }}
         />
-      </section>
-      <section id="domains-section" className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-purple-50/40 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-10 sm:mb-14 lg:mb-16">
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-                Nos{" "}
-                <span className="text-gradient bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  domaines d’intervention
-                </span>
-              </h2>
-              <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
-                Clair, simple, sans confusion : diagnostic, analyse décisionnelle, avis & orientation, accompagnement stratégique (si GO).
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
-                <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4 font-bold">1</div>
-                <h3 className="font-bold text-gray-900 mb-2">Diagnostic professionnel</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Point de départ obligatoire : situation réelle, contraintes, priorités.</p>
-              </div>
-              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
-                <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4 font-bold">2</div>
-                <h3 className="font-bold text-gray-900 mb-2">Analyse décisionnelle</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Lecture de votre logique de décision, risques, blocages.</p>
-              </div>
-              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
-                <div className="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center mb-4 font-bold">3</div>
-                <h3 className="font-bold text-gray-900 mb-2">Avis & orientation</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Avis clair : GO / NO-GO / réorientation.</p>
-              </div>
-              <div className="group bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5">
-                <div className="w-12 h-12 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center mb-4 font-bold">4</div>
-                <h3 className="font-bold text-gray-900 mb-2">Accompagnement stratégique</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">Activé uniquement si GO — en situation réelle.</p>
-              </div>
-            </div>
-
-            <div className="mt-10 flex flex-col items-center">
-              <button
-                onClick={() => setShowFreeCourseModal(true)}
-                className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-              >
-                <span>🟣 Commencer par le diagnostic professionnel (gratuit)</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <p className="mt-3 text-sm text-gray-600 text-center max-w-2xl">
-                Tout commence par une décision claire.
-              </p>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* Bottom Cards Section */}
@@ -2658,16 +2778,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </AnimatePresence>
                   </div>
 
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      onClick={() => navigate("/diagnostic-wonder")}
-                      className="group w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 inline-flex items-center justify-center"
-                    >
-                      <span>Commencer par le diagnostic professionnel</span>
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
                 </div>
 
                 <div className="mb-5 rounded-2xl bg-slate-50 border border-slate-200/70 px-4 py-3">
