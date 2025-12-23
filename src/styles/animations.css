@@ -377,6 +377,30 @@
   50% { opacity: 0.6; }
 }
 
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(18px, -14px) scale(1.03);
+  }
+  66% {
+    transform: translate(-14px, 14px) scale(0.98);
+  }
+}
+
+.animate-blob {
+  animation: blob 14s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
 /* Hero Enhanced Animations */
 .hero-title-container {
   animation: slide-up-advanced 1.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1021,6 +1045,7 @@
 /* Utility classes */
 .line-clamp-3 {
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
