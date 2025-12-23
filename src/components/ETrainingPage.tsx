@@ -29,6 +29,7 @@ import FreeCourseModal from "./FreeCourseModal";
 import ProgramRegistrationModal from "./ProgramRegistrationModal";
 import InteractiveQCMModal from "./InteractiveQCMModal";
 import { Program, getTrainingPrograms } from "../data/trainingPrograms";
+import { digitalizationContactApiService } from "../services/digitalizationContactApiService";
 
 interface ETrainingPageProps {
   onBack: () => void;
@@ -53,6 +54,14 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [serviceExplainerTab, setServiceExplainerTab] = useState<"service1" | "service2">("service1");
   const [isParcoursInfoOpen, setIsParcoursInfoOpen] = useState(false);
+
+  const openInitiationAccessRequest = () => {
+    const url = digitalizationContactApiService.generateWhatsAppLink(
+      undefined,
+      "Bonjour, je souhaite demander un accès d’initiation à l’Espace Participant (accès découverte – sans accompagnement)."
+    );
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const faqItems: Array<{ question: string; answer: React.ReactNode }> = [
     {
@@ -417,31 +426,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       }
     }, 300);
   };
-
-  // Hero Section Data
-  const heroCards = [
-    {
-      icon: Users,
-      title: "Espace Participant",
-      subtitle: "Accédez à votre espace d'accompagnement",
-      buttonText: "Accéder maintenant",
-      color: "blue",
-    },
-    {
-      icon: Shield,
-      title: "Vérification de Participation",
-      subtitle: "Confirmez l'authenticité des documents liés à un parcours d'accompagnement",
-      buttonText: "Consulter maintenant",
-      color: "purple",
-    },
-    {
-      icon: Lightbulb,
-      title: "Diagnostic Gratuit (Obligatoire)",
-      subtitle: "Analyse complète de votre niveau avant votre parcours",
-      buttonText: "Lancer le diagnostic",
-      color: "yellow",
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -1509,6 +1493,141 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10 sm:mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
+                <BookOpen className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">🔓 Accès expérientiel à l’Espace Participant</span>
+              </div>
+
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
+                🔍 Découvrir l’Espace Participant
+                <span className="block text-gradient bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  Vivre le système — sans accompagnement
+                </span>
+              </h2>
+
+              <p className="text-base sm:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Accès expérientiel au système MA Consulting.
+                <span className="block mt-2">Aucun diagnostic. Aucun accompagnement. Aucune validation professionnelle.</span>
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold">
+                  Gratuit
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden flex flex-col">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Ce que vous obtenez</h3>
+                      <p className="text-sm text-gray-600">Découverte du parcours — lecture seule</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Accès à l’interface Espace Participant</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Visualisation du parcours type et de la logique du système</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Ressources internes (lecture seule)</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                      <p className="text-sm text-gray-700">Parcours d’initiation gratuit</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden flex flex-col">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-rose-500/10 via-transparent to-orange-500/10" />
+                <div className="relative">
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-rose-600 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-rose-600/20">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Ce que vous n’obtenez pas</h3>
+                      <p className="text-sm text-gray-600">Aucune validation, aucun support</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-700">Pas de diagnostic</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-700">Pas de feedback</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-700">Pas d’accompagnement</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-700">Pas de documents officiels ou vérifiables</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 text-rose-700 font-bold">✕</span>
+                      <p className="text-sm text-gray-700">Aucun support humain</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+                <div className="rounded-2xl bg-amber-50/70 border border-amber-200/70 p-5">
+                  <p className="text-sm font-bold text-amber-900 mb-2">⚠️ Activation manuelle obligatoire</p>
+                  <p className="text-sm text-gray-800 leading-relaxed">
+                    L’accès d’initiation est activé uniquement après contact avec le service commercial.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-50 border border-slate-200/70 p-5">
+                  <p className="text-sm font-bold text-gray-900 mb-2">Cadre clair</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    Cet accès ne constitue pas un accompagnement professionnel. Il ne donne lieu à aucun diagnostic, aucun avis, aucun document officiel.
+                    <span className="block mt-2 font-semibold text-gray-900">Pour un parcours réel → diagnostic professionnel obligatoire.</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={openInitiationAccessRequest}
+                  className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
+                >
+                  <span>🟣 Demander un accès d’initiation</span>
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
                 <Briefcase className="w-4 h-4 text-purple-600" />
                 <span className="text-xs sm:text-sm font-semibold text-slate-700">Positionnement & réalité métier</span>
               </div>
@@ -2006,69 +2125,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         />
       </section>
 
-      {/* Bottom Cards Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Nos Services d'Accompagnement
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Découvrez nos services conçus pour vous accompagner à chaque étape de votre parcours professionnel
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {heroCards.map((card, index) => (
-                <motion.div
-                  key={index}
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col"
-                  whileHover={{ y: -5 }}
-                  onClick={() => {
-                    if (card.title === "Espace Participant") {
-                      navigate("/espace-participant");
-                    } else if (card.title === "Vérification de Participation") {
-                      setShowCertificateVerification(true);
-                    } else if (card.title === "Diagnostic Gratuit (Obligatoire)") {
-                      setShowFreeCourseModal(true);
-                    }
-                  }}
-                >
-                  <div className={`p-6 flex-1 flex flex-col`}>
-                    <div 
-                      className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${
-                        card.color === "blue" 
-                          ? "bg-blue-100 text-blue-600" 
-                          : card.color === "purple" 
-                            ? "bg-purple-100 text-purple-600" 
-                            : "bg-yellow-100 text-yellow-600"
-                      }`}
-                    >
-                      <card.icon className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{card.title}</h3>
-                    <p className="text-gray-600 mb-6 flex-1">{card.subtitle}</p>
-                    <button 
-                      className={`mt-auto inline-flex items-center font-medium ${
-                        card.color === "blue" 
-                          ? "text-blue-600 hover:text-blue-700" 
-                          : card.color === "purple" 
-                            ? "text-purple-600 hover:text-purple-700" 
-                            : "text-yellow-600 hover:text-yellow-700"
-                      }`}
-                    >
-                      {card.buttonText}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
@@ -2172,22 +2228,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
-                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-blue-500/10" />
-                  <div className="relative">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                        <TrendingUp className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-gray-900">Benchmarks professionnels</h4>
-                        <p className="text-sm text-gray-600">Comparaison avec le marché</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">Renforce le discours, clarifie les écarts, et reste lisible pour les entreprises.</p>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
                   <div className="relative">
                     <div className="flex items-start gap-3 mb-4">
@@ -2200,22 +2240,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 leading-relaxed">Teste la préparation et fournit un signal de crédibilité en entretien.</p>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
-                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
-                  <div className="relative">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20">
-                        <Users className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-gray-900">Comité d'experts (avancé)</h4>
-                        <p className="text-sm text-gray-600">Regards multiples</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">Élargit la vision et apporte une valeur forte pour profils management.</p>
                   </div>
                 </div>
 
@@ -2236,22 +2260,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 </div>
 
                 <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden">
-                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/10" />
-                  <div className="relative">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
-                        <Shield className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-gray-900">Feedback 360°</h4>
-                        <p className="text-sm text-gray-600">Self-awareness & management</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">Synthèse de retours comportementaux (quand c'est possible) pour renforcer la maturité.</p>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden sm:col-span-2 lg:col-span-3">
                   <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-indigo-500/10" />
                   <div className="relative">
                     <div className="flex items-start gap-3 mb-4">
@@ -2575,14 +2583,6 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     </span>
                   </p>
                 </div>
-
-                <button
-                  onClick={() => navigate("/diagnostic-wonder")}
-                  className="mt-6 group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-                >
-                  <span>Disponible uniquement après diagnostic validé → Commencer par le diagnostic professionnel</span>
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
               </div>
             </div>
           </div>

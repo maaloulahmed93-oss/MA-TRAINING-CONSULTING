@@ -33,7 +33,7 @@ interface CertificateVerificationProps {
 // Default certificates used to seed localStorage (only if empty)
 const DEFAULT_CERTIFICATES: Certificate[] = [
   {
-    id: "CERT-2024-001",
+    id: "PART-2024-001",
     firstName: "Ahmed",
     lastName: "Benali",
     program: "Développement Web Full Stack",
@@ -52,7 +52,7 @@ const DEFAULT_CERTIFICATES: Certificate[] = [
     completionDate: "2024-01-15",
   },
   {
-    id: "CERT-2024-002",
+    id: "PART-2024-002",
     firstName: "Fatima",
     lastName: "El Mansouri",
     program: "Design UX/UI Professionnel",
@@ -71,7 +71,7 @@ const DEFAULT_CERTIFICATES: Certificate[] = [
     completionDate: "2024-02-20",
   },
   {
-    id: "CERT-2024-003",
+    id: "PART-2024-003",
     firstName: "Omar",
     lastName: "Rachidi",
     program: "Data Science & Intelligence Artificielle",
@@ -124,7 +124,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
 
   const handleVerify = async () => {
     if (!certificateId.trim()) {
-      setError("Veuillez saisir un ID d'attestation");
+      setError("Veuillez saisir l’identifiant unique de participation");
       return;
     }
 
@@ -150,7 +150,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
           certificateUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/attestation`,
           recommendationUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/recommandation`,
           evaluationUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/evaluation`,
-          completionDate: new Date(data.data.dateObtention).toLocaleDateString('fr-FR')
+          completionDate: data.data.dateObtention
         };
         
         setCertificate(transformedCertificate);
@@ -162,7 +162,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
           setCertificate(foundCertificate);
           setShowResult(true);
         } else {
-          setError("Attestation non trouvée. Vérifiez l'ID saisi.");
+          setError("Participation introuvable. Vérifiez l’identifiant saisi.");
         }
       }
     } catch (error) {
@@ -173,11 +173,20 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
         setCertificate(foundCertificate);
         setShowResult(true);
       } else {
-        setError("Erreur de connexion. Vérifiez votre connexion internet.");
+        setError("Erreur de connexion. Veuillez réessayer.");
       }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatGrade = (grade: number) =>
+    grade.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+
+  const formatDate = (dateValue: string) => {
+    const d = new Date(dateValue);
+    if (Number.isNaN(d.getTime())) return dateValue;
+    return d.toLocaleDateString("fr-FR");
   };
 
   const handleNewSearch = () => {
@@ -276,10 +285,10 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  Vérification de Participation
+                  Vérification de participation professionnelle
                 </h2>
                 <p className="text-gray-600">
-                  Validez la participation d'un candidat et les documents internes délivrés dans le cadre de son parcours professionnel.
+                  Vérifiez l’authenticité d’une participation à un parcours d’accompagnement professionnel MA Consulting et les documents internes associés.
                 </p>
               </div>
             </div>
@@ -309,7 +318,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                         Rechercher une participation
                       </h3>
                       <p className="text-gray-600">
-                        Saisissez l'ID unique pour vérifier l'authenticité des documents fournis
+                        Saisissez l’identifiant unique fourni afin de vérifier l’authenticité des documents liés au parcours professionnel.
                       </p>
                     </div>
 
@@ -319,7 +328,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           type="text"
                           value={certificateId}
                           onChange={(e) => setCertificateId(e.target.value)}
-                          placeholder="Ex: CERT-2024-001"
+                          placeholder="Exemple : PART-2024-001"
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-center font-mono text-base sm:text-lg"
                           onKeyPress={(e) =>
                             e.key === "Enter" && handleVerify()
@@ -354,7 +363,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       ) : (
                         <>
                           <Search className="w-5 h-5" />
-                          <span>Vérifier</span>
+                          <span>🟣 Vérifier la participation</span>
                         </>
                       )}
                     </motion.button>
@@ -365,7 +374,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                         ❓ Pourquoi cette vérification ?
                       </h4>
                       <p className="text-gray-700 mb-4 leading-relaxed">
-                        Ce système permet de confirmer qu'une personne a réellement participé à un parcours d'accompagnement professionnel et qu'elle a reçu les documents internes liés à son suivi :
+                        Ce système permet de confirmer qu’une personne a réellement participé à un parcours d’accompagnement professionnel structuré et qu’elle a reçu les documents internes correspondants, notamment :
                       </p>
                       <ul className="space-y-2 mb-4 text-gray-700">
                         <li className="flex items-start">
@@ -378,16 +387,20 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                         </li>
                         <li className="flex items-start">
                           <span className="mr-3 text-blue-600 font-bold">•</span>
-                          <span>Synthèse des compétences travaillées</span>
+                          <span>Synthèse des axes travaillés</span>
                         </li>
                         <li className="flex items-start">
                           <span className="mr-3 text-blue-600 font-bold">•</span>
-                          <span>Recommandation du consultant</span>
+                          <span>Avis ou recommandation professionnelle (si applicable)</span>
                         </li>
                       </ul>
                       <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
                         <p className="text-sm text-orange-900">
-                          <span className="font-bold">⚠️ Important :</span> Il ne s'agit pas d'un certificat de formation mais d'une validation de participation à un accompagnement individuel ou professionnel.
+                          <span className="font-bold">⚠️ Important</span>
+                          <br />
+                          Il ne s’agit ni d’un certificat, ni d’un diplôme, ni d’une formation.
+                          <br />
+                          Cette vérification atteste uniquement d’une participation réelle et documentée à un accompagnement professionnel individuel ou organisationnel.
                         </p>
                       </div>
                     </div>
@@ -395,7 +408,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     {/* Exemples d'IDs (depuis localStorage) */}
                     <div className="mt-6 p-4 bg-gray-50 rounded-xl">
                       <h4 className="font-semibold text-gray-900 mb-3 text-sm">
-                        Exemples de participation à tester :
+                        Exemples de participation à tester
                       </h4>
                       <div className="flex flex-wrap gap-2 justify-center">
                         {allIds.map((id) => (
@@ -430,10 +443,10 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                         <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
                       </motion.div>
                       <h3 className="text-2xl font-bold text-green-800 mb-2">
-                        Attestation Vérifiée ✓
+                        Participation vérifiée ✓
                       </h3>
                       <p className="text-green-700">
-                        Cette attestation est authentique et valide
+                        Cette participation est authentique, valide et documentée dans le cadre du système MA Consulting.
                       </p>
                     </div>
 
@@ -443,7 +456,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       <div className="bg-gray-50 rounded-xl p-6">
                         <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                           <Award className="w-5 h-5 mr-2 text-blue-600" />
-                          Informations du titulaire
+                          Informations du participant
                         </h4>
                         <div className="space-y-3">
                           <div>
@@ -456,7 +469,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           </div>
                           <div>
                             <span className="text-sm text-gray-600">
-                              Programme suivi
+                              Parcours accompagné
                             </span>
                             <p className="font-semibold text-gray-900">
                               {certificate.program}
@@ -464,12 +477,10 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           </div>
                           <div>
                             <span className="text-sm text-gray-600">
-                              Date d'obtention
+                              Date de participation
                             </span>
                             <p className="font-semibold text-gray-900">
-                              {new Date(
-                                certificate.completionDate
-                              ).toLocaleDateString("fr-FR")}
+                              {formatDate(certificate.completionDate)}
                             </p>
                           </div>
                         </div>
@@ -479,24 +490,24 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       <div className="bg-gray-50 rounded-xl p-6">
                         <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                           <Star className="w-5 h-5 mr-2 text-yellow-600" />
-                          Évaluation
+                          Évaluation professionnelle
                         </h4>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-600">
-                              Note obtenue
+                              Appréciation globale
                             </span>
                             <div
                               className={`px-3 py-1 rounded-full text-white font-bold ${getGradeColor(
                                 certificate.grade
                               )}`}
                             >
-                              {certificate.grade}/20
+                              {formatGrade(certificate.grade)} / 20
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-600">
-                              Niveau
+                              Niveau observé
                             </span>
                             <div
                               className={`px-3 py-1 rounded-full text-white font-semibold text-sm ${getLevelColor(
@@ -510,11 +521,11 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       </div>
                     </div>
 
-                    {/* Compétences acquises */}
+                    {/* Axes travaillés (compétences) */}
                     <div className="bg-blue-50 rounded-xl p-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
-                        Compétences acquises
+                        Compétences mobilisées
                       </h4>
                       <div className="grid md:grid-cols-2 gap-4">
                         {certificate.skills.map((skill, index) => (
@@ -536,11 +547,11 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       </div>
                     </div>
 
-                    {/* Techniques apprises */}
+                    {/* Axes travaillés (techniques) */}
                     <div className="bg-purple-50 rounded-xl p-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <Code className="w-5 h-5 mr-2 text-purple-600" />
-                        Techniques maîtrisées
+                        Techniques et pratiques
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {certificate.techniques.map((technique, index) => (
@@ -573,13 +584,13 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           onClick={() =>
                             handleDownload(
                               certificate.certificateUrl,
-                              "Attestation"
+                              "Document de participation"
                             )
                           }
                           className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
-                          <span>Attestation</span>
+                          <span>Document de participation</span>
                         </motion.button>
 
                         <motion.button
@@ -591,13 +602,13 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           onClick={() =>
                             handleDownload(
                               certificate.recommendationUrl,
-                              "Lettre de recommandation"
+                              "Avis / Recommandation professionnelle"
                             )
                           }
                           className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
-                          <span>Recommandation</span>
+                          <span>Avis / Recommandation</span>
                         </motion.button>
 
                         <motion.button
@@ -609,13 +620,13 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           onClick={() =>
                             handleDownload(
                               certificate.evaluationUrl,
-                              "Évaluation"
+                              "Évaluation interne"
                             )
                           }
                           className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
-                          <span>Évaluation</span>
+                          <span>Évaluation interne</span>
                         </motion.button>
                       </div>
                     </div>
@@ -629,7 +640,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                         className="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 mx-auto"
                       >
                         <RefreshCw className="w-5 h-5" />
-                        <span>Nouvelle recherche</span>
+                        <span>🟣 Nouvelle vérification</span>
                       </motion.button>
                     </div>
                   </motion.div>
