@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     // Server configuration for development
     server: {
       port: 5173,
+      strictPort: true,
       host: true,
       open: false,
       cors: true
