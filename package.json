@@ -33,6 +33,7 @@
     "express": "^5.1.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.344.0",
+    "ma-training-consulting": "file:",
     "node-fetch": "^3.3.2",
     "postcss": "^8.4.35",
     "react": "^18.3.1",

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Program } from "../data/trainingPrograms";
 import { addRegistration } from "../services/registrationService";
+import { downloadMatcConditionsPdf } from "../utils/matcConditionsPdf";
 
 interface ProgramRegistrationModalProps {
   isOpen: boolean;
@@ -512,15 +513,13 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
                       Avant de finaliser votre participation, veuillez télécharger et lire attentivement le contrat ci-dessous :
                     </p>
                     
-                    <a
-                      href="/contrat-inscription.pdf"
-                      download="Conditions_Generales_Inscription.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700 font-semibold rounded-lg transition-colors"
+                    <button
+                      type="button"
+                      onClick={downloadMatcConditionsPdf}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium underline"
                     >
-                      📄 Télécharger le contrat (PDF)
-                    </a>
+                      📄 Télécharger les conditions générales
+                    </button>
 
                     <div className="border-t border-blue-200 pt-4">
                       <p className="text-gray-800 font-semibold mb-3">

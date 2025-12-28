@@ -1,78 +1,19 @@
 import { useRef, useState, useEffect } from 'react';
-import { ArrowLeft, Home, Globe, Bot, Settings, GraduationCap, Database, Users, BarChart3, Star, Phone, Mail, MessageCircle, ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { digitalizationServicesApi, DigitalizationServicesResponse } from '../services/digitalizationServicesApi';
-import { digitalizationProductsApi, DigitalizationProductsResponse } from '../services/digitalizationProductsApi';
-import { digitalizationPortfolioApiService, PortfolioData } from '../services/digitalizationPortfolioApiService';
+import { ArrowLeft, Home, Globe, Settings, GraduationCap, Users, BarChart3, Star, Mail, ChevronLeft, ChevronRight, ArrowRight, CheckCircle2, Search, RefreshCw } from 'lucide-react';
 import { digitalizationTestimonialsApiService, TestimonialsData } from '../services/digitalizationTestimonialsApiService';
-import { digitalizationContactApiService, ContactData } from '../services/digitalizationContactApiService';
 
 interface DigitalizationPageProps {
   onBack: () => void;
 }
 
 const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
-  const [hoveredService, setHoveredService] = useState<string | null>(null);
-  
   // API state
-  const [servicesData, setServicesData] = useState<DigitalizationServicesResponse | null>(null);
-  const [productsData, setProductsData] = useState<DigitalizationProductsResponse | null>(null);
-  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [testimonialsData, setTestimonialsData] = useState<TestimonialsData | null>(null);
-  const [contactData, setContactData] = useState<ContactData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [apiConnected, setApiConnected] = useState(false);
 
   // Load data from API on component mount
   useEffect(() => {
-    loadServicesData();
-    loadProductsData();
-    loadPortfolioData();
     loadTestimonialsData();
-    loadContactData();
-    testApiConnection();
   }, []);
-
-  const testApiConnection = async () => {
-    const servicesConnected = await digitalizationServicesApi.testConnection();
-    const portfolioConnected = await digitalizationPortfolioApiService.checkApiHealth();
-    const testimonialsConnected = await digitalizationTestimonialsApiService.checkApiHealth();
-    const contactConnected = await digitalizationContactApiService.testConnection();
-    setApiConnected(servicesConnected && portfolioConnected && testimonialsConnected && contactConnected);
-  };
-
-  const loadServicesData = async () => {
-    try {
-      const data = await digitalizationServicesApi.getServicesWithCache();
-      setServicesData(data);
-      console.log('✅ Services data loaded in DigitalizationPage:', data);
-    } catch (error) {
-      console.error('❌ Error loading services data:', error);
-    }
-  };
-
-  const loadProductsData = async () => {
-    try {
-      setIsLoading(true);
-      const data = await digitalizationProductsApi.getProductsWithCache();
-      setProductsData(data);
-      console.log('✅ Products data loaded in DigitalizationPage:', data);
-    } catch (error) {
-      console.error('❌ Error loading products data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadPortfolioData = async () => {
-    try {
-      console.log('🔄 Loading portfolio data from API...');
-      const data = await digitalizationPortfolioApiService.getPortfolioData();
-      setPortfolioData(data);
-      console.log('✅ Portfolio data loaded successfully');
-    } catch (error) {
-      console.error('❌ Error loading portfolio data:', error);
-    }
-  };
 
   const loadTestimonialsData = async () => {
     try {
@@ -82,73 +23,8 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
       console.log('✅ Testimonials data loaded successfully');
     } catch (error) {
       console.error('❌ Error loading testimonials data:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  const loadContactData = async () => {
-    try {
-      console.log('🔄 Loading contact data from API...');
-      const data = await digitalizationContactApiService.getContactDataWithCache();
-      setContactData(data);
-      console.log('✅ Contact data loaded successfully:', data);
-    } catch (error) {
-      console.error('❌ Error loading contact data:', error);
-      // Utiliser les données par défaut en cas d'erreur
-      const defaultData = {
-        email: 'contact@matc-consulting.com',
-        phone: '+216 52 345 678',
-        whatsapp: '+216 52 345 678',
-        companyName: 'MA Training & Consulting',
-        supportHours: '24/7',
-        responseTime: 'Sous 2h',
-        buttons: {
-          email: { text: '📩 Email', enabled: true, style: 'primary' },
-          phone: { text: '📞 Téléphone', enabled: true, style: 'secondary' },
-          whatsapp: { text: 'WhatsApp', enabled: true, style: 'whatsapp' }
-        },
-        links: {
-          email: 'mailto:contact@matc-consulting.com',
-          phone: 'tel:+21652345678',
-          whatsapp: 'https://wa.me/21652345678'
-        }
-      };
-      setContactData(defaultData);
-    }
-  };
-
-  // Map icon names to actual icon components
-  const getIconComponent = (iconName: string) => {
-    const iconMap: { [key: string]: any } = {
-      Globe,
-      Bot,
-      GraduationCap,
-      Database,
-      Settings,
-      Users
-    };
-    return iconMap[iconName] || Globe;
-  };
-
-  // Transform API data to component format
-  const services = servicesData ? servicesData.services.map(service => ({
-    id: service.id,
-    title: service.title,
-    icon: getIconComponent(service.icon),
-    color: service.color,
-    gradient: service.gradient,
-    items: service.items
-  })) : [];
-
-  // Get title and intro from API or use defaults
-  const pageTitle = servicesData?.title || 'Nos Services';
-  const pageIntro = servicesData?.intro || 'Des solutions complètes pour digitaliser votre entreprise et optimiser vos performances';
-  
-  // Get products data from API or use defaults
-  const productsTitle = productsData?.title || 'Démo & Produits Prêts';
-  const productsIntro = productsData?.intro || 'Découvrez nos solutions en action et testez nos produits avant de vous engager';
-  const products = productsData?.products || [];
 
   const testimonialsRef = useRef<HTMLDivElement>(null);
   const scrollTestimonials = (dir: 'prev' | 'next') => {
@@ -157,64 +33,6 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
     const amount = Math.min(360, el.clientWidth * 0.8);
     el.scrollBy({ left: dir === 'next' ? amount : -amount, behavior: 'smooth' });
   };
-
-  // Products are used directly from the products variable
-
-  const [isProductModalOpen, setProductModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<typeof products[number] | null>(null);
-
-  const openProductModal = (product: typeof products[number]) => {
-    setSelectedProduct(product);
-    setProductModalOpen(true);
-  };
-  const closeProductModal = () => {
-    setProductModalOpen(false);
-    setSelectedProduct(null);
-  };
-
-  // Use API data if available, otherwise fallback to static data
-  const portfolio = portfolioData ? portfolioData.portfolio : [
-    {
-      title: 'Transformation E-commerce',
-      description: 'Augmentation de 300% des ventes en ligne',
-      result: '+300% ventes',
-      image: '📊'
-    },
-    {
-      title: 'Automatisation RH',
-      description: 'Réduction de 70% du temps de traitement',
-      result: '-70% temps',
-      image: '⚡'
-    },
-    {
-      title: 'Présence Digitale',
-      description: 'Croissance de 250% de la visibilité en ligne',
-      result: '+250% visibilité',
-      image: '🚀'
-    }
-  ];
-
-  // Portfolio examples from API or fallback to static data
-  type PortfolioExample = { name: string; detail: string; link?: string; imageUrl?: string };
-  const portfolioExamples: Record<string, PortfolioExample[]> = portfolioData ? portfolioData.portfolioExamples : {
-    'Transformation E-commerce': [
-      { name: 'Boutique Alpha', detail: 'Migration Shopify + campagnes Meta/Google → CA x3 en 4 mois', link: '#case-boutique-alpha', imageUrl: 'https://images.unsplash.com/photo-1515165562835-c3b8c2e5d3c4?q=80&w=400&auto=format&fit=crop' },
-      { name: 'ModeLine', detail: 'Optimisation checkout et upsell → +22% panier moyen', link: '#case-modeline' },
-      { name: 'TechGear', detail: 'Emailing automation (Klaviyo) → +35% revenus récurrents', link: '#case-techgear' }
-    ],
-    'Automatisation RH': [
-      { name: 'HRPro', detail: 'Flux onboarding automatisé (Zapier) → -70% temps administratif', link: '#case-hrpro' },
-      { name: 'EduNext', detail: 'Signature électronique + suivi candidats → délais divisés par 2', link: '#case-edunext' },
-      { name: 'AgriSmart', detail: 'Portail self-service employés → -40% tickets support', link: '#case-agri' }
-    ],
-    'Présence Digitale': [
-      { name: 'FinSolve', detail: 'SEO + contenu LinkedIn → +250% impressions organiques', link: '#case-finsolve' },
-      { name: 'RetailPlus', detail: 'Refonte site + social kit → +180% trafic qualifié', link: '#case-retailplus' },
-      { name: 'StartupXYZ', detail: 'Branding cohérent + blog → 3x leads marketing', link: '#case-startupxyz' }
-    ]
-  };
-
-  const [showPortfolioDetails, setShowPortfolioDetails] = useState(false);
 
   // Use API data if available, otherwise fallback to static data
   const testimonials = testimonialsData ? testimonialsData.testimonials.slice(0, 3) : [
@@ -274,53 +92,8 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
 
   const testimonialsAll = [...testimonials, ...moreTestimonials];
 
-  // Contact info from API or defaults
-  const CONTACT_EMAIL = contactData?.email || 'contact@matc-consulting.com';
-  const CONTACT_PHONE = contactData?.phone || '+216 52 345 678';
-  const CONTACT_WHATSAPP = contactData?.whatsapp || '+216 52 345 678';
-
-  const generateMailto = (subject: string) => {
-    if (contactData?.links?.email) {
-      // Si on a les liens depuis l'API, les utiliser
-      return contactData.links.email.replace(
-        encodeURIComponent('Demande de consultation - Digitalisation MATC'),
-        encodeURIComponent(subject)
-      );
-    }
-    
-    // Fallback vers la génération manuelle
-    return digitalizationContactApiService.generateMailto(subject);
-  };
-
-  const generatePhoneLink = () => {
-    if (contactData?.links?.phone) {
-      return contactData.links.phone;
-    }
-    return digitalizationContactApiService.generatePhoneLink(CONTACT_PHONE);
-  };
-
-  const generateWhatsAppLink = () => {
-    if (contactData?.links?.whatsapp) {
-      return contactData.links.whatsapp;
-    }
-    return digitalizationContactApiService.generateWhatsAppLink(CONTACT_WHATSAPP);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Development API Status Indicator */}
-      {import.meta.env.DEV && (
-        <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
-          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-            apiConnected 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {apiConnected ? '🟢 APIs Connected' : '🔴 APIs Disconnected'}
-          </div>
-        </div>
-      )}
-      
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
@@ -345,352 +118,844 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
       </div>
 
       {/* Hero Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section className="py-24 relative overflow-hidden isolate">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-4xl mx-auto">
             {/* Floating Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-indigo-300/25 blur-3xl" />
+              <div className="absolute -bottom-44 -left-36 h-[520px] w-[520px] rounded-full bg-violet-300/20 blur-3xl" />
+              <div className="absolute -bottom-52 -right-44 h-[620px] w-[620px] rounded-full bg-emerald-300/15 blur-3xl" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.14),transparent_55%),radial-gradient(circle_at_0%_65%,rgba(168,85,247,0.12),transparent_55%),radial-gradient(circle_at_100%_70%,rgba(16,185,129,0.10),transparent_55%)]" />
+              <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_78%)]" />
               <div className="floating-element-1 absolute top-20 left-10 w-16 h-16 bg-blue-200 rounded-full opacity-30"></div>
               <div className="floating-element-2 absolute top-40 right-20 w-12 h-12 bg-purple-200 rounded-full opacity-40"></div>
               <div className="floating-element-3 absolute bottom-20 left-1/4 w-20 h-20 bg-green-200 rounded-full opacity-25"></div>
             </div>
 
             <div className="relative z-10">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight animate-fade-in">
-                Transformez Votre
-                <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent animate-gradient-shift">
-                  Entreprise Digitalement
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.08] animate-fade-in">
+                Nous pilotons la croissance de votre entreprise,
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent animate-gradient-shift">
+                  de l’analyse à l’exécution.
                 </span>
               </h1>
-              
-              <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed animate-slide-up">
-                Solutions complètes de digitalisation pour propulser votre business vers le futur. 
-                <span className="block mt-2 font-semibold text-blue-600">
-                  Consultation + Support + Formation GRATUITS inclus !
-                </span>
+
+              <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed animate-slide-up max-w-3xl mx-auto">
+                Diagnostic stratégique intelligent, plan personnalisé et exécution pilotée —
+                <span className="block">selon votre réalité, vos priorités et votre budget.</span>
+                <span className="block mt-2">Un seul interlocuteur, un seul cadre, des résultats mesurables.</span>
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-6 justify-center animate-bounce-in">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-bounce-in">
                 <a
-                  href={generateMailto('Demande de devis - Transformation digitale')}
-                  className="inline-flex items-center space-x-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-4 font-semibold text-lg shadow-sm ring-1 ring-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+                  href="mailto:contact@matc-consulting.com?subject=Diagnostic%20gratuit%20-%20Digitalisation"
+                  className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-7 py-4 font-semibold text-base md:text-lg shadow-sm ring-1 ring-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 >
-                  <Mail className="w-6 h-6" />
-                  <span>📩 Demander un devis</span>
+                  <ArrowRight className="w-5 h-5" />
+                  <span>Démarrer le diagnostic gratuit</span>
                 </a>
-                
-                <div className="flex gap-4">
-                  <a
-                    href={generatePhoneLink()}
-                    className="inline-flex items-center space-x-3 rounded-full bg-white text-gray-800 px-6 py-4 font-semibold shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:-translate-y-0.5"
-                  >
-                    <Phone className="w-5 h-5 text-blue-600" />
-                    <span>{contactData?.buttons?.phone?.text || '📞 Appeler'}</span>
-                  </a>
-                  
-                  <a
-                    href={generateWhatsAppLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-4 font-semibold shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    <span>{contactData?.buttons?.whatsapp?.text || 'WhatsApp'}</span>
-                  </a>
+
+                <a
+                  href="mailto:contact@matc-consulting.com?subject=Besoin%20précis%20-%20Digitalisation"
+                  className="inline-flex items-center justify-center gap-3 rounded-full bg-white/90 backdrop-blur-sm text-gray-900 px-7 py-4 font-semibold text-base md:text-lg shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                >
+                  <Mail className="w-5 h-5 text-indigo-600" />
+                  <span>J’ai un besoin précis</span>
+                </a>
+              </div>
+
+              <div className="mt-10 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur-md p-6 shadow-sm ring-1 ring-white/50">
+                  <div className="flex items-start gap-3 text-left">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                    <span className="text-gray-800 font-medium">Diagnostic gratuit et sans engagement</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-left">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                    <span className="text-gray-800 font-medium">Exécution interne + partenaires pilotés</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-left">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                    <span className="text-gray-800 font-medium">Solutions sur mesure (pas de services standards)</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-left">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                    <span className="text-gray-800 font-medium">Résultats mesurables et durables</span>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm ring-1 ring-white/10">
+                  <p className="text-base md:text-lg font-semibold leading-relaxed">
+                    Nous ne vendons pas des services.
+                    <span className="block text-white/90">Nous structurons, exécutons et livrons des résultats.</span>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
 
       {/* Services Section */}
-      <section className="py-20 bg-white/50">
+      <section className="py-24 bg-white/50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-6 [font-family:Arial,Helvetica,sans-serif]">
-              {pageTitle.split(' ').map((word, index) => 
-                index === 1 ? <span key={index} className="text-blue-600">{word}</span> : <span key={index}>{word}</span>
-              ).reduce((prev: React.ReactNode[], curr, index) => index === 0 ? [curr] : [...prev, ' ', curr], [] as React.ReactNode[])}
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-5 [font-family:Arial,Helvetica,sans-serif]">
+              Une solution pensée pour des situations réelles,
+              <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                pas pour des profils standards.
+              </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {pageIntro}
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              Notre accompagnement s’adresse à :
             </p>
-            
-            {/* API Status Indicator (only visible in development) */}
-            {import.meta.env.DEV && (
-              <div className="mt-4 flex justify-center">
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${apiConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {apiConnected ? '🟢 API Connectée' : '🔴 Données statiques'}
+
+            <div className="mt-10 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-left ring-1 ring-transparent hover:ring-indigo-200">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white mb-4">
+                    <BarChart3 className="h-6 w-6" />
+                  </div>
+                  <p className="text-gray-900 font-semibold text-lg leading-snug">Entreprises existantes</p>
+                  <p className="mt-2 text-gray-600">cherchant croissance, structuration ou performance</p>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-left ring-1 ring-transparent hover:ring-violet-200">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white mb-4">
+                    <Globe className="h-6 w-6" />
+                  </div>
+                  <p className="text-gray-900 font-semibold text-lg leading-snug">Startups et projets</p>
+                  <p className="mt-2 text-gray-600">en phase de lancement ou de repositionnement</p>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-left ring-1 ring-transparent hover:ring-emerald-200">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white mb-4">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <p className="text-gray-900 font-semibold text-lg leading-snug">Entrepreneurs ou investisseurs</p>
+                  <p className="mt-2 text-gray-600">sans idée précise mais avec un objectif clair</p>
                 </div>
               </div>
-            )}
+
+              <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white px-6 py-5 shadow-sm text-left ring-1 ring-white/10">
+                <p className="text-base md:text-lg font-semibold leading-relaxed">
+                  👉 Que vous ayez une idée, un projet en cours ou uniquement une ambition,
+                  <span className="block text-white/90">nous adaptons la trajectoire à votre réalité.</span>
+                </p>
+              </div>
+            </div>
+
           </div>
 
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">🔄 Chargement des services...</div>
+          <div className="max-w-3xl mx-auto">
+            <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 shadow-sm text-center">
+              <p className="text-gray-700 text-lg leading-relaxed">
+                Nos solutions sont définies et priorisées après le diagnostic — selon votre réalité, vos objectifs et votre budget.
+              </p>
+              <div className="mt-6 flex justify-center">
+                <a
+                  href="mailto:contact@matc-consulting.com?subject=Diagnostic%20gratuit%20-%20Digitalisation"
+                  className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-7 py-3.5 font-semibold shadow-sm ring-1 ring-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                >
+                  <ArrowRight className="h-5 w-5" />
+                  <span>Démarrer le diagnostic gratuit</span>
+                </a>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {services.map((service, index) => (
-              <div
-                key={service.id}
-                className={`service-card bg-white/90 rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 animate-slide-up ring-1 ring-transparent hover:ring-indigo-200`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onMouseEnter={() => setHoveredService(service.id)}
-                onMouseLeave={() => setHoveredService(null)}
-              >
-                <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${service.gradient} rounded-2xl mb-6 transform transition-transform duration-300 ${hoveredService === service.id ? 'scale-110 rotate-6' : ''}`}>
-                  <service.icon className="w-8 h-8 text-white" />
+          </div>
+        </div>
+      </section>
+
+      {/* Notre modèle d’accompagnement */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-indigo-200/40 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-violet-200/40 blur-3xl" />
+        </div>
+        <div className="container mx-auto px-6 relative">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-5">
+                Un cadre clair,
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  du diagnostic jusqu’au résultat.
+                </span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-indigo-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+                    <Search className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-indigo-700">Étape 01</p>
+                    <p className="text-xl font-bold text-gray-900">Diagnostic intelligent</p>
+                  </div>
                 </div>
-                
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{service.title}</h3>
-                
-                <ul className="space-y-3">
-                  {service.items.map((item, idx) => (
-                    <li key={idx} className="flex items-start space-x-3 text-gray-700">
-                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-violet-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white">
+                    <BarChart3 className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-violet-700">Étape 02</p>
+                    <p className="text-xl font-bold text-gray-900">Plan stratégique personnalisé</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-emerald-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                    <Settings className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700">Étape 03</p>
+                    <p className="text-xl font-bold text-gray-900">Exécution pilotée</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-blue-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                    <RefreshCw className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-blue-700">Étape 04</p>
+                    <p className="text-xl font-bold text-gray-900">Suivi, coordination & optimisation</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-2 rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-indigo-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+                    <GraduationCap className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-indigo-700">Étape 05</p>
+                    <p className="text-xl font-bold text-gray-900">Livraison + formation légère</p>
+                    <p className="mt-2 text-gray-600">
+                      Transmission des bases, documentation essentielle et montée en autonomie.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white px-6 py-5 shadow-sm flex items-start gap-3 ring-1 ring-white/10">
+              <ArrowRight className="h-5 w-5 mt-0.5 text-white/90 flex-shrink-0" />
+              <p className="text-base md:text-lg font-semibold leading-relaxed">
+                Un seul cadre, un seul responsable, une vision globale.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Le diagnostic intelligent (point d’entrée) */}
+      <section className="py-24 bg-white/50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 backdrop-blur-md px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm">
+                  <Search className="h-4 w-4 text-indigo-600" />
+                  <span>Le diagnostic intelligent (point d’entrée)</span>
+                </div>
+
+                <h2 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">
+                  Comprendre
+                  <span className="bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent"> avant d’agir.</span>
+                </h2>
+
+                <p className="mt-5 text-lg text-gray-600 leading-relaxed">
+                  Le diagnostic permet d’identifier :
+                </p>
+
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-medium text-gray-900">La situation réelle</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-medium text-gray-900">Les forces et faiblesses</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-medium text-gray-900">Les priorités stratégiques</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-medium text-gray-900">Les contraintes budgétaires</span>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm ring-1 ring-white/10">
+                  <p className="text-base md:text-lg font-semibold leading-relaxed">
+                    📌 Le diagnostic est gratuit et sans engagement.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden">
+                <div className="p-7 border-b border-slate-200/80">
+                  <h3 className="text-2xl font-bold text-gray-900">Deux modes possibles</h3>
+                  <p className="mt-2 text-gray-600">Choisis selon ton besoin et ton contexte.</p>
+                </div>
+
+                <div className="p-7 space-y-4">
+                  <div className="rounded-3xl border border-slate-200/80 bg-white/70 backdrop-blur-sm p-5 shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+                        <Globe className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-indigo-700">Mode 01</p>
+                        <p className="text-xl font-bold text-gray-900">Diagnostic global</p>
+                        <p className="mt-2 text-gray-600">Vision d’ensemble : objectifs, process, outils, organisation.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-slate-200/80 bg-white/70 backdrop-blur-sm p-5 shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                        <Settings className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-700">Mode 02</p>
+                        <p className="text-xl font-bold text-gray-900">Diagnostic ciblé</p>
+                        <p className="mt-2 text-gray-600">Site web, marketing, automatisation, IA…</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <a
+                      href="mailto:contact@matc-consulting.com?subject=Diagnostic%20gratuit%20-%20Digitalisation"
+                      className="w-full inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-3.5 font-semibold shadow-sm ring-1 ring-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                    >
+                      <ArrowRight className="h-5 w-5" />
+                      <span>Démarrer le diagnostic gratuit</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Un objectif clair ? Nous construisons un plan dédié. */}
+      <section className="py-24">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden">
+              <div className="p-8 md:p-10 bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                  Un objectif clair ? Nous construisons un plan dédié.
+                </h2>
+                <p className="mt-3 text-white/90 text-base md:text-lg">
+                  Si votre besoin est déjà défini :
+                </p>
+              </div>
+
+              <div className="p-8 md:p-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Création ou refonte de site web</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Développement commercial ou export</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Automatisation des processus</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Solutions digitales ou IA</span>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm ring-1 ring-white/10">
+                  <p className="text-base md:text-lg font-semibold leading-relaxed">
+                    👉 Le diagnostic devient opérationnel
+                    <span className="block text-white/90">👉 Nous livrons un plan d’exécution spécifique à cette mission.</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white/50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden">
+              <div className="p-8 md:p-10">
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                  Une feuille de route,
+                  <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                    pas une liste de services.
+                  </span>
+                </h2>
+
+                <p className="mt-4 text-lg text-gray-600">
+                  À partir du diagnostic, nous construisons :
+                </p>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Une vision claire</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Des priorités par phase</span>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-5 shadow-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span className="font-semibold text-gray-900">Des packs adaptés au budget déclaré</span>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm ring-1 ring-white/10">
+                  <p className="text-base md:text-lg font-semibold leading-relaxed">
+                    📌 La stratégie reste la même,
+                    <span className="block text-white/90">seul le niveau d’exécution varie selon l’investissement.</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                Des niveaux d’engagement clairs,
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  sans complexité
+                </span>
+              </h2>
+              <p className="mt-4 text-lg text-gray-600">Chaque pack est décliné en 3 phases :</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-indigo-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 text-white">
+                    <CheckCircle2 className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-700">Phase Basic</p>
+                    <p className="text-xl font-bold text-gray-900">Actions essentielles</p>
+                    <p className="mt-2 text-gray-600">Impact rapide</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-violet-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white">
+                    <BarChart3 className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-violet-700">Phase Medium</p>
+                    <p className="text-xl font-bold text-gray-900">Exécution structurée</p>
+                    <p className="mt-2 text-gray-600">Outils et contenu renforcés</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-emerald-200">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                    <Settings className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700">Phase Expert</p>
+                    <p className="text-xl font-bold text-gray-900">Solution complète</p>
+                    <p className="mt-2 text-gray-600">Automatisation, IA, formation et système durable</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm flex items-start gap-3 ring-1 ring-white/10">
+              <ArrowRight className="h-5 w-5 mt-0.5 text-white/90 flex-shrink-0" />
+              <p className="text-base md:text-lg font-semibold leading-relaxed">
+                📌 Le client choisit le niveau, pas la stratégie.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white/50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                Nous exécutons.
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  Et nous pilotons.
+                </span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+                    <Settings className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-indigo-700">Exécution directe</p>
+                    <p className="text-xl font-bold text-gray-900">Nous livrons en interne</p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Marketing digital</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Sites web &amp; landing pages</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Automatisation &amp; outils</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Solutions digitales et IA</span>
+                  </li>
                 </ul>
               </div>
-            ))}
+
+              <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700">Exécution via partenaires</p>
+                    <p className="text-xl font-bold text-gray-900">Réseau piloté</p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Certifications (ISO, etc.)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Comptabilité, juridique, domiciliation</span>
+                  </li>
+                </ul>
+              </div>
             </div>
-          )}
+
+            <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm flex items-start gap-3 ring-1 ring-white/10">
+              <ArrowRight className="h-5 w-5 mt-0.5 text-white/90 flex-shrink-0" />
+              <p className="text-base md:text-lg font-semibold leading-relaxed">
+                ➡️ Toujours sous notre coordination et notre supervision.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Demo & Products Section */}
-      <section className="py-20">
+      <section className="py-24">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-6">
-              {productsTitle.includes('&') ? (
-                <>
-                  {productsTitle.split('&')[0].trim()}&{' '}
-                  <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-                    {productsTitle.split('&')[1].trim()}
-                  </span>
-                </>
-              ) : (
-                productsTitle
-              )}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {productsIntro}
-            </p>
-            
-            {/* API Status Indicator for products (only visible in development) */}
-            {import.meta.env.DEV && (
-              <div className="mt-4 flex justify-center">
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${apiConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {apiConnected ? '🟢 API Produits Connectée' : '🔴 Données statiques produits'}
-                </div>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                Un seul responsable
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  pour tout le projet.
+                </span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                <p className="text-sm font-semibold text-slate-700 mb-4">Nous assurons :</p>
+                <ul className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>La coordination stratégique</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Le suivi de l’exécution</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>Le contrôle qualité</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                    <span>L’alignement avec les objectifs</span>
+                  </li>
+                </ul>
               </div>
-            )}
+
+              <div className="rounded-[2rem] border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-8 shadow-sm ring-1 ring-white/10">
+                <p className="text-sm font-semibold text-white/80 mb-4">🎯 Avantage client :</p>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <ArrowRight className="h-5 w-5 mt-0.5 text-white/90" />
+                    <span className="font-semibold">Pas de dispersion</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <ArrowRight className="h-5 w-5 mt-0.5 text-white/90" />
+                    <span className="font-semibold">Délais maîtrisés</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <ArrowRight className="h-5 w-5 mt-0.5 text-white/90" />
+                    <span className="font-semibold">Tarifs préférentiels grâce aux partenariats</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">🔄 Chargement des produits...</div>
+      <section className="py-24 bg-white/50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                Un projet structuré,
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  autonome et prêt à évoluer.
+                </span>
+              </h2>
             </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">Aucun produit disponible pour le moment.</div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.map((product, index) => (
-              <div
-                key={index}
-                className={`product-card bg-white/90 rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 animate-slide-up ring-1 ring-transparent hover:ring-purple-200`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="mb-4 rounded-2xl overflow-hidden">
-                  <img src={product.imageUrl} alt={product.title} className="h-40 w-full object-cover" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{product.title}</h3>
-                <p className="text-gray-600 mb-6 text-sm leading-relaxed">{product.description}</p>
-                
-                <div className="space-y-3">
-                  <button
-                    onClick={() => openProductModal(product)}
-                    className="w-full inline-flex items-center justify-center space-x-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-3 px-4 font-medium shadow-sm hover:shadow-md transition-colors duration-200"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Plus de détails</span>
-                  </button>
-                  
-                  <a
-                    href={product.demoLink}
-                    className="w-full inline-flex items-center justify-center space-x-2 rounded-full bg-gray-100 text-gray-800 py-3 px-4 font-medium hover:bg-gray-200 transition-colors duration-200"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>🛒 Voir démo</span>
-                  </a>
-                </div>
-              </div>
-            ))}
-            </div>
-          )}
 
-          {/* Product Details Modal */}
-          {isProductModalOpen && selectedProduct && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={closeProductModal} />
-              <div className="relative z-10 w-[92%] max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-                  <h3 className="text-xl font-bold text-gray-900">{selectedProduct.title}</h3>
-                  <button onClick={closeProductModal} className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                {selectedProduct.imageUrl && (
-                  <img src={selectedProduct.imageUrl} alt={selectedProduct.title} className="h-52 w-full object-cover" />
-                )}
-                <div className="px-6 py-5 space-y-4">
-                  <p className="text-gray-700">{selectedProduct.description}</p>
-                  {selectedProduct.details && (
-                    <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                      {selectedProduct.details.map((d, i) => (
-                        <li key={i}>{d}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50">
-                    <h4 className="font-semibold text-slate-900 mb-2">Contact</h4>
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <Mail className="h-5 w-5 text-indigo-600" />
-                        <a href={`mailto:${CONTACT_EMAIL}`} className="hover:underline">{CONTACT_EMAIL}</a>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <Phone className="h-5 w-5 text-emerald-600" />
-                        <a href={generatePhoneLink()} className="hover:underline">{CONTACT_PHONE}</a>
-                      </div>
+            <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 md:p-10 shadow-sm">
+              <p className="text-lg md:text-xl text-gray-600 mb-8">
+                À la fin de l’accompagnement, vous obtenez :
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white flex-shrink-0">
+                      <Settings className="h-6 w-6" />
                     </div>
-                    <div className="mt-3 flex gap-3">
-                      <a
-                        href={generateMailto(selectedProduct.mailtoSubject || 'Demande d\'information produit')}
-                        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-2 text-sm font-medium shadow-sm hover:shadow-md"
-                      >
-                        <Mail className="h-4 w-4" /> Envoyer un email
-                      </a>
-                      <a
-                        href={generatePhoneLink()}
-                        className="inline-flex items-center gap-2 rounded-full bg-white text-gray-900 px-4 py-2 text-sm font-medium border border-slate-200 hover:bg-slate-50"
-                      >
-                        <Phone className="h-4 w-4" /> Appeler maintenant
-                      </a>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">Livrable</p>
+                      <p className="text-xl font-bold text-gray-900">Une solution fonctionnelle</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex-shrink-0">
+                      <Globe className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">Clarté</p>
+                      <p className="text-xl font-bold text-gray-900">Des outils clairs</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex-shrink-0">
+                      <BarChart3 className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">Pilotage</p>
+                      <p className="text-xl font-bold text-gray-900">Une vision stratégique</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white flex-shrink-0">
+                      <GraduationCap className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">Autonomie</p>
+                      <p className="text-xl font-bold text-gray-900">Une formation courte pour votre équipe</p>
                     </div>
                   </div>
                 </div>
               </div>
+
+              <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm flex items-start gap-3 ring-1 ring-white/10">
+                <CheckCircle2 className="h-5 w-5 mt-0.5 text-white/90 flex-shrink-0" />
+                <p className="text-base md:text-lg font-semibold leading-relaxed">
+                  ➡️ Vous gardez la maîtrise après notre intervention.
+                </p>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* Portfolio Section */}
-      <section className="py-20 bg-white/50">
+      <section className="py-24">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-6">
-              {portfolioData ? portfolioData.title : 'Portfolio & Réalisations'}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {portfolioData ? portfolioData.intro : 'Découvrez les résultats concrets obtenus pour nos clients'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {portfolio.map((project, index) => (
-              <div
-                key={index}
-                className={`portfolio-card bg-white/90 rounded-3xl p-8 text-center border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 animate-slide-up ring-1 ring-transparent hover:ring-emerald-200`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="text-6xl mb-4">{project.image}</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{project.title}</h3>
-                <p className="text-gray-600 mb-4">{project.description}</p>
-                <div className="text-3xl font-bold text-green-600">{project.result}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Exemples réels de projets (intégré dans Portfolio) */}
-          <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">Exemples réels de projets</h3>
-              <button
-                onClick={() => setShowPortfolioDetails((v) => !v)}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-slate-50"
-              >
-                {showPortfolioDetails ? 'Masquer' : 'Voir'} les exemples
-              </button>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                Exemple de mission
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  réelle
+                </span>
+              </h2>
             </div>
-            {showPortfolioDetails && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {portfolio.map((p) => (
-                  <div key={p.title} className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="text-2xl">{p.image}</div>
-                      <div>
-                        <h4 className="font-bold text-gray-900">{p.title}</h4>
-                        <p className="text-sm text-gray-600">{p.description}</p>
+
+            <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 md:p-10 shadow-sm">
+              <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+                <div className="lg:w-1/2 rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <p className="text-sm font-semibold text-slate-700">Contexte</p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900">Entreprise commerciale – Budget limité</p>
+                  <p className="mt-3 text-gray-600 leading-relaxed">
+                    Une mission typique : on part du diagnostic, on choisit un pack prioritaire, puis on adapte la phase selon les contraintes.
+                  </p>
+                </div>
+
+                <div className="lg:w-1/2 rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <p className="text-sm font-semibold text-slate-700">Cheminement</p>
+                  <div className="mt-4 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 flex-shrink-0">
+                        <Search className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900">Diagnostic</p>
+                        <p className="text-gray-600">Comprendre la situation réelle avant d’agir.</p>
                       </div>
                     </div>
-                    <ul className="space-y-2">
-                      {(portfolioExamples[p.title] || []).map((ex, i) => (
-                        <li key={i}>
-                          {ex.link ? (
-                            <a
-                              href={ex.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="group flex items-center justify-between gap-3 rounded-xl bg-slate-50 border border-slate-200 p-3 hover:bg-white hover:shadow-sm transition"
-                            >
-                              <div className="flex items-center gap-3 min-w-0">
-                                {ex.imageUrl && (
-                                  <img src={ex.imageUrl} alt={ex.name} className="h-10 w-10 rounded-lg object-cover flex-shrink-0" />
-                                )}
-                                <div className="min-w-0">
-                                  <p className="font-medium text-gray-900 truncate">{ex.name}</p>
-                                  <p className="text-sm text-gray-600 truncate">{ex.detail}</p>
-                                </div>
-                              </div>
-                              <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-slate-600" />
-                            </a>
-                          ) : (
-                            <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
-                              <div className="flex items-center gap-3 min-w-0">
-                                {ex.imageUrl && (
-                                  <img src={ex.imageUrl} alt={ex.name} className="h-10 w-10 rounded-lg object-cover flex-shrink-0" />
-                                )}
-                                <div className="min-w-0">
-                                  <p className="font-medium text-gray-900 truncate">{ex.name}</p>
-                                  <p className="text-sm text-gray-600 truncate">{ex.detail}</p>
-                                </div>
-                              </div>
-                              <ChevronRight className="h-5 w-5 text-slate-300" />
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 flex-shrink-0">
+                        <ArrowRight className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900">Pack prioritaire</p>
+                        <p className="text-gray-600">On cible l’impact le plus rapide.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 flex-shrink-0">
+                        <Settings className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900">Phase adaptée</p>
+                        <p className="text-gray-600">Basic / Medium / Expert selon budget et urgence.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-50 text-slate-700 ring-1 ring-slate-200 flex-shrink-0">
+                        <BarChart3 className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900">Résultat mesurable</p>
+                        <p className="text-gray-600">Préparation à une phase supérieure.</p>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
-            )}
+
+              <div className="mt-8 rounded-3xl border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 shadow-sm flex items-start gap-3 ring-1 ring-white/10">
+                <ArrowRight className="h-5 w-5 mt-0.5 text-white/90 flex-shrink-0" />
+                <p className="text-base md:text-lg font-semibold leading-relaxed">
+                  📌 Chaque projet suit la même logique, jamais le même scénario.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white/50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                Ce qui nous distingue
+                <span className="block bg-gradient-to-r from-blue-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                  réellement
+                </span>
+              </h2>
+            </div>
+
+            <div className="rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 md:p-10 shadow-sm">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <p className="text-sm font-semibold text-slate-700">Approche</p>
+                  <ul className="mt-4 space-y-3 text-gray-700">
+                    <li className="flex items-start gap-3">
+                      <Search className="h-5 w-5 text-indigo-600 mt-0.5" />
+                      <span>Diagnostic intelligent, pas générique</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <BarChart3 className="h-5 w-5 text-indigo-600 mt-0.5" />
+                      <span>Plan basé sur la réalité terrain</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Settings className="h-5 w-5 text-indigo-600 mt-0.5" />
+                      <span>Exécution pilotée</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                  <p className="text-sm font-semibold text-slate-700">Résultat</p>
+                  <ul className="mt-4 space-y-3 text-gray-700">
+                    <li className="flex items-start gap-3">
+                      <Users className="h-5 w-5 text-emerald-600 mt-0.5" />
+                      <span>Partenaires intégrés sous supervision</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                      <span>Résultats mesurables</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <RefreshCw className="h-5 w-5 text-emerald-600 mt-0.5" />
+                      <span>Vision long terme</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20">
+      <section className="py-24">
         <div className="container mx-auto px-6">
           <div className="text-center mb-10 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
@@ -706,14 +971,14 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
             <div className="pointer-events-none absolute -top-12 right-0 flex items-center gap-2">
               <button
                 onClick={() => scrollTestimonials('prev')}
-                className="pointer-events-auto inline-flex items-center justify-center h-9 w-9 rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50"
+                className="pointer-events-auto inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 aria-label="Précédent"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={() => scrollTestimonials('next')}
-                className="pointer-events-auto inline-flex items-center justify-center h-9 w-9 rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50"
+                className="pointer-events-auto inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 aria-label="Suivant"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -730,7 +995,7 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
               {testimonialsAll.map((testimonial, index) => (
                 <div
                   key={index}
-                  className={`min-w-[85%] sm:min-w-[360px] snap-center bg-white/90 rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-transparent hover:ring-yellow-200`}
+                  className={`min-w-[85%] sm:min-w-[360px] snap-center bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-200/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-transparent hover:ring-yellow-200`}
                 >
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
@@ -754,71 +1019,38 @@ const DigitalizationPage: React.FC<DigitalizationPageProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Prêt à transformer votre entreprise ?
-            </h2>
-            <p className="text-xl mb-4">
-              <span className="font-bold text-yellow-300">Consultation + Support + Formation GRATUITS</span>
-            </p>
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 mb-12">
-              <h3 className="text-2xl font-bold mb-6">Bonus gratuits inclus :</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                <div className="flex items-center space-x-3">
-                  <GraduationCap className="w-6 h-6 text-yellow-300" />
-                  <span>Formation de votre équipe</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Settings className="w-6 h-6 text-yellow-300" />
-                  <span>Support technique 24/7</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Users className="w-6 h-6 text-yellow-300" />
-                  <span>Accompagnement personnalisé</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <BarChart3 className="w-6 h-6 text-yellow-300" />
-                  <span>Maintenance préventive</span>
-                </div>
-              </div>
+      <section className="py-24">
+        <div className="container mx-auto px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="rounded-[2rem] border border-slate-200/70 bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-10 shadow-sm text-center ring-1 ring-white/10">
+              <p className="text-xl md:text-2xl font-semibold leading-relaxed">
+                Vous ne déléguez pas un service.
+                <span className="block mt-3 text-white/90">Vous confiez la trajectoire de votre projet.</span>
+              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <a
-                href={generateMailto('Demande de consultation gratuite - Transformation digitale')}
-                className="inline-flex items-center space-x-3 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-              >
-                <Mail className="w-6 h-6" />
-                <span>{contactData?.buttons?.email?.text || '📩 Email'}</span>
-              </a>
-              
-              <div className="flex gap-4">
+            <div className="mt-8 rounded-[2rem] border border-slate-200/80 bg-white/80 backdrop-blur-sm p-8 shadow-sm">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href={generatePhoneLink()}
-                  className="inline-flex items-center space-x-3 bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  href="mailto:contact@matc-consulting.com?subject=Diagnostic%20gratuit%20-%20Digitalisation"
+                  className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-7 py-4 font-semibold text-base shadow-sm ring-1 ring-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 >
-                  <Phone className="w-5 h-5" />
-                  <span>{contactData?.buttons?.phone?.text || '📞 Téléphone'}</span>
+                  <ArrowRight className="w-5 h-5" />
+                  Démarrer le diagnostic gratuit
                 </a>
-                
                 <a
-                  href={generateWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-3 bg-green-500 text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  href="mailto:contact@matc-consulting.com?subject=Besoin%20précis%20-%20Digitalisation"
+                  className="inline-flex items-center justify-center gap-3 rounded-full bg-white/90 backdrop-blur-sm text-gray-900 px-7 py-4 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 >
-                  <MessageCircle className="w-5 h-5" />
-                  <span>{contactData?.buttons?.whatsapp?.text || 'WhatsApp'}</span>
+                  <Mail className="w-5 h-5 text-indigo-600" />
+                  J’ai un besoin précis
                 </a>
               </div>
             </div>
           </div>
         </div>
       </section>
+
     </div>
   );
 };

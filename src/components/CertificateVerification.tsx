@@ -12,12 +12,9 @@ import {
   Award,
   BookOpen,
   Code,
-  Database,
-  Palette,
   RefreshCw,
 } from "lucide-react";
 import {
-  getAll as getAllCertificates,
   getById as getCertificateById,
   seedIfEmpty,
   type Certificate,
@@ -100,31 +97,19 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [error, setError] = useState("");
   const [showResult, setShowResult] = useState(false);
-  const [allIds, setAllIds] = useState<string[]>([]);
 
-  // Seed defaults once and load example IDs
+  // Seed defaults once
   useEffect(() => {
     try {
       seedIfEmpty(DEFAULT_CERTIFICATES);
-      const list = getAllCertificates();
-      setAllIds(list.map((c) => c.id));
     } catch {
       // ignore
     }
-
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "matc_certificates") {
-        const list = getAllCertificates();
-        setAllIds(list.map((c) => c.id));
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const handleVerify = async () => {
     if (!certificateId.trim()) {
-      setError("Veuillez saisir l’identifiant unique de participation");
+      setError("Veuillez saisir l’identifiant professionnel (ID)");
       return;
     }
 
@@ -180,9 +165,6 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
     }
   };
 
-  const formatGrade = (grade: number) =>
-    grade.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
-
   const formatDate = (dateValue: string) => {
     const d = new Date(dateValue);
     if (Number.isNaN(d.getTime())) return dateValue;
@@ -212,40 +194,16 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
     }
   };
 
-  const getGradeColor = (grade: number) => {
-    if (grade >= 18) return "bg-green-500";
-    if (grade >= 16) return "bg-blue-500";
-    if (grade >= 14) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const getLevelColor = (level: string) => {
+  const getAutonomyObserved = (level: string) => {
     switch (level) {
       case "Expert":
-        return "bg-purple-500";
       case "Avancé":
-        return "bg-green-500";
+        return "Autonomie fonctionnelle avec périmètre clair";
       case "Intermédiaire":
-        return "bg-blue-500";
+        return "Autonomie partielle dans un cadre défini";
       default:
-        return "bg-gray-500";
+        return "Sous supervision directe";
     }
-  };
-
-  const getSkillIcon = (skill: string) => {
-    const iconMap: { [key: string]: React.ReactNode } = {
-      React: <Code className="w-4 h-4" />,
-      "Node.js": <Database className="w-4 h-4" />,
-      MongoDB: <Database className="w-4 h-4" />,
-      TypeScript: <Code className="w-4 h-4" />,
-      Figma: <Palette className="w-4 h-4" />,
-      "Adobe XD": <Palette className="w-4 h-4" />,
-      Python: <Code className="w-4 h-4" />,
-      "Machine Learning": <BookOpen className="w-4 h-4" />,
-      TensorFlow: <BookOpen className="w-4 h-4" />,
-      Pandas: <BookOpen className="w-4 h-4" />,
-    };
-    return iconMap[skill] || <Award className="w-4 h-4" />;
   };
 
   if (!isOpen) return null;
@@ -256,7 +214,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4 py-6 sm:py-4 overflow-y-auto z-50"
         onClick={onClose}
       >
         {/* Inject minimal mobile CSS for modal sizing */}
@@ -274,7 +232,7 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: "spring", duration: 0.5 }}
-          className="cv-modal bg-white rounded-2xl shadow-2xl w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto"
+          className="cv-modal bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl lg:max-w-4xl max-h-[calc(100vh-3rem)] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -284,11 +242,18 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                 <Award className="w-6 h-6 text-blue-600" />
               </div>
               <div>
+                <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                  Page 1 — Vérification de participation
+                </p>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Vérification de participation professionnelle
                 </h2>
                 <p className="text-gray-600">
-                  Vérifiez l’authenticité d’une participation à un parcours d’accompagnement professionnel MA Consulting et les documents internes associés.
+                  Cette page permet de vérifier la participation d’une personne au sein du dispositif
+                  <br />
+                  MA Training & Consulting, et d’accéder à un résumé professionnel consultatif,
+                  <br />
+                  issu d’un processus de diagnostic et d’évaluation mené par nos experts.
                 </p>
               </div>
             </div>
@@ -315,20 +280,32 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     <div className="p-4 bg-blue-50 rounded-xl">
                       <Search className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Rechercher une participation
+                        Vérification de participation professionnelle
                       </h3>
-                      <p className="text-gray-600">
-                        Saisissez l’identifiant unique fourni afin de vérifier l’authenticité des documents liés au parcours professionnel.
-                      </p>
+                      <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                        <p className="text-sm text-orange-900 leading-relaxed">
+                          <span className="font-bold">⚠️ Les informations affichées sont fournies à titre consultatif et indicatif.</span>
+                          <br />
+                          Elles ne constituent ni une promesse d’emploi, ni une certification de recrutement,
+                          ni une validation officielle de poste ou de fonction.
+                        </p>
+                      </div>
                     </div>
 
                     <div className="max-w-md mx-auto">
+                      <h4 className="text-base font-bold text-gray-900 mb-2">
+                        Identifiant professionnel
+                      </h4>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2" htmlFor="professionalId">
+                        Veuillez saisir l’identifiant professionnel communiqué au participant :
+                      </label>
                       <div className="relative">
                         <input
                           type="text"
+                          id="professionalId"
                           value={certificateId}
                           onChange={(e) => setCertificateId(e.target.value)}
-                          placeholder="Exemple : PART-2024-001"
+                          placeholder=""
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-center font-mono text-base sm:text-lg"
                           onKeyPress={(e) =>
                             e.key === "Enter" && handleVerify()
@@ -363,64 +340,18 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                       ) : (
                         <>
                           <Search className="w-5 h-5" />
-                          <span>🟣 Vérifier la participation</span>
+                          <span>🔍 Vérifier</span>
                         </>
                       )}
                     </motion.button>
 
-                    {/* Information Section */}
-                    <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                      <h4 className="font-bold text-gray-900 mb-4 text-lg">
-                        ❓ Pourquoi cette vérification ?
-                      </h4>
-                      <p className="text-gray-700 mb-4 leading-relaxed">
-                        Ce système permet de confirmer qu’une personne a réellement participé à un parcours d’accompagnement professionnel structuré et qu’elle a reçu les documents internes correspondants, notamment :
+                    <div className="mt-8 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm text-left">
+                      <h4 className="font-bold text-gray-900 mb-3 text-base">ℹ️ Information importante</h4>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        En cas de besoin d’informations complémentaires ou de clarification,
+                        les institutions et entreprises peuvent contacter MA Training & Consulting
+                        via les canaux officiels indiqués sur le site.
                       </p>
-                      <ul className="space-y-2 mb-4 text-gray-700">
-                        <li className="flex items-start">
-                          <span className="mr-3 text-blue-600 font-bold">•</span>
-                          <span>Document de participation</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-3 text-blue-600 font-bold">•</span>
-                          <span>Fiche d'évaluation interne</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-3 text-blue-600 font-bold">•</span>
-                          <span>Synthèse des axes travaillés</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-3 text-blue-600 font-bold">•</span>
-                          <span>Avis ou recommandation professionnelle (si applicable)</span>
-                        </li>
-                      </ul>
-                      <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                        <p className="text-sm text-orange-900">
-                          <span className="font-bold">⚠️ Important</span>
-                          <br />
-                          Il ne s’agit ni d’un certificat, ni d’un diplôme, ni d’une formation.
-                          <br />
-                          Cette vérification atteste uniquement d’une participation réelle et documentée à un accompagnement professionnel individuel ou organisationnel.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Exemples d'IDs (depuis localStorage) */}
-                    <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                      <h4 className="font-semibold text-gray-900 mb-3 text-sm">
-                        Exemples de participation à tester
-                      </h4>
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        {allIds.map((id) => (
-                          <button
-                            key={id}
-                            onClick={() => setCertificateId(id)}
-                            className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs sm:text-sm font-mono hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                          >
-                            {id}
-                          </button>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -434,146 +365,173 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     className="space-y-6"
                   >
                     {/* En-tête de succès */}
-                    <div className="text-center p-6 bg-green-50 rounded-xl border border-green-200">
+                    <div className="text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2, type: "spring" }}
                       >
-                        <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                        <CheckCircle className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-green-800 mb-2">
-                        Participation vérifiée ✓
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 break-words">
+                        Page de vérification — Synthèse de participation professionnelle
                       </h3>
-                      <p className="text-green-700">
-                        Cette participation est authentique, valide et documentée dans le cadre du système MA Consulting.
+                      <p className="text-gray-700">
+                        Participation confirmée ✓
                       </p>
                     </div>
 
                     {/* Informations du certificat */}
-                    <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
                       {/* Informations personnelles */}
-                      <div className="bg-gray-50 rounded-xl p-6">
+                      <div className="text-left">
                         <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                           <Award className="w-5 h-5 mr-2 text-blue-600" />
-                          Informations du participant
+                          1️⃣ Informations de vérification
                         </h4>
-                        <div className="space-y-3">
-                          <div>
-                            <span className="text-sm text-gray-600">
-                              Nom complet
-                            </span>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="bg-gray-50 rounded-xl p-4">
+                            <span className="text-sm text-gray-600">Nom et prénom</span>
                             <p className="font-semibold text-gray-900">
                               {certificate.firstName} {certificate.lastName}
                             </p>
                           </div>
-                          <div>
-                            <span className="text-sm text-gray-600">
-                              Parcours accompagné
-                            </span>
-                            <p className="font-semibold text-gray-900">
-                              {certificate.program}
-                            </p>
+                          <div className="bg-gray-50 rounded-xl p-4">
+                            <span className="text-sm text-gray-600">Identifiant professionnel</span>
+                            <p className="font-semibold text-gray-900 font-mono">{certificate.id}</p>
                           </div>
-                          <div>
-                            <span className="text-sm text-gray-600">
-                              Date de participation
-                            </span>
+                          <div className="bg-gray-50 rounded-xl p-4">
+                            <span className="text-sm text-gray-600">Statut de participation</span>
+                            <p className="font-semibold text-gray-900">Complétée</p>
+                            <p className="text-xs text-gray-500">Active / Complétée / En cours</p>
+                          </div>
+                          <div className="bg-gray-50 rounded-xl p-4">
+                            <span className="text-sm text-gray-600">Date de dernière mise à jour</span>
                             <p className="font-semibold text-gray-900">
                               {formatDate(certificate.completionDate)}
                             </p>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Évaluation */}
-                      <div className="bg-gray-50 rounded-xl p-6">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                          <Star className="w-5 h-5 mr-2 text-yellow-600" />
-                          Évaluation professionnelle
-                        </h4>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              Appréciation globale
-                            </span>
-                            <div
-                              className={`px-3 py-1 rounded-full text-white font-bold ${getGradeColor(
-                                certificate.grade
-                              )}`}
-                            >
-                              {formatGrade(certificate.grade)} / 20
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              Niveau observé
-                            </span>
-                            <div
-                              className={`px-3 py-1 rounded-full text-white font-semibold text-sm ${getLevelColor(
-                                certificate.level
-                              )}`}
-                            >
-                              {certificate.level}
-                            </div>
+                        <div className="mt-4 bg-gray-50 rounded-xl p-4">
+                          <span className="text-sm text-gray-600">Service(s) concerné(s)</span>
+                          <div className="mt-2 space-y-1 text-sm text-gray-800">
+                            <p>Service 1 : Diagnostic et parcours professionnel</p>
+                            <p>Service 2 : Accompagnement professionnel avec experts (le cas échéant)</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Axes travaillés (compétences) */}
-                    <div className="bg-blue-50 rounded-xl p-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="bg-blue-50 rounded-xl p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                         <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
-                        Compétences mobilisées
+                        2️⃣ Synthèse professionnelle (cadre consultatif)
                       </h4>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {certificate.skills.map((skill, index) => (
-                          <motion.div
-                            key={skill}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="flex items-center space-x-3 p-3 bg-white rounded-lg"
-                          >
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                              {getSkillIcon(skill)}
-                            </div>
-                            <span className="font-medium text-gray-900">
-                              {skill}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
+                      <p className="text-sm text-gray-800 leading-relaxed">
+                        <span className="font-semibold">Synthèse à visée strictement consultative</span>
+                        <br />
+                        Ce profil a été évalué dans le cadre d’un dispositif professionnel de conseil,
+                        basé sur des situations professionnelles réelles et/ou quasi réelles,
+                        incluant l’analyse des capacités opérationnelles,
+                        du raisonnement professionnel et de la posture en contexte de travail.
+                      </p>
+                      <p className="mt-3 text-sm text-gray-800 leading-relaxed">
+                        Cette synthèse ne constitue ni une fiche de poste, ni une certification.
+                      </p>
                     </div>
 
                     {/* Axes travaillés (techniques) */}
-                    <div className="bg-purple-50 rounded-xl p-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <Code className="w-5 h-5 mr-2 text-purple-600" />
-                        Techniques et pratiques
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Code className="w-5 h-5 mr-2 text-indigo-600" />
+                        3️⃣ Champs de contribution professionnelle potentiels
                       </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {certificate.techniques.map((technique, index) => (
-                          <motion.span
-                            key={technique}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="px-3 py-1 bg-white text-purple-800 rounded-full text-sm font-medium border border-purple-200"
-                          >
-                            {technique}
-                          </motion.span>
-                        ))}
+                      <p className="text-sm text-gray-700 mb-3">
+                        Domaines d’intervention possibles selon l’évaluation
+                      </p>
+                      <ul className="space-y-2 text-sm text-gray-800 leading-relaxed">
+                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Appui à l’exécution de missions opérationnelles</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Coordination fonctionnelle au sein d’équipes</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Analyse et structuration d’informations professionnelles</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Exécution de tâches dans un cadre défini</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Contribution à des projets encadrés</span></li>
+                      </ul>
+                      <p className="mt-3 text-xs text-gray-600">
+                        Ces champs sont indicatifs et ne constituent pas un engagement contractuel.
+                      </p>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Star className="w-5 h-5 mr-2 text-yellow-600" />
+                        4️⃣ Niveau d’autonomie professionnelle (indicatif)
+                      </h4>
+                      <p className="text-sm text-gray-700 mb-3">
+                        Niveau d’autonomie observé
+                      </p>
+                      <div className="space-y-2 text-sm">
+                        {[
+                          "Sous supervision directe",
+                          "Autonomie partielle dans un cadre défini",
+                          "Autonomie fonctionnelle avec périmètre clair",
+                        ].map((label) => {
+                          const selected = getAutonomyObserved(certificate.level) === label;
+                          return (
+                            <div
+                              key={label}
+                              className={`p-3 rounded-lg border ${selected ? "bg-amber-50 border-amber-200" : "bg-gray-50 border-gray-200"}`}
+                            >
+                              <span className={selected ? "font-semibold text-gray-900" : "text-gray-800"}>
+                                {label}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
+                      <p className="mt-3 text-xs text-gray-600">
+                        Le niveau est établi à partir de situations professionnelles analysées.
+                      </p>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
+                        5️⃣ Contextes professionnels évalués
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-800 leading-relaxed">
+                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Travail en environnement structuré</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Collaboration au sein d’équipes pluridisciplinaires</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Gestion de projets sous contraintes réalistes</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Prise de décision en contexte professionnel encadré</span></li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Award className="w-5 h-5 mr-2 text-emerald-600" />
+                        6️⃣ Compétences comportementales observées
+                      </h4>
+                      <p className="text-xs text-gray-600 mb-3">(Sans notation ni classement chiffré)</p>
+                      <ul className="space-y-2 text-sm text-gray-800 leading-relaxed">
+                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Communication professionnelle</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Capacité d’analyse</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Gestion des priorités</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Sens des responsabilités</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Discipline et engagement professionnel</span></li>
+                      </ul>
                     </div>
 
                     {/* Boutons de téléchargement */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
                         <Download className="w-5 h-5 mr-2 text-blue-600" />
-                        Documents disponibles
+                        7️⃣ Documents disponibles au téléchargement
                       </h4>
+                      <p className="text-sm text-gray-700 mb-4">
+                        Documents accessibles via cette page :
+                      </p>
                       <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
                         <motion.button
                           whileHover={{
@@ -584,13 +542,13 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           onClick={() =>
                             handleDownload(
                               certificate.certificateUrl,
-                              "Document de participation"
+                              "Attestation de participation professionnelle"
                             )
                           }
                           className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
-                          <span>Document de participation</span>
+                          <span>Attestation de participation</span>
                         </motion.button>
 
                         <motion.button
@@ -601,14 +559,14 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           whileTap={{ scale: 0.98 }}
                           onClick={() =>
                             handleDownload(
-                              certificate.recommendationUrl,
-                              "Avis / Recommandation professionnelle"
+                              certificate.evaluationUrl,
+                              "Note de positionnement professionnel"
                             )
                           }
                           className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
-                          <span>Avis / Recommandation</span>
+                          <span>Note de positionnement</span>
                         </motion.button>
 
                         <motion.button
@@ -619,16 +577,35 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                           whileTap={{ scale: 0.98 }}
                           onClick={() =>
                             handleDownload(
-                              certificate.evaluationUrl,
-                              "Évaluation interne"
+                              certificate.recommendationUrl,
+                              "Mémo contextuel (entreprises & RH)"
                             )
                           }
                           className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
                         >
                           <Download className="w-5 h-5" />
-                          <span>Évaluation interne</span>
+                          <span>Mémo contextuel RH</span>
                         </motion.button>
                       </div>
+                      <p className="mt-4 text-sm text-gray-700 leading-relaxed">
+                        Les documents détaillés sont transmis directement au participant par e-mail ou canal officiel.
+                      </p>
+                    </div>
+
+                    <div className="p-6 bg-orange-50 border border-orange-200 rounded-xl text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">8️⃣ Avertissement légal</h4>
+                      <p className="text-sm text-orange-900 leading-relaxed">
+                        <span className="font-bold">⚠️ Les informations affichées sur cette page :</span>
+                      </p>
+                      <ul className="mt-3 space-y-2 text-sm text-orange-900 leading-relaxed">
+                        <li className="flex items-start gap-2"><span className="font-bold">•</span><span>ne constituent pas une certification</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold">•</span><span>ne garantissent ni emploi, ni promotion</span></li>
+                        <li className="flex items-start gap-2"><span className="font-bold">•</span><span>n’engagent aucune entreprise ou recruteur</span></li>
+                      </ul>
+                      <p className="mt-4 text-sm text-orange-900 leading-relaxed">
+                        Toute décision de recrutement, d’évolution ou d’attribution de missions
+                        relève exclusivement de la responsabilité de l’organisation concernée.
+                      </p>
                     </div>
 
                     {/* Bouton nouvelle recherche */}

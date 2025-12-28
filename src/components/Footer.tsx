@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaFacebookF, FaLinkedinIn, FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
+import { FaFacebookF, FaLinkedinIn, FaWhatsapp, FaTelegramPlane, FaFilePdf } from 'react-icons/fa';
 import { footerApiService, FooterSettings } from '../services/footerApiService';
+import { downloadParcoursProfessionnelPdf } from '../utils/parcoursProfessionnelPdfV2';
 
 const Footer: React.FC = () => {
   const [footerData, setFooterData] = useState<FooterSettings | null>(null);
@@ -34,6 +35,16 @@ const Footer: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const excludedFaqTitles = new Set([
+    "🎓 Programme Formateurs",
+    "💼 Programme Freelancer (Indépendant)",
+    "📈 Programme Commercial",
+    "🏢 Programme Entreprise",
+    "🎓 Foire aux Questions – Nos programmes de formation",
+  ]);
+
+  const visibleFaqLinks = (footerData?.faqLinks ?? []).filter((link) => !excludedFaqTitles.has(link.title));
 
   // عرض loading أثناء التحميل
   if (isLoading || !footerData) {
@@ -93,15 +104,25 @@ const Footer: React.FC = () => {
 
           {/* FAQ */}
           <div className="col-span-1">
-            <h3 className="text-xl font-bold">FAQ Programme Partenariat</h3>
+            <h3 className="text-xl font-bold">FAQ Service MA-TRAINING-CONSULTING</h3>
             <ul className="mt-4 space-y-2">
-              {footerData.faqLinks.map((link, index) => (
+              {visibleFaqLinks.map((link, index) => (
                 <li key={`${link.title}-${index}`}>
                   <a href={link.href} className="text-gray-400 hover:text-white transition-colors duration-200">
                     {link.title}
                   </a>
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={downloadParcoursProfessionnelPdf}
+                  className="text-gray-400 hover:text-white transition-colors duration-200 text-left inline-flex items-center gap-2"
+                >
+                  <FaFilePdf className="w-4 h-4" aria-hidden="true" />
+                  Parcours professionnel
+                </button>
+              </li>
             </ul>
           </div>
 
