@@ -10,12 +10,10 @@ interface ProgramCardProps {
   onRegisterClick?: (program: Program) => void;
 }
 
-const ProgramCard: React.FC<ProgramCardProps> = ({
-  program,
-  selectedCurrency,
-  onRegisterClick
-}) => {
+const ProgramCard: React.FC<ProgramCardProps> = (props) => {
   const navigate = useNavigate();
+
+  const { program } = props;
 
 
   // Couleurs pour les badges de catégorie
@@ -86,9 +84,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
           <div className="flex items-center gap-3 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
             <Users className="w-5 h-5 text-emerald-500" />
             <span className="text-sm font-medium text-gray-700">
-              {typeof program.maxStudents === 'string' && program.maxStudents.includes('-')
-                ? `entre ${program.maxStudents}`
-                : `Max ${program.maxStudents}`}
+              Max {program.maxStudents}
             </span>
           </div>
         </div>
@@ -118,7 +114,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({
       {/* Bouton d'inscription avec design premium */}
       <div className="p-8 pt-0 relative z-10">
         <motion.button
-          onClick={() => navigate('/diagnostic-wonder')}
+          onClick={() => navigate('/diagnostic')}
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeOut" }}

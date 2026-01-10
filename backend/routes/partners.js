@@ -4,6 +4,11 @@ import FormateurSession from '../models/FormateurSession.js';
 
 const router = express.Router();
 
+const normalizePhone = (value) => {
+  if (!value) return '';
+  return String(value).replace(/\D/g, '');
+};
+
 // Fonction pour générer un ID unique selon le type
 const generatePartnerId = async (type) => {
   const prefixMap = {
@@ -59,6 +64,158 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/register-formateur', async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone } = req.body;
+
+    if (!firstName || !lastName || !email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nom, prénom, email et téléphone sont requis'
+      });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedPhone = normalizePhone(phone);
+
+    if (!normalizedPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Téléphone invalide'
+      });
+    }
+
+    const existingPartner = await Partner.findOne({ email: normalizedEmail });
+    if (existingPartner) {
+      if (existingPartner.type !== 'formateur') {
+        return res.status(400).json({
+          success: false,
+          message: 'Un compte existe déjà avec cet email'
+        });
+      }
+
+      if (!existingPartner.isActive) {
+        return res.status(403).json({
+          success: false,
+          message: 'Compte désactivé'
+        });
+      }
+
+      const storedPhone = normalizePhone(existingPartner.phone);
+      if (!storedPhone || storedPhone !== normalizedPhone) {
+        return res.status(401).json({
+          success: false,
+          message: 'Téléphone ne correspond pas à l\'email fourni'
+        });
+      }
+
+      existingPartner.lastLogin = new Date();
+      await existingPartner.save();
+
+      const partnerResponse = existingPartner.toObject();
+      delete partnerResponse.password;
+
+      return res.json({
+        success: true,
+        message: 'Connexion réussie',
+        data: partnerResponse
+      });
+    }
+
+    const partnerId = await generatePartnerId('formateur');
+    const fullName = `${String(firstName).trim()} ${String(lastName).trim()}`.trim();
+
+    const newPartner = new Partner({
+      partnerId,
+      fullName,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      type: 'formateur',
+      password: null,
+      isActive: true
+    });
+
+    await newPartner.save();
+
+    const partnerResponse = newPartner.toObject();
+    delete partnerResponse.password;
+
+    return res.status(201).json({
+      success: true,
+      message: 'Compte formateur créé avec succès',
+      data: partnerResponse
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création du compte formateur:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la création du compte formateur'
+    });
+  }
+});
+
+router.post('/login-formateur', async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+
+    if (!email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email et téléphone requis'
+      });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedPhone = normalizePhone(phone);
+
+    const partner = await Partner.findOne({
+      email: normalizedEmail,
+      type: 'formateur',
+      isActive: true
+    });
+
+    if (!partner) {
+      return res.status(404).json({
+        success: false,
+        message: 'Compte formateur introuvable'
+      });
+    }
+
+    if (!partner.phone) {
+      return res.status(401).json({
+        success: false,
+        message: 'Aucun téléphone associé à ce compte'
+      });
+    }
+
+    const storedPhone = normalizePhone(partner.phone);
+    if (!storedPhone || storedPhone !== normalizedPhone) {
+      return res.status(401).json({
+        success: false,
+        message: 'Téléphone ne correspond pas à l\'email fourni'
+      });
+    }
+
+    partner.lastLogin = new Date();
+    await partner.save();
+
+    const partnerResponse = partner.toObject();
+    delete partnerResponse.password;
+
+    return res.json({
+      success: true,
+      message: 'Connexion réussie',
+      data: partnerResponse
+    });
+  } catch (error) {
+    console.error('Erreur lors de la connexion formateur:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la connexion'
+    });
+  }
+});
+
 // GET /api/partners/:id - Récupérer un partenaire par ID
 router.get('/:id', async (req, res) => {
   try {
@@ -88,7 +245,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/partners - Créer un nouveau partenaire
 router.post('/', async (req, res) => {
   try {
-    const { fullName, email, type, password, formateurInfo } = req.body;
+    const { fullName, email, type, password, formateurInfo, phone } = req.body;
     
     // Validation des champs requis
     if (!fullName || !email || !type) {
@@ -117,6 +274,7 @@ router.post('/', async (req, res) => {
       email,
       type,
       password,
+      phone,
       formateurInfo: type === 'formateur' ? formateurInfo : undefined
     });
     

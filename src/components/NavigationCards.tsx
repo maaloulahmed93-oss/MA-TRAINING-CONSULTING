@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Users, GraduationCap, Smartphone, Handshake, ArrowRight } from 'lucide-react';
 import NotFoundPage from './NotFoundPage';
@@ -9,6 +8,33 @@ const NavigationCards = () => {
   const [pages, setPages] = useState<WebsitePage[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const normalizePages = (inputPages: WebsitePage[]) => {
+    return inputPages.map((page) => {
+      if (page.pageId === 'PAGE-ETRAINING') {
+        return {
+          ...page,
+          title: 'Accompagnement Professionnel',
+          description: 'Clarifiez votre positionnement et avancez avec un expert, étape par étape.',
+          icon: '💼',
+          buttonText: 'Accéder',
+        };
+      }
+
+      if (page.pageId === 'PAGE-PARTENARIAT') {
+        return {
+          ...page,
+          title: 'Réseau de prestataires',
+          description:
+            'Découvrez nos opportunités de collaboration professionnelle et développez votre activité en toute indépendance avec nous.',
+          icon: '🧰',
+          buttonText: 'Nous rejoindre',
+        };
+      }
+
+      return page;
+    });
+  };
+
   useEffect(() => {
     loadPages();
   }, []);
@@ -17,12 +43,12 @@ const NavigationCards = () => {
     try {
       setLoading(true);
       const data = await WebsitePagesService.getActivePages();
-      setPages(data);
+      setPages(normalizePages(data));
     } catch (error) {
       console.error('Error loading pages:', error);
       // في حالة الخطأ، استخدم البيانات الافتراضية
       const defaultPages = WebsitePagesService.getDefaultPages();
-      setPages(defaultPages);
+      setPages(normalizePages(defaultPages));
     } finally {
       setLoading(false);
     }
@@ -71,10 +97,15 @@ const NavigationCards = () => {
         return 'about';
       case 'e-training':
       case 'e-parcours professionnels':
+      case 'accompagnement professionnel':
         return 'etraining';
       case 'digitalisation':
         return 'digitalisation';
       case 'partenariat':
+      case 'réseau de prestataires':
+      case 'reseau de prestataires':
+      case 'réseau de prestataires indépendants':
+      case 'reseau de prestataires independants':
         return 'partnership';
       default:
         return 'about';

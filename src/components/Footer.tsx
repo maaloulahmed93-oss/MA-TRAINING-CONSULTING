@@ -1,39 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { FaFacebookF, FaLinkedinIn, FaWhatsapp, FaTelegramPlane, FaFilePdf } from 'react-icons/fa';
-import { footerApiService, FooterSettings } from '../services/footerApiService';
 import { downloadParcoursProfessionnelPdf } from '../utils/parcoursProfessionnelPdfV2';
 
+interface ContactInfo {
+  email: string;
+  phone: string;
+  address: string;
+}
+
+interface FaqLink {
+  title: string;
+  href: string;
+}
+
+interface SocialLink {
+  name: 'Facebook' | 'LinkedIn' | 'WhatsApp' | 'Telegram';
+  href: string;
+  icon: string;
+}
+
+interface CompanyInfo {
+  name: string;
+  description: string;
+}
+
+interface FooterSettings {
+  contactInfo: ContactInfo;
+  faqLinks: FaqLink[];
+  socialLinks: SocialLink[];
+  companyInfo: CompanyInfo;
+}
+
 const Footer: React.FC = () => {
-  const [footerData, setFooterData] = useState<FooterSettings | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // تحميل إعدادات الفوتر عند بدء التشغيل
-  useEffect(() => {
-    loadFooterSettings();
-  }, []);
-
-  const loadFooterSettings = async () => {
-    setIsLoading(true);
-    try {
-      const settings = await footerApiService.getFooterSettings();
-      
-      if (settings) {
-        setFooterData(settings);
-        console.log('✅ تم تحميل إعدادات الفوتر من API');
-      } else {
-        // استخدام البيانات الافتراضية
-        const defaultSettings = footerApiService.getDefaultFooterSettings();
-        setFooterData(defaultSettings);
-        console.log('⚠️ تم استخدام البيانات الافتراضية للفوتر');
-      }
-    } catch (error) {
-      console.error('❌ خطأ في تحميل إعدادات الفوتر:', error);
-      // استخدام البيانات الافتراضية في حالة الخطأ
-      const defaultSettings = footerApiService.getDefaultFooterSettings();
-      setFooterData(defaultSettings);
-    } finally {
-      setIsLoading(false);
-    }
+  const footerData: FooterSettings = {
+    contactInfo: {
+      email: 'contact@ma-training-consulting.com',
+      phone: '+33 1 23 45 67 89',
+      address: '123 Avenue des Champs-Élysées, 75008 Paris',
+    },
+    faqLinks: [
+      { title: "Comment s'inscrire ?", href: '#' },
+      { title: 'Conditions de partenariat', href: '#' },
+      { title: 'Avantages du programme', href: '#' },
+      { title: 'Nos partenaires', href: '#' },
+    ],
+    socialLinks: [
+      { name: 'Facebook', href: '#', icon: 'FaFacebookF' },
+      { name: 'LinkedIn', href: '#', icon: 'FaLinkedinIn' },
+      { name: 'WhatsApp', href: '#', icon: 'FaWhatsapp' },
+      { name: 'Telegram', href: '#', icon: 'FaTelegramPlane' },
+    ],
+    companyInfo: {
+      name: 'MA-TRAINING-CONSULTING',
+      description:
+        'Votre partenaire stratégique pour la transformation digitale et le développement des compétences.',
+    },
   };
 
   const excludedFaqTitles = new Set([
@@ -46,21 +68,7 @@ const Footer: React.FC = () => {
 
   const visibleFaqLinks = (footerData?.faqLinks ?? []).filter((link) => !excludedFaqTitles.has(link.title));
 
-  // عرض loading أثناء التحميل
-  if (isLoading || !footerData) {
-    return (
-      <footer className="bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-            <span className="ml-2">Chargement...</span>
-          </div>
-        </div>
-      </footer>
-    );
-  }
-
-  // دالة لتحويل اسم الأيقونة إلى مكون React
+  // Convertir le nom de l'icône en composant React
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case 'FaFacebookF':
@@ -72,7 +80,7 @@ const Footer: React.FC = () => {
       case 'FaTelegramPlane':
         return <FaTelegramPlane />;
       default:
-        return <FaFacebookF />; // أيقونة افتراضية
+        return <FaFacebookF />; // Icône par défaut
     }
   };
 
@@ -120,8 +128,33 @@ const Footer: React.FC = () => {
                   className="text-gray-400 hover:text-white transition-colors duration-200 text-left inline-flex items-center gap-2"
                 >
                   <FaFilePdf className="w-4 h-4" aria-hidden="true" />
-                  Parcours professionnel
+                  Système de conseil MATC VS formation académique
                 </button>
+              </li>
+              <li>
+                <Link to="/espace-professionnel" className="text-gray-400 hover:text-white transition-colors duration-200">
+                  espace-professionnel
+                </Link>
+              </li>
+              <li>
+                <Link to="/espace-consulting-operationnel" className="text-gray-400 hover:text-white transition-colors duration-200">
+                  espace-Consulting Opérationnel
+                </Link>
+              </li>
+              <li>
+                <Link to="/espace-participant" className="text-gray-400 hover:text-white transition-colors duration-200">
+                  Espace participant
+                </Link>
+              </li>
+              <li>
+                <Link to="/espaces-ressources" className="text-gray-400 hover:text-white transition-colors duration-200">
+                  Espaces Ressources
+                </Link>
+              </li>
+              <li>
+                <Link to="/verification-participant" className="text-gray-400 hover:text-white transition-colors duration-200">
+                  Verification
+                </Link>
               </li>
             </ul>
           </div>
@@ -138,6 +171,7 @@ const Footer: React.FC = () => {
               ))}
             </div>
           </div>
+
         </div>
 
         {/* Copyright */}

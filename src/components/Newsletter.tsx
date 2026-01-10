@@ -54,10 +54,7 @@ const Newsletter = () => {
               Restez <span className="text-gradient">informé</span>
             </h2>
 
-            <p className="font-sans text-xl text-gray-300 mb-8 max-w-2xl mx-auto font-light leading-relaxed">
-              Recevez nos dernières actualités, formations et conseils
-              directement dans votre boîte mail
-            </p>
+            <p className="font-sans text-xl text-gray-300 mb-8 max-w-2xl mx-auto font-light leading-relaxed" />
 
             <form onSubmit={handleSubmit} className="newsletter-form">
               <div className="newsletter-input-container">

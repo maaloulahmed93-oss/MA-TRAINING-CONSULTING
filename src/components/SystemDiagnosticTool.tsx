@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   CheckCircle, 
@@ -11,8 +11,7 @@ import {
   Download,
   Activity,
   Zap,
-  Shield,
-  Clock
+  Shield
 } from 'lucide-react';
 
 interface DiagnosticResult {
@@ -257,9 +256,7 @@ class SystemDiagnostic {
       '/events',
       '/newsletter',
       '/freelancer-offers',
-      '/free-courses',
-      '/site-config',
-      '/footer-settings'
+      '/site-config'
     ];
 
     const results: DiagnosticResult[] = [];

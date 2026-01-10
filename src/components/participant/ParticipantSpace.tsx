@@ -1,31 +1,24 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { LogOut, User, Bell } from 'lucide-react';
-import ParticipantDashboard from './ParticipantDashboard';
-import MesFormations from './MesFormations';
-import Projets from './Projets';
-import Coaching from './Coaching';
-import Notifications from './Notifications';
-import { mockParticipants } from '../../data/participantData';
-import { participantApiService } from '../../services/participantApiService';
-
-type PageType = 'login' | 'dashboard' | 'formations' | 'projects' | 'coaching' | 'notifications';
+import { Eye, LogOut, X } from 'lucide-react';
 
 const ParticipantSpace = () => {
-  const [currentPage, setCurrentPage] = useState<PageType>('login');
-  const [participantId, setParticipantId] = useState<string>('');
-  const [participant, setParticipant] = useState<any>(null);
-  const [isLoadingParticipant, setIsLoadingParticipant] = useState(false);
-  const [loginForm, setLoginForm] = useState({ id: '', email: '' });
+  const [session, setSession] = useState<any>(null);
+  const [loginForm, setLoginForm] = useState({ password: '' });
   const [loginError, setLoginError] = useState<string>('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [postLoginView, setPostLoginView] = useState<'list' | 'restitution'>('list');
+  const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null);
+  const [searchId, setSearchId] = useState<string>('');
+  const [isRestitutionPasswordOpen, setIsRestitutionPasswordOpen] = useState(false);
+  const [restitutionPassword, setRestitutionPassword] = useState('');
+  const [restitutionPasswordError, setRestitutionPasswordError] = useState('');
 
-  const handleLogin = async (id: string, email: string) => {
-    console.log('🔐 ParticipantSpace: Login avec ID:', id, 'Email:', email);
-    
-    if (!id.trim() || !email.trim()) {
-      setLoginError('Veuillez remplir tous les champs obligatoires');
+  const handleLogin = async (password: string) => {
+    const raw = String(password || '').trim();
+
+    if (!raw) {
+      setLoginError('Veuillez saisir le mot de passe');
       return;
     }
 
@@ -33,42 +26,21 @@ const ParticipantSpace = () => {
     setLoginError('');
 
     try {
-      // Verify participant credentials with backend
-      const response = await fetch(`https://matc-backend.onrender.com/api/participants/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ participantId: id.trim(), email: email.trim() })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const participantData = {
-            id: id.trim(),
-            email: email.trim(),
-            fullName: data.data.fullName,
-            loginTime: new Date().toISOString()
-          };
-          
-          // Save login state to localStorage
-          localStorage.setItem('participantSession', JSON.stringify(participantData));
-          localStorage.setItem('currentParticipantId', id.trim());
-          
-          setParticipantId(id.trim());
-          setCurrentPage('dashboard');
-          console.log('✅ ParticipantSpace: Connexion réussie et session sauvegardée');
-        } else {
-          setLoginError('ID ou email incorrect');
-        }
-      } else {
-        setLoginError('ID ou email incorrect');
+      const isValid = /^00[1-9]\*MA-TRAINING-CONSULTING$/.test(raw);
+      if (!isValid) {
+        setLoginError('Mot de passe incorrect');
+        return;
       }
-    } catch (error) {
-      console.error('❌ Erreur de connexion:', error);
-      setLoginError('Erreur de connexion. Veuillez réessayer.');
+
+      const sessionData = {
+        accessCode: raw,
+        loginTime: new Date().toISOString(),
+      };
+
+      localStorage.setItem('participantSession', JSON.stringify(sessionData));
+      setSession(sessionData);
+      setPostLoginView('list');
+      setSelectedParticipantId(null);
     } finally {
       setIsLoggingIn(false);
     }
@@ -76,21 +48,53 @@ const ParticipantSpace = () => {
 
   const handleLogout = () => {
     console.log('🚪 ParticipantSpace: Déconnexion');
-    setParticipantId('');
-    setParticipant(null);
-    setCurrentPage('login');
-    setLoginForm({ id: '', email: '' });
+    setSession(null);
+    setLoginForm({ password: '' });
     setLoginError('');
+    setPostLoginView('list');
+    setSelectedParticipantId(null);
     
     // Clear all session data
-    localStorage.removeItem('currentParticipantId');
     localStorage.removeItem('participantSession');
     
     console.log('✅ Session supprimée, retour à la page de connexion');
   };
 
-  const handleNavigate = (page: string) => {
-    setCurrentPage(page as PageType);
+  useEffect(() => {
+    if (session) {
+      setPostLoginView('list');
+      setSelectedParticipantId(null);
+      setSearchId('');
+      setIsRestitutionPasswordOpen(false);
+      setRestitutionPassword('');
+      setRestitutionPasswordError('');
+    }
+  }, [session]);
+
+  const getRestitutionUrl = async (participantId: string): Promise<string> => {
+    try {
+      const API_BASE = process.env.REACT_APP_API_URL || 'https://matc-backend.onrender.com/api';
+      const response = await fetch(`${API_BASE}/participants-simple/${participantId}`);
+      const result = await response.json();
+      if (result.success && result.data?.documentLink) {
+        return result.data.documentLink;
+      }
+      return '';
+    } catch (error) {
+      console.error('Error fetching restitution URL:', error);
+      return '';
+    }
+  };
+
+  const openRestitutionLink = async () => {
+    if (!selectedParticipantId) return;
+    const url = await getRestitutionUrl(selectedParticipantId);
+    const safe = String(url || '').trim();
+    if (!safe) {
+      alert('Aucun lien de document configuré pour ce participant');
+      return;
+    }
+    window.open(safe, '_blank', 'noopener,noreferrer');
   };
 
   // Check for existing session on component mount
@@ -100,9 +104,8 @@ const ParticipantSpace = () => {
       
       try {
         const savedSession = localStorage.getItem('participantSession');
-        const savedParticipantId = localStorage.getItem('currentParticipantId');
         
-        if (savedSession && savedParticipantId) {
+        if (savedSession) {
           const sessionData = JSON.parse(savedSession);
           console.log('✅ Session trouvée:', sessionData);
           
@@ -112,13 +115,11 @@ const ParticipantSpace = () => {
           const hoursDiff = (now.getTime() - loginTime.getTime()) / (1000 * 60 * 60);
           
           if (hoursDiff < 24) {
-            setParticipantId(savedParticipantId);
-            setCurrentPage('dashboard');
+            setSession(sessionData);
             console.log('✅ Session restaurée automatiquement');
           } else {
             // Session expired, clear it
             localStorage.removeItem('participantSession');
-            localStorage.removeItem('currentParticipantId');
             console.log('⚠️ Session expirée, suppression');
           }
         } else {
@@ -128,7 +129,6 @@ const ParticipantSpace = () => {
         console.error('❌ Erreur lors de la vérification de session:', error);
         // Clear corrupted session data
         localStorage.removeItem('participantSession');
-        localStorage.removeItem('currentParticipantId');
       } finally {
         setIsInitializing(false);
       }
@@ -136,62 +136,6 @@ const ParticipantSpace = () => {
 
     checkExistingSession();
   }, []);
-
-  // Load participant data when participantId changes
-  useEffect(() => {
-    const loadParticipant = async () => {
-      if (!participantId) {
-        setParticipant(null);
-        return;
-      }
-
-      setIsLoadingParticipant(true);
-      try {
-        console.log('👤 ParticipantSpace: Chargement participant:', participantId);
-        
-        // Try API first
-        const apiParticipant = await participantApiService.getParticipant(participantId);
-        if (apiParticipant) {
-          const participantData = {
-            id: apiParticipant.id || apiParticipant.partnerId,
-            name: apiParticipant.fullName,
-            email: apiParticipant.email,
-            avatar: apiParticipant.avatar,
-            enrolledDate: apiParticipant.enrollmentDate || new Date().toISOString(),
-            totalProgress: apiParticipant.totalProgress || 0,
-            completedCourses: 0,
-            totalCourses: 0
-          };
-          setParticipant(participantData);
-          console.log('✅ ParticipantSpace: Participant chargé depuis API:', participantData);
-        } else {
-          // Fallback to mock data
-          const mockParticipant = mockParticipants[participantId];
-          if (mockParticipant) {
-            setParticipant(mockParticipant);
-            console.log('⚠️ ParticipantSpace: Participant chargé depuis mock:', mockParticipant);
-          } else {
-            console.error('❌ ParticipantSpace: Participant non trouvé:', participantId);
-            setParticipant(null);
-          }
-        }
-      } catch (error) {
-        console.error('❌ ParticipantSpace: Erreur chargement participant:', error);
-        // Fallback to mock data
-        const mockParticipant = mockParticipants[participantId];
-        if (mockParticipant) {
-          setParticipant(mockParticipant);
-          console.log('⚠️ ParticipantSpace: Fallback vers mock data:', mockParticipant);
-        } else {
-          setParticipant(null);
-        }
-      } finally {
-        setIsLoadingParticipant(false);
-      }
-    };
-
-    loadParticipant();
-  }, [participantId]);
 
   // Show loading screen while checking for existing session
   if (isInitializing) {
@@ -207,7 +151,7 @@ const ParticipantSpace = () => {
   }
 
   // Page de connexion - Enhanced Design
-  if (currentPage === 'login') {
+  if (!session) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center p-4">
         <div className="w-full max-w-4xl px-0">
@@ -230,27 +174,9 @@ const ParticipantSpace = () => {
                 {/* Login Form */}
                 <form onSubmit={(e) => {
                   e.preventDefault();
-                  handleLogin(loginForm.id, loginForm.email);
+                  handleLogin(loginForm.password);
                 }} className="space-y-5 sm:space-y-6">
-                  {/* Email Field */}
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                      </svg>
-                    </div>
-                    <input
-                      type="email"
-                      placeholder="E-mail"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="block w-full pl-12 pr-4 py-3 sm:py-4 bg-blue-50 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-700 placeholder-gray-500"
-                      required
-                      disabled={isLoggingIn}
-                    />
-                  </div>
-
-                  {/* ID Field (as Password) */}
+                  {/* Password Field */}
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,10 +184,10 @@ const ParticipantSpace = () => {
                       </svg>
                     </div>
                     <input
-                      type="text"
-                      placeholder="ID Participant"
-                      value={loginForm.id}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, id: e.target.value }))}
+                      type="password"
+                      placeholder="Mot de passe"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ password: e.target.value })}
                       className="block w-full pl-12 pr-4 py-3 sm:py-4 bg-blue-50 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-700 placeholder-gray-500"
                       required
                       disabled={isLoggingIn}
@@ -273,24 +199,14 @@ const ParticipantSpace = () => {
                       </svg>
                     </div>
                   </div>
-
-                  {/* Remember Me */}
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600">
-                      Se souvenir de moi
-                    </label>
+                  <div className="text-xs text-gray-500 px-2">
+                    Format attendu: <span className="font-medium text-gray-700">001*MA-TRAINING-CONSULTING</span> à <span className="font-medium text-gray-700">009*MA-TRAINING-CONSULTING</span>
                   </div>
 
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    disabled={isLoggingIn || !loginForm.id.trim() || !loginForm.email.trim()}
+                    disabled={isLoggingIn || !loginForm.password.trim()}
                     className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 px-6 rounded-2xl hover:from-blue-600 hover:to-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {isLoggingIn ? (
@@ -332,7 +248,7 @@ const ParticipantSpace = () => {
                 <div className="relative z-10 text-center">
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Bienvenue!</h2>
                   <p className="text-base sm:text-lg text-blue-100 leading-relaxed max-w-md mx-auto px-2">
-                    Accédez à votre espace d'accompagnement avec vos séances, outils pratiques et ressources personnalisées.
+                    Accédez à votre espace opérationnel.
                   </p>
                 </div>
               </div>
@@ -343,200 +259,318 @@ const ParticipantSpace = () => {
     );
   }
 
-  // Interface principale avec navigation
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation Bar */}
-      <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white shadow-sm border-b sticky top-0 z-40"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo/Brand */}
-            <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">MT</span>
-              </div>
+    <div className="min-h-screen bg-white">
+      <div className="fixed top-4 right-4">
+        <button
+          onClick={handleLogout}
+          className="flex items-center justify-center space-x-2 text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+          title="Se déconnecter"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="font-medium">Déconnexion</span>
+        </button>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        {postLoginView === 'list' && (
+          <div>
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">MA Training Consulting</h1>
-                <p className="text-xs text-gray-500">Espace Participant</p>
+                <div className="text-gray-900 font-semibold text-xl">Liste des participants</div>
+                <div className="text-gray-500 text-sm mt-1">Accès restreint par mot de passe</div>
               </div>
             </div>
 
-            {/* User Info and Logout */}
-            {isLoadingParticipant ? (
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="text-sm text-gray-600">Chargement...</span>
+            <div className="mt-6">
+              <div className="max-w-sm">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Rechercher par ID</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Ex: 001"
+                  value={searchId}
+                  onChange={(e) => {
+                    setSearchId(e.target.value);
+                  }}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="text-xs text-gray-500 mt-2">Laissez vide pour afficher tous les participants.</div>
               </div>
-            ) : participant ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
-                  {participant.avatar ? (
-                    <img
-                      src={participant.avatar}
-                      alt={participant.name}
-                      className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                      <User className="w-4 h-4 text-white" />
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              {(() => {
+                const participants = Array.from({ length: 9 }, (_, i) => {
+                  const n = i + 1;
+                  const id = `00${n}`;
+                  return {
+                    id,
+                    role: 'Assistant Marketing',
+                    situation: `Situation professionnelle ${n}`,
+                  };
+                });
+
+                const cleaned = searchId.replace(/\s+/g, '').trim();
+                const filtered = cleaned ? participants.filter((p) => p.id === cleaned) : participants;
+
+                if (cleaned && filtered.length === 0) {
+                  return (
+                    <div className="p-10 text-center text-gray-600">
+                      <div className="text-gray-900 font-semibold">Aucun participant trouvé</div>
+                      <div className="text-sm text-gray-500 mt-2">ID recherché: {cleaned}</div>
                     </div>
-                  )}
-                  <div className="hidden md:block">
-                    <p className="text-sm font-medium text-gray-900">{participant.name}</p>
-                    <p className="text-xs text-gray-500">{participant.email}</p>
+                  );
+                }
+
+                return (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">ID</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Rôle</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Situation</th>
+                        <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filtered.map((p) => (
+                        <tr key={p.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{p.id}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{p.role}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{p.situation}</td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedParticipantId(p.id);
+                                setPostLoginView('restitution');
+                              }}
+                              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                            >
+                              Accéder à la restitution
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
+        {postLoginView === 'restitution' && selectedParticipantId && (
+          <div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-gray-900 font-semibold text-xl">Restitution</div>
+                <div className="text-gray-500 text-sm mt-1">Participant: {selectedParticipantId}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPostLoginView('list');
+                  setSelectedParticipantId(null);
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Retour
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-6">
+              {/* Section 1 — Service 3 */}
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
+                <div className="flex items-start gap-2">
+                  <div className="text-green-600 mt-1">🟢</div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">Service 3 – Accompagnement opérationnel (Bonus)</h2>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Le Service 3 est un accompagnement opérationnel complémentaire, basé sur les situations et les décisions analysées précédemment.
+                      <br /><br />
+                      Il vous permet de prendre conscience de vos choix, de votre logique de décision et des points à améliorer avant toute mise en œuvre concrète.
+                      <br /><br />
+                      Ce service n'est pas une formation et ne constitue pas un enseignement général.
+                    </p>
                   </div>
                 </div>
-                
-                {/* Notifications Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleNavigate('notifications')}
-                  className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors border ${
-                    currentPage === 'notifications'
-                      ? 'bg-orange-50 text-orange-600 border-orange-200'
-                      : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50 border-gray-200 hover:border-orange-200'
-                  }`}
-                  title="Notifications"
-                >
-                  <Bell className="w-4 h-4" />
-                  <span className="hidden md:inline font-medium">Notifications</span>
-                  {/* Notification badge - will be dynamic */}
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                    !
-                  </span>
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors border border-red-200 hover:border-red-300"
-                  title="Se déconnecter"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden md:inline font-medium">Déconnexion</span>
-                </motion.button>
               </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <User className="w-4 h-4 text-gray-600" />
+
+              {/* Section 2 — Document de restitution */}
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                <div className="flex items-start gap-2">
+                  <div className="text-blue-600 mt-1">📄</div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">Document de restitution – Inclus</h2>
+                    <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                      Le document de restitution vous est fourni gratuitement.
+                      <br /><br />
+                      Il synthétise :
+                    </p>
+                    <ul className="text-sm text-gray-700 space-y-1 mb-4 list-disc list-inside">
+                      <li>Les situations professionnelles travaillées</li>
+                      <li>Les décisions prises</li>
+                      <li>Les points de blocage identifiés</li>
+                      <li>Les alternatives possibles</li>
+                      <li>Les axes d'amélioration recommandés</li>
+                    </ul>
+                    <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                      Ce document a pour objectif de vous aider à comprendre votre raisonnement et à préparer une mise en œuvre plus efficace.
+                    </p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-gray-900 font-semibold">Document de restitution</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRestitutionPassword('');
+                            setRestitutionPasswordError('');
+                            setIsRestitutionPasswordOpen(true);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                          title="Voir"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-3">📌 Ce document est informatif et analytique. Il ne contient pas de tutoriels ni de procédures techniques.</p>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-500">Utilisateur non trouvé</span>
               </div>
-            )}
+
+              {/* Section 3 — Proposition de sessions */}
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
+                <div className="flex items-start gap-2">
+                  <div className="text-green-600 mt-1">🟢</div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">3️⃣ Proposition de sessions – Exécution accompagnée</h2>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Selon votre situation et les constats issus du document de restitution,
+                      des sessions d'exécution accompagnée peuvent être proposées.
+                      <br /><br />
+                      Ces sessions permettent de mettre en œuvre concrètement les ajustements recommandés, directement sur votre projet, avec l'accompagnement d'un expert.
+                    </p>
+                    <p className="text-xs text-gray-500 mt-3">📌 Important : Les sessions d'exécution accompagnée sont payantes et proposées uniquement lorsque cela est pertinent pour votre situation.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4 — Accès aux sessions live */}
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                <div className="flex items-start gap-2">
+                  <div className="text-gray-600 mt-1">📞</div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">Accès aux sessions live</h2>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Si vous êtes intéressé par une session d'exécution accompagnée,
+                      merci de contacter l'administrateur ou le responsable du cabinet.
+                      <br /><br />
+                      L'organisation des sessions se fait :
+                    </p>
+                    <ul className="text-sm text-gray-700 space-y-1 mb-3 list-disc list-inside">
+                      <li>Sur demande</li>
+                      <li>En fonction de la disponibilité</li>
+                      <li>Via les canaux de communication officiels (groupe WhatsApp dédié ou contact direct)</li>
+                    </ul>
+                    <p className="text-xs text-gray-500">📌 Aucune session live n'est automatique. Chaque intervention est validée au cas par cas.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Phrase de protection */}
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                <p className="text-sm text-red-800 font-medium">
+                  🔒 Les sessions d'exécution accompagnée ne constituent pas une formation et ne donnent lieu à aucune certification.
+                  Elles sont strictement appliquées à la situation réelle du participant.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {isRestitutionPasswordOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl border border-gray-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div>
+                <div className="text-gray-900 font-semibold">Accès au document</div>
+                <div className="text-xs text-gray-500 mt-1">Saisissez le mot de passe pour ouvrir le lien externe.</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRestitutionPasswordOpen(false);
+                  setRestitutionPassword('');
+                  setRestitutionPasswordError('');
+                }}
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                title="Fermer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="px-5 py-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+              <input
+                type="password"
+                value={restitutionPassword}
+                onChange={(e) => {
+                  setRestitutionPassword(e.target.value);
+                  setRestitutionPasswordError('');
+                }}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: 001*MA-TRAINING-CONSULTING"
+                autoFocus
+              />
+
+              {restitutionPasswordError && (
+                <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+                  {restitutionPasswordError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRestitutionPasswordOpen(false);
+                  setRestitutionPassword('');
+                  setRestitutionPasswordError('');
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const expected = String(session?.accessCode || '').trim();
+                  const entered = String(restitutionPassword || '').trim();
+                  if (!entered) {
+                    setRestitutionPasswordError('Veuillez saisir le mot de passe.');
+                    return;
+                  }
+                  if (!expected || entered !== expected) {
+                    setRestitutionPasswordError('Mot de passe incorrect.');
+                    return;
+                  }
+                  setIsRestitutionPasswordOpen(false);
+                  openRestitutionLink();
+                }}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Ouvrir
+              </button>
+            </div>
           </div>
         </div>
-      </motion.div>
-
-      {/* Page Content */}
-      <motion.div
-        key={currentPage}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-      >
-        {currentPage === 'dashboard' && (
-          <ParticipantDashboard 
-            participantId={participantId} 
-            onNavigate={handleNavigate} 
-          />
-        )}
-        {currentPage === 'formations' && (
-          <MesFormations 
-            participantId={participantId} 
-            onNavigate={handleNavigate} 
-          />
-        )}
-        {currentPage === 'projects' && (
-          <Projets 
-            participantId={participantId} 
-            onNavigate={handleNavigate} 
-          />
-        )}
-        {currentPage === 'coaching' && (
-          <Coaching 
-            participantId={participantId} 
-            onNavigate={handleNavigate} 
-          />
-        )}
-        {currentPage === 'notifications' && (
-          <Notifications 
-            participantId={participantId} 
-            onNavigate={handleNavigate} 
-          />
-        )}
-      </motion.div>
-
-      {/* Floating Navigation (Mobile) */}
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="fixed bottom-4 left-4 right-4 md:hidden z-50"
-      >
-        <div className="bg-white rounded-2xl shadow-lg border p-2">
-          <div className="flex items-center justify-around">
-            <button
-              onClick={() => handleNavigate('dashboard')}
-              className={`p-3 rounded-xl transition-colors ${
-                currentPage === 'dashboard' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <User className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => handleNavigate('formations')}
-              className={`p-3 rounded-xl transition-colors ${
-                currentPage === 'formations' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              📚
-            </button>
-            <button
-              onClick={() => handleNavigate('projects')}
-              className={`p-3 rounded-xl transition-colors ${
-                currentPage === 'projects' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              📁
-            </button>
-            <button
-              onClick={() => handleNavigate('coaching')}
-              className={`p-3 rounded-xl transition-colors ${
-                currentPage === 'coaching' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              💬
-            </button>
-            <button
-              onClick={() => handleNavigate('notifications')}
-              className={`p-3 rounded-xl transition-colors ${
-                currentPage === 'notifications' 
-                  ? 'bg-orange-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <Bell className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </motion.div>
+      )}
     </div>
   );
 };

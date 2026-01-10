@@ -1,32 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  RefreshCw, 
-  Database, 
-  Globe, 
-  Settings, 
-  Download,
+import {
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  Database,
+  Globe,
+  Settings,
   Activity,
-  Zap,
-  Shield,
   Clock,
   Play,
-  Stop,
   BarChart3
 } from 'lucide-react';
 import SystemDiagnosticTool from '../components/SystemDiagnosticTool';
-import NotificationManager from '../components/NotificationManager';
 
 const SystemTestPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'diagnostic' | 'notifications' | 'sync'>('diagnostic');
-  const [testParticipantId] = useState('PART-TEST-001');
+  const [activeTab, setActiveTab] = useState<'diagnostic' | 'sync'>('diagnostic');
 
   const tabs = [
     { id: 'diagnostic', label: 'تشخيص النظام', icon: Activity },
-    { id: 'notifications', label: 'إدارة الإشعارات', icon: Settings },
     { id: 'sync', label: 'اختبار المزامنة', icon: BarChart3 }
   ];
 
@@ -87,31 +79,6 @@ const SystemTestPage: React.FC = () => {
           </motion.div>
         )}
 
-        {activeTab === 'notifications' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                  إدارة الإشعارات للمشاركين
-                </h2>
-                <p className="text-gray-600">
-                  إدارة شاملة لإشعارات المشاركين مع إمكانية الإنشاء والتعديل والحذف
-                </p>
-              </div>
-              <NotificationManager 
-                participantId={testParticipantId}
-                onNotificationUpdate={(stats) => {
-                  console.log('إحصائيات الإشعارات محدثة:', stats);
-                }}
-              />
-            </div>
-          </motion.div>
-        )}
-
         {activeTab === 'sync' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -130,11 +97,9 @@ const SystemTestPage: React.FC = () => {
 const SyncTestPanel: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState<any[]>([]);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'running' | 'completed' | 'error'>('idle');
 
   const runSyncTest = async () => {
     setIsRunning(true);
-    setSyncStatus('running');
     setResults([]);
 
     try {
@@ -260,39 +225,7 @@ const SyncTestPanel: React.FC = () => {
       }
       setResults([...testResults]);
 
-      // Test 5: Free Courses Sync
-      testResults.push({
-        name: 'مزامنة الدورات المجانية',
-        status: 'running',
-        message: 'جاري اختبار مزامنة الدورات المجانية...'
-      });
-      setResults([...testResults]);
-
-      const freeCoursesResponse = await fetch('https://matc-backend.onrender.com/api/free-courses', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(10000)
-      });
-
-      if (freeCoursesResponse.ok) {
-        const freeCoursesData = await freeCoursesResponse.json();
-        testResults[4] = {
-          name: 'مزامنة الدورات المجانية',
-          status: 'success',
-          message: `تم العثور على ${freeCoursesData.data?.length || 0} دورة مجانية`,
-          details: 'الدورات المجانية متزامنة بنجاح'
-        };
-      } else {
-        testResults[4] = {
-          name: 'مزامنة الدورات المجانية',
-          status: 'error',
-          message: 'فشل في جلب الدورات المجانية',
-          details: `HTTP ${freeCoursesResponse.status}`
-        };
-      }
-      setResults([...testResults]);
-
-      // Test 6: Freelancer Offers Sync
+      // Test 5: Freelancer Offers Sync
       testResults.push({
         name: 'مزامنة عروض المستقلين',
         status: 'running',
@@ -308,14 +241,14 @@ const SyncTestPanel: React.FC = () => {
 
       if (freelancerOffersResponse.ok) {
         const freelancerOffersData = await freelancerOffersResponse.json();
-        testResults[5] = {
+        testResults[4] = {
           name: 'مزامنة عروض المستقلين',
           status: 'success',
           message: `تم العثور على ${freelancerOffersData.data?.length || 0} عرض مستقل`,
           details: 'عروض المستقلين متزامنة بنجاح'
         };
       } else {
-        testResults[5] = {
+        testResults[4] = {
           name: 'مزامنة عروض المستقلين',
           status: 'error',
           message: 'فشل في جلب عروض المستقلين',
@@ -324,12 +257,10 @@ const SyncTestPanel: React.FC = () => {
       }
       setResults([...testResults]);
 
-      setSyncStatus('completed');
       console.log('✅ انتهى اختبار المزامنة');
 
     } catch (error) {
       console.error('❌ خطأ في اختبار المزامنة:', error);
-      setSyncStatus('error');
     } finally {
       setIsRunning(false);
     }

@@ -13,24 +13,16 @@ import Layout from "./components/layout/Layout";
 // Pages
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
-import ProgramsPage from "./pages/ProgramsPage";
 import CategoriesPage from "./pages/CategoriesPage";
-import PacksPage from "./pages/PacksPage";
-import TestimonialsPage from "./pages/TestimonialsPage";
+import ParticipantsManagementPage from './pages/ParticipantsManagementPage';
 import EventsPage from "./pages/EventsPage";
 import PartnerTestimonialsPage from "./pages/PartnerTestimonialsPage";
-import FooterSettingsPage from "./pages/FooterSettingsPage";
 import UsersPage from "./pages/UsersPage";
 import RegistrationsPage from "./pages/RegistrationsPage";
 import NewsletterPage from "./pages/NewsletterPage";
-import ParticipantsPage from "./pages/ParticipantsPage";
-import AttestationsPage from "./pages/AttestationsPage";
-import FreeCoursesPage from "./pages/FreeCoursesPage";
+import EspaceProAccountsPage from "./pages/EspaceProAccountsPage";
+import EspaceProExpertPanelPage from "./pages/EspaceProExpertPanelPage";
 import FinancePage from "./pages/FinancePage";
-import PartnerManagementPage from "./pages/PartnerManagementPage";
-import CommercialServicesPage from "./pages/CommercialServicesPage";
-import FreelancerOffersPage from "./pages/FreelancerOffersPage";
-import FreelancerMeetingsPage from "./pages/FreelancerMeetingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import DigitalizationServicesPage from "./pages/DigitalizationServicesPage";
 import DigitalizationProductsPage from "./pages/DigitalizationProductsPage";
@@ -40,7 +32,13 @@ import DigitalizationTestimonialsPage from "./pages/DigitalizationTestimonialsPa
 import SettingsPage from "./pages/SettingsPage";
 import SiteConfigPage from "./pages/SiteConfigPage";
 import AppearancePage from "./pages/AppearancePage";
+import EspaceRessourcesSettingsPage from "./pages/EspaceRessourcesSettingsPage";
 import FacturationPage from "./pages/FacturationPage";
+import DiagnosticSessionsPage from "./pages/DiagnosticSessionsPage";
+import DiagnosticSessionDetailPage from "./pages/DiagnosticSessionDetailPage";
+import ConsultingOperationnelAccountsPage from "./pages/ConsultingOperationnelAccountsPage";
+import ETrainingTestimonialsPage from "./pages/ETrainingTestimonialsPage";
+import ParticipationVerificationsPage from "./pages/ParticipationVerificationsPage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -56,24 +54,20 @@ const AppRoutes: React.FC = () => {
       
       {/* Protected Routes - All wrapped in Layout */}
       <Route path="/" element={<Layout><Dashboard /></Layout>} />
-      <Route path={ROUTES.PROGRAMS} element={<Layout><ProgramsPage /></Layout>} />
+      <Route path={ROUTES.DIAGNOSTIC_SESSIONS} element={<Layout><DiagnosticSessionsPage /></Layout>} />
+      <Route path={ROUTES.DIAGNOSTIC_SESSION_DETAIL} element={<Layout><DiagnosticSessionDetailPage /></Layout>} />
       <Route path={ROUTES.CATEGORIES} element={<Layout><CategoriesPage /></Layout>} />
-      <Route path={ROUTES.PACKS} element={<Layout><PacksPage /></Layout>} />
-      <Route path={ROUTES.TESTIMONIALS} element={<Layout><TestimonialsPage /></Layout>} />
+      <Route path={ROUTES.PARTICIPANTS_MANAGEMENT} element={<Layout><ParticipantsManagementPage /></Layout>} />
+      <Route path={ROUTES.ETRAINING_TESTIMONIALS} element={<Layout><ETrainingTestimonialsPage /></Layout>} />
       <Route path={ROUTES.EVENTS} element={<Layout><EventsPage /></Layout>} />
       <Route path={ROUTES.PARTNER_TESTIMONIALS} element={<Layout><PartnerTestimonialsPage /></Layout>} />
-      <Route path={ROUTES.FOOTER_SETTINGS} element={<Layout><FooterSettingsPage /></Layout>} />
       <Route path={ROUTES.USERS} element={<Layout><UsersPage /></Layout>} />
       <Route path={ROUTES.REGISTRATIONS} element={<Layout><RegistrationsPage /></Layout>} />
       <Route path={ROUTES.NEWSLETTER} element={<Layout><NewsletterPage /></Layout>} />
-      <Route path={ROUTES.PARTICIPANTS} element={<Layout><ParticipantsPage /></Layout>} />
-      <Route path={ROUTES.ATTESTATIONS} element={<Layout><AttestationsPage /></Layout>} />
-      <Route path={ROUTES.FREE_COURSES} element={<Layout><FreeCoursesPage /></Layout>} />
+      <Route path={ROUTES.ESPACE_PRO_ACCOUNTS} element={<Layout><EspaceProAccountsPage /></Layout>} />
+      <Route path={ROUTES.ESPACE_PRO_EXPERT_PANEL} element={<Layout><EspaceProExpertPanelPage /></Layout>} />
+      <Route path={ROUTES.PARTICIPATION_VERIFICATIONS} element={<Layout><ParticipationVerificationsPage /></Layout>} />
       <Route path={ROUTES.FINANCE} element={<Layout><FinancePage /></Layout>} />
-      <Route path={ROUTES.PARTNERS} element={<Layout><PartnerManagementPage /></Layout>} />
-      <Route path={ROUTES.COMMERCIAL_SERVICES} element={<Layout><CommercialServicesPage /></Layout>} />
-      <Route path={ROUTES.FREELANCER_OFFERS} element={<Layout><FreelancerOffersPage /></Layout>} />
-      <Route path={ROUTES.FREELANCER_MEETINGS} element={<Layout><FreelancerMeetingsPage /></Layout>} />
       <Route path={ROUTES.NOTIFICATIONS} element={<Layout><NotificationsPage /></Layout>} />
       <Route path={ROUTES.DIGITALIZATION_SERVICES} element={<Layout><DigitalizationServicesPage /></Layout>} />
       <Route path={ROUTES.DIGITALIZATION_PRODUCTS} element={<Layout><DigitalizationProductsPage /></Layout>} />
@@ -83,7 +77,9 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.SETTINGS} element={<Layout><SettingsPage /></Layout>} />
       <Route path={ROUTES.SITE_CONFIG} element={<Layout><SiteConfigPage /></Layout>} />
       <Route path={ROUTES.APPEARANCE} element={<Layout><AppearancePage /></Layout>} />
+      <Route path={ROUTES.ESPACE_RESSOURCES_SETTINGS} element={<Layout><EspaceRessourcesSettingsPage /></Layout>} />
       <Route path={ROUTES.FACTURATION} element={<Layout><FacturationPage /></Layout>} />
+      <Route path={ROUTES.CONSULTING_OPERATIONNEL_ACCOUNTS} element={<Layout><ConsultingOperationnelAccountsPage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />

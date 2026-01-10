@@ -5,20 +5,15 @@ import {
   X,
   Search,
   Loader2,
-  CheckCircle,
   AlertCircle,
-  Download,
-  Star,
-  Award,
-  BookOpen,
-  Code,
-  RefreshCw,
+  ArrowLeft,
 } from "lucide-react";
 import {
   getById as getCertificateById,
   seedIfEmpty,
   type Certificate,
 } from "../services/certificatesService";
+import { API_BASE_URL } from "../config/api";
 
 // Using shared Certificate type from service
 
@@ -30,7 +25,7 @@ interface CertificateVerificationProps {
 // Default certificates used to seed localStorage (only if empty)
 const DEFAULT_CERTIFICATES: Certificate[] = [
   {
-    id: "PART-2024-001",
+    id: "MTC-AP-2025-0148",
     firstName: "Ahmed",
     lastName: "Benali",
     program: "Développement Web Full Stack",
@@ -49,7 +44,7 @@ const DEFAULT_CERTIFICATES: Certificate[] = [
     completionDate: "2024-01-15",
   },
   {
-    id: "PART-2024-002",
+    id: "MTC-AP-2025-0149",
     firstName: "Fatima",
     lastName: "El Mansouri",
     program: "Design UX/UI Professionnel",
@@ -68,7 +63,7 @@ const DEFAULT_CERTIFICATES: Certificate[] = [
     completionDate: "2024-02-20",
   },
   {
-    id: "PART-2024-003",
+    id: "MTC-AP-2025-0150",
     firstName: "Omar",
     lastName: "Rachidi",
     program: "Data Science & Intelligence Artificielle",
@@ -95,6 +90,15 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
   const [certificateId, setCertificateId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [certificate, setCertificate] = useState<Certificate | null>(null);
+  const [verifiedStatus, setVerifiedStatus] = useState<string>("Complétée");
+  const [verifiedServices, setVerifiedServices] = useState<{ service1: boolean; service2: boolean }>({
+    service1: true,
+    service2: false,
+  });
+  const [verifiedServicesList, setVerifiedServicesList] = useState<string[]>([
+    "Diagnostic stratégique & positionnement professionnel",
+    "Missions professionnelles encadrées (le cas échéant)",
+  ]);
   const [error, setError] = useState("");
   const [showResult, setShowResult] = useState(false);
 
@@ -117,33 +121,61 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
     setError("");
 
     try {
+      const cleanId = certificateId.trim();
+
       // Call the real API instead of localStorage
-      const response = await fetch(`https://matc-backend.onrender.com/api/attestations/verify/${certificateId.trim()}`);
+      const response = await fetch(
+        `${API_BASE_URL}/participation-verifications/verify/${encodeURIComponent(cleanId)}`
+      );
       const data = await response.json();
       
       if (response.ok && data.valid && data.data) {
         // Transform API data to match Certificate interface
+        const fullName = String(data.data.fullName || '');
+        const parts = fullName.split(' ').filter(Boolean);
+        const firstName = parts[0] || fullName;
+        const lastName = parts.slice(1).join(' ') || '';
+
         const transformedCertificate: Certificate = {
-          id: data.data.attestationId,
-          firstName: data.data.fullName.split(' ')[0] || data.data.fullName,
-          lastName: data.data.fullName.split(' ').slice(1).join(' ') || '',
-          program: data.data.program?.title || 'Programme non spécifié',
-          skills: data.data.skills || [],
-          techniques: data.data.techniques || [],
-          grade: data.data.note || 0,
-          level: data.data.niveau || 'Non spécifié',
-          certificateUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/attestation`,
-          recommendationUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/recommandation`,
-          evaluationUrl: `https://matc-backend.onrender.com/api/attestations/${data.data.attestationId}/download/evaluation`,
-          completionDate: data.data.dateObtention
+          id: String(data.data.participationId || cleanId),
+          firstName,
+          lastName,
+          program: '',
+          skills: [],
+          techniques: [],
+          grade: 0,
+          level: 'Débutant',
+          certificateUrl: '#',
+          recommendationUrl: '#',
+          evaluationUrl: '#',
+          completionDate: String(data.data.updatedAt || new Date().toISOString()),
         };
         
+        setVerifiedStatus(String(data.data.status || 'Complétée'));
+        setVerifiedServicesList(
+          Array.isArray(data.data.servicesList) && data.data.servicesList.length > 0
+            ? data.data.servicesList
+            : [
+                'Diagnostic stratégique & positionnement professionnel',
+                'Missions professionnelles encadrées (le cas échéant)',
+              ]
+        );
+        setVerifiedServices({
+          service1: Boolean(data.data.services?.service1 ?? true),
+          service2: Boolean(data.data.services?.service2 ?? false),
+        });
         setCertificate(transformedCertificate);
         setShowResult(true);
       } else {
         // Fallback to localStorage for backward compatibility
         const foundCertificate = getCertificateById(certificateId.trim());
         if (foundCertificate) {
+          setVerifiedStatus('Complétée');
+          setVerifiedServicesList([
+            'Diagnostic stratégique & positionnement professionnel',
+            'Missions professionnelles encadrées (le cas échéant)',
+          ]);
+          setVerifiedServices({ service1: true, service2: false });
           setCertificate(foundCertificate);
           setShowResult(true);
         } else {
@@ -155,6 +187,12 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
       // Fallback to localStorage on network error
       const foundCertificate = getCertificateById(certificateId.trim());
       if (foundCertificate) {
+        setVerifiedStatus('Complétée');
+        setVerifiedServicesList([
+          'Diagnostic stratégique & positionnement professionnel',
+          'Missions professionnelles encadrées (le cas échéant)',
+        ]);
+        setVerifiedServices({ service1: true, service2: false });
         setCertificate(foundCertificate);
         setShowResult(true);
       } else {
@@ -171,39 +209,16 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
     return d.toLocaleDateString("fr-FR");
   };
 
-  const handleNewSearch = () => {
-    setCertificateId("");
+  const handleBackToSearch = () => {
+    setShowResult(false);
     setCertificate(null);
     setError("");
-    setShowResult(false);
-  };
-
-  const handleDownload = async (url: string, type: string) => {
-    try {
-      if (url.startsWith('https://matc-backend.onrender.com/api/attestations/')) {
-        // Open API URL so the browser follows 302 redirect to Cloudinary
-        window.open(url, '_blank', 'noopener');
-      } else {
-        // Simulation du téléchargement pour les données mockées
-        console.log(`Téléchargement ${type}: ${url}`);
-        alert(`Téléchargement de ${type} en cours...`);
-      }
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      alert(`Erreur lors du téléchargement du document ${type}`);
-    }
-  };
-
-  const getAutonomyObserved = (level: string) => {
-    switch (level) {
-      case "Expert":
-      case "Avancé":
-        return "Autonomie fonctionnelle avec périmètre clair";
-      case "Intermédiaire":
-        return "Autonomie partielle dans un cadre défini";
-      default:
-        return "Sous supervision directe";
-    }
+    setVerifiedStatus("Complétée");
+    setVerifiedServicesList([
+      'Diagnostic stratégique & positionnement professionnel',
+      'Missions professionnelles encadrées (le cas échéant)',
+    ]);
+    setVerifiedServices({ service1: true, service2: false });
   };
 
   if (!isOpen) return null;
@@ -237,24 +252,11 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Award className="w-6 h-6 text-blue-600" />
-              </div>
+            <div className="flex items-center">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                  Page 1 — Vérification de participation
-                </p>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  Vérification de participation professionnelle
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 uppercase">
+                  Vérification de participation au parcours professionnel
                 </h2>
-                <p className="text-gray-600">
-                  Cette page permet de vérifier la participation d’une personne au sein du dispositif
-                  <br />
-                  MA Training & Consulting, et d’accéder à un résumé professionnel consultatif,
-                  <br />
-                  issu d’un processus de diagnostic et d’évaluation mené par nos experts.
-                </p>
               </div>
             </div>
             <button
@@ -278,16 +280,9 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                   {/* Formulaire de recherche */}
                   <div className="text-center space-y-4">
                     <div className="p-4 bg-blue-50 rounded-xl">
-                      <Search className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 mx-auto mb-3" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Vérification de participation professionnelle
-                      </h3>
                       <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                         <p className="text-sm text-orange-900 leading-relaxed">
                           <span className="font-bold">⚠️ Les informations affichées sont fournies à titre consultatif et indicatif.</span>
-                          <br />
-                          Elles ne constituent ni une promesse d’emploi, ni une certification de recrutement,
-                          ni une validation officielle de poste ou de fonction.
                         </p>
                       </div>
                     </div>
@@ -364,30 +359,22 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                     exit={{ opacity: 0, y: -20 }}
                     className="space-y-6"
                   >
-                    {/* En-tête de succès */}
                     <div className="text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2, type: "spring" }}
-                      >
-                        <CheckCircle className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
-                      </motion.div>
                       <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 break-words">
-                        Page de vérification — Synthèse de participation professionnelle
+                        Vérification de participation professionnelle
                       </h3>
-                      <p className="text-gray-700">
-                        Participation confirmée ✓
+                      <p className="text-gray-700 font-semibold">✔️ Participation confirmée</p>
+                      <p className="mt-4 text-sm text-gray-700 leading-relaxed">
+                        Cette page permet de vérifier la participation effective d’une personne au sein du dispositif
+                        <br />
+                        MA-TRAINING-CONSULTING – Accompagnement professionnel.
                       </p>
                     </div>
 
-                    {/* Informations du certificat */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
-                      {/* Informations personnelles */}
                       <div className="text-left">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                          <Award className="w-5 h-5 mr-2 text-blue-600" />
-                          1️⃣ Informations de vérification
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                          🔎 Informations de vérification
                         </h4>
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="bg-gray-50 rounded-xl p-4">
@@ -397,13 +384,12 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
                             </p>
                           </div>
                           <div className="bg-gray-50 rounded-xl p-4">
-                            <span className="text-sm text-gray-600">Identifiant professionnel</span>
+                            <span className="text-sm text-gray-600">Identifiant de participation</span>
                             <p className="font-semibold text-gray-900 font-mono">{certificate.id}</p>
                           </div>
                           <div className="bg-gray-50 rounded-xl p-4">
-                            <span className="text-sm text-gray-600">Statut de participation</span>
-                            <p className="font-semibold text-gray-900">Complétée</p>
-                            <p className="text-xs text-gray-500">Active / Complétée / En cours</p>
+                            <span className="text-sm text-gray-600">Statut</span>
+                            <p className="font-semibold text-gray-900">{verifiedStatus}</p>
                           </div>
                           <div className="bg-gray-50 rounded-xl p-4">
                             <span className="text-sm text-gray-600">Date de dernière mise à jour</span>
@@ -415,209 +401,53 @@ const CertificateVerification: React.FC<CertificateVerificationProps> = ({
 
                         <div className="mt-4 bg-gray-50 rounded-xl p-4">
                           <span className="text-sm text-gray-600">Service(s) concerné(s)</span>
-                          <div className="mt-2 space-y-1 text-sm text-gray-800">
-                            <p>Service 1 : Diagnostic et parcours professionnel</p>
-                            <p>Service 2 : Accompagnement professionnel avec experts (le cas échéant)</p>
-                          </div>
+                          <ul className="mt-2 space-y-1 text-sm text-gray-800">
+                            {verifiedServicesList.length > 0 ? (
+                              verifiedServicesList.map((s) => (
+                                <li key={s}>• {s}</li>
+                              ))
+                            ) : !verifiedServices.service1 && !verifiedServices.service2 ? (
+                              <li>—</li>
+                            ) : (
+                              <>
+                                {verifiedServices.service1 && (
+                                  <li>• Diagnostic stratégique &amp; positionnement professionnel</li>
+                                )}
+                                {verifiedServices.service2 && (
+                                  <li>• Missions professionnelles encadrées (le cas échéant)</li>
+                                )}
+                              </>
+                            )}
+                          </ul>
                         </div>
                       </div>
                     </div>
 
-                    {/* Axes travaillés (compétences) */}
-                    <div className="bg-blue-50 rounded-xl p-6 text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
-                        2️⃣ Synthèse professionnelle (cadre consultatif)
-                      </h4>
-                      <p className="text-sm text-gray-800 leading-relaxed">
-                        <span className="font-semibold">Synthèse à visée strictement consultative</span>
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">📄 Documents associés</h4>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Les documents liés à cette participation sont transmis directement au participant via les canaux officiels
                         <br />
-                        Ce profil a été évalué dans le cadre d’un dispositif professionnel de conseil,
-                        basé sur des situations professionnelles réelles et/ou quasi réelles,
-                        incluant l’analyse des capacités opérationnelles,
-                        du raisonnement professionnel et de la posture en contexte de travail.
-                      </p>
-                      <p className="mt-3 text-sm text-gray-800 leading-relaxed">
-                        Cette synthèse ne constitue ni une fiche de poste, ni une certification.
-                      </p>
-                    </div>
-
-                    {/* Axes travaillés (techniques) */}
-                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <Code className="w-5 h-5 mr-2 text-indigo-600" />
-                        3️⃣ Champs de contribution professionnelle potentiels
-                      </h4>
-                      <p className="text-sm text-gray-700 mb-3">
-                        Domaines d’intervention possibles selon l’évaluation
-                      </p>
-                      <ul className="space-y-2 text-sm text-gray-800 leading-relaxed">
-                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Appui à l’exécution de missions opérationnelles</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Coordination fonctionnelle au sein d’équipes</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Analyse et structuration d’informations professionnelles</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Exécution de tâches dans un cadre défini</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-indigo-700">•</span><span>Contribution à des projets encadrés</span></li>
-                      </ul>
-                      <p className="mt-3 text-xs text-gray-600">
-                        Ces champs sont indicatifs et ne constituent pas un engagement contractuel.
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <Star className="w-5 h-5 mr-2 text-yellow-600" />
-                        4️⃣ Niveau d’autonomie professionnelle (indicatif)
-                      </h4>
-                      <p className="text-sm text-gray-700 mb-3">
-                        Niveau d’autonomie observé
-                      </p>
-                      <div className="space-y-2 text-sm">
-                        {[
-                          "Sous supervision directe",
-                          "Autonomie partielle dans un cadre défini",
-                          "Autonomie fonctionnelle avec périmètre clair",
-                        ].map((label) => {
-                          const selected = getAutonomyObserved(certificate.level) === label;
-                          return (
-                            <div
-                              key={label}
-                              className={`p-3 rounded-lg border ${selected ? "bg-amber-50 border-amber-200" : "bg-gray-50 border-gray-200"}`}
-                            >
-                              <span className={selected ? "font-semibold text-gray-900" : "text-gray-800"}>
-                                {label}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <p className="mt-3 text-xs text-gray-600">
-                        Le niveau est établi à partir de situations professionnelles analysées.
-                      </p>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
-                        5️⃣ Contextes professionnels évalués
-                      </h4>
-                      <ul className="space-y-2 text-sm text-gray-800 leading-relaxed">
-                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Travail en environnement structuré</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Collaboration au sein d’équipes pluridisciplinaires</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Gestion de projets sous contraintes réalistes</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-blue-700">•</span><span>Prise de décision en contexte professionnel encadré</span></li>
-                      </ul>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-slate-200 p-6 text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <Award className="w-5 h-5 mr-2 text-emerald-600" />
-                        6️⃣ Compétences comportementales observées
-                      </h4>
-                      <p className="text-xs text-gray-600 mb-3">(Sans notation ni classement chiffré)</p>
-                      <ul className="space-y-2 text-sm text-gray-800 leading-relaxed">
-                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Communication professionnelle</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Capacité d’analyse</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Gestion des priorités</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Sens des responsabilités</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold text-emerald-700">•</span><span>Discipline et engagement professionnel</span></li>
-                      </ul>
-                    </div>
-
-                    {/* Boutons de téléchargement */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6 text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                        <Download className="w-5 h-5 mr-2 text-blue-600" />
-                        7️⃣ Documents disponibles au téléchargement
-                      </h4>
-                      <p className="text-sm text-gray-700 mb-4">
-                        Documents accessibles via cette page :
-                      </p>
-                      <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
-                        <motion.button
-                          whileHover={{
-                            scale: 1.02,
-                            boxShadow: "0 10px 25px rgba(59, 130, 246, 0.3)",
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            handleDownload(
-                              certificate.certificateUrl,
-                              "Attestation de participation professionnelle"
-                            )
-                          }
-                          className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-                        >
-                          <Download className="w-5 h-5" />
-                          <span>Attestation de participation</span>
-                        </motion.button>
-
-                        <motion.button
-                          whileHover={{
-                            scale: 1.02,
-                            boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            handleDownload(
-                              certificate.evaluationUrl,
-                              "Note de positionnement professionnel"
-                            )
-                          }
-                          className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
-                        >
-                          <Download className="w-5 h-5" />
-                          <span>Note de positionnement</span>
-                        </motion.button>
-
-                        <motion.button
-                          whileHover={{
-                            scale: 1.02,
-                            boxShadow: "0 10px 25px rgba(168, 85, 247, 0.3)",
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            handleDownload(
-                              certificate.recommendationUrl,
-                              "Mémo contextuel (entreprises & RH)"
-                            )
-                          }
-                          className="w-full flex items-center justify-center space-x-2 p-3 sm:p-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
-                        >
-                          <Download className="w-5 h-5" />
-                          <span>Mémo contextuel RH</span>
-                        </motion.button>
-                      </div>
-                      <p className="mt-4 text-sm text-gray-700 leading-relaxed">
-                        Les documents détaillés sont transmis directement au participant par e-mail ou canal officiel.
                       </p>
                     </div>
 
                     <div className="p-6 bg-orange-50 border border-orange-200 rounded-xl text-left">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3">8️⃣ Avertissement légal</h4>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">⚠️ Avertissement important</h4>
                       <p className="text-sm text-orange-900 leading-relaxed">
-                        <span className="font-bold">⚠️ Les informations affichées sur cette page :</span>
-                      </p>
-                      <ul className="mt-3 space-y-2 text-sm text-orange-900 leading-relaxed">
-                        <li className="flex items-start gap-2"><span className="font-bold">•</span><span>ne constituent pas une certification</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold">•</span><span>ne garantissent ni emploi, ni promotion</span></li>
-                        <li className="flex items-start gap-2"><span className="font-bold">•</span><span>n’engagent aucune entreprise ou recruteur</span></li>
-                      </ul>
-                      <p className="mt-4 text-sm text-orange-900 leading-relaxed">
-                        Toute décision de recrutement, d’évolution ou d’attribution de missions
-                        relève exclusivement de la responsabilité de l’organisation concernée.
+                        Les contenus présentés s’inscrivent dans le cadre d’une analyse professionnelle à visée consultative et ne sauraient être assimilés à une certification, une validation officielle ou une garantie de résultat.
                       </p>
                     </div>
 
-                    {/* Bouton nouvelle recherche */}
-                    <div className="text-center pt-4">
+                    <div className="pt-2 flex justify-center">
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
+                        type="button"
+                        whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={handleNewSearch}
-                        className="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 mx-auto"
+                        onClick={handleBackToSearch}
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center gap-2"
                       >
-                        <RefreshCw className="w-5 h-5" />
-                        <span>🟣 Nouvelle vérification</span>
+                        <ArrowLeft className="w-5 h-5" />
+                        <span>Retour à la vérification</span>
                       </motion.button>
                     </div>
                   </motion.div>

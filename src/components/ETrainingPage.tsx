@@ -1,62 +1,189 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useMemo, useState, useEffect } from "react";
+import { motion, useReducedMotion, useScroll, useSpring, type Easing } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
   Shield,
   Lightbulb,
   CheckCircle,
-  Map,
   Search,
   Compass,
-  Rocket,
-  BadgeCheck,
   Layers,
   Award,
   ArrowLeft,
   ArrowRight,
-  Clock,
   Star,
-  BookOpen,
-  TrendingUp,
   Briefcase,
   FileText,
   ChevronRight,
-  X
 } from "lucide-react";
-import FreeCourseModal from "./FreeCourseModal";
 import ProgramRegistrationModal from "./ProgramRegistrationModal";
 import InteractiveQCMModal from "./InteractiveQCMModal";
 import { Program, getTrainingPrograms } from "../data/trainingPrograms";
-import { digitalizationContactApiService } from "../services/digitalizationContactApiService";
-import { downloadMatcConditionsPdf } from "../utils/matcConditionsPdf";
+import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
 
 interface ETrainingPageProps {
   onBack: () => void;
 }
 
+interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+}
+
 const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const navigate = useNavigate();
   const [showUnifiedCatalogModal, setShowUnifiedCatalogModal] = useState(false);
-  const [showFreeCourseModal, setShowFreeCourseModal] = useState(false);
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
-  
+
   // State for dynamic data
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isParcoursInfoOpen, setIsParcoursInfoOpen] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const reduceMotion = useReducedMotion();
 
-  const openService2MissionRequest = (type: "reelle" | "simulee") => {
-    const message =
-      type === "reelle"
-        ? "Bonjour, je souhaite démarrer une Mission Opérationnelle (Mission Réelle). J’ai compris que le service est disponible uniquement après diagnostic validé (Service 1)."
-        : "Bonjour, je souhaite démarrer une Mission Opérationnelle (Mission Simulée). J’ai compris que le service est disponible uniquement après diagnostic validé (Service 1).";
+  const easeOut: Easing = [0.16, 1, 0.3, 1];
+  const easeInOut: Easing = [0.65, 0, 0.35, 1];
 
-    const url = digitalizationContactApiService.generateWhatsAppLink(undefined, message);
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+  const heroContainerVariants = useMemo(
+    () =>
+      reduceMotion
+        ? undefined
+        : {
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.06 } },
+          },
+    [reduceMotion]
+  );
+
+  const heroItemVariants = useMemo(
+    () =>
+      reduceMotion
+        ? undefined
+        : {
+            hidden: { opacity: 0, y: 10 },
+            show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
+          },
+    [reduceMotion]
+  );
+
+  const sectionContainerVariants = useMemo(
+    () =>
+      reduceMotion
+        ? undefined
+        : {
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: { staggerChildren: 0.08, delayChildren: 0.04 },
+            },
+          },
+    [reduceMotion]
+  );
+
+  const sectionItemVariants = useMemo(
+    () =>
+      reduceMotion
+        ? undefined
+        : {
+            hidden: { opacity: 0, y: 12 },
+            show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: easeOut } },
+          },
+    [reduceMotion]
+  );
+
+  const { scrollYProgress } = useScroll();
+  const scrollProgressX = useSpring(scrollYProgress, {
+    stiffness: reduceMotion ? 90 : 140,
+    damping: reduceMotion ? 40 : 30,
+    mass: 0.2,
+  });
+
+  const quickNavItems: { id: string; label: string }[] = [
+    { id: "hero-section", label: "Intro" },
+    { id: "domains-section", label: "Étapes du parcours" },
+    { id: "services-section", label: "Offre & services" },
+    { id: "outcomes-section", label: "Bénéfices" },
+  ];
+
+  const domainOptions = useMemo(() => {
+    const activeCategories = (categories || []).filter((c) => c?.isActive !== false);
+    if (activeCategories.length > 0) {
+      return activeCategories.map((c) => ({ label: c.name, value: c._id }));
+    }
+    return [
+      { label: "IT / Développement", value: "it" },
+      { label: "Data / IA", value: "data" },
+      { label: "Marketing / Communication", value: "marketing" },
+      { label: "Finance / Gestion", value: "finance" },
+      { label: "Management / Opérations", value: "management" },
+      { label: "RH / Organisation", value: "rh" },
+    ];
+  }, [categories]);
+
+  const fallbackTestimonials = [
+    {
+      quote:
+        "« Le diagnostic m’a permis d’identifier clairement les incohérences entre mes décisions et mon niveau réel de responsabilité.\nL’accompagnement n’a pas cherché à me rassurer, mais à structurer ma posture professionnelle. »",
+      author: "Amine K.",
+      initials: "AK",
+      role: "Qualité, Sécurité & Process",
+      domain: "Industrie / Management opérationnel",
+    },
+    {
+      quote:
+        "« Ce parcours m’a aidée à clarifier ma manière de décider et à mieux défendre mes choix face à des contraintes concrètes.\nCe n’est pas une formation, mais un cadre de réflexion appliqué à des situations professionnelles réelles. »",
+      author: "Rania T.",
+      initials: "RT",
+      role: "Marketing & Communication",
+      domain: "Digital / Positionnement professionnel",
+    },
+    {
+      quote:
+        "« L’approche est directe et exigeante.\nOn ne reçoit pas de solutions toutes faites, mais une lecture claire de ce qui est faisable — ou non — à un instant donné. »",
+      author: "Sami G.",
+      initials: "SG",
+      role: "Développement Web",
+      domain: "Environnements techniques & projets",
+    },
+  ];
+
+  const [testimonials, setTestimonials] = useState(fallbackTestimonials);
+  const [testimonialsPage, setTestimonialsPage] = useState(0);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        setTestimonialsLoading(true);
+        const response = await fetch(`${API_BASE_URL}/e-training-testimonials/published`);
+        const json = await response.json().catch(() => null);
+
+        if (response.ok && json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          const normalized = json.data.map((t: any) => ({
+            quote: String(t.quote || ''),
+            author: String(t.author || ''),
+            initials: String(t.initials || ''),
+            role: String(t.role || ''),
+            domain: String(t.domain || ''),
+          }));
+          setTestimonials(normalized);
+        }
+      } catch (error) {
+        console.error('Error loading e-training testimonials:', error);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
+    loadTestimonials();
+  }, []);
+
+  useEffect(() => {
+    setTestimonialsPage(0);
+  }, [testimonials.length]);
 
   const openEspaceParticipant = () => {
     navigate("/espace-participant");
@@ -66,19 +193,31 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
     navigate("/verification-participant");
   };
 
+  const openService2MissionRequest = (missionType: "reelle" | "simulee") => {
+    const label = missionType === "reelle" ? "mission réelle" : "mission simulée";
+    const text = `Bonjour, je souhaite démarrer une ${label} (Service 2). Pouvez-vous m’indiquer la suite et les prochaines étapes ?`;
+    const url = `https://wa.me/21644172284?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   // Load programs, packs and categories from API on component mount
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
       try {
         // Load programs
         const apiPrograms = await getTrainingPrograms();
         setPrograms(apiPrograms as Program[]);
+
+        const categoriesResponse = await fetch(
+          `${API_BASE_URL}${API_ENDPOINTS.CATEGORIES}?activeOnly=true`
+        );
+        const categoriesJson = await categoriesResponse.json().catch(() => null);
+        if (categoriesResponse.ok && categoriesJson?.success) {
+          setCategories(Array.isArray(categoriesJson.data) ? categoriesJson.data : []);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
         // Keep fallback data if API fails
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -212,7 +351,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      <motion.div
+        style={{ scaleX: scrollProgressX }}
+        className="fixed left-0 top-0 z-50 h-1 w-full origin-left bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-500"
+      />
       {/* Back Button */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <button
@@ -224,1028 +367,1773 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </button>
       </div>
 
+      <div className="sticky top-0 z-40 bg-white/75 backdrop-blur-xl border-b border-slate-200/60">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center gap-2 overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {quickNavItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => scrollToSection(item.id)}
+                className="shrink-0 rounded-full border border-slate-200/70 bg-white/70 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-white hover:text-slate-900 hover:border-slate-300 transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+            <div className="shrink-0 w-px h-7 bg-slate-200/70" />
+            <button
+              type="button"
+              onClick={() => navigate("/diagnostic")}
+              className="shrink-0 rounded-full bg-slate-900 px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+            >
+              Accéder au diagnostic
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative py-10 sm:py-14 lg:py-20 bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50 overflow-hidden"
+        id="hero-section"
+        initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+        animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={reduceMotion ? undefined : { duration: 0.7, ease: easeOut }}
+        className="relative scroll-mt-24 sm:scroll-mt-28 py-14 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-50 via-white to-white overflow-hidden"
       >
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+          <div className="absolute inset-0 opacity-[0.28] [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_78%)]" />
+          <motion.div
+            aria-hidden
+            className="absolute -top-28 left-1/2 h-[440px] w-[440px] sm:h-[520px] sm:w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.14),transparent_60%)] blur-2xl"
+            animate={
+              reduceMotion
+                ? undefined
+                : {
+                    y: [0, 16, 0],
+                    scale: [1, 1.03, 1],
+                  }
+            }
+            transition={reduceMotion ? undefined : { duration: 10, repeat: Infinity, ease: easeInOut }}
+          />
+          <motion.div
+            aria-hidden
+            className="absolute -bottom-32 left-1/2 h-[460px] w-[460px] sm:h-[560px] sm:w-[560px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.10),transparent_62%)] blur-2xl"
+            animate={
+              reduceMotion
+                ? undefined
+                : {
+                    y: [0, -18, 0],
+                    scale: [1, 1.02, 1],
+                  }
+            }
+            transition={reduceMotion ? undefined : { duration: 12, repeat: Infinity, ease: easeInOut }}
+          />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-7xl mx-auto">
-            <div className="relative rounded-[2.5rem] sm:rounded-[3rem] bg-gradient-to-br from-white/70 via-indigo-200/35 to-purple-200/35 p-[1px] shadow-[0_40px_110px_-60px_rgba(15,23,42,0.55)] transition-shadow duration-500 hover:shadow-[0_52px_140px_-78px_rgba(15,23,42,0.65)]">
-              <div className="relative rounded-[2.45rem] sm:rounded-[2.95rem] bg-white/45 backdrop-blur-2xl border border-white/60 ring-1 ring-black/5 px-5 py-6 sm:px-8 sm:py-9 lg:px-10">
-                <div className="flex items-center justify-between mb-6 sm:mb-7">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-rose-400/90 shadow-sm" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-amber-400/90 shadow-sm" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/90 shadow-sm" />
-                  </div>
-                  <div className="hidden sm:block text-xs font-semibold text-slate-600 tracking-wide">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.985 }}
+              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+              transition={reduceMotion ? undefined : { duration: 0.75, ease: easeOut }}
+              className="relative max-w-5xl mx-auto rounded-[2.5rem] sm:rounded-[3rem] border border-white/60 bg-white/75 backdrop-blur-xl shadow-[0_34px_90px_-60px_rgba(15,23,42,0.45)] ring-1 ring-black/5 overflow-hidden"
+            >
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-slate-900/[0.03] via-transparent to-indigo-600/[0.06]" />
+
+              <div className="relative px-5 py-10 sm:px-10 sm:py-14 lg:px-14">
+                <div className="flex items-center justify-center mb-7">
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-600 tracking-[0.18em]">
                     MA TRAINING • CONSULTING
                   </div>
                 </div>
+
                 <motion.div
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, ease: "easeOut", delay: 0.05 }}
-                  className="grid grid-cols-1 gap-8 lg:gap-12 items-center"
+                  initial={reduceMotion ? false : "hidden"}
+                  animate={reduceMotion ? "show" : "show"}
+                  variants={heroContainerVariants}
+                  className="text-center"
                 >
-                  {/* Left Content */}
                   <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-                    className="text-center order-1 w-full max-w-5xl mx-auto"
+                    variants={heroItemVariants}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white/75 backdrop-blur-sm border border-white/70 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-black/5"
                   >
-                    <div className="relative rounded-3xl bg-white/55 backdrop-blur-xl border border-white/70 shadow-[0_24px_70px_-35px_rgba(17,24,39,0.28)] ring-1 ring-black/5 p-6 sm:p-10 lg:p-12">
-                      {/* Badge */}
-                      <div className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm ring-1 ring-black/5 mb-6 max-w-full">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2 flex-shrink-0"></span>
-                        <span className="text-[11px] sm:text-xs font-medium text-gray-700 leading-tight break-words">
-                          Cabinet de Conseil : Accompagnement & Transformation Digitale
-                        </span>
-                      </div>
+                    <Shield className="w-4 h-4" />
+                    <span>Accompagnement professionnel appliqué</span>
+                  </motion.div>
 
-                      <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-4 sm:mb-6 leading-[1.02] tracking-tight break-words max-w-4xl mx-auto">
-                        <span className="block">Commencez votre parcours professionnel</span>
-                        <span className="block mt-2">
-                          avec un{" "}
-                          <span className="text-gradient bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-                            diagnostic gratuit
-                          </span>
-                          {" "}et personnalisé !
-                        </span>
-                      </h1>
+                  <motion.h1
+                    variants={heroItemVariants}
+                    className="font-display text-[1.8rem] sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 mt-4 mb-4 sm:mb-6 leading-[1.08] tracking-tight break-words max-w-4xl mx-auto text-balance"
+                  >
+                    Clarifier votre situation professionnelle, prendre des décisions solides et les exécuter concrètement
+                  </motion.h1>
 
-                      <p className="text-sm sm:text-base md:text-lg text-gray-700/90 mb-7 leading-relaxed max-w-3xl mx-auto">
-                        Faites un diagnostic professionnel gratuit pour analyser votre situation actuelle et définir le meilleur parcours pour votre carrière. Recevez des conseils pratiques et des recommandations claires adaptées à votre domaine.
-                      </p>
+                  <motion.p
+                    variants={heroItemVariants}
+                    className="text-sm sm:text-base md:text-lg text-slate-600 mb-7 sm:mb-8 leading-relaxed max-w-3xl mx-auto"
+                  >
+                    Un accompagnement structuré, basé sur des situations réelles, pour décider avec méthode et agir concrètement.
+                  </motion.p>
 
-                      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6 max-w-3xl mx-auto">
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200/60 text-gray-900 text-center leading-snug shadow-sm">
-                          Diagnostic professionnel
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/60 text-gray-900 text-center leading-snug shadow-sm">
-                          Analyse décisionnelle
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/60 text-gray-900 text-center leading-snug shadow-sm">
-                          Accompagnement stratégique
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/60 text-gray-900 text-center leading-snug shadow-sm">
-                          Développement en situation réelle
-                        </span>
-                      </div>
+                  <motion.div
+                    variants={heroItemVariants}
+                    className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mb-4"
+                  >
+                    <motion.button
+                      type="button"
+                      onClick={() => navigate("/diagnostic")}
+                      whileHover={reduceMotion ? undefined : { y: -1 }}
+                      whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                      transition={reduceMotion ? undefined : { type: "spring", stiffness: 420, damping: 28 }}
+                      className="group w-full sm:w-auto px-7 sm:px-9 py-3.5 sm:py-4 bg-slate-900 text-white text-sm sm:text-base font-semibold rounded-xl shadow-sm hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 inline-flex items-center justify-center"
+                    >
+                      <span>Lancer le diagnostic gratuit</span>
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                    </motion.button>
+                    <motion.a
+                      href="https://wa.me/21644172284"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={reduceMotion ? undefined : { y: -1 }}
+                      whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                      transition={reduceMotion ? undefined : { type: "spring", stiffness: 420, damping: 28 }}
+                      className="group w-full sm:w-auto px-7 sm:px-9 py-3.5 sm:py-4 bg-transparent text-slate-700 text-sm sm:text-base font-semibold rounded-xl border border-slate-300/80 hover:bg-slate-50/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 inline-flex items-center justify-center"
+                    >
+                      <span>Parler à un consultant</span>
+                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                    </motion.a>
+                  </motion.div>
 
-                      <div className="flex justify-center mb-8">
-                        <button
-                          type="button"
-                          onClick={() => navigate("/diagnostic-wonder")}
-                          className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center ring-1 ring-white/10"
-                        >
-                          <span>Commencez maintenant votre diagnostic gratuit</span>
-                          <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                      </div>
+                  <motion.p variants={heroItemVariants} className="text-xs sm:text-sm text-slate-500">
+                    Diagnostic gratuit • Résultat immédiat • Confidentialité garantie
+                  </motion.p>
 
-                      <div className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-white/80 backdrop-blur-sm border border-white/70 px-4 py-2 text-sm text-gray-800 shadow-sm ring-1 ring-black/5">
-                        <span className="font-semibold">Rejoignez plus de 5000 professionnels accompagnés !</span>
-                      </div>
+                  <div className="hidden mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-white/80 backdrop-blur-sm border border-white/70 px-4 py-2 text-sm text-gray-800 shadow-sm ring-1 ring-black/5">
+                    <span className="font-semibold">Rejoignez plus de 5000 professionnels accompagnés !</span>
+                  </div>
 
-                      {/* Social Proof - Enhanced */}
-                      <div className="mt-8 space-y-4">
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-                          {/* Professionals Count */}
-                          <div className="group flex items-center bg-white/70 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/60 ring-1 ring-black/5">
-                            <div className="flex -space-x-3 mr-3">
-                              {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 border-3 border-white flex items-center justify-center text-white text-sm font-bold shadow-lg transform group-hover:scale-110 transition-transform">
-                                  {i === 1 ? '👨' : i === 2 ? '👩' : i === 3 ? '👤' : '👨‍💼'}
-                                </div>
-                              ))}
+                  {/* Social Proof - Enhanced */}
+                  <div className="hidden mt-8 space-y-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+                      <div className="group flex items-center bg-white/70 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/60 ring-1 ring-black/5">
+                        <div className="flex -space-x-3 mr-3">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div
+                              key={i}
+                              className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 border-3 border-white flex items-center justify-center text-white text-sm font-bold shadow-lg transform group-hover:scale-110 transition-transform"
+                            >
+                              {i === 1 ? "👨" : i === 2 ? "👩" : i === 3 ? "👤" : "👨‍💼"}
                             </div>
-                            <div>
-                              <p className="text-lg font-bold text-gray-900 leading-tight">+5000</p>
-                              <p className="text-xs text-gray-600 font-medium">professionnels accompagnés</p>
-                            </div>
-                          </div>
-
-                          {/* Rating */}
-                          <div className="group flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-orange-50 px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200/70 ring-1 ring-black/5">
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400 transform group-hover:scale-110 transition-transform" style={{transitionDelay: `${star * 50}ms`}} />
-                              ))}
-                            </div>
-                            <div className="border-l border-yellow-300 pl-3">
-                              <p className="text-lg font-bold text-gray-900 leading-tight">4.9/5</p>
-                              <p className="text-xs text-gray-600 font-medium">2,500+ avis</p>
-                            </div>
-                          </div>
+                          ))}
                         </div>
+                        <div>
+                          <p className="text-lg font-bold text-gray-900 leading-tight">+5000</p>
+                          <p className="text-xs text-gray-600 font-medium">professionnels accompagnés</p>
+                        </div>
+                      </div>
 
-                        {/* Trust Badges */}
-                        <div className="flex flex-wrap items-center justify-center gap-3">
-                          <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-200/70 ring-1 ring-black/5">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-xs font-semibold text-green-700">Processus qualité</span>
-                          </div>
-                          <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200/70 ring-1 ring-black/5">
-                            <Shield className="w-4 h-4 text-blue-600" />
-                            <span className="text-xs font-semibold text-blue-700">100% sécurisé</span>
-                          </div>
-                          <div className="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-200/70 ring-1 ring-black/5">
-                            <Award className="w-4 h-4 text-purple-600" />
-                            <span className="text-xs font-semibold text-purple-700">Experts reconnus</span>
-                          </div>
+                      <div className="group flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-orange-50 px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200/70 ring-1 ring-black/5">
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className="w-5 h-5 fill-yellow-400 text-yellow-400 transform group-hover:scale-110 transition-transform"
+                              style={{ transitionDelay: `${star * 50}ms` }}
+                            />
+                          ))}
+                        </div>
+                        <div className="border-l border-yellow-300 pl-3">
+                          <p className="text-lg font-bold text-gray-900 leading-tight">4.9/5</p>
+                          <p className="text-xs text-gray-600 font-medium">2,500+ avis</p>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-200/70 ring-1 ring-black/5">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-xs font-semibold text-green-700">Processus qualité</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200/70 ring-1 ring-black/5">
+                        <Shield className="w-4 h-4 text-blue-600" />
+                        <span className="text-xs font-semibold text-blue-700">100% sécurisé</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-200/70 ring-1 ring-black/5">
+                        <Award className="w-4 h-4 text-purple-600" />
+                        <span className="text-xs font-semibold text-purple-700">Experts reconnus</span>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.section>
 
-      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-10 sm:mb-12" dir="ltr">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
-                <Users className="w-4 h-4 text-indigo-600" />
-                <span className="text-xs sm:text-sm font-semibold text-slate-700">👥 À qui s’adresse notre activité ?</span>
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Notre activité s’adresse aux personnes qui veulent comprendre leur positionnement professionnel réel
-              </h2>
-              <p className="text-base sm:text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                Et construire un profil professionnel opérationnel — sans apprentissage théorique ni certifications.
-              </p>
-            </div>
+      <section className="relative py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.09),transparent_60%)] blur-2xl" />
+        </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch" dir="ltr">
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden"
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[960px] mx-auto">
+            <motion.div
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.2 }}
+              variants={sectionContainerVariants}
+              className="text-center mb-10 sm:mb-12"
+              dir="ltr"
+            >
+              <motion.h2
+                variants={sectionItemVariants}
+                className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight"
               >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10" />
-                <div className="relative">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900">🔹 Profils en début de parcours professionnel</h3>
-                      <p className="text-sm text-gray-600 mt-1">Pour bien démarrer, avant de perdre du temps dans du contenu sans résultat.</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Étudiants avant l’entrée sur le marché du travail</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Jeunes diplômés qui se sentent perdus professionnellement</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Profils Junior / Assistant</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Personnes qui ont des compétences mais ne savent pas comment les présenter ou les utiliser correctement</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+                Pour qui est conçu cet accompagnement ?
+              </motion.h2>
+              <motion.p
+                variants={sectionItemVariants}
+                className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed"
+              >
+                Cet accompagnement s’adresse à celles et ceux qui font face à une situation professionnelle floue ou complexe, et qui veulent clarifier, décider avec méthode, puis passer à l’action dans un cadre solide.
+              </motion.p>
+            </motion.div>
 
+            <motion.div
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.25 }}
+              variants={sectionContainerVariants}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+              dir="ltr"
+            >
               <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut", delay: 0.03 }}
-                className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden"
+                variants={sectionItemVariants}
+                whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="group relative rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur-xl p-6 sm:p-7 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.18)] ring-1 ring-black/5 overflow-hidden"
               >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
+                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.18),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(56,189,248,0.14),transparent_48%)]" />
                 <div className="relative">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center shadow-[0_16px_34px_-18px_rgba(15,23,42,0.65)]">
                       <Compass className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900">🔹 Profils en phase de clarification ou de repositionnement</h3>
-                      <p className="text-sm text-gray-600 mt-1">Quand vous cherchez une décision claire : que faire, pourquoi, et comment ?</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900">Démarrage &amp; structuration</h3>
+                      <div className="mt-2 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Personnes ayant un peu travaillé mais sans direction claire</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Profils souhaitant faire une reconversion</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Personnes qui ont constaté que leurs choix professionnels ne sont pas cohérents</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Personnes qui veulent savoir : que puis-je faire, pourquoi, et comment ?</p>
-                    </div>
-                  </div>
+                  <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Vous avez des compétences, mais manquez de repères clairs : niveau réel, direction, et prochaines étapes concrètes.
+                  </p>
+                  <p className="mt-4 text-sm text-slate-500 italic">
+                    Résultat attendu : un cap clair, une stratégie réaliste, et un plan d’action.
+                  </p>
                 </div>
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut", delay: 0.06 }}
-                className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden"
+                variants={sectionItemVariants}
+                whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="group relative rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur-xl p-6 sm:p-7 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.18)] ring-1 ring-black/5 overflow-hidden"
               >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/10" />
+                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_20%_10%,rgba(16,185,129,0.14),transparent_46%),radial-gradient(circle_at_85%_80%,rgba(99,102,241,0.12),transparent_48%)]" />
                 <div className="relative">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-amber-600/20">
-                      <Shield className="w-5 h-5" />
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-600 text-white flex items-center justify-center shadow-[0_16px_34px_-18px_rgba(37,99,235,0.55)]">
+                      <Lightbulb className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900">🔹 Profils en recherche de sérieux et de crédibilité</h3>
-                      <p className="text-sm text-gray-600 mt-1">Pas une formation classique, mais une évaluation réaliste et des décisions claires.</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900">Choix &amp; repositionnement</h3>
+                      <div className="mt-2 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Personnes qui n’aiment pas la formation classique</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Personnes fatiguées des cours théoriques</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Profils qui veulent une évaluation réaliste, des décisions claires et une orientation professionnelle directe</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Ceux qui veulent de vrais documents professionnels, pas des certificats de façade</p>
-                    </div>
-                  </div>
+                  <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Vous êtes à un carrefour (évolution, reconversion, opportunité) et vous voulez trancher sans improviser.
+                  </p>
+                  <p className="mt-4 text-sm text-slate-500 italic">
+                    Résultat attendu : une décision cadrée, alignée sur la réalité du rôle et du marché.
+                  </p>
                 </div>
               </motion.div>
-            </div>
 
-            <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6" dir="ltr">
               <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden"
+                variants={sectionItemVariants}
+                whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="group relative rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur-xl p-6 sm:p-7 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.18)] ring-1 ring-black/5 overflow-hidden"
               >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-rose-500/10 via-transparent to-orange-500/10" />
+                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_20%_10%,rgba(245,158,11,0.12),transparent_46%),radial-gradient(circle_at_85%_80%,rgba(16,185,129,0.10),transparent_50%)]" />
                 <div className="relative">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-rose-600 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-rose-600/20">
-                      <X className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900">❌ Pour qui ne travaillons-nous pas ?</h3>
-                      <p className="text-sm text-gray-600 mt-1">Pour que tout soit clair dès le départ.</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5 font-bold text-rose-700">✗</span>
-                      <p>Ceux qui recherchent un diplôme ou une attestation de formation</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5 font-bold text-rose-700">✗</span>
-                      <p>Ceux qui veulent des cours prêts à l’emploi ou des recettes miracles</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5 font-bold text-rose-700">✗</span>
-                      <p>Ceux qui veulent apprendre une compétence sans contexte professionnel</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5 font-bold text-rose-700">✗</span>
-                      <p>Ceux qui ne veulent pas se confronter à leur niveau réel</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut", delay: 0.03 }}
-                className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 border border-white/10 shadow-[0_18px_60px_-38px_rgba(15,23,42,0.8)] p-6 sm:p-7"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="h-11 w-11 rounded-2xl bg-white/10 border border-white/15 text-white flex items-center justify-center">
-                    <Lightbulb className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-emerald-300">🧭 La valeur fondamentale</p>
-                    <h3 className="mt-1 text-xl font-bold text-white">Nous n’enseignons pas.</h3>
-                    <p className="mt-2 text-sm text-slate-200 leading-relaxed">
-                      Nous évaluons, nous corrigeons le raisonnement, et nous orientons.
-                      <span className="block mt-3 text-white font-semibold">
-                        Notre objectif : transformer une personne sans clarté professionnelle en un profil compréhensible, structuré et exploitable dans la réalité professionnelle.
-                      </span>
-                    </p>
-                    <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                      <button
-                        type="button"
-                        onClick={() => navigate("/diagnostic-wonder")}
-                        className="group inline-flex items-center justify-center gap-2 rounded-full bg-white text-slate-900 px-5 py-2.5 text-sm font-semibold shadow-sm hover:shadow-md transition-all"
-                      >
-                        <span>Commencer le diagnostic</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => scrollToSection("parcours-section")}
-                        className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 text-white border border-white/15 px-5 py-2.5 text-sm font-semibold hover:bg-white/15 transition-all"
-                      >
-                        <span>Voir le parcours</span>
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-indigo-50/30 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-10 sm:mb-12" dir="ltr">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm ring-1 ring-black/5">
-                <BadgeCheck className="w-4 h-4 text-indigo-600" />
-                <span className="text-xs sm:text-sm font-semibold text-slate-700">🧠 Supervision par des experts métiers</span>
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mt-5 mb-4 tracking-tight">
-                Un résultat professionnel clair — sans compromis ni complaisance
-              </h2>
-              <p className="text-base sm:text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                L’ensemble du service (Service 1 et Service 2) est supervisé par des experts métiers selon votre domaine. Nous vous apportons une évaluation réaliste qui révèle votre niveau réel, afin que vous puissiez vous appuyer dessus et progresser par vous-même avec un plan juste.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch" dir="ltr">
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden"
-              >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
-                <div className="relative">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20">
-                      <Search className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900">Service 1 — Diagnostic (Individuel)</h3>
-                      <p className="text-sm text-gray-600 mt-1">C’est le point de départ obligatoire, car sans lui nous ne pouvons ni définir le parcours ni estimer le tarif.</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Individuel via la plateforme : questions / scénarios / analyse selon le domaine.</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Une session en direct avec un expert est possible (selon le cas) pour clarifier la décision ou confirmer l’orientation.</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Livrables : évaluation claire du niveau + recommandation GO/NO-GO + proposition de parcours adapté.</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-5 py-4">
-                    <p className="text-sm font-semibold text-indigo-900">
-                      Pourquoi le Service 1 est-il essentiel ?
-                      <span className="block mt-2 text-sm text-gray-800 font-normal">
-                        Parce que le diagnostic « filtre » et précise exactement ce dont vous avez besoin, quand le Service 2 est pertinent, et sous quelle forme.
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.45, ease: "easeOut", delay: 0.03 }}
-                className="relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_22px_60px_-38px_rgba(17,24,39,0.35)] ring-1 ring-black/5 p-6 sm:p-7 overflow-hidden"
-              >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10" />
-                <div className="relative">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-[0_16px_34px_-18px_rgba(16,185,129,0.55)]">
                       <Briefcase className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900">Service 2 — Mise en œuvre / accompagnement (Individuel ou Groupe)</h3>
-                      <p className="text-sm text-gray-600 mt-1">S’active uniquement après le diagnostic, et avec des profils « compatibles » sur l’objectif et la méthodologie.</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900">Exécution &amp; crédibilité</h3>
+                      <div className="mt-2 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
                     </div>
                   </div>
-
-                  <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Soit en individuel, soit en petit groupe ne dépassant pas 5 personnes.</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Le groupe est soigneusement filtré : même objectif et même mode de pensée (même méthodologie).</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <p>Priorité au résultat professionnel : décisions, documents et exécution en contexte métier (pas une formation théorique).</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl bg-amber-50/70 border border-amber-200/70 px-5 py-4">
-                    <p className="text-sm font-semibold text-amber-900">
-                      💬 La tarification ne se fixe pas avant le diagnostic
-                      <span className="block mt-2 text-sm text-gray-800 font-normal">
-                        Les tarifs du Service 1 comme du Service 2 varient selon le « challenge » et la situation. Nous ne pouvons donc pas annoncer un prix avant la fin du diagnostic gratuit.
-                      </span>
-                    </p>
-                  </div>
+                  <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Vous voulez dépasser la théorie : démontrer concrètement votre capacité à décider et exécuter sur des situations réelles, encadrées.
+                  </p>
+                  <p className="mt-4 text-sm text-slate-500 italic">
+                    Résultat attendu : des livrables concrets et une crédibilité renforcée.
+                  </p>
                 </div>
               </motion.div>
-            </div>
+            </motion.div>
 
-            <div className="mt-10 flex flex-col items-center" dir="ltr">
-              <button
-                type="button"
-                onClick={() => navigate("/diagnostic-wonder")}
-                className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-              >
-                <span>Commencer le diagnostic gratuit</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <p className="mt-3 text-sm text-gray-600 text-center max-w-2xl">
-                Après le diagnostic : nous définissons le format le plus pertinent (Individuel ou Groupe) et proposons une tarification cohérente selon le cas.
-              </p>
-            </div>
+            <motion.div
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.25 }}
+              variants={sectionContainerVariants}
+              className="mt-8 sm:mt-10 rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.18)] ring-1 ring-black/5"
+              dir="ltr"
+            >
+              <motion.p variants={sectionItemVariants} className="text-sm sm:text-base font-semibold text-slate-900">
+                En pratique, cet accompagnement s’adapte à votre contexte professionnel, dès lors qu’une situation réelle peut être analysée et travaillée de manière rigoureuse.
+              </motion.p>
+
+              <motion.div variants={sectionItemVariants} className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-7">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-700">Principalement destiné aux :</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs sm:text-sm font-semibold">
+                      Salariés
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-indigo-50/80 text-indigo-900 border border-indigo-200/70 px-3 py-1 text-xs sm:text-sm font-semibold">
+                      Indépendants / Freelance
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-amber-50/80 text-amber-900 border border-amber-200/70 px-3 py-1 text-xs sm:text-sm font-semibold">
+                      Entrepreneurs
+                    </span>
+                  </div>
+
+                  <p className="mt-4 text-xs sm:text-sm font-semibold text-slate-700">Convient également aux :</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center rounded-full bg-emerald-50/80 text-emerald-900 border border-emerald-200/70 px-3 py-1 text-xs sm:text-sm font-semibold">
+                      Étudiants
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-sky-50/80 text-sky-900 border border-sky-200/70 px-3 py-1 text-xs sm:text-sm font-semibold">
+                      En recherche
+                    </span>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-5 rounded-2xl border border-slate-200/70 bg-white/70 p-4 sm:p-5">
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Il couvre des contextes variés (poste actuel, reconversion, lancement de projet, évolution)
+                    et des domaines multiples (IT, data, marketing, finance, management, RH, etc.).
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      <AnimatePresence>
-        {isParcoursInfoOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            role="dialog"
-            aria-modal="true"
-          >
+      <section className="relative py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-50 to-white overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.09),transparent_60%)] blur-2xl" />
+          <div className="absolute -bottom-28 left-1/2 h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.06),transparent_62%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[960px] mx-auto" dir="ltr">
             <motion.div
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 16, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl border border-white/60"
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.25 }}
+              variants={sectionContainerVariants}
+              className="text-center mb-10 sm:mb-12"
             >
-              <div className="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-slate-200/70 px-6 sm:px-8 py-5 flex items-start justify-between gap-4">
+              <motion.h2
+                variants={sectionItemVariants}
+                className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight"
+              >
+                Comment se déroule concrètement l’accompagnement ?
+              </motion.h2>
+              <motion.p variants={sectionItemVariants} className="mt-3 text-sm sm:text-base text-slate-500 font-medium">
+                Un parcours clair, structuré et progressif
+              </motion.p>
+              <div className="mt-5 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed space-y-3">
+                <motion.p variants={sectionItemVariants}>
+                  Notre approche repose sur un parcours structuré, conçu pour clarifier les décisions professionnelles avant toute mise en œuvre.
+                </motion.p>
+                <motion.p variants={sectionItemVariants}>
+                  Chaque étape répond à un objectif précis, sans formation classique, sans enseignement général et sans automatisme.
+                </motion.p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.22 }}
+              variants={sectionContainerVariants}
+              className="relative rounded-[2rem] border border-white/60 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_26px_70px_-50px_rgba(15,23,42,0.28)] ring-1 ring-black/5 overflow-hidden"
+            >
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 opacity-[0.10] bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.55),transparent_42%),radial-gradient(circle_at_85%_80%,rgba(56,189,248,0.35),transparent_44%)]" />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
                 <div>
-                  <p className="text-xs font-semibold text-slate-600">📌</p>
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-gray-900">
-                    Conditions générales des services MA Consulting
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Applicables au Diagnostic Professionnel (Service 1) et aux Missions Opérationnelles (Service 2)
-                  </p>
+                  <div className="relative pl-6">
+                    <div className="absolute left-0 top-1 bottom-1 w-px bg-gradient-to-b from-slate-200 via-slate-200 to-slate-100" />
+
+                    <div className="space-y-5">
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-slate-900 ring-4 ring-white shadow-sm" />
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Diagnostic général</div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center justify-start pl-1">
+                        <ChevronRight className="w-5 h-5 text-slate-300 transform rotate-90" />
+                      </div>
+
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-indigo-600 ring-4 ring-white shadow-sm" />
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Service 1 – Diagnostic stratégique, positionnement &amp; orientation professionnelle</div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center justify-start pl-1">
+                        <ChevronRight className="w-5 h-5 text-slate-300 transform rotate-90" />
+                      </div>
+
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-amber-600 ring-4 ring-white shadow-sm" />
+                        <div className="relative rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Bonus associé : Espace Ressources &amp; Recommandations professionnelles</div>
+                          <div className="hidden lg:flex absolute -right-10 top-1/2 -translate-y-1/2 items-center">
+                            <span className="h-px w-8 bg-amber-300/70" />
+                            <ArrowRight className="w-4 h-4 text-amber-400" />
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center justify-start pl-1">
+                        <ChevronRight className="w-5 h-5 text-slate-300 transform rotate-90" />
+                      </div>
+
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-emerald-600 ring-4 ring-white shadow-sm" />
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Service 2 – Missions professionnelles encadrées</div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center justify-start pl-1">
+                        <ChevronRight className="w-5 h-5 text-slate-300 transform rotate-90" />
+                      </div>
+
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-amber-600 ring-4 ring-white shadow-sm" />
+                        <div className="relative rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Bonus associé : Analyse &amp; Recommandations avancées (Document d’Analyse Professionnelle)</div>
+                          <div className="hidden lg:flex absolute -right-10 top-1/2 -translate-y-1/2 items-center">
+                            <span className="h-px w-8 bg-amber-300/70" />
+                            <ArrowRight className="w-4 h-4 text-amber-400" />
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center justify-start pl-1">
+                        <ChevronRight className="w-5 h-5 text-slate-300 transform rotate-90" />
+                      </div>
+
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-purple-600 ring-4 ring-white shadow-sm" />
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Service 3 – Accompagnement opérationnel</div>
+                          <div className="mt-1 text-sm text-slate-600">Mise en œuvre concrète sur votre situation réelle</div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center justify-start pl-1">
+                        <ChevronRight className="w-5 h-5 text-slate-300 transform rotate-90" />
+                      </div>
+
+                      <motion.div variants={sectionItemVariants} className="relative">
+                        <div className="absolute -left-[14px] top-2 h-7 w-7 rounded-full bg-amber-600 ring-4 ring-white shadow-sm" />
+                        <div className="relative rounded-2xl border border-slate-200/70 bg-white/80 px-5 py-4 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md">
+                          <div className="text-sm font-semibold text-slate-900">Bonus associé : Groupe Telegram d’échanges et développement</div>
+                          <div className="hidden lg:flex absolute -right-10 top-1/2 -translate-y-1/2 items-center">
+                            <span className="h-px w-8 bg-amber-300/70" />
+                            <ArrowRight className="w-4 h-4 text-amber-400" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsParcoursInfoOpen(false)}
-                  className="h-10 w-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors"
-                  aria-label="Fermer"
-                >
-                  <X className="w-5 h-5 text-slate-700" />
-                </button>
+
+                <motion.div variants={sectionItemVariants} className="space-y-4">
+                  <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white/80 via-white/60 to-indigo-50/60 p-5 sm:p-6 ring-1 ring-black/5 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.18),transparent_65%)] blur-2xl" />
+                      <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.10),transparent_65%)] blur-2xl" />
+                    </div>
+                    <div className="relative text-sm font-semibold text-slate-900">📌 Note</div>
+                    <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                      Aucune étape n’est automatique. À chaque étape, vous êtes accompagné par des experts métiers qualifiés (dans tous les domaines). Le nombre de sessions est ajusté selon le besoin.
+                    </p>
+                  </div>
+
+                  <div className="relative overflow-hidden rounded-2xl border border-amber-200/70 bg-gradient-to-br from-amber-50/80 via-white/70 to-white/60 p-5 sm:p-6 ring-1 ring-black/5 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.22),transparent_65%)] blur-2xl" />
+                      <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.16),transparent_65%)] blur-2xl" />
+                    </div>
+                    <div className="relative text-xs font-semibold text-amber-900">À propos des bonus</div>
+                    <p className="mt-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+                      Les bonus font partie intégrante du parcours et sont inclus pour renforcer chaque étape.
+                    </p>
+                  </div>
+                </motion.div>
               </div>
 
-              <div className="px-6 sm:px-8 py-6">
-                <div className="rounded-3xl bg-white border border-slate-200/70 p-6" dir="ltr">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">Résumé des conditions (Readable)</p>
-                      <p className="mt-2 text-sm text-gray-700 leading-relaxed">
-                        Ces conditions sont fournies à titre explicatif ; la référence juridique est le fichier PDF.
-                      </p>
+              <p className="mt-6 text-sm sm:text-base text-slate-600">
+                👉 Chaque étape du parcours est détaillée ci-dessous, avec ses objectifs, modalités et livrables concrets.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section id="outcomes-section" className="relative scroll-mt-24 sm:scroll-mt-28 py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_60%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[1100px] mx-auto" dir="ltr">
+            <motion.div
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.25 }}
+              variants={sectionContainerVariants}
+              className="text-center"
+            >
+              <motion.div
+                variants={sectionItemVariants}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-50/80 border border-emerald-200/70 px-4 py-2 text-xs font-semibold text-emerald-900 shadow-sm ring-1 ring-black/5"
+              >
+                <Award className="w-4 h-4" />
+                <span>Offert (gratuit)</span>
+              </motion.div>
+              <motion.h2
+                variants={sectionItemVariants}
+                className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight"
+              >
+                Diagnostic général (en ligne)
+              </motion.h2>
+              <motion.p
+                variants={sectionItemVariants}
+                className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed"
+              >
+                Un questionnaire structuré, composé de questions générales à forte valeur d’analyse, permettant d’évaluer votre profil professionnel global, sans référence à un domaine ou une spécialité.
+              </motion.p>
+            </motion.div>
+
+            <motion.div
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.25 }}
+              variants={sectionContainerVariants}
+              className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              <motion.div
+                id="diagnostic-initial-section"
+                variants={sectionItemVariants}
+                whileHover={reduceMotion ? undefined : { y: -2 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.25)] ring-1 ring-black/5"
+                dir="ltr"
+              >
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute -top-20 -right-24 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.12),transparent_62%)] blur-2xl" />
+                </div>
+                <div className="relative">
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)]">
+                      <Search className="w-5 h-5" />
                     </div>
-                    <div className="h-11 w-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-slate-700" />
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900">Comment ça fonctionne</h3>
+                      <p className="mt-1 text-sm text-slate-600">Un diagnostic en ligne, structuré et orienté décision.</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-sm text-slate-600 leading-relaxed">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-3">
+                      <div className="text-xs font-semibold text-slate-500">Étape 1</div>
+                      <div className="mt-1">Vous répondez à un questionnaire général, organisé et orienté décision.</div>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-3">
+                      <div className="text-xs font-semibold text-slate-500">Étape 2</div>
+                      <div className="mt-1">Nous analysons la cohérence de votre profil, votre posture professionnelle et les principaux points bloquants.</div>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-3">
+                      <div className="text-xs font-semibold text-slate-500">Étape 3</div>
+                      <div className="mt-1">Nous orientons vers le parcours le plus pertinent avant tout engagement.</div>
                     </div>
                   </div>
                 </div>
+              </motion.div>
 
-                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4" dir="ltr">
-                  <div className="rounded-3xl bg-gradient-to-b from-emerald-50 to-white border border-emerald-200/70 p-6">
-                    <p className="text-sm font-bold text-emerald-900">🔹 Service 1 — Diagnostic & Parcours</p>
-                    <p className="mt-2 text-sm text-gray-700">Service d’analyse, d’orientation et d’accompagnement professionnel</p>
-
-                    <div className="mt-4 grid grid-cols-1 gap-2 text-sm text-gray-700">
-                      <div className="flex items-start gap-2"><span className="text-rose-700 font-bold">❌</span><span>Ce n’est pas une formation</span></div>
-                      <div className="flex items-start gap-2"><span className="text-rose-700 font-bold">❌</span><span>Ce n’est pas une certification</span></div>
-                      <div className="flex items-start gap-2"><span className="text-rose-700 font-bold">❌</span><span>Ce n’est pas une promesse d’emploi</span></div>
+              <motion.div
+                variants={sectionItemVariants}
+                whileHover={reduceMotion ? undefined : { y: -2 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.25)] ring-1 ring-black/5"
+                dir="ltr"
+              >
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.10),transparent_64%)] blur-2xl" />
+                </div>
+                <div className="relative">
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-600 text-white flex items-center justify-center shadow-[0_16px_34px_-18px_rgba(37,99,235,0.55)]">
+                      <FileText className="w-5 h-5" />
                     </div>
-
-                    <div className="mt-4 rounded-2xl bg-white/70 border border-emerald-200/70 px-4 py-3">
-                      <p className="text-sm text-emerald-900 font-semibold">Livrables : documents professionnels d’analyse et de conseil</p>
-                    </div>
-
-                    <div className="mt-4">
-                      <p className="text-sm font-semibold text-gray-900">Les résultats dépendent de :</p>
-                      <ul className="mt-2 space-y-1 text-sm text-gray-700">
-                        <li>L’implication du participant</li>
-                        <li>La qualité des informations fournies</li>
-                      </ul>
-                    </div>
-
-                    <div className="mt-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 px-4 py-3">
-                      <p className="text-sm text-indigo-900 font-semibold">Il n’existe pas de NO-GO : le participant est toujours orienté vers un niveau ou un parcours adapté</p>
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900">Ce que vous recevez</h3>
+                      <p className="mt-1 text-sm text-slate-600">Un rapport de diagnostic initial (lecture de cadrage).</p>
                     </div>
                   </div>
 
-                  <div className="rounded-3xl bg-gradient-to-b from-indigo-50 to-white border border-indigo-200/70 p-6">
-                    <p className="text-sm font-bold text-indigo-900">🔹 Service 2 — Mission Opérationnelle (Sur demande)</p>
-                    <p className="mt-2 text-sm text-gray-700">Activé uniquement après diagnostic validé</p>
-
-                    <div className="mt-4">
-                      <p className="text-sm font-semibold text-gray-900">Deux formats :</p>
-                      <ul className="mt-2 space-y-1 text-sm text-gray-700">
-                        <li>Mission réelle</li>
-                        <li>Mission simulée</li>
-                      </ul>
+                  <div className="mt-5 rounded-2xl border border-slate-200/70 bg-white/70 p-4">
+                    <div className="text-sm font-semibold text-slate-900">Contenu</div>
+                    <div className="mt-2 space-y-2 text-sm text-slate-600 leading-relaxed">
+                      <div>1) Un rapport de diagnostic initial (lecture de cadrage).</div>
+                      <div>2) Votre niveau global sur une grille à 5 niveaux.</div>
+                      <div>3) Vos forces et axes d’amélioration principaux.</div>
+                      <div>4) Une estimation initiale et indicative du prix du Service 1, selon le parcours recommandé.</div>
                     </div>
+                  </div>
 
-                    <div className="mt-4 rounded-2xl bg-white/70 border border-indigo-200/70 px-4 py-3">
-                      <p className="text-sm text-indigo-900 font-semibold">Cadre contractuel distinct + livrables d’exécution clairs et définis</p>
-                    </div>
-
-                    <div className="mt-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 px-4 py-3">
-                      <p className="text-sm text-amber-900 font-semibold">Ce n’est pas un remplacement d’un employé ou d’une équipe interne</p>
+                  <div className="mt-4">
+                    <div className="text-xs font-semibold text-slate-500">Échelle (5 niveaux)</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-900">Débutant</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-900">Intermédiaire</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-900">Avancé</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-900">Professionnel</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-900">Expert</span>
                     </div>
                   </div>
                 </div>
+              </motion.div>
 
-                <div className="mt-6 rounded-3xl bg-slate-50 border border-slate-200/70 p-6" dir="ltr">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">📄 Télécharger les conditions (Justificatif)</p>
-                      <p className="mt-2 text-sm text-gray-700 leading-relaxed">
-                        Ce document précise : la nature des services, les limites de responsabilité, le cadre des documents, les modalités de paiement (le cas échéant), ainsi que les conditions d’activation ou d’arrêt.
-                        <span className="block mt-2 font-semibold text-gray-900">📌 Il s’agit de votre référence juridique.</span>
-                      </p>
+              <motion.div
+                variants={sectionItemVariants}
+                whileHover={reduceMotion ? undefined : { y: -2 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.25)] ring-1 ring-black/5"
+                dir="ltr"
+              >
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute -top-16 -right-20 h-52 w-52 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12),transparent_62%)] blur-2xl" />
+                </div>
+                <div className="relative">
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-[0_16px_34px_-18px_rgba(16,185,129,0.55)]">
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900">Important</h3>
+                      <p className="mt-1 text-sm text-slate-600">Ce diagnostic gratuit est une lecture initiale et générale.</p>
+                    </div>
+                  </div>
 
-                      <div className="mt-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 px-4 py-3">
-                        <p className="text-sm text-amber-900 font-semibold">Note obligatoire avant de poursuivre le parcours</p>
-                        <p className="mt-2 text-sm text-gray-800 leading-relaxed">
-                          Veuillez télécharger le document
-                          <span className="font-semibold text-gray-900"> 📄 CONDITIONS GÉNÉRALES DE SERVICE — MA-TRAINING-CONSULTING ( MATC )</span>
-                          , car nous vous demanderons ensuite
-                          <span className="font-semibold text-gray-900"> de joindre une copie</span>
-                          des conditions générales téléchargées dans l’e-mail confirmant votre participation et le démarrage de votre parcours dans le réel professionnel.
+                  <div className="mt-5 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4">
+                    <div className="text-sm font-semibold text-amber-900">Note</div>
+                    <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+                      Ce diagnostic gratuit est une lecture initiale et générale.
+                      Le diagnostic approfondi et la décision finale sont réalisés dans le cadre du Service 1.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              id="service1-details-section"
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.55, ease: easeOut }}
+              className="mt-10 sm:mt-12"
+              dir="ltr"
+            >
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur-xl p-6 sm:p-8 shadow-[0_18px_54px_-44px_rgba(15,23,42,0.28)] ring-1 ring-black/5">
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute -top-20 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.12),transparent_62%)] blur-2xl" />
+                </div>
+
+                <div className="relative">
+                  <div className="flex items-center justify-center">
+                    <div className="relative w-full max-w-md">
+                      <div className="h-px w-full bg-gradient-to-r from-transparent via-indigo-300/70 to-transparent" />
+                      <motion.div
+                        animate={
+                          reduceMotion
+                            ? undefined
+                            : {
+                                boxShadow: [
+                                  "0 0 0 0 rgba(79,70,229,0.0)",
+                                  "0 0 0 10px rgba(79,70,229,0.10)",
+                                  "0 0 0 0 rgba(79,70,229,0.0)",
+                                ],
+                              }
+                        }
+                        transition={reduceMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: easeInOut }}
+                        className="absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50/80 border border-indigo-200/70 px-4 py-2 text-xs font-semibold text-indigo-900 shadow-sm ring-1 ring-black/5">
+                      <span>Étape suivante</span>
+                      <motion.span
+                        animate={reduceMotion ? undefined : { y: [0, 4, 0] }}
+                        transition={reduceMotion ? undefined : { duration: 1.2, repeat: Infinity, ease: easeInOut }}
+                        className="inline-flex"
+                      >
+                        <ChevronRight className="w-4 h-4 rotate-90" />
+                      </motion.span>
+                    </div>
+
+                    <h3 className="mt-4 font-display text-xl sm:text-2xl font-bold text-slate-900">
+                      Service 1 — Diagnostic stratégique, positionnement &amp; orientation
+                    </h3>
+                    <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                      Un accompagnement professionnel destiné à clarifier votre situation réelle, évaluer votre niveau effectif et aboutir à une décision
+                      professionnelle cohérente et défendable.
+                    </p>
+
+                    <div className="mt-6 max-w-4xl mx-auto">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-left">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-5">
+                          <div className="text-sm font-semibold text-slate-900">À quoi ça sert ?</div>
+                          <div className="mt-3 space-y-2 text-sm text-slate-700">
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                              <span>Comprendre où vous en êtes réellement sur le plan professionnel</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                              <span>Identifier votre niveau réel, au-delà du titre ou du domaine</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                              <span>Vérifier si le positionnement ou le rôle visé est pertinent pour vous</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                              <span>Prendre une décision claire, réaliste et applicable</span>
+                            </div>
+                          </div>
+
+                          <div className="mt-5 rounded-2xl border border-slate-200/70 bg-white p-4">
+                            <div className="text-sm font-semibold text-slate-900">Comment ça fonctionne ?</div>
+                            <div className="mt-3 space-y-3">
+                              <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-3 py-3">
+                                <div className="text-xs font-semibold text-slate-900">Phase 0 — Diagnostic approfondi (en ligne)</div>
+                                <div className="mt-1 text-xs text-slate-600">
+                                  Approfondissement du diagnostic général à travers plusieurs systèmes d’analyse. Des questions générales, non liées à un domaine,
+                                  permettant d’évaluer votre posture professionnelle, votre logique de décision et votre niveau réel, puis de les confronter au contexte
+                                  ou au domaine envisagé.
+                                </div>
+                              </div>
+                              <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-3 py-3">
+                                <div className="text-xs font-semibold text-slate-900">Phases 1 à 4 — Analyse, positionnement &amp; orientation</div>
+                                <div className="mt-1 text-xs text-slate-600">
+                                  Analyse de la réalité professionnelle, construction d’un positionnement cohérent, ajustement des schémas de pensée et formalisation
+                                  d’une orientation claire et argumentée.
+                                </div>
+                              </div>
+                              <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-3 py-3">
+                                <div className="text-xs font-semibold text-slate-900">Phase 5 — Session individuelle avec un expert</div>
+                                <div className="mt-1 text-xs text-slate-600">
+                                  Session interactive en direct (1h) pour tester les décisions, travailler la posture professionnelle et valider le positionnement
+                                  retenu à travers des situations concrètes.
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-5">
+                            <div className="text-sm font-semibold text-slate-900">Ce que vous obtenez</div>
+                            <div className="mt-3 space-y-2 text-sm text-slate-700">
+                              <div className="flex gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                <span>Un rapport final de synthèse</span>
+                              </div>
+                              <div className="flex gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                <span>Un avis professionnel argumenté</span>
+                              </div>
+                              <div className="flex gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                <span>Un document de positionnement professionnel</span>
+                              </div>
+                              <div className="flex gap-3">
+                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                <span>Une décision claire, alignée avec votre niveau et votre contexte</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl border border-amber-200/70 bg-amber-50/60 p-5">
+                            <div className="text-sm font-semibold text-amber-900">Points forts</div>
+                            <div className="mt-3 space-y-2 text-sm text-slate-700">
+                              <div>✔ Analyse approfondie, pas de conseils génériques</div>
+                              <div>✔ Évaluation du niveau réel, indépendamment du domaine</div>
+                              <div>✔ Décision construite, pas intuitive</div>
+                              <div>✔ Accompagnement humain et personnalisé</div>
+                              <div>✔ Validation finale en interaction directe avec un expert</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6" />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              id="service2-details-section"
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.45, ease: easeOut }}
+              className="mt-8 sm:mt-10 text-center"
+              dir="ltr"
+            >
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50/80 border border-emerald-200/70 px-4 py-2 text-xs font-semibold text-emerald-900 shadow-sm ring-1 ring-black/5">
+                <span>Étape suivante</span>
+                <motion.span
+                  animate={reduceMotion ? undefined : { y: [0, 4, 0] }}
+                  transition={reduceMotion ? undefined : { duration: 1.2, repeat: Infinity, ease: easeInOut }}
+                  className="inline-flex"
+                >
+                  <ChevronRight className="w-4 h-4 rotate-90" />
+                </motion.span>
+              </div>
+              <h3 className="mt-4 font-display text-xl sm:text-2xl font-bold text-slate-900">Service 2 — Mission Professionnelle</h3>
+              <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                <span className="font-semibold text-slate-900">Réelle ou Simulée</span>
+              </p>
+              <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Après le <span className="font-semibold text-slate-900">Service 1</span>, le participant ne se contente plus d’un diagnostic ou d’une orientation.
+                <span className="block mt-2 font-semibold text-slate-900">Il passe à l’action.</span>
+                <span className="block mt-2">
+                  Le Service 2 transforme la décision prise en mise en situation professionnelle réelle ou simulée, afin d’évaluer concrètement la posture,
+                  la qualité des décisions et la capacité à agir en contexte.
+                </span>
+              </p>
+
+              <div className="mt-7 max-w-[1100px] mx-auto text-left">
+                <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur-xl p-6 sm:p-8 shadow-[0_18px_54px_-44px_rgba(15,23,42,0.28)] ring-1 ring-black/5">
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute -top-20 right-10 h-56 w-56 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.10),transparent_62%)] blur-2xl" />
+                    <div className="absolute -bottom-24 left-10 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.10),transparent_64%)] blur-2xl" />
+                  </div>
+
+                  <div className="relative">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-semibold text-slate-500">Deux formats</div>
+                        <div className="mt-1 text-lg font-semibold text-slate-900">Une même exigence</div>
+                      </div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-white/70 px-4 py-2 text-xs font-semibold text-slate-700">
+                        Évaluer • Corriger • Valider
+                      </div>
+                    </div>
+
+                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-5">
+                        <div className="text-xs font-semibold text-emerald-800">🔹 Mission Réelle</div>
+                        <div className="mt-2 text-base font-semibold text-slate-900">
+                          Simulation à très haute fidélité, ancrée dans votre environnement professionnel
+                        </div>
+                        <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+                          Construite à partir de votre <span className="font-semibold">poste</span>, de votre <span className="font-semibold">projet</span> ou de votre
+                          <span className="font-semibold">contexte réel</span>. Situations terrain, contraintes, responsabilités et arbitrages.
                         </p>
-                        <div className="mt-3 rounded-xl bg-white/70 border border-amber-200/70 px-4 py-3">
-                          <p className="text-xs font-semibold text-gray-900">Réponse obligatoire dans l’e-mail :</p>
-                          <p className="mt-2 text-sm font-semibold text-slate-900">
-                            "Je confirme avoir lu et accepté l’ensemble des conditions de service MA Consulting."
+                        <p className="mt-3 text-sm text-slate-700 leading-relaxed">
+                          <span className="font-semibold">👉 Destinée</span> aux profils déjà en activité ou engagés dans un projet professionnel.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-indigo-200/70 bg-indigo-50/40 p-5">
+                        <div className="text-xs font-semibold text-indigo-800">🔹 Mission Simulée</div>
+                        <div className="mt-2 text-base font-semibold text-slate-900">
+                          Simulation guidée, contexte fictif sécurisé et pédagogique
+                        </div>
+                        <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+                          Situations conçues par nos experts pour s’entraîner à la décision et à la posture professionnelle, sans exposition ni risque.
+                        </p>
+                        <p className="mt-3 text-sm text-slate-700 leading-relaxed">
+                          <span className="font-semibold">👉 Destinée</span> aux profils en phase de préparation ou de transition.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-7 border-t border-slate-200/70 pt-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2">
+                          <div className="text-sm font-semibold text-slate-900">Une simulation structurée, pas un simple exercice</div>
+                          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-700">
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Analyse de situations sous contraintes</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Décisions à prendre sous pression</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Scénarios variables et imprévus</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Rôles et responsabilités clairement définis</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Erreurs autorisées dans un cadre contrôlé</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Correction directe et feedback actionnable</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-5">
+                          <div className="text-sm font-semibold text-slate-900">Un accompagnement expert</div>
+                          <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+                            Sessions directes avec un expert (<span className="font-semibold">3 à 5</span> selon la situation), en individuel ou très petits groupes
+                            (<span className="font-semibold">max 4</span>), regroupés selon niveau et diagnostic.
+                          </p>
+                          <div className="mt-3 rounded-xl border border-slate-200/70 bg-white px-4 py-3">
+                            <div className="text-xs font-semibold text-slate-500">Objectif</div>
+                            <div className="mt-1 text-sm text-slate-700">
+                              Corriger le raisonnement, ajuster la posture, renforcer la qualité des décisions.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-7 border-t border-slate-200/70 pt-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="rounded-2xl border border-amber-200/70 bg-amber-50/60 p-5">
+                          <div className="text-sm font-semibold text-amber-900">📌 Positionnement</div>
+                          <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+                            Un test professionnel réel, sans exposition externe ni risque. Il vérifie la cohérence entre :
+                          </p>
+                          <div className="mt-3 space-y-1 text-sm text-slate-700">
+                            <div>• le niveau identifié</div>
+                            <div>• le rôle visé</div>
+                            <div>• la capacité effective à agir</div>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-5">
+                          <div className="text-sm font-semibold text-slate-900">🎯 Pourquoi le Service 2 ?</div>
+                          <p className="mt-2 text-sm text-slate-700 leading-relaxed">
+                            Parce qu’un bon diagnostic n’a de valeur que s’il est testé dans l’action.
+                          </p>
+                          <p className="mt-3 text-sm text-slate-700 leading-relaxed">
+                            Le Service 2 ne forme pas. Il <span className="font-semibold">évalue</span>, <span className="font-semibold">corrige</span> et
+                            <span className="font-semibold"> valide</span> la capacité à agir professionnellement.
                           </p>
                         </div>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={downloadMatcConditionsPdf}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white border border-slate-200/70 px-5 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
-                    >
-                      <FileText className="w-4 h-4" />
-                      <span>📄 CONDITIONS GÉNÉRALES DE SERVICE — MA-TRAINING-CONSULTING ( MATC )</span>
-                    </button>
-                  </div>
-                </div>
 
-                <div className="mt-6 rounded-3xl bg-white border border-slate-200/70 p-6" dir="ltr">
-                  <p className="text-sm font-bold text-gray-900">✅ Acceptation</p>
-                  <label className="mt-3 flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={termsAccepted}
-                      onChange={(e) => setTermsAccepted(e.target.checked)}
-                      className="mt-1 h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-700 leading-relaxed">
-                      Je déclare avoir pris connaissance des conditions de service, avoir compris la nature du Service 1 et du Service 2, et accepter l’ensemble des conditions, sans exception.
-                    </span>
-                  </label>
+                    <div className="mt-7 border-t border-slate-200/70 pt-6">
+                      <div className="text-sm font-semibold text-slate-900">📄 Livrables professionnels</div>
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                          <div className="text-xs font-semibold text-slate-500">Selon le type de mission</div>
+                          <div className="mt-3 space-y-2 text-sm text-slate-700">
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Rapports de mission</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Analyses décisionnelles</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Feedbacks experts</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Recommandations professionnelles</span>
+                            </div>
+                          </div>
+                        </div>
 
-                  <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                    <button
-                      type="button"
-                      disabled={!termsAccepted}
-                      onClick={() => navigate("/diagnostic-wonder")}
-                      className={`group w-full sm:w-auto px-6 py-3 rounded-2xl text-white text-sm font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] transition-all duration-300 inline-flex items-center justify-center ${termsAccepted ? "bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)]" : "bg-slate-300 cursor-not-allowed shadow-none"}`}
-                    >
-                      <span>✔️ Continuer vers le diagnostic</span>
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTermsAccepted(false);
-                        setIsParcoursInfoOpen(false);
-                      }}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white text-gray-900 text-sm font-semibold border border-slate-200/70 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 inline-flex items-center justify-center"
-                    >
-                      Fermer
-                    </button>
+                        <div>
+                          <div className="text-xs font-semibold text-slate-500">Documents &amp; résultats</div>
+                          <div className="mt-3 space-y-2 text-sm text-slate-700">
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Roadmaps d’exécution</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Synthèses des décisions</span>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                              <span>Avis professionnel final</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <section id="domains-section" className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-purple-50/40 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="relative rounded-2xl bg-white/80 backdrop-blur-sm border border-emerald-200/70 shadow-sm ring-1 ring-black/5 p-5">
-              <h2 className="text-sm font-bold text-emerald-900">Diagnostic Professionnel & Décision (obligatoire + Avis + Orientation + Parcours (5 phases))</h2>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <div className="rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/70 shadow-sm ring-1 ring-black/5 p-6">
-                <p className="text-xs font-bold text-slate-700">SERVICE 1</p>
-                <h3 className="mt-2 text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-                  Diagnostic Professionnel & Décision (obligatoire + Avis + Orientation + Parcours (5 phases))
-                </h3>
-                <p className="mt-3 text-sm text-gray-700 leading-relaxed">
-                  Service 1 = une évaluation professionnelle structurée + une décision + une intégration dans un parcours adapté.
-                  <span className="block">Diagnostic, orientation et accompagnement professionnel organisé.</span>
-                </p>
-
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
-                  <div className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✔</span><span>Diagnostic + décision</span></div>
-                  <div className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✔</span><span>Orientation + parcours</span></div>
-                </div>
-
-                <div className="mt-4 rounded-2xl bg-indigo-50 border border-indigo-200/70 px-4 py-3">
-                  <p className="text-sm text-indigo-900 font-semibold">
-                    Pas de NO-GO définitif : même un niveau débutant peut intégrer un parcours de fondations.
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/70 shadow-sm ring-1 ring-black/5 p-6">
-                <p className="text-sm font-bold text-gray-900">En bref</p>
-                <p className="mt-2 text-sm text-gray-700 leading-relaxed">
-                  Une logique simple : diagnostic → avis → intégration dans un parcours (phases 0 à 5).
-                </p>
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3" dir="ltr">
-                  <div className="rounded-2xl bg-slate-50 border border-slate-200/70 p-4">
-                    <p className="text-xs font-bold text-slate-700">Diagnostic</p>
-                    <p className="mt-1 text-sm text-gray-700">Évaluation approfondie</p>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 border border-slate-200/70 p-4">
-                    <p className="text-xs font-bold text-slate-700">Avis</p>
-                    <p className="mt-1 text-sm text-gray-700">Décision professionnelle claire</p>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 border border-slate-200/70 p-4">
-                    <p className="text-xs font-bold text-slate-700">Parcours</p>
-                    <p className="mt-1 text-sm text-gray-700">Intégration directe dans les phases 0→5</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center rounded-full bg-white border border-slate-200/70 px-3 py-1 text-xs font-semibold text-slate-700">Diagnostic : 5–7 jours</span>
-                  <span className="inline-flex items-center rounded-full bg-white border border-slate-200/70 px-3 py-1 text-xs font-semibold text-slate-700">Parcours : ~7 semaines</span>
-                  <span className="inline-flex items-center rounded-full bg-white border border-slate-200/70 px-3 py-1 text-xs font-semibold text-slate-700">100% online</span>
-                </div>
-
-                <p className="mt-4 text-xs font-semibold text-slate-700">Intitulé facture : Diagnostic professionnel & parcours d’orientation marketing</p>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/70 shadow-sm ring-1 ring-black/5 p-6" dir="ltr">
-              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
-                <div>
-                  <p className="text-xs font-bold text-slate-700">🧭 Parcours Marketing — 5 Phases</p>
-                  <h3 className="mt-2 text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-                    (Même structure, quel que soit le niveau)
-                  </h3>
-                </div>
-                <div className="rounded-full bg-slate-50 border border-slate-200/70 px-4 py-2 text-xs font-semibold text-slate-700 w-fit">
-                  Des livrables clairs à chaque phase (documents)
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm border border-gray-100 ring-1 ring-black/5">
-                  <p className="text-xs font-bold text-purple-700">🟣 Phase 0 — Onboarding & Cadrage</p>
-                  <p className="mt-3 text-sm text-gray-700">Définition du rôle cible + périmètre de responsabilité + méthode d’évaluation.</p>
-                  <p className="mt-3 text-xs font-semibold text-gray-900">📄 Note de cadrage</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm border border-gray-100 ring-1 ring-black/5">
-                  <p className="text-xs font-bold text-indigo-700">🟣 Phase 1 — Correction de la logique de réflexion</p>
-                  <p className="mt-3 text-sm text-gray-700">Situations réalistes + décisions + analyse des erreurs.</p>
-                  <p className="mt-3 text-xs font-semibold text-gray-900">📄 Fiche logique</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm border border-gray-100 ring-1 ring-black/5">
-                  <p className="text-xs font-bold text-slate-700">🟣 Phase 2 — Stabilisation du comportement professionnel</p>
-                  <p className="mt-3 text-sm text-gray-700">Pression + Budget + Deadlines.</p>
-                  <p className="mt-3 text-xs font-semibold text-gray-900">📄 Analyse comportementale</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm border border-gray-100 ring-1 ring-black/5">
-                  <p className="text-xs font-bold text-emerald-700">🟣 Phase 3 — Activation des compétences</p>
-                  <p className="mt-3 text-sm text-gray-700">Les mêmes compétences, mais utilisation intelligente, sans enseignement.</p>
-                  <p className="mt-3 text-xs font-semibold text-gray-900">📄 Synthèse d’activation</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm border border-gray-100 ring-1 ring-black/5">
-                  <p className="text-xs font-bold text-amber-700">🟣 Phase 4 — Positionnement</p>
-                  <p className="mt-3 text-sm text-gray-700">Comment communiquer, comment expliquer vos décisions, comment vous présenter.</p>
-                  <p className="mt-3 text-xs font-semibold text-gray-900">📄 Note de positionnement</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm border border-gray-100 ring-1 ring-black/5">
-                  <p className="text-xs font-bold text-rose-700">🟣 Phase 5 — Validation finale</p>
-                  <p className="mt-3 text-sm text-gray-700">Comparaison avant/après + niveau de préparation + décision finale.</p>
-                  <div className="mt-3 space-y-1 text-xs font-semibold text-gray-900">
-                    <p>📄 Rapport final</p>
-                    <p>📄 Avis professionnel</p>
-                    <p>📄 Document de participation</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-3xl bg-white/80 backdrop-blur-sm border border-indigo-200/70 shadow-sm ring-1 ring-black/5 p-6" dir="ltr">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-                <div>
-                  <p className="text-sm font-bold text-indigo-900">Bonus de compréhension métier — Ressources</p>
-                  <p className="mt-2 text-sm text-gray-700">
-                    Des ressources conçues pour accélérer la compréhension du domaine (réflexion + logique + responsabilité), pas des « cours » et pas des explications techniques.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/70 p-5">
-                  <p className="text-xs font-bold text-gray-900">1️⃣ 🧠 Jeux de réflexion métier (jeux de réflexion)</p>
-                  <p className="mt-2 text-sm text-gray-700">Exercices de décision réalistes : sans correction directe, avec comparaison ensuite à une logique professionnelle.</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/70 p-5">
-                  <p className="text-xs font-bold text-gray-900">2️⃣ 📚 Articles de cadrage professionnel</p>
-                  <p className="mt-2 text-sm text-gray-700">Articles qui expliquent « comment pense une équipe professionnelle » (responsabilité de décision, rôles, logique d’évaluation des résultats).</p>
-                </div>
-
-                <div className="rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/70 p-5">
-                  <p className="text-xs font-bold text-gray-900">3️⃣ 🧭 Domain Overview (vue d’ensemble du domaine)</p>
-                  <p className="mt-2 text-sm text-gray-700">Une cartographie claire des rôles et des interactions : où se prend la décision et où commence le risque.</p>
-                  <div className="mt-3 rounded-xl bg-indigo-50 border border-indigo-200/70 px-4 py-3">
-                    <p className="text-xs font-semibold text-indigo-900">Exemple : Marketing ≠ Ads — Marketing = choix + priorités + arbitrage</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-white/10 shadow-[0_18px_60px_-40px_rgba(15,23,42,0.7)] p-6" dir="ltr">
-              <p className="text-sm sm:text-base font-semibold text-white leading-relaxed">
-                Nous ne sommes pas un centre de formation ni une usine à certificats.
-                <span className="block mt-2 text-slate-200 font-normal">
-                  Nous sommes une plateforme de diagnostic et d’accompagnement professionnel : nous construisons votre manière de penser et de décider, et nous transformons votre expérience en documents professionnels présentables sur le marché — plus solides que n’importe quel certificat appris par cœur.
-                </span>
-              </p>
-            </div>
-
-            <div className="mt-10 flex flex-col items-center">
-              <button
-                onClick={() => navigate("/diagnostic-wonder")}
-                className="group w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-full shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center"
-              >
-                <span>Commencer le diagnostic</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <p className="mt-3 text-sm text-gray-600 text-center max-w-2xl">
-                Ensuite : accéder aux ressources bonus.
-              </p>
-            </div>
           </div>
         </div>
       </section>
 
-      <section id="parcours-section" className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                🟣 Diagnostic &amp; Professional Transformation
-              </h2>
-              <p className="text-lg sm:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                Clarity, positioning, and real operational missions — not training.
-              </p>
-            </div>
+      <section id="domains-section" className="relative scroll-mt-24 sm:scroll-mt-28 py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_60%)] blur-2xl" />
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {loading ? (
-                <div className="col-span-full text-center py-10">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <p className="mt-3 text-gray-600">Chargement des parcours...</p>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[1000px] mx-auto" dir="ltr">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.6, ease: easeOut }}
+              className="text-center"
+            >
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight">
+                🎁 Bonus — Analyse &amp; Recommandations Avancées
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                <span className="font-semibold text-slate-900">Inclus après le Service 1 + le Service 2</span> — restitution professionnelle finale, livrée exclusivement sous forme
+                de <span className="font-semibold text-slate-900">document écrit</span>.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.55, ease: easeOut }}
+              className="mt-10 rounded-[28px] border border-white/60 bg-white/75 backdrop-blur-xl shadow-[0_22px_70px_-52px_rgba(15,23,42,0.35)] ring-1 ring-black/5 overflow-hidden"
+            >
+              <div className="px-6 sm:px-8 py-6 sm:py-7 bg-gradient-to-r from-indigo-50/70 via-white/70 to-emerald-50/60 border-b border-slate-200/70">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700">
+                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white/70 px-3 py-1">Livrable final</span>
+                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white/70 px-3 py-1">Analyse écrite</span>
+                  </div>
+                  <div className="text-xs font-semibold text-slate-500">Bonus — après Service 1 + Service 2</div>
                 </div>
-              ) : programs.length === 0 ? (
-                <div className="col-span-full text-center py-10">
-                  <p className="text-gray-600">Aucun parcours disponible pour le moment.</p>
-                </div>
-              ) : (
-                programs.map((program) => (
-                  <div
-                    key={program.id}
-                    data-program-id={program.id}
-                    className="group rounded-3xl bg-white border border-slate-200/70 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5 p-6"
+              </div>
+
+              <div className="p-6 sm:p-8">
+                <div className="space-y-6">
+                  <motion.div
+                    whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                    transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/70 p-5 sm:p-6 shadow-sm ring-1 ring-black/5 transition-all duration-300 hover:bg-white hover:shadow-md"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200/70 px-3 py-1 text-xs font-semibold text-slate-700">
-                        <span>
-                          {typeof program.category === "string"
-                            ? program.category
-                            : program.category?.name || "Parcours"}
-                        </span>
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-semibold text-slate-500">📄 Livrable final</div>
+                        <div className="mt-2 text-base sm:text-lg font-semibold text-slate-900">Document d’Analyse Professionnelle</div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 px-3 py-1 text-[11px] font-semibold">
-                          Prix après diagnostic
-                        </span>
-                        <span className="text-[11px] text-gray-500">Estimation personnalisée</span>
+                      <div className="inline-flex items-center self-start rounded-full bg-indigo-600/10 px-3 py-1 text-xs font-semibold text-indigo-700">Document écrit</div>
+                    </div>
+
+                    <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                      Ce document synthétise l’ensemble du parcours et formalise la position professionnelle issue :
+                    </p>
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-slate-700">
+                      <div className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                        <span>du diagnostic stratégique (Service 1)</span>
+                      </div>
+                      <div className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                        <span>des missions professionnelles et de leur évaluation (Service 2)</span>
                       </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{program.title}</h3>
-                    <div className="h-2" />
+                    <p className="mt-5 text-sm sm:text-base text-slate-600 leading-relaxed">Il comprend :</p>
+                    <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-slate-700">
+                      <li className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                        <span>Analyse de la manière de travailler et des décisions prises</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                        <span>Forces professionnelles observées</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                        <span>Axes d’amélioration concrets et actionnables</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+                        <span>Orientations professionnelles adaptées à la situation</span>
+                      </li>
+                    </ul>
+                  </motion.div>
 
+                  <motion.div
+                    whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                    transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                    className="rounded-2xl border border-amber-200/70 bg-amber-50/60 p-5 sm:p-6 text-left shadow-sm ring-1 ring-black/5"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-semibold text-amber-900">⚖️ Précision importante</div>
+                        <div className="mt-2 text-base font-semibold text-slate-900">Cadre du bonus</div>
+                      </div>
+                      <div className="inline-flex items-center self-start rounded-full bg-amber-900/10 px-3 py-1 text-xs font-semibold text-amber-900">Important</div>
+                    </div>
+                    <p className="mt-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+                      Ce bonus ne constitue ni une formation, ni un accompagnement, ni une session de conseil.
+                      Il s’agit d’une analyse professionnelle écrite, fondée sur une évaluation réelle.
+                    </p>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-14 sm:py-16 lg:py-18 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-20 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.10),transparent_60%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[1050px] mx-auto" dir="ltr">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.6, ease: easeOut }}
+              className="text-center"
+            >
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50/80 border border-emerald-200/70 px-4 py-2 text-xs font-semibold text-emerald-900 shadow-sm ring-1 ring-black/5">
+                <span>Étape suivante</span>
+                <span className="opacity-70">—</span>
+                <span>🛠️ Accompagnement Opérationnel</span>
+              </div>
+              <h2 className="mt-5 font-display text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
+                De la décision à l’exécution
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed">
+                Lorsque l’analyse complète (diagnostic, missions et restitution finale) le justifie, nous accompagnons l’exécution réelle, directement sur votre situation professionnelle.
+              </p>
+              <p className="mt-3 text-base sm:text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed">
+                Ce service transforme une orientation validée en actions concrètes, structurées et suivies, avec un expert.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.55, ease: easeOut }}
+              className="mt-8 rounded-3xl border border-white/60 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.22)] ring-1 ring-black/5"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 text-left">
+                <motion.div
+                  whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                  transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                  className="lg:col-span-5 rounded-2xl border border-slate-200/70 bg-white/70 p-5 sm:p-6"
+                >
+                  <div className="text-sm font-semibold text-slate-900">🎯 À quoi ça sert ?</div>
+                  <ul className="mt-4 space-y-2 text-sm sm:text-base text-slate-700">
+                    <li>✔ Passer de la décision à l’action</li>
+                    <li>✔ Structurer les priorités et les choix</li>
+                    <li>✔ Corriger l’exécution en situation réelle</li>
+                    <li>✔ Développer les compétences nécessaires en pratiquant</li>
+                    <li>✔ Avancer de manière concrète et mesurable</li>
+                  </ul>
+                  <div className="mt-5 rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-4">
+                    <p className="text-sm sm:text-base text-emerald-900 leading-relaxed">
+                      👉 Ici, on ne vous dit pas quoi faire : on travaille avec vous, sur votre réalité.
+                    </p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                  transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                  className="lg:col-span-7 rounded-2xl border border-slate-200/70 bg-white/70 p-5 sm:p-6"
+                >
+                  <div className="text-sm font-semibold text-slate-900">🛠️ Comment ça se passe ?</div>
+                  <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Un <span className="font-semibold text-slate-900">plan d’action opérationnel sur mesure</span> est construit à partir :
+                  </p>
+                  <ul className="mt-4 space-y-2 text-sm sm:text-base text-slate-700 list-disc pl-5">
+                    <li>de votre situation réelle,</li>
+                    <li>des décisions déjà validées,</li>
+                    <li>des axes d’amélioration identifiés.</li>
+                  </ul>
+                  <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Ce plan devient votre feuille de route d’exécution.
+                  </p>
+                </motion.div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 text-left">
+                <motion.div
+                  whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                  transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                  className="rounded-2xl border border-slate-200/70 bg-white/70 p-5 sm:p-6"
+                >
+                  <div className="text-sm font-semibold text-slate-900">👥 Formats</div>
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-xl border border-slate-200/70 bg-white px-4 py-3">
+                      <div className="text-sm font-semibold text-slate-900">🔹 Individuel</div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white px-4 py-3">
+                      <div className="text-sm font-semibold text-slate-900">🔹 Groupe restreint filtré</div>
+                      <div className="mt-1 text-sm text-slate-600">max. 5 personnes</div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                  transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                  className="rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-5 sm:p-6"
+                >
+                  <div className="text-sm font-semibold text-emerald-900">👉</div>
+                  <p className="mt-2 text-sm sm:text-base text-emerald-900 leading-relaxed">
+                    Un accompagnement professionnel appliqué, orienté terrain et impact.
+                  </p>
+                </motion.div>
+              </div>
+
+              <motion.div
+                whileHover={reduceMotion ? undefined : { y: -3, scale: 1.01 }}
+                transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                className="mt-6 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-5 sm:p-6 text-left"
+              >
+                <div className="text-sm font-semibold text-amber-900">⚠️ Cadre</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-700 leading-relaxed">Cet accompagnement :</p>
+                <ul className="mt-3 space-y-2 text-sm sm:text-base text-slate-700 list-disc pl-5">
+                  <li>n’est pas une formation classique,</li>
+                  <li>intervient uniquement lorsqu’un besoin réel est identifié,</li>
+                  <li>se fait exclusivement sur des situations concrètes,</li>
+                  <li>ne comporte aucune promesse de résultat.</li>
+                </ul>
+                <p className="mt-4 text-sm sm:text-base text-slate-700 leading-relaxed">
+                  👉 Un accompagnement professionnel appliqué, orienté terrain et impact.
+                </p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section id="services-section" className="relative scroll-mt-24 sm:scroll-mt-28 py-12 sm:py-14 lg:py-16 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_60%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[1100px] mx-auto" dir="ltr">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.6, ease: easeOut }}
+              className="text-center"
+            >
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight">
+                Parcours d’accompagnement professionnel
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Un parcours structuré, avec services et bonus, présenté ici sous forme de résumé. Les tarifs sont indiqués <span className="font-semibold text-slate-900">à partir de</span>
+                et sont confirmés <span className="font-semibold text-slate-900">après le diagnostic initial</span>.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.55, ease: easeOut }}
+              className="mt-8 rounded-[2rem] border border-white/60 bg-white/75 backdrop-blur-xl shadow-[0_26px_70px_-52px_rgba(15,23,42,0.28)] ring-1 ring-black/5 overflow-hidden"
+            >
+              <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <div className="text-xs font-semibold text-white/70">Résumé du parcours</div>
+                    <div className="mt-2 text-xl sm:text-2xl font-semibold text-white tracking-tight">Prix du parcours (à partir de)</div>
+                  </div>
+                  <div className="text-white">
+                    <div className="text-2xl sm:text-3xl font-semibold">1 290 TND</div>
+                    <div className="mt-1 text-xs text-white/70">Tarif indicatif • confirmé après diagnostic initial</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-5 sm:p-6 ring-1 ring-black/5">
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">Domaines disponibles actuellement</div>
+                    <div className="mt-1 text-sm text-slate-600">La liste est limitée et évolue progressivement.</div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {(domainOptions || []).map((opt) => (
+                        <span
+                          key={opt.value}
+                          className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs sm:text-sm font-semibold"
+                        >
+                          {opt.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
+                  <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm flex flex-col h-full">
+                    <div className="text-xs font-semibold text-emerald-700">Service 1</div>
+                    <div className="mt-2 text-base font-semibold text-slate-900">Diagnostic stratégique &amp; orientation</div>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">Analyse approfondie + décision structurée + livrables.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Durée : 7–14 jours</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Niveau : Débutant → Expert</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-4">
+                      <div className="text-xs font-semibold text-emerald-900">Prix (à partir de)</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">290 TND</div>
+                      <div className="mt-1 text-xs text-slate-600">Confirmé après diagnostic initial.</div>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => {
-                        setTermsAccepted(false);
-                        setIsParcoursInfoOpen(true);
-                      }}
-                      className="mt-6 w-full px-5 py-3 rounded-2xl bg-white text-gray-900 text-sm font-semibold border border-slate-200/70 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 inline-flex items-center justify-center gap-2"
+                      onClick={() => scrollToSection("service1-details-section")}
+                      className="mt-5 sm:mt-auto inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
                     >
-                      <span>Plus d’informations</span>
+                      <span>Détails</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
-                ))
-              )}
-            </div>
+
+                  <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm flex flex-col h-full">
+                    <div className="text-xs font-semibold text-amber-700">Bonus</div>
+                    <div className="mt-2 text-base font-semibold text-slate-900">Espace Ressources &amp; recommandation</div>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">Ressources + recommandations pour guider la suite du parcours.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-amber-50/80 text-amber-900 border border-amber-200/70 px-3 py-1 text-xs font-semibold">Inclus</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Après Service 1</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4">
+                      <div className="text-xs font-semibold text-amber-900">Prix</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">Inclus</div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm flex flex-col h-full">
+                    <div className="text-xs font-semibold text-emerald-700">Service 2</div>
+                    <div className="mt-2 text-base font-semibold text-slate-900">Missions professionnelles encadrées</div>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">Missions réelles ou simulées, avec feedback d’expert.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Durée : 2–4 semaines</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Niveau : Intermédiaire → Expert</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-4">
+                      <div className="text-xs font-semibold text-emerald-900">Prix (à partir de)</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">590 TND</div>
+                      <div className="mt-1 text-xs text-slate-600">Confirmé après validation Service 1.</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => scrollToSection("service2-details-section")}
+                      className="mt-5 sm:mt-auto inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                    >
+                      <span>Détails</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm flex flex-col h-full">
+                    <div className="text-xs font-semibold text-amber-700">Bonus</div>
+                    <div className="mt-2 text-base font-semibold text-slate-900">Analyse &amp; Recommandations Avancées</div>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">Document final (restitution) après Service 1 + Service 2.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-amber-50/80 text-amber-900 border border-amber-200/70 px-3 py-1 text-xs font-semibold">Inclus</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Après Service 2</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4">
+                      <div className="text-xs font-semibold text-amber-900">Prix</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">Inclus</div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm flex flex-col h-full">
+                    <div className="text-xs font-semibold text-purple-700">Service 3</div>
+                    <div className="mt-2 text-base font-semibold text-slate-900">Accompagnement opérationnel</div>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">De la stratégie à l’exécution concrète, en sessions directes.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Durée : 2–6 semaines</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Niveau : selon mission</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-purple-200/70 bg-purple-50/50 p-4">
+                      <div className="text-xs font-semibold text-purple-900">Prix (à partir de)</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">490 TND</div>
+                      <div className="mt-1 text-xs text-slate-600">Ajusté selon le nombre de sessions.</div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm flex flex-col h-full">
+                    <div className="text-xs font-semibold text-amber-700">Bonus</div>
+                    <div className="mt-2 text-base font-semibold text-slate-900">Groupe Telegram</div>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">Groupe Telegram d’échanges et développement.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-amber-50/80 text-amber-900 border border-amber-200/70 px-3 py-1 text-xs font-semibold">Inclus</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Communauté</span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4">
+                      <div className="text-xs font-semibold text-amber-900">Prix</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">Inclus</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-3xl border border-indigo-200/70 bg-indigo-50/50 p-5 sm:p-6 ring-1 ring-black/5">
+                  <div className="text-sm font-semibold text-indigo-900">📌 Note importante — Parcours séquentiel</div>
+                  <p className="mt-2 text-sm sm:text-base text-slate-700 leading-relaxed">
+                    Chaque service est <span className="font-semibold">lié au précédent</span> : vous ne pouvez pas démarrer le <span className="font-semibold">Service 2</span> sans avoir validé le
+                    <span className="font-semibold"> Service 1</span>, et vous ne pouvez pas démarrer le <span className="font-semibold">Service 3</span> sans avoir validé le
+                    <span className="font-semibold"> Service 1</span> et le <span className="font-semibold">Service 2</span>.
+                  </p>
+                  <p className="mt-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+                    Pour vous inscrire, vous devez d’abord compléter le <span className="font-semibold">Diagnostic général (gratuit)</span>.
+                  </p>
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/diagnostic")}
+                      className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+                    >
+                      <span>Faire le diagnostic général</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
+      <section id="benefits-section" className="relative scroll-mt-24 sm:scroll-mt-28 py-12 sm:py-14 lg:py-16 bg-white overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.06),transparent_60%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[900px] mx-auto" dir="ltr">
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-12"
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.6, ease: easeOut }}
+              className="text-center"
             >
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                🗣️ Témoignages — Expériences professionnelles
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight">
+                Les avantages clés du parcours
               </h2>
-              <p className="text-lg text-gray-700">Des parcours analysés avec rigueur.</p>
-              <p className="text-lg text-gray-700">Des décisions prises en connaissance de cause.</p>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Des livrables, des preuves et une traçabilité complète — conçus pour refléter votre niveau réel et soutenir vos décisions dans des situations concrètes.
+              </p>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.55, ease: easeOut, delay: 0.05 }}
+              className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, delay: 0.05 }}
-                className="rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/80 shadow-[0_18px_55px_-38px_rgba(15,23,42,0.35)] ring-1 ring-black/5 p-7"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-bold">
-                    AK
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900">Amine K.</p>
-                    <p className="text-sm text-gray-700">Fonction : Qualité, Sécurité &amp; Process</p>
-                    <p className="text-sm text-gray-600">Domaine : Industrie / Management opérationnel</p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <blockquote className="text-gray-800 leading-relaxed italic">
-                    « Le diagnostic m’a permis de comprendre pourquoi certaines décisions étaient incohérentes avec mon niveau réel de responsabilité.
-                    L’accompagnement n’a pas cherché à me rassurer, mais à structurer ma posture professionnelle. »
-                  </blockquote>
-                </div>
-              </motion.div>
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 01</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">📄 Des livrables professionnels à forte valeur</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  Chaque étape produit des documents d’analyse professionnelle qui reflètent votre raisonnement, vos décisions et votre capacité à agir en situation réelle — et non une simple participation.
+                </p>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/80 shadow-[0_18px_55px_-38px_rgba(15,23,42,0.35)] ring-1 ring-black/5 p-7"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white flex items-center justify-center font-bold">
-                    RT
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900">Rania T.</p>
-                    <p className="text-sm text-gray-700">Fonction : Marketing &amp; Communication</p>
-                    <p className="text-sm text-gray-600">Domaine : Digital / Positionnement professionnel</p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <blockquote className="text-gray-800 leading-relaxed italic">
-                    « Ce parcours m’a aidée à clarifier ma manière de décider et à mieux défendre mes choix face à des contraintes réelles.
-                    Ce n’est pas une formation, c’est un cadre de réflexion appliqué à des situations concrètes. »
-                  </blockquote>
-                </div>
-              </motion.div>
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 02</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">🔍 Des preuves vérifiables de votre niveau réel</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  Les livrables permettent d’évaluer et de démontrer votre niveau effectif, votre posture professionnelle et la qualité de vos choix, sur la base de situations concrètes.
+                </p>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, delay: 0.15 }}
-                className="rounded-3xl bg-white/80 backdrop-blur-sm border border-slate-200/80 shadow-[0_18px_55px_-38px_rgba(15,23,42,0.35)] ring-1 ring-black/5 p-7"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-600 text-white flex items-center justify-center font-bold">
-                    SG
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900">Sami G.</p>
-                    <p className="text-sm text-gray-700">Fonction : Développement Web</p>
-                    <p className="text-sm text-gray-600">Domaine : Environnements techniques &amp; projets</p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <blockquote className="text-gray-800 leading-relaxed italic">
-                    « L’approche est directe et exigeante.
-                    On ne reçoit pas de solutions toutes faites, mais une lecture claire de ce qui est faisable ou non à un instant donné. »
-                  </blockquote>
-                </div>
-              </motion.div>
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 03</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">🧭 Une traçabilité complète du parcours</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  Diagnostic, missions, décisions et recommandations sont documentés et structurés, garantissant une progression claire et cohérente.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 04</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">🧠 Des décisions argumentées et défendables</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  Chaque décision importante est analysée, justifiée et formalisée par écrit, développant une logique professionnelle solide et applicable.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 05</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">🛡️ Un cadre sécurisé pour tester sans risque</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  Les documents issus des simulations permettent de tester, corriger et ajuster les décisions sans exposition professionnelle, avant application réelle.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 06</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">📘 Une documentation finale de référence</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  À l’issue du parcours, vous disposez d’un document professionnel synthèse, exploitable sur le long terme et réutilisable dans votre évolution de carrière.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 ring-1 ring-black/5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:col-span-2 sm:justify-self-center sm:max-w-[520px] lg:col-span-1 lg:col-start-2 lg:max-w-none">
+                <div className="text-xs font-semibold text-indigo-700">Avantage 07</div>
+                <div className="mt-2 text-base font-semibold text-slate-900">🎯 Une valeur durable, au-delà de l’accompagnement</div>
+                <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  Les livrables restent votre propriété et constituent une base stratégique durable, bien après la fin des sessions.
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
+      <section className="relative py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_60%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[1100px] mx-auto" dir="ltr">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={reduceMotion ? undefined : { duration: 0.6, ease: easeOut }}
+              className="text-center"
+            >
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight">
+                Des expériences professionnelles analysées avec rigueur
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Les témoignages qui suivent reflètent des parcours réels, analysés dans un cadre professionnel exigeant.
+              </p>
+            </motion.div>
+
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials
+                .slice(testimonialsPage * 3, testimonialsPage * 3 + 3)
+                .map((t, idx) => (
+                <motion.div
+                  key={t.author}
+                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  whileHover={reduceMotion ? undefined : { y: -2 }}
+                  transition={
+                    reduceMotion
+                      ? undefined
+                      : { duration: 0.45, ease: easeOut, delay: idx * 0.03 }
+                  }
+                  className="rounded-3xl border border-white/60 bg-white/75 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.25)] ring-1 ring-black/5"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="h-11 w-11 rounded-full bg-white/70 border border-white/60 ring-1 ring-black/5 flex items-center justify-center text-sm font-semibold text-slate-700">
+                      {t.initials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed whitespace-pre-line">
+                        {t.quote}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-5 border-t border-slate-200/70">
+                    <p className="text-sm font-semibold text-slate-900">— {t.author}</p>
+                    <p className="mt-1 text-sm text-slate-600">Fonction : {t.role}</p>
+                    <p className="mt-1 text-sm text-slate-600">Domaine : {t.domain}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {testimonialsLoading && (
+              <div className="mt-6 text-center text-sm text-slate-500">Chargement des témoignages…</div>
+            )}
+
+            {testimonials.length > 3 && (
+              <div className="mt-8 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTestimonialsPage((p) => Math.max(0, p - 1))}
+                  disabled={testimonialsPage === 0}
+                  className="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-700 text-sm font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                >
+                  Précédent
+                </button>
+
+                <div className="text-sm text-slate-600">
+                  {testimonialsPage + 1} / {Math.ceil(testimonials.length / 3)}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setTestimonialsPage((p) =>
+                      Math.min(Math.ceil(testimonials.length / 3) - 1, p + 1)
+                    )
+                  }
+                  disabled={testimonialsPage >= Math.ceil(testimonials.length / 3) - 1}
+                  className="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-700 text-sm font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                >
+                  Suivant
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-slate-50 to-white overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_38%,transparent_78%)]" />
+          <div className="absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_60%)] blur-2xl" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[980px] mx-auto" dir="ltr">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              whileHover={reduceMotion ? undefined : { y: -2 }}
+              transition={reduceMotion ? undefined : { duration: 0.55, ease: easeOut }}
+              className="relative w-full rounded-[2rem] border border-slate-200/70 bg-white/75 backdrop-blur-xl px-6 sm:px-10 py-7 sm:py-9 shadow-[0_24px_60px_-46px_rgba(15,23,42,0.22)] ring-1 ring-black/5 overflow-hidden"
+            >
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 opacity-[0.18] bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.55),transparent_42%),radial-gradient(circle_at_85%_80%,rgba(56,189,248,0.45),transparent_44%)]" />
+                <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:92px_92px] [mask-image:radial-gradient(ellipse_at_center,black_36%,transparent_78%)]" />
+              </div>
+              <div className="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-7">
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50/80 border border-indigo-100/80 px-3 py-1.5">
+                    <span className="text-xs sm:text-sm font-semibold text-indigo-800">Avant de commencer</span>
+                  </div>
+                  <p className="mt-3 text-xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <span className="block">L’écosystème MA Consulting</span>
+                    <span className="block">repose aussi sur des experts terrain.</span>
+                  </p>
+                  <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
+                    Vous êtes expert ? Découvrez le cadre de collaboration.
+                  </p>
+
+                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <motion.button
+                      type="button"
+                      onClick={() => navigate("/programme-partenariat")}
+                      whileHover={reduceMotion ? undefined : { y: -1 }}
+                      transition={reduceMotion ? undefined : { duration: 0.25, ease: easeOut }}
+                      className="group inline-flex items-center gap-2 rounded-full border border-amber-200/70 bg-amber-50/70 px-4 py-2 text-xs sm:text-sm font-semibold text-amber-900 shadow-sm ring-1 ring-black/5 hover:bg-amber-50"
+                    >
+                      <motion.span
+                        animate={reduceMotion ? undefined : { opacity: [0.7, 1, 0.7] }}
+                        transition={reduceMotion ? undefined : { duration: 1.4, repeat: Infinity, ease: easeInOut }}
+                        className="inline-flex"
+                      >
+                        ⚡
+                      </motion.span>
+                      <span>Découvrir le cadre de collaboration</span>
+                      <ArrowRight className="w-4 h-4 text-amber-900 group-hover:translate-x-0.5 transition-transform" />
+                    </motion.button>
+                  </div>
+                </div>
+
+                <div className="w-full xl:w-auto shrink-0 flex flex-col sm:flex-row gap-3 sm:justify-start">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/ecosysteme")}
+                    className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-white border border-slate-200 px-5 py-3 text-sm sm:text-base font-semibold text-slate-900 shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors whitespace-normal text-center leading-snug"
+                  >
+                    <span>Découvrir ce parcours en détail</span>
+                    <ArrowRight className="w-5 h-5 text-slate-900 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/diagnostic")}
+                    className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm sm:text-base font-semibold text-white shadow-[0_16px_38px_-24px_rgba(79,70,229,0.65)] hover:shadow-[0_20px_50px_-26px_rgba(79,70,229,0.8)] transition-shadow"
+                  >
+                    <span>Démarrer le diagnostic</span>
+                    <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {false && (
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
@@ -1274,7 +2162,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={openEspaceParticipant}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm sm:text-base font-semibold shadow-[0_14px_34px_-22px_rgba(79,70,229,0.65)] hover:shadow-[0_18px_46px_-24px_rgba(79,70,229,0.8)] transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm sm:text-base font-semibold shadow-[0_14px_34px_-22px_rgba(79,70,229,0.65)] hover:shadow-[0_18px_46px_-24px_rgba(79,70,229,0.8)] transition-all duration-300"
                 >
                   <Users className="w-4 h-4" />
                   <span>Espace Participant</span>
@@ -1284,7 +2172,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={openEspaceVerification}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white text-gray-900 text-sm sm:text-base font-semibold border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white text-gray-900 text-sm sm:text-base font-semibold border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300"
                 >
                   <Shield className="w-4 h-4 text-emerald-600" />
                   <span>Espace Vérification</span>
@@ -1405,10 +2293,10 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 transition={{ duration: 0.6, delay: 0.15 }}
                 className="relative rounded-3xl bg-slate-50 border border-slate-200/80 shadow-sm ring-1 ring-black/5 p-7 overflow-hidden"
               >
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-blue-500/10" />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10" />
                 <div className="relative">
                   <div className="flex items-start gap-3">
-                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
                       <Shield className="w-5 h-5" />
                     </div>
                     <div>
@@ -1488,7 +2376,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
           </div>
         </div>
       </section>
+      )}
 
+      {false && (
       <section id="packs-section" className="py-20 bg-gradient-to-b from-white via-slate-50 to-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
@@ -1514,7 +2404,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   Nous transformons l’analyse et le diagnostic en décisions, actions et résultats évaluables.
                 </p>
                 <p className="mt-3 text-sm sm:text-base text-gray-700 leading-relaxed">
-                  Après le diagnostic, certains participants ont besoin d’une mise en application concrète ou d’un test réaliste.
+                  Après le diagnostic, certains participants ont besoin d’une mise en pratique concrète ou d’un test réaliste.
                   <span className="font-semibold text-gray-900"> Le Service 2</span> propose deux trajectoires claires :
                   <span className="font-semibold text-gray-900"> Mission Réelle</span> ou
                   <span className="font-semibold text-gray-900"> Mission Simulée</span> — selon votre situation professionnelle.
@@ -1656,7 +2546,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   <p className="text-sm font-bold text-emerald-900 mb-3">Mission Réelle</p>
                   <ul className="space-y-2 text-sm text-gray-800">
                     <li>Situation professionnelle réelle</li>
-                    <li>Application directe</li>
+                    <li>Mise en pratique directe</li>
                     <li>Liée à votre poste</li>
                     <li>Décisions réelles</li>
                   </ul>
@@ -1693,7 +2583,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               <div className="mt-6 flex justify-center">
                 <button
                   type="button"
-                  onClick={() => navigate("/diagnostic-wonder")}
+                  onClick={() => navigate("/diagnostic")}
                   className="group w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white text-sm sm:text-base font-semibold shadow-[0_14px_30px_-18px_rgba(79,70,229,0.7)] hover:shadow-[0_20px_44px_-22px_rgba(79,70,229,0.85)] transition-all duration-300 inline-flex items-center justify-center gap-2"
                 >
                   <span>Commencer par le diagnostic professionnel</span>
@@ -1705,6 +2595,9 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
+      )}
+
+      {false && (
       <section id="professional-simulation-section" className="py-14 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
@@ -1802,20 +2695,17 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 </div>
 
                 <div className="rounded-2xl bg-white/70 border border-slate-200/70 p-5">
-                  <p className="text-sm font-bold text-gray-900 mb-2">Chaque situation exige</p>
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Réflexion</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Décision</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="mt-1 text-emerald-700 font-bold">✓</span>
-                      <p className="text-sm text-gray-700">Justification</p>
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Réflexion</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Décision</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 text-emerald-700 font-bold">✓</span>
+                    <p className="text-sm text-gray-700">Justification</p>
                   </div>
                 </div>
 
@@ -1959,6 +2849,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         </div>
       </section>
 
+      )}
+
       {/* Interactive QCM Modal */}
       <InteractiveQCMModal
         isOpen={showUnifiedCatalogModal}
@@ -1970,15 +2862,15 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
       {/* Certificate Verification Modal */}
 
       {/* Free Course Modal */}
-      <FreeCourseModal
-        isOpen={showFreeCourseModal}
-        onClose={() => setShowFreeCourseModal(false)}
-      />
+      {null}
 
       {/* Program Registration Modal */}
       <ProgramRegistrationModal
         isOpen={showProgramModal}
-        onClose={() => setShowProgramModal(false)}
+        onClose={() => {
+          setShowProgramModal(false);
+          setSelectedProgram(null);
+        }}
         program={selectedProgram}
         selectedCurrency="€"
       />

@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   HomeIcon,
   UserGroupIcon,
-  AcademicCapIcon,
   CubeIcon,
   ChatBubbleLeftRightIcon,
   CalendarIcon,
@@ -35,7 +34,6 @@ interface SidebarProps {
 const iconMap = {
   HomeIcon,
   UserGroupIcon,
-  AcademicCapIcon,
   CubeIcon,
   ChatBubbleLeftRightIcon,
   CalendarIcon,

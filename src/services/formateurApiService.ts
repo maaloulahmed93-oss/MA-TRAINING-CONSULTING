@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://matc-backend.onrender.com/api';
+import { API_BASE_URL } from '../config/api';
 
 export interface FormateurLoginResponse {
   success: boolean;
@@ -7,6 +7,7 @@ export interface FormateurLoginResponse {
     partnerId: string;
     fullName: string;
     email: string;
+    phone?: string;
     type: string;
     isActive: boolean;
     formateurInfo?: {
@@ -98,6 +99,25 @@ class FormateurApiService {
     return this.request<FormateurLoginResponse>(`/partners/login`, {
       method: 'POST',
       body: JSON.stringify({ partnerId: formateurId, email, partnerType: 'formateur' }),
+    });
+  }
+
+  async loginFormateurByEmailPhone(email: string, phone: string): Promise<FormateurLoginResponse> {
+    return this.request<FormateurLoginResponse>(`/partners/login-formateur`, {
+      method: 'POST',
+      body: JSON.stringify({ email, phone }),
+    });
+  }
+
+  async registerFormateur(payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  }): Promise<FormateurLoginResponse> {
+    return this.request<FormateurLoginResponse>(`/partners/register-formateur`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   }
 
@@ -305,6 +325,43 @@ export class FormateurAuthService {
       }
     } catch (error) {
       console.error('Erreur lors de la connexion:', error);
+      throw error;
+    }
+  }
+
+  async loginWithEmailPhone(email: string, phone: string): Promise<FormateurLoginResponse['data']> {
+    try {
+      const response = await this.apiService.loginFormateurByEmailPhone(email, phone);
+
+      if (response.success && response.data) {
+        this.sessionManager.saveSession(response.data);
+        return response.data;
+      }
+
+      throw new Error(response.message || 'Échec de la connexion');
+    } catch (error) {
+      console.error('Erreur lors de la connexion:', error);
+      throw error;
+    }
+  }
+
+  async registerAndLogin(payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  }): Promise<FormateurLoginResponse['data']> {
+    try {
+      const response = await this.apiService.registerFormateur(payload);
+
+      if (response.success && response.data) {
+        this.sessionManager.saveSession(response.data);
+        return response.data;
+      }
+
+      throw new Error(response.message || 'Échec de la création du compte');
+    } catch (error) {
+      console.error('Erreur lors de la création du compte:', error);
       throw error;
     }
   }

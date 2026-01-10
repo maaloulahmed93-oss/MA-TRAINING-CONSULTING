@@ -6,7 +6,7 @@ export const downloadParcoursProfessionnelPdf = () => {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "ECOSYSTEME-DE-CONSULTING-PROFESSIONNEL-INTEGRE.pdf";
+  a.download = "SYSTEME-DE-CONSEIL-MATC-VS-FORMATION-ACADEMIQUE.pdf";
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -76,7 +76,7 @@ const buildPageDecorations = (pageNumber: number, totalPages: number) => {
   parts.push("0.70 0.70 0.70 RG\n0.4 w\n");
   parts.push(`${left} ${footerDividerY} m ${right} ${footerDividerY} l S\n`);
   parts.push(
-    `BT\n/F1 9 Tf\n1 0 0 1 ${left} ${footerTextY} Tm\n(MA-TRAINING-CONSULTING - Ecosysteme de consulting professionnel integre) Tj\nET\n`
+    `BT\n/F1 9 Tf\n1 0 0 1 ${left} ${footerTextY} Tm\n(MA-TRAINING-CONSULTING - Systeme de conseil MATC VS formation academique) Tj\nET\n`
   );
   parts.push(
     `BT\n/F1 9 Tf\n1 0 0 1 500 ${footerTextY} Tm\n(Page ${pageNumber}/${totalPages}) Tj\nET\n`
@@ -181,241 +181,97 @@ const buildLinesFromText = (): PdfLine[] => {
     lines.push({ text, font: "F1", size: 11 });
   };
 
-  const pushBullet = (text: string) => {
-    lines.push({ text: `- ${text}`, font: "F1", size: 11 });
-  };
-
   // Title
-  pushHeading("Un ecosysteme de consulting professionnel integre", 16);
-
-  // Intro
-  pushParagraph("Un accompagnement professionnel sincere,");
-  pushParagraph("sans complaisance ni promesses faciles -");
-  pushParagraph("uniquement des decisions realistes pour avancer avec confiance.");
+  pushHeading("Systeme de conseil MATC VS formation academique", 16);
+  pushParagraph("");
+  pushParagraph("Differences entre le systeme de conseil MA Training Consulting et la formation academique");
   pushParagraph("");
 
-  pushParagraph("MA Training Consulting est un ecosysteme de consulting professionnel integre,");
-  pushParagraph("dont l'objectif est de clarifier les parcours professionnels, soutenir la prise de decision et construire un positionnement credible et presentable,");
-  pushParagraph("sans formation classique, sans enseignement academique et sans vente d'illusions.");
+  pushHeading("1. Objectif principal", 13);
+  pushParagraph(
+    "Systeme de conseil MA Training Consulting : Il vise a ameliorer les competences pratiques et a prendre des decisions professionnelles realistes dans un environnement de travail reel. Il se concentre sur l'accompagnement personnalise et l'application pratique des concepts."
+  );
+  pushParagraph(
+    "Formation academique : Elle se concentre sur l'enseignement des concepts theoriques qui peuvent etre generaux et non directement lies a la realite professionnelle. L'objectif est d'enseigner des theories et de fournir des informations theoriques sur des sujets specifiques."
+  );
   pushParagraph("");
 
-  pushParagraph("Nous ne formons pas.");
-  pushParagraph("Nous ne delivrons pas de diplomes.");
-  pushParagraph("Nous ne garantissons pas de resultats automatiques.");
+  pushHeading("2. Application pratique contre enseignement theorique", 13);
+  pushParagraph(
+    "Systeme de conseil : Il repose sur l'application pratique dans des environnements de travail reels ou simules. Les experiences pratiques sont partagees, les problemes reels sont resolus et les decisions pratiques sont prises dans un contexte professionnel reel."
+  );
+  pushParagraph(
+    "Formation academique : Elle repose sur des cours theoriques enseignes dans des classes ou des formations academiques, ou les etudiants apprennent les concepts et les theories a travers des conferences et des livres."
+  );
   pushParagraph("");
 
-  pushParagraph("Nous evaluons, analysons, decidons et accompagnons.");
+  pushHeading("3. Personne qui offre le soutien", 13);
+  pushParagraph(
+    "Systeme de conseil : Le soutien est fourni par des experts professionnels dans le domaine, qui offrent un accompagnement personnalise en fonction des besoins individuels de chaque personne. L'expert analyse et guide en continu la performance professionnelle."
+  );
+  pushParagraph(
+    "Formation academique : L'enseignement est donne par des professeurs academiques ou des formateurs specialises qui dispensent les informations et les explications theoriques. Le soutien repose sur le programme academique predefini, couvrant des sujets generaux."
+  );
   pushParagraph("");
 
-  // Audience
-  pushHeading("A qui s'adressent nos services ?", 13);
-  pushParagraph("Notre ecosysteme est destine a :");
-  pushParagraph("");
-  pushBullet("Etudiants avant l'entree sur le marche du travail");
-  pushBullet("Jeunes diplomes en recherche de positionnement");
-  pushBullet("Debut de carriere");
-  pushBullet("Profils en phase de clarification, reorientation ou prise de decision professionnelle sensible");
-  pushParagraph("");
-  pushParagraph("Vous passez d'un profil flou a un profil professionnel clair et credible.");
+  pushHeading("4. Personnalisation de l'apprentissage", 13);
+  pushParagraph(
+    "Systeme de conseil : L'apprentissage est personnalise en fonction du diagnostic initial, ou le parcours professionnel est defini selon les besoins individuels et l'analyse approfondie des competences et du domaine professionnel."
+  );
+  pushParagraph(
+    "Formation academique : L'enseignement est uniforme, ou le programme academique est enseigne a tous les etudiants de la meme maniere, sans grande personnalisation pour chaque eleve selon ses besoins specifiques."
+  );
   pushParagraph("");
 
-  // Employment question
-  pushHeading("Pourquoi ne garantissons-nous ni emploi ni promotion ?", 13);
-  pushParagraph("C'est l'une des questions les plus frequentes - et la reponse est volontairement claire et honnete.");
-  pushParagraph("");
-  pushParagraph("Parce que :");
-  pushParagraph("");
-  pushBullet("Chaque entreprise possede son propre systeme, ses criteres et sa culture");
-  pushBullet("La decision finale de recrutement ou de promotion ne nous appartient pas");
-  pushBullet("Les resultats dependent de facteurs externes (marche, timing, concurrence...)");
-  pushBullet("Une part essentielle depend egalement de votre engagement, votre serieux et l'application reelle des recommandations");
-  pushParagraph("");
-  pushParagraph("Nous ne vendons pas de resultat cle en main,");
-  pushParagraph("mais des decisions professionnelles realistes et un positionnement solide,");
-  pushParagraph("qui augmentent vos chances de maniere concrete et credible.");
+  pushHeading("5. Resultats", 13);
+  pushParagraph(
+    "Systeme de conseil : L'objectif est de produire des resultats concrets en ameliorant les competences pratiques et en prenant des decisions professionnelles reussies. Les progres sont mesures en fonction de la performance reelle dans les missions pratiques et les evaluations des experts."
+  );
+  pushParagraph(
+    "Formation academique : Elle vise a transmettre des connaissances et a faire passer des examens theoriques. L'evaluation est generalement basee sur des tests academiques et des evaluations qui mesurent le niveau de comprehension theorique."
+  );
   pushParagraph("");
 
-  // Certificates
-  pushHeading("Difference entre certificats et documents professionnels", 13);
-  pushHeading("Pourquoi ne delivrons-nous pas de certificats ou diplomes ?", 12);
-  pushParagraph("Parce que, dans la majorite des cas :");
-  pushParagraph("");
-  pushBullet("Les certificats ne sont pas reconnus a l'echelle internationale");
-  pushBullet("Ou sont reconnus uniquement localement");
-  pushBullet("Et ont perdu une grande partie de leur credibilite aupres de nombreuses entreprises");
-  pushBullet("Notamment lorsqu'ils attribuent un titre (Responsable, Manager, Expert) sans pratique reelle");
-  pushParagraph("");
-  pushParagraph("Un certificat indique : vous avez suivi une formation");
-  pushParagraph("Un document professionnel indique : voici votre niveau reel et votre capacite professionnelle effective");
+  pushHeading("6. Connexion avec la realite professionnelle", 13);
+  pushParagraph(
+    "Systeme de conseil : Il est directement lie a la realite professionnelle, car il applique les competences apprises dans un environnement de travail reel. Chaque decision prise reflete la realite du monde professionnel."
+  );
+  pushParagraph(
+    "Formation academique : Les etudiants etudient des concepts et des theories qui peuvent etre eloignes de la realite professionnelle quotidienne. Les sujets et techniques enseignes sont souvent theoriques et necessitent une mise en pratique ulterieure."
+  );
   pushParagraph("");
 
-  pushHeading("Que delivrons-nous a la place ?", 13);
-  pushParagraph("Nous produisons des documents professionnels analytiques, qui :");
-  pushParagraph("");
-  pushBullet("Refletent votre niveau reel");
-  pushBullet("Clarifient votre positionnement professionnel");
-  pushBullet("Appuient vos decisions (recrutement, promotion, transition, reorientation)");
-  pushParagraph("");
-  pushParagraph("Dans certains cas, ces documents sont accompagnes d'une lettre d'introduction professionnelle, permettant a une entreprise :");
-  pushParagraph("");
-  pushBullet("D'obtenir des informations precises");
-  pushBullet("Basees sur une evaluation transparente");
-  pushBullet("Sans complaisance ni favoritisme, quelles que soient les circonstances");
+  pushHeading("7. Type de documents et certificats", 13);
+  pushParagraph(
+    "Systeme de conseil : Apres la fin du programme, les participants recoivent des documents professionnels qui detaillent les ameliorations professionnelles et les competences acquises. Ces documents sont pratiques et peuvent etre utilises dans un environnement professionnel pour valider le progres."
+  );
+  pushParagraph(
+    "Formation academique : Apres avoir suivi un programme academique, les etudiants recoivent des certificats academiques et des diplomes qui peuvent etre utilises pour entrer dans le marche du travail ou poursuivre des etudes superieures, mais qui ne refletent pas toujours les competences pratiques."
+  );
   pushParagraph("");
 
-  // Services
-  pushHeading("Nos services", 13);
-
-  pushHeading("Service 1 - Diagnostic et parcours professionnel", 12);
-  pushParagraph("Un service individuel, en ligne, fonde sur un diagnostic approfondi et structure.");
+  pushHeading("8. Continuite et developpement professionnel", 13);
+  pushParagraph(
+    "Systeme de conseil : Il repose sur un developpement continu a travers des revisions regulieres des experts, et l'accompagnement personnalise tout au long du programme afin de garantir des progres constants dans le parcours professionnel."
+  );
+  pushParagraph(
+    "Formation academique : Elle est souvent finie une fois le cours ou le programme academique termine, et ne propose pas de soutien continu dans la phase pratique."
+  );
   pushParagraph("");
 
-  pushHeading("Deroulement", 12);
-  pushParagraph("Le participant suit 5 phases :");
-  pushParagraph("");
-  pushBullet("Diagnostic initial intelligent (gratuit)");
-  pushBullet("Analyse approfondie de la situation professionnelle");
-  pushBullet("Identification des ecarts, risques et opportunites");
-  pushBullet("Construction d'un parcours et de decisions professionnelles claires");
-  pushBullet("Session individuelle avec un expert (1h a 2h)");
-  pushParagraph("");
-  pushParagraph("Realisee dans la majorite des cas, selon le niveau et la complexite de la situation");
-  pushParagraph("");
-  pushParagraph("Cette session n'est pas une formation,");
-  pushParagraph("mais une session d'analyse et de decision professionnelle.");
+  pushHeading("Resume", 13);
+  pushParagraph(
+    "Systeme de conseil MA Training Consulting se concentre sur l'amelioration des competences pratiques a travers un accompagnement personnalise et des missions reelles, avec un suivi continu des experts."
+  );
+  pushParagraph(
+    "La formation academique se concentre sur l'enseignement theorique avec un programme uniforme qui ne reflete pas necessairement les competences pratiques ou les realites du terrain."
+  );
   pushParagraph("");
 
-  pushHeading("Question frequente", 12);
-  pushParagraph("Le Service 1 inclut-il des sessions en direct ?");
-  pushParagraph("Oui. Une session individuelle avec un expert est generalement integree a la phase 5, mais elle n'est ni automatique ni systematique - elle depend du diagnostic et du besoin reel.");
-  pushParagraph("");
-
-  pushHeading("Service 2 - Accompagnement professionnel direct avec experts", 12);
-  pushParagraph("Un service avance, base exclusivement sur des sessions en direct.");
-  pushParagraph("");
-  pushParagraph("Formats disponibles :");
-  pushParagraph("");
-  pushBullet("Individuel");
-  pushBullet("Collectif (uniquement pour des profils au diagnostic et a la situation professionnelle comparables)");
-  pushParagraph("");
-  pushParagraph("Deux types d'accompagnement :");
-  pushParagraph("");
-  pushBullet("Mission Reelle : travail sur une situation ou un projet reel");
-  pushBullet("Mission Simulee : simulation de missions professionnelles tres proches du reel");
-  pushParagraph("");
-  pushParagraph("En format collectif :");
-  pushParagraph("");
-  pushBullet("Les participants sont selectionnes selon un filtrage precis");
-  pushBullet("Afin de garantir la qualite des echanges et de l'accompagnement");
-  pushParagraph("");
-
-  // Bonus
-  pushHeading("Ecosysteme de situations et projets quasi-reels (Bonus)", 13);
-  pushParagraph("L'acces est offert aux participants ayant souscrit aux Service 1 et Service 2.");
-  pushParagraph("");
-
-  pushHeading("Description", 12);
-  pushBullet("Groupe professionnel ferme (WhatsApp / Telegram)");
-  pushBullet("Relie a nos experts");
-  pushBullet("Selectionne selon des criteres professionnels precis");
-  pushParagraph("");
-
-  pushHeading("Objectifs", 12);
-  pushBullet("Echange de situations professionnelles reelles");
-  pushBullet("Partage de ressources metiers");
-  pushBullet("Discussion autour de decisions professionnelles");
-  pushBullet("Continuite apres la fin des services");
-  pushParagraph("");
-
-  pushHeading("Projets proposes", 12);
-  pushBullet("Situations et projets quasi-reels");
-  pushBullet("Adaptes au niveau du participant");
-  pushBullet("Visant a developper la prise de decision, la reflexion et les competences operationnelles");
-  pushParagraph("");
-
-  pushHeading("Les projets", 12);
-  pushBullet("Ne sont pas commerciaux");
-  pushBullet("Ont un objectif strictement professionnel et pedagogique");
-  pushBullet("Restent la propriete exclusive du participant (meme en travail collectif)");
-  pushParagraph("");
-
-  pushHeading("Sessions avec experts", 12);
-  pushBullet("Questions ponctuelles : gratuites");
-  pushBullet("Sessions en direct : service distinct et payant");
-  pushBullet("Tarification selon la complexite et la situation");
-  pushParagraph("");
-
-  // Pricing
-  pushHeading("Diagnostic et tarification", 13);
-  pushHeading("Tarification (indicative)", 12);
-
-  pushHeading("Service 1 - Diagnostic et parcours professionnel", 12);
-  pushParagraph("Le tarif se situe entre 100 EUR et 500 EUR,");
-  pushParagraph("determine avec precision apres le diagnostic initial gratuit, en fonction de :");
-  pushParagraph("");
-  pushBullet("La complexite de la situation professionnelle");
-  pushBullet("Le niveau d'experience et de responsabilite");
-  pushBullet("La nature des decisions professionnelles a prendre");
-  pushBullet("Le niveau d'approfondissement du parcours et des documents fournis");
-  pushParagraph("");
-
-  pushHeading("Service 2 - Accompagnement professionnel direct avec experts", 12);
-  pushParagraph("Le tarif se situe entre 300 EUR et 2000 EUR ou plus selon le diagnostic, et depend de :");
-  pushParagraph("");
-  pushBullet("La complexite professionnelle");
-  pushBullet("Le nombre et le type de sessions en direct");
-  pushBullet("L'expertise des intervenants");
-  pushBullet("La nature des situations ou projets traites");
-  pushBullet("Le format choisi (individuel ou collectif)");
-  pushParagraph("");
-  pushParagraph("En format collectif, le cout est reparti entre les participants selon leur nombre et la similarite de leurs profils.");
-  pushParagraph("");
-
-  pushHeading("Information importante", 12);
-  pushParagraph("Les tarifs indiques sont estimatifs et non contractuels.");
-  pushParagraph("Le tarif final est fixe exclusivement apres diagnostic et l'envoi d'un devis officiel.");
-  pushParagraph("Tout paiement (partiel ou total) vaut acceptation automatique des conditions generales.");
-  pushParagraph("");
-
-  // Conditions
-  pushHeading("Conditions essentielles (FAQ juridique)", 13);
-
-  pushHeading("Le paiement vaut-il acceptation ?", 12);
-  pushParagraph("Oui. Tout paiement, meme partiel, vaut acceptation pleine et entiere des conditions generales.");
-  pushParagraph("");
-
-  pushHeading("Y a-t-il un remboursement possible ?", 12);
-  pushParagraph("Non. Aucun remboursement n'est effectue en cas d'abandon ou d'arret en cours de parcours.");
-  pushParagraph("");
-
-  pushHeading("Les documents sont-ils remis avant paiement complet ?", 12);
-  pushParagraph("Non. Aucun document professionnel n'est delivre avant reglement integral.");
-  pushParagraph("");
-
-  pushHeading("Peut-on acceder au Service 2 sans avoir complete le Service 1 ?", 12);
-  pushParagraph("Non. L'ecosysteme repose sur une logique de diagnostic et de continuite.");
-  pushParagraph("");
-
-  pushHeading("Les bonus sont-ils accessibles a tous ?", 12);
-  pushParagraph("Non. Les bonus sont reserves aux participants ayant souscrit aux deux services.");
-  pushParagraph("");
-
-  // Conclusion
-  pushHeading("En conclusion", 13);
-  pushParagraph("Nous ne vendons ni formation,");
-  pushParagraph("ni certificats,");
-  pushParagraph("ni promesses faciles.");
-  pushParagraph("");
-
-  pushParagraph("Nous proposons :");
-  pushParagraph("");
-  pushBullet("Un diagnostic rigoureux");
-  pushBullet("Des decisions professionnelles realistes");
-  pushBullet("Des documents professionnels credibles");
-  pushBullet("Un accompagnement respectueux de votre intelligence et de votre avenir");
-  pushParagraph("");
-
-  pushParagraph("Si vous recherchez la clarte plutot que les illusions, vous etes au bon endroit.");
+  pushHeading("Difference principale", 13);
+  pushParagraph(
+    "Le conseil professionnel offre un accompagnement pratique personnalise pour chaque participant en fonction de ses besoins, tandis que la formation academique repose sur un enseignement theorique avec un programme standard pour tous les etudiants."
+  );
 
   return lines;
 };

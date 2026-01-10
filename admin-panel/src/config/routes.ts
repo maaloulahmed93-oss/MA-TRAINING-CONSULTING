@@ -9,21 +9,27 @@ export const ROUTES = {
   
   // Main Dashboard
   DASHBOARD: '/',
+
+  // Professional Diagnostic
+  DIAGNOSTIC_SESSIONS: '/diagnostic-sessions',
+  DIAGNOSTIC_SESSION_DETAIL: '/diagnostic-sessions/:id',
   
   // Content Management
-  PROGRAMS: '/programs',
   CATEGORIES: '/categories',
-  PACKS: '/packs',
-  TESTIMONIALS: '/testimonials',
+  PARTNERSHIPS: '/partnerships',
+  PARTNERSHIPS_NEW: '/partnerships/new',
+  PARTNERSHIPS_EDIT: '/partnerships/edit/:id',
+  PARTNERSHIPS_VIEW: '/partnerships/view/:id',
+  PARTICIPANTS_MANAGEMENT: '/participants-management',
   EVENTS: '/events',
   PARTNER_TESTIMONIALS: '/partner-testimonials',
-  FOOTER_SETTINGS: '/footer-settings',
-  FREE_COURSES: '/free-courses',
+  ETRAINING_TESTIMONIALS: '/e-training-testimonials',
   
   // User Management
   USERS: '/users',
-  PARTICIPANTS: '/participants',
-  ATTESTATIONS: '/attestations',
+  ESPACE_PRO_ACCOUNTS: '/espace-pro-accounts',
+  ESPACE_PRO_EXPERT_PANEL: '/espace-pro-expert',
+  PARTICIPATION_VERIFICATIONS: '/participation-verifications',
   
   // Partners & Freelancers
   PARTNERS: '/partners',
@@ -47,11 +53,15 @@ export const ROUTES = {
   // Finance
   FINANCE: '/finance',
   FACTURATION: '/facturation',
+
+  // Consulting Opérationnel (Service 2)
+  CONSULTING_OPERATIONNEL_ACCOUNTS: '/consulting-operationnel-accounts',
   
   // Site Settings
   SETTINGS: '/settings',
   SITE_CONFIG: '/settings/site-config',
   APPEARANCE: '/settings/appearance',
+  ESPACE_RESSOURCES_SETTINGS: '/settings/espace-ressources',
   
   // Digitalisation module
   DIGITALIZATION: '/digitalization',
@@ -74,9 +84,9 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'HomeIcon',
   },
   {
-    name: 'Programmes',
-    href: ROUTES.PROGRAMS,
-    icon: 'AcademicCapIcon',
+    name: 'Diagnostic Sessions',
+    href: ROUTES.DIAGNOSTIC_SESSIONS,
+    icon: 'DocumentTextIcon',
   },
   {
     name: 'Catégories',
@@ -84,29 +94,14 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'CubeIcon',
   },
   {
-    name: 'Packs',
-    href: ROUTES.PACKS,
-    icon: 'CubeIcon',
-  },
-  {
-    name: 'Cours Gratuits',
-    href: ROUTES.FREE_COURSES,
-    icon: 'AcademicCapIcon',
-  },
-  {
-    name: 'Témoignages',
-    href: ROUTES.TESTIMONIALS,
+    name: 'Témoignages E-Training',
+    href: ROUTES.ETRAINING_TESTIMONIALS,
     icon: 'ChatBubbleLeftRightIcon',
   },
   {
     name: 'Témoignages Partenaires',
     href: ROUTES.PARTNER_TESTIMONIALS,
     icon: 'SparklesIcon',
-  },
-  {
-    name: 'Gestion du Footer',
-    href: ROUTES.FOOTER_SETTINGS,
-    icon: 'WrenchScrewdriverIcon',
   },
   {
     name: 'Événements',
@@ -119,41 +114,29 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'UsersIcon',
   },
   {
-    name: 'Accès Partenaires',
-    href: ROUTES.PARTNERS,
+    name: 'Comptes Espace Pro',
+    href: ROUTES.ESPACE_PRO_ACCOUNTS,
     icon: 'UserGroupIcon',
-    children: [
-      {
-        name: 'Tous les Partenaires',
-        href: ROUTES.PARTNERS,
-      },
-      {
-        name: 'Services Commerciaux',
-        href: ROUTES.COMMERCIAL_SERVICES,
-      },
-      {
-        name: 'Freelancer Offers',
-        href: ROUTES.FREELANCER_OFFERS,
-      },
-      {
-        name: 'Freelancer Meetings',
-        href: ROUTES.FREELANCER_MEETINGS,
-      },
-      {
-        name: 'Livrables',
-        href: ROUTES.NOTIFICATIONS,
-      },
-    ],
   },
   {
-    name: 'Participants',
-    href: ROUTES.PARTICIPANTS,
+    name: 'Expert Panel (Espace Pro)',
+    href: ROUTES.ESPACE_PRO_EXPERT_PANEL,
+    icon: 'WrenchScrewdriverIcon',
+  },
+  {
+    name: 'Vérification de participation',
+    href: ROUTES.PARTICIPATION_VERIFICATIONS,
+    icon: 'DocumentTextIcon',
+  },
+  {
+    name: 'Comptes Consulting Opérationnel (S2)',
+    href: ROUTES.CONSULTING_OPERATIONNEL_ACCOUNTS,
     icon: 'UsersIcon',
   },
   {
-    name: 'Gestion des Attestations',
-    href: ROUTES.ATTESTATIONS,
-    icon: 'AcademicCapIcon',
+    name: 'Gestion des Participants',
+    href: ROUTES.PARTICIPANTS_MANAGEMENT,
+    icon: 'UsersIcon',
   },
   {
     name: "Liste d'inscriptions",
@@ -199,6 +182,10 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
       {
         name: 'Pages du Site',
         href: ROUTES.APPEARANCE,
+      },
+      {
+        name: 'Espace Ressources',
+        href: ROUTES.ESPACE_RESSOURCES_SETTINGS,
       },
     ],
   },

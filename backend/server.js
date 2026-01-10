@@ -94,7 +94,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'Pragma', 'Cache-Control', 'X-Requested-With'],
+  allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'Pragma', 'Cache-Control', 'X-Requested-With', 'x-admin-key', 'x-expert-email', 'x-expert-id'],
   optionsSuccessStatus: 200 // For legacy browser support
 }));
 
@@ -111,7 +111,7 @@ app.use((req, res, next) => {
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, Pragma, Cache-Control, X-Requested-With');
+  res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, Pragma, Cache-Control, X-Requested-With, x-admin-key, x-expert-email, x-expert-id');
   res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
@@ -262,7 +262,11 @@ import digitalizationTestimonialsRoutes from './routes/digitalizationTestimonial
 import digitalizationContactRoutes from './routes/digitalizationContact.js';
 import testimonialsRoutes from './routes/testimonials.js';
 import partnerTestimonialsRoutes from './routes/partnerTestimonials.js';
+import eTrainingTestimonialsRoutes from './routes/eTrainingTestimonials.js';
 import adminUsersRoutes from './routes/adminUsers.js';
+ import diagnosticSessionsRoutes from './routes/diagnosticSessions.js';
+import espaceProAccountsRoutes from './routes/espaceProAccounts.js';
+import participationVerificationsRoutes from './routes/participationVerifications.js';
 
 app.use('/api/programs', programRoutes);
 app.use('/api/packs', packRoutes);
@@ -288,7 +292,12 @@ app.use('/api/digitalization-testimonials', digitalizationTestimonialsRoutes);
 app.use('/api/digitalization-contact', digitalizationContactRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/partner-testimonials', partnerTestimonialsRoutes);
+app.use('/api/e-training-testimonials', eTrainingTestimonialsRoutes);
 app.use('/api/admin-users', adminUsersRoutes);
+ app.use('/api/diagnostic-sessions', diagnosticSessionsRoutes);
+ app.use('/api/diagnostics', diagnosticSessionsRoutes);
+app.use('/api/espace-pro-accounts', espaceProAccountsRoutes);
+app.use('/api/participation-verifications', participationVerificationsRoutes);
 
 // Import freelancer projects routes
 import freelancerProjectsRoutes from './routes/freelancerProjects.js';
@@ -306,13 +315,13 @@ app.use('/api/freelancer-meetings', freelancerMeetingsRoutes);
 import freelancerDeliverablesRoutes from './routes/freelancerDeliverables.js';
 app.use('/api/freelancer-deliverables', freelancerDeliverablesRoutes);
 
-// Import free courses routes
-import freeCoursesRoutes from './routes/freeCourses.js';
-app.use('/api/free-courses', freeCoursesRoutes);
-
 // Import footer settings routes
 import footerSettingsRoutes from './routes/footerSettings.js';
 app.use('/api/footer-settings', footerSettingsRoutes);
+
+// Consulting Opérationnel (Service 2) participant accounts + answers
+import consultingOperationnelAccountsRoutes from './routes/consultingOperationnelAccounts.js';
+app.use('/api/consulting-operationnel-accounts', consultingOperationnelAccountsRoutes);
 
 // Import events routes
 import eventsRoutes from './routes/events.js';
@@ -336,6 +345,16 @@ app.use('/api/site-config', siteConfigRoutes);
 // Import website pages routes
 import websitePagesRoutes from './routes/websitePages.js';
 app.use('/api/website-pages', websitePagesRoutes);
+
+// Espace Ressources settings
+import espaceRessourcesSettingsRoutes from './routes/espaceRessourcesSettings.js';
+app.use('/api/espace-ressources-settings', espaceRessourcesSettingsRoutes);
+
+// Espace Pro (Expert-driven dashboard)
+import espaceProDossiersRoutes from './routes/espaceProDossiers.js';
+import espaceProMeRoutes from './routes/espaceProMe.js';
+app.use('/api/espace-pro-dossiers', espaceProDossiersRoutes);
+app.use('/api/espace-pro', espaceProMeRoutes);
 
 // API base endpoint - FIXED: Handle /api requests
 app.get('/api', (req, res) => {
@@ -374,7 +393,6 @@ app.get('/api', (req, res) => {
       freelancerDecisions: '/api/freelancer-decisions',
       freelancerMeetings: '/api/freelancer-meetings',
       freelancerDeliverables: '/api/freelancer-deliverables',
-      freeCourses: '/api/free-courses',
       footerSettings: '/api/footer-settings',
       events: '/api/events',
       partnerships: '/api/partnerships',
@@ -382,6 +400,7 @@ app.get('/api', (req, res) => {
       digitalizationProducts: '/api/digitalization-products',
       siteConfig: '/api/site-config',
       websitePages: '/api/website-pages',
+      espaceRessourcesSettings: '/api/espace-ressources-settings',
       health: '/api/health'
     },
     documentation: {
@@ -430,7 +449,6 @@ app.get('/', (req, res) => {
       formateurSessions: '/api/formateur-sessions',
       registrations: '/api/registrations',
       participants: '/api/participants',
-      freeCourses: '/api/free-courses',
       footerSettings: '/api/footer-settings',
       digitalizationServices: '/api/digitalization-services',
       digitalizationProducts: '/api/digitalization-products',
