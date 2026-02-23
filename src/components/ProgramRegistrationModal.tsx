@@ -8,7 +8,6 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Program } from "../data/trainingPrograms";
-import { addRegistration } from "../services/registrationService";
 import { downloadMatcConditionsPdf } from "../utils/matcConditionsPdf";
 
 interface ProgramRegistrationModalProps {
@@ -113,87 +112,16 @@ const ProgramRegistrationModal: React.FC<ProgramRegistrationModalProps> = ({
 
     try {
       if (program) {
-        // Préparer les données pour l'API
-        const registrationData = {
-          type: 'program' as const,
-          itemId: program.id,
-          itemName: program.title,
-          price: program.price,
-          currency: selectedCurrency,
-          sessionId: formData.selectedSession,
-          user: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            whatsapp: formData.whatsapp || undefined,
-          },
-        };
-
-        console.log("📝 Envoi inscription vers API:", registrationData);
-
-        // Envoyer vers l'API Backend
-        const response = await fetch('https://matc-backend.onrender.com/api/registrations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(registrationData),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.message || 'Erreur lors de l\'inscription');
-        }
-
-        console.log("✅ Inscription sauvegardée:", result);
-
-        // Fallback: Persist to localStorage for admin list (backup)
-        addRegistration({
-          id: result.data._id || `${program.id}-${Date.now()}`,
-          type: 'program',
-          itemId: program.id,
-          itemName: program.title,
-          price: program.price,
-          currency: selectedCurrency,
-          timestamp: new Date().toISOString(),
-          sessionId: formData.selectedSession,
-          user: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            whatsapp: formData.whatsapp || undefined,
-          },
-        });
+        const sessionLabel = formData.selectedSession ? `Cycle: ${formData.selectedSession}` : '';
+        const text = `Bonjour, je souhaite m'inscrire au programme: ${program.title}.\n${sessionLabel}\nNom: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}${formData.whatsapp ? `\nWhatsApp: ${formData.whatsapp}` : ''}`;
+        const url = `https://wa.me/21644172284?text=${encodeURIComponent(text)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
       }
 
       setIsSuccess(true);
     } catch (error) {
       console.error("❌ Erreur lors de l'inscription:", error);
-      
-      // En cas d'erreur API, sauvegarder quand même en localStorage
-      if (program) {
-        addRegistration({
-          id: `${program.id}-${Date.now()}`,
-          type: 'program',
-          itemId: program.id,
-          itemName: program.title,
-          price: program.price,
-          currency: selectedCurrency,
-          timestamp: new Date().toISOString(),
-          sessionId: formData.selectedSession,
-          user: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            whatsapp: formData.whatsapp || undefined,
-          },
-        });
-        
-        console.log("💾 Inscription sauvegardée en localStorage (fallback)");
-      }
-      
-      // Afficher quand même le succès à l'utilisateur
+
       setIsSuccess(true);
     } finally {
       setIsSubmitting(false);

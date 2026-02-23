@@ -28,6 +28,16 @@ const statusBadge: Record<DiagnosticSessionStatus, string> = {
   validated: 'bg-emerald-100 text-emerald-800',
 };
 
+const subscriptionLabel: Record<'pending' | 'active', string> = {
+  pending: 'En attente',
+  active: 'Activé',
+};
+
+const subscriptionBadge: Record<'pending' | 'active', string> = {
+  pending: 'bg-slate-100 text-slate-800',
+  active: 'bg-emerald-100 text-emerald-800',
+};
+
 const DiagnosticSessionsPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -42,6 +52,7 @@ const DiagnosticSessionsPage: React.FC = () => {
   const [from, setFrom] = useState<string>('');
   const [to, setTo] = useState<string>('');
   const [deletingId, setDeletingId] = useState<string>('');
+  const [activatingId, setActivatingId] = useState<string>('');
 
   const fetchSessions = async () => {
     try {
@@ -70,6 +81,25 @@ const DiagnosticSessionsPage: React.FC = () => {
       setSessions([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleActivate = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const ok = window.confirm('Confirmer: activer l\'abonnement pour cette session ?');
+    if (!ok) return;
+
+    try {
+      setActivatingId(id);
+      const result = await diagnosticSessionsApiService.activateSubscription(id);
+      if (result.success) {
+        setSessions((prev) => prev.map((s) => (s._id === id ? result.data : s)));
+      }
+    } catch (err) {
+      console.error('❌ Error activating subscription:', err);
+      setError('Erreur lors de l\'activation de l\'abonnement');
+    } finally {
+      setActivatingId('');
     }
   };
 
@@ -229,10 +259,11 @@ const DiagnosticSessionsPage: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participant</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Situation</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score total</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orientation auto</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscription</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -246,8 +277,9 @@ const DiagnosticSessionsPage: React.FC = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(s.submittedAt)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">{s.participant.firstName}</div>
+                      <div className="text-sm font-semibold text-gray-900">{s.participant.fullName || s.participant.firstName}</div>
                       <div className="text-sm text-gray-500">{s.participant.email}</div>
+                      {s.participant.whatsapp && <div className="text-sm text-gray-500">{s.participant.whatsapp}</div>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{s.participant.situation}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -255,23 +287,49 @@ const DiagnosticSessionsPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{s.scores?.orientation || '—'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      {(() => {
+                        const sub = (s.subscriptionStatus || 'pending') as 'pending' | 'active';
+                        return (
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${subscriptionBadge[sub]}`}>
+                            {subscriptionLabel[sub]}
+                          </span>
+                        );
+                      })()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusBadge[s.status]}`}>
                         {statusLabel[s.status]}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button
-                        onClick={(e) => handleDelete(e, s._id)}
-                        disabled={deletingId === s._id}
-                        className={`inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm font-semibold ${
-                          deletingId === s._id
-                            ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                            : 'border-rose-200 text-rose-700 hover:bg-rose-50'
-                        }`}
-                        title="Supprimer"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
+                      <div className="inline-flex items-center gap-2">
+                        {((s.subscriptionStatus || 'pending') as 'pending' | 'active') !== 'active' && (
+                          <button
+                            onClick={(e) => handleActivate(e, s._id)}
+                            disabled={activatingId === s._id}
+                            className={`inline-flex items-center justify-center rounded-md border px-3 py-2 text-xs font-semibold ${
+                              activatingId === s._id
+                                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                            }`}
+                            title="تأكيد الاشتراك / تفعيل الحساب"
+                          >
+                            {activatingId === s._id ? '...' : 'Activate'}
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => handleDelete(e, s._id)}
+                          disabled={deletingId === s._id}
+                          className={`inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm font-semibold ${
+                            deletingId === s._id
+                              ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                              : 'border-rose-200 text-rose-700 hover:bg-rose-50'
+                          }`}
+                          title="Supprimer"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

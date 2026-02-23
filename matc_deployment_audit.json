@@ -54,7 +54,6 @@
         "/api/attestations",
         "/api/partners",
         "/api/formateur-sessions",
-        "/api/registrations",
         "/api/participants",
         "/api/free-courses",
         "/api/footer-settings",

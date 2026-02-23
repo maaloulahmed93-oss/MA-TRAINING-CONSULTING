@@ -88,7 +88,6 @@ Your backend provides these main endpoints:
 - `GET /api/partners` - Partners management
 - `GET /api/testimonials` - Testimonials
 - `GET /api/events` - Events management
-- `GET /api/registrations` - Registration data
 - `GET /api/participants` - Participant data
 - `GET /api/freelancer-*` - Freelancer system
 - `GET /api/digitalization-*` - Digitalization services

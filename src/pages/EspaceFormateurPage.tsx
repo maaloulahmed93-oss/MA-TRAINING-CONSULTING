@@ -7,12 +7,24 @@ import { useNavigate } from 'react-router-dom';
 // Import de la nouvelle dashboard
 import FormateurDashboard from '../components/formateur/FormateurDashboard';
 
+type CadreSection = {
+  heading: string;
+  paragraphs?: string[];
+  bullets?: string[];
+  footnote?: string;
+};
+
+type CadreContent = {
+  title: string;
+  sections: CadreSection[];
+};
+
 const EspaceFormateurPage = () => {
   const navigate = useNavigate();
   const [view, setView] = useState<'document' | 'dashboard'>('document');
-  const [docLanguage, setDocLanguage] = useState<'fr' | 'ar' | 'en'>('fr');
+  const [docLanguage, setDocLanguage] = useState<'fr' | 'en'>('fr');
 
-  const getCadreContent = (lang: 'fr' | 'ar' | 'en') => {
+  const getCadreContent = (lang: 'fr' | 'en'): CadreContent => {
     const baseTitle = 'Cadre d’intervention de l’Expert Externe Indépendant – MA -Training-Consulting';
 
     if (lang === 'fr') {
@@ -131,241 +143,117 @@ const EspaceFormateurPage = () => {
       };
     }
 
-    if (lang === 'en') {
-      return {
-        title: 'Intervention Framework for the Independent External Expert – MA -Training-Consulting',
-        sections: [
-          {
-            heading: '1️⃣ Definition of the Expert and Independence',
-            paragraphs: [
-              'The independent external expert is considered an autonomous service provider and does not create any relationship of subordination, employment, or partnership with the company.',
-              'The expert may be:',
-            ],
-            bullets: [
-              'a legally authorized professional (license/independent activity) issuing an invoice, or',
-              'an employee in the public or private sector, provided the intervention takes place outside official working hours, and the expert assumes all legal and tax obligations.',
-            ],
-          },
-          {
-            heading: '2️⃣ Consulting Activities and Services',
-            paragraphs: [
-              'The expert intervenes within consulting or service activities, including in particular:',
-            ],
-            bullets: [
-              'Professional support',
-              'Digitalization / Digital transformation',
-              'Professional workshops (Workshops / Sessions)',
-              'Any other consulting activity or complementary service defined later by the company',
-            ],
-            footnote: 'All these activities are provided within a non-training consulting framework and do not constitute training or certification.',
-          },
-          {
-            heading: '3️⃣ Compliance with Methodology and Strategy',
-            paragraphs: [
-              'The expert undertakes to respect the fundamentals of work, the methodology, and the company’s strategy for all assignments.',
-              'For each activity, a specific guide is provided to the expert, specifying the framework, limits, and methodology of the assignment.',
-            ],
-          },
-          {
-            heading: '4️⃣ General Conditions and Professional Ethics',
-            bullets: [
-              'Respect agreed deadlines.',
-              'Work diligently, seriously, and professionally, respecting the defined schedules.',
-              'Absolute confidentiality of the company’s and its clients’ information, and prohibition of using it for other purposes.',
-              'The expert must not provide competing or similar activities without informing the company in advance.',
-              'Any content or document produced as part of the assignment belongs exclusively to the company and may only be used in its name.',
-            ],
-          },
-          {
-            heading: '5️⃣ Collaboration with the Organizational Team',
-            paragraphs: [
-              'The expert collaborates with the company’s organizational team to ensure the effectiveness of assignments.',
-            ],
-            bullets: [
-              'Any organizational activity, such as meetings with organizers, internal workshops, or preparatory webinars, will not be counted in working hours/days for remuneration calculations.',
-              'These organizational activities are carried out as needed and with prior agreement of both parties.',
-            ],
-          },
-          {
-            heading: '6️⃣ Assignment Organization and Communication',
-            paragraphs: [
-              'Assignments are organized and coordinated via the company’s platform or through direct communication with the company.',
-              'This framework ensures accurate follow-up and access to the information necessary for proper execution of assignments.',
-            ],
-          },
-          {
-            heading: '7️⃣ Development and Incentives',
-            bullets: [
-              'The expert acknowledges that the success and expansion of the activity depends on their active contribution.',
-              'In case of effective contribution, the expert may benefit from financial bonuses or an increased daily rate if the expansion/development results from their direct participation.',
-              'The expert is encouraged to propose ideas and suggestions to improve and develop the activity, in line with the interests of both parties.',
-              'Any development or expansion is carried out within a framework beneficial to both parties and subject to prior agreement.',
-            ],
-          },
-          {
-            heading: '8️⃣ Calculation of Days/Hours and Payment Terms',
-            bullets: [
-              'Remuneration is based on assignments completed in days (7 hours = 1 working day).',
-              'Payment is made every 15 days as an organizational tool to compile hours and prepare the invoice or withholding tax statement.',
-              'An assignment may exceptionally be paid as a fixed fee for the whole task without calculating days.',
-              'Any organizational or promotional activity is not included in remuneration calculations.',
-            ],
-          },
-          {
-            heading: '9️⃣ Withholding Tax',
-            bullets: [
-              'The expert will issue a legal invoice if they have the legal capacity/status.',
-              'If the expert does not have legal status, payment will be made via withholding tax in accordance with applicable legislation.',
-              'The expert acknowledges that the company is not responsible for any personal tax obligations beyond the withholding.',
-            ],
-          },
-          {
-            heading: '🔟 No Guarantee of Assignments',
-            bullets: [
-              'The company is not required to provide assignments on a regular basis (monthly or yearly).',
-              'The expert remains free to accept or refuse any assignment, and the company may choose not to assign work without justification.',
-            ],
-          },
-          {
-            heading: '11️⃣ Termination in Case of Non-Compliance',
-            paragraphs: [
-              'In case of lack of collaboration or non-compliance with the agreed rules and context, the company reserves the right to:',
-            ],
-            bullets: [
-              'Cancel the allocation of assignments',
-              'or end the collaboration without any further consequences',
-            ],
-          },
-          {
-            heading: '2️⃣ Ongoing Collaboration and Pride of Contribution',
-            bullets: [
-              'The more the expert collaborates and respects the rules, the more their role and effectiveness increases, with opportunities for additional assignments and bonuses.',
-              'Any initiative for development or expansion takes place within a framework of mutual cooperation, ensuring benefits for both parties and continuous improvement of the activity.',
-            ],
-          },
-        ],
-      };
-    }
-
     return {
-      title: 'إطار تدخل الخبير الخارجي المستقل – MA -Training-Consulting',
+      title: 'Intervention Framework for the Independent External Expert – MA -Training-Consulting',
       sections: [
         {
-          heading: '1️⃣ تعريف الخبير والاستقلالية',
+          heading: '1️⃣ Definition of the Expert and Independence',
           paragraphs: [
-            'يُعتبر الخبير الخارجي المستقل مزوّد خدمات مستقلًا ولا يُنشئ أي علاقة تبعية أو تشغيل أو شراكة مع الشركة.',
-            'يمكن أن يكون الخبير:',
+            'The independent external expert is considered an autonomous service provider and does not create any relationship of subordination, employment, or partnership with the company.',
+            'The expert may be:',
           ],
           bullets: [
-            'مهنيًا مرخّصًا قانونيًا (بطاقة مهنية/نشاط مستقل) ويصدر فاتورة، أو',
-            'موظفًا في القطاع العام أو الخاص بشرط أن يتمّ التدخل خارج أوقات عمله الرسمية، وأن يتحمل الخبير التزاماته القانونية والجبائية.',
+            'a legally authorized professional (license/independent activity) issuing an invoice, or',
+            'an employee in the public or private sector, provided the intervention takes place outside official working hours, and the expert assumes all legal and tax obligations.',
           ],
         },
         {
-          heading: '2️⃣ الأنشطة الاستشارية والخدمات',
+          heading: '2️⃣ Consulting Activities and Services',
+          paragraphs: ['The expert intervenes within consulting or service activities, including in particular:'],
+          bullets: [
+            'Professional support',
+            'Digitalization / Digital transformation',
+            'Professional workshops (Workshops / Sessions)',
+            'Any other consulting activity or complementary service defined later by the company',
+          ],
+          footnote:
+            'All these activities are provided within a non-training consulting framework and do not constitute training or certification.',
+        },
+        {
+          heading: '3️⃣ Compliance with Methodology and Strategy',
           paragraphs: [
-            'يتدخل الخبير ضمن خدمات ذات طابع استشاري أو خدمي، وتشمل على وجه الخصوص:',
+            'The expert undertakes to respect the fundamentals of work, the methodology, and the company’s strategy for all assignments.',
+            'For each activity, a specific guide is provided to the expert, specifying the framework, limits, and methodology of the assignment.',
           ],
-          bullets: [
-            'المرافقة المهنية',
-            'الرقمنة / التحول الرقمي',
-            'ورشات مهنية (Workshops / Ateliers)',
-            'أي نشاط استشاري آخر أو خدمة مكملة يتم تحديدها لاحقًا من طرف الشركة',
-          ],
-          footnote: 'تُقدَّم كل هذه الأنشطة في إطار استشاري غير تكويني، ولا تُعدّ تدريبًا ولا شهادة.',
         },
         {
-          heading: '3️⃣ احترام المنهجية والاستراتيجية',
+          heading: '4️⃣ General Conditions and Professional Ethics',
+          bullets: [
+            'Respect agreed deadlines.',
+            'Work diligently, seriously, and professionally, respecting the defined schedules.',
+            'Absolute confidentiality of the company’s and its clients’ information, and prohibition of using it for other purposes.',
+            'The expert must not provide competing or similar activities without informing the company in advance.',
+            'Any content or document produced as part of the assignment belongs exclusively to the company and may only be used in its name.',
+          ],
+        },
+        {
+          heading: '5️⃣ Collaboration with the Organizational Team',
+          paragraphs: ['The expert collaborates with the company’s organizational team to ensure the effectiveness of assignments.'],
+          bullets: [
+            'Any organizational activity, such as meetings with organizers, internal workshops, or preparatory webinars, will not be counted in working hours/days for remuneration calculations.',
+            'These organizational activities are carried out as needed and with prior agreement of both parties.',
+          ],
+        },
+        {
+          heading: '6️⃣ Assignment Organization and Communication',
           paragraphs: [
-            'يلتزم الخبير باحترام أسس العمل والمنهجية واستراتيجية الشركة في جميع المهام.',
-            'بالنسبة لكل نشاط، يتم تزويد الخبير بدليل خاص يوضح الإطار والحدود والمنهجية الخاصة بالمهمة.',
+            'Assignments are organized and coordinated via the company’s platform or through direct communication with the company.',
+            'This framework ensures accurate follow-up and access to the information necessary for proper execution of assignments.',
           ],
         },
         {
-          heading: '4️⃣ الشروط العامة وأخلاقيات المهنة',
+          heading: '7️⃣ Development and Incentives',
           bullets: [
-            'احترام الآجال المتفق عليها.',
-            'العمل بجدية واحترافية مع احترام الأوقات المحددة.',
-            'السرية التامة لمعلومات الشركة وحرفائها ومنع استعمالها لأي أغراض أخرى.',
-            'عدم تقديم أنشطة منافسة أو مشابهة دون إعلام الشركة مسبقًا.',
-            'كل محتوى أو وثيقة يتم إنتاجها في إطار المهمة تعود ملكيتها حصريًا للشركة ولا تُستعمل إلا باسمها.',
+            'The expert acknowledges that the success and expansion of the activity depends on their active contribution.',
+            'In case of effective contribution, the expert may benefit from financial bonuses or an increased daily rate if the expansion/development results from their direct participation.',
+            'The expert is encouraged to propose ideas and suggestions to improve and develop the activity, in line with the interests of both parties.',
+            'Any development or expansion is carried out within a framework beneficial to both parties and subject to prior agreement.',
           ],
         },
         {
-          heading: '5️⃣ التعاون مع الفريق التنظيمي',
-          paragraphs: [
-            'يتعاون الخبير مع الفريق التنظيمي للشركة لضمان فعالية المهام.',
-          ],
+          heading: '8️⃣ Calculation of Days/Hours and Payment Terms',
           bullets: [
-            'أي نشاط تنظيمي مثل الاجتماعات مع المنظمين أو الورشات الداخلية أو الندوات التحضيرية (webinars) لا يُحتسب ضمن الساعات أو الأيام المعتمدة لحساب الأجور.',
-            'تُنجز هذه الأنشطة التنظيمية حسب الحاجة وباتفاق مسبق بين الطرفين.',
+            'Remuneration is based on assignments completed in days (7 hours = 1 working day).',
+            'Payment is made every 15 days as an organizational tool to compile hours and prepare the invoice or withholding tax statement.',
+            'An assignment may exceptionally be paid as a fixed fee for the whole task without calculating days.',
+            'Any organizational or promotional activity is not included in remuneration calculations.',
           ],
         },
         {
-          heading: '6️⃣ تنظيم المهام والتواصل',
-          paragraphs: [
-            'يتم تنظيم وتنسيق المهام عبر منصة الشركة أو عبر تواصل مباشر مع الشركة.',
-            'يضمن هذا الإطار متابعة دقيقة وإتاحة المعلومات اللازمة لحسن تنفيذ المهام.',
-          ],
-        },
-        {
-          heading: '7️⃣ التطوير والتحفيزات',
+          heading: '9️⃣ Withholding Tax',
           bullets: [
-            'يقرّ الخبير بأن نجاح النشاط وتوسعه يعتمد على مساهمته الفعّالة.',
-            'في حال وجود مساهمة فعّالة، يمكن للخبير الاستفادة من مكافآت مالية أو زيادة في التعريفة اليومية إذا كان توسع/تطور النشاط ناتجًا عن مشاركته المباشرة.',
-            'يُشجَّع الخبير على تقديم أفكار واقتراحات لتحسين وتطوير النشاط بما يخدم مصلحة الطرفين.',
-            'يتم أي تطوير أو توسع ضمن إطار مفيد للطرفين وبموجب اتفاق مسبق.',
+            'The expert will issue a legal invoice if they have the legal capacity/status.',
+            'If the expert does not have legal status, payment will be made via withholding tax in accordance with applicable legislation.',
+            'The expert acknowledges that the company is not responsible for any personal tax obligations beyond the withholding.',
           ],
         },
         {
-          heading: '8️⃣ احتساب الأيام والساعات وطرق الدفع',
+          heading: '🔟 No Guarantee of Assignments',
           bullets: [
-            'تعتمد الأجرة على المهام المنجزة بالأيام (7 ساعات = يوم عمل واحد).',
-            'يتم الدفع كل 15 يومًا كآلية تنظيمية لتجميع الساعات وتحضير الفاتورة أو بيان الخصم من المورد.',
-            'يمكن استثنائيًا تسوية مهمة بنظام مبلغ جزافي لكامل العمل دون احتساب الأيام.',
-            'أي نشاط تنظيمي أو ترويجي لا يدخل ضمن احتساب الأجرة.',
+            'The company is not required to provide assignments on a regular basis (monthly or yearly).',
+            'The expert remains free to accept or refuse any assignment, and the company may choose not to assign work without justification.',
           ],
         },
         {
-          heading: '9️⃣ الخصم من المورد',
-          bullets: [
-            'يصدر الخبير فاتورة قانونية إذا كان يتمتع بالصفة/الوضع القانوني.',
-            'إذا لم يكن للخبير وضع قانوني، يتم الدفع عبر الخصم من المورد وفقًا للتشريع الجاري به العمل.',
-            'يقرّ الخبير بأن الشركة غير مسؤولة عن أي التزامات جبائية شخصية خارج إطار الخصم.',
-          ],
+          heading: '11️⃣ Termination in Case of Non-Compliance',
+          paragraphs: ['In case of lack of collaboration or non-compliance with the agreed rules and context, the company reserves the right to:'],
+          bullets: ['Cancel the allocation of assignments', 'or end the collaboration without any further consequences'],
         },
         {
-          heading: '🔟 عدم ضمان توفر المهام',
+          heading: '2️⃣ Ongoing Collaboration and Pride of Contribution',
           bullets: [
-            'لا تلتزم الشركة بتوفير مهام بصفة منتظمة (شهريًا أو سنويًا).',
-            'يبقى الخبير حرًا في قبول أو رفض أي مهمة، ويمكن للشركة عدم إسناد مهمة دون تبرير.',
-          ],
-        },
-        {
-          heading: '11️⃣ إنهاء التعاون في حال عدم الالتزام',
-          paragraphs: [
-            'في حال عدم التعاون أو عدم احترام القواعد والسياق المتفق عليه، تحتفظ الشركة بحق:',
-          ],
-          bullets: [
-            'إلغاء إسناد المهام',
-            'أو إنهاء التعاون دون أي تبعات إضافية',
-          ],
-        },
-        {
-          heading: '2️⃣ تعاون مستمر وفخر بالمساهمة',
-          bullets: [
-            'كلما زاد تعاون الخبير واحترامه للقواعد، زاد دوره وفعاليته داخل النشاط مع فرص لمهام إضافية ومكافآت.',
-            'أي مبادرة للتطوير أو التوسع تتم في إطار تعاون متبادل يضمن الفائدة للطرفين والتحسين المستمر للنشاط.',
+            'The more the expert collaborates and respects the rules, the more their role and effectiveness increases, with opportunities for additional assignments and bonuses.',
+            'Any initiative for development or expansion takes place within a framework of mutual cooperation, ensuring benefits for both parties and continuous improvement of the activity.',
           ],
         },
       ],
     };
   };
 
-  const buildPrintableHtml = (lang: 'fr' | 'ar' | 'en') => {
+  const buildPrintableHtml = (lang: 'fr' | 'en') => {
     const { title, sections } = getCadreContent(lang);
-    const dir = lang === 'ar' ? 'rtl' : 'ltr';
-    const align = lang === 'ar' ? 'right' : 'left';
+    const dir = 'ltr';
+    const align = 'left';
     const safe = (t: string) =>
       t
         .replace(/&/g, '&amp;')
@@ -409,7 +297,7 @@ const EspaceFormateurPage = () => {
       h1 { font-size: 22px; margin: 0 0 18px 0; }
       h2 { font-size: 16px; margin: 16px 0 8px 0; }
       p { margin: 0 0 10px 0; }
-      ul { margin: 0 0 10px 0; padding-${align === 'right' ? 'right' : 'left'}: 18px; }
+      ul { margin: 0 0 10px 0; padding-left: 18px; }
       li { margin: 6px 0; }
       .footnote { margin-top: 8px; font-style: italic; color: #374151; }
     </style>
@@ -436,7 +324,6 @@ const EspaceFormateurPage = () => {
 
   const DocumentView = () => {
     const doc = getCadreContent(docLanguage);
-    const isArabic = docLanguage === 'ar';
 
     return (
       <div className="min-h-screen bg-gray-50">
@@ -460,13 +347,6 @@ const EspaceFormateurPage = () => {
                       className={`px-3 py-1.5 text-sm font-medium rounded-md ${docLanguage === 'fr' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
                     >
                       FR
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDocLanguage('ar')}
-                      className={`px-3 py-1.5 text-sm font-medium rounded-md ${docLanguage === 'ar' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
-                    >
-                      العربية
                     </button>
                     <button
                       type="button"
@@ -505,8 +385,8 @@ const EspaceFormateurPage = () => {
             <p className="text-sm text-gray-600 mt-2">Document (lecture uniquement)</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" dir={isArabic ? 'rtl' : 'ltr'}>
-            <div className={isArabic ? 'text-right' : 'text-left'}>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" dir="ltr">
+            <div className="text-left">
               {doc.sections.map((section, idx) => (
                 <div key={`${section.heading}-${idx}`} className="mb-8 last:mb-0">
                   <h2 className="text-lg font-semibold text-gray-900 mb-3">{section.heading}</h2>

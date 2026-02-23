@@ -23,7 +23,6 @@ const limiter = rateLimit({
     message: 'Trop de requêtes, veuillez réessayer plus tard.'
   }
 });
-app.use('/api/', limiter);
 
 // CORS configuration - Production ready with development support
 const allowedOrigins = [
@@ -94,9 +93,24 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'Pragma', 'Cache-Control', 'X-Requested-With', 'x-admin-key', 'x-expert-email', 'x-expert-id'],
+  allowedHeaders: [
+    'Origin',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Pragma',
+    'Cache-Control',
+    'X-Requested-With',
+    'x-admin-key',
+    'x-expert-email',
+    'x-expert-id',
+    'x-career-quest-session-id',
+    'x-career-quest-token',
+  ],
   optionsSuccessStatus: 200 // For legacy browser support
 }));
+
+app.use('/api/', limiter);
 
 // Additional CORS headers for specific cases (production-safe)
 app.use((req, res, next) => {
@@ -111,7 +125,10 @@ app.use((req, res, next) => {
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, Pragma, Cache-Control, X-Requested-With, x-admin-key, x-expert-email, x-expert-id');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, Content-Type, Accept, Authorization, Pragma, Cache-Control, X-Requested-With, x-admin-key, x-expert-email, x-expert-id, x-career-quest-session-id, x-career-quest-token'
+  );
   res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
@@ -181,7 +198,11 @@ app.use('/uploads', (req, res, next) => {
 const initSupabaseStorage = async () => {
   try {
     const { ensureBucketExists } = await import('./utils/supabaseStorage.js');
-    await ensureBucketExists();
+    const ok = await ensureBucketExists();
+    if (!ok) {
+      console.log('⏭️ Supabase Storage not initialized (not configured or bucket unavailable)');
+      return;
+    }
     console.log('✅ Supabase Storage initialized');
   } catch (error) {
     console.error('⚠️ Supabase Storage initialization failed:', error.message);
@@ -253,7 +274,6 @@ import formateurParticipantsRoutes from './routes/formateurParticipants.js';
 import formateurEvenementsRoutes from './routes/formateurEvenements.js';
 import commercialNewRoutes from './routes/commercialNew.js';
 import commercialServicesRoutes from './routes/commercialServices.js';
-import registrationRoutes from './routes/registrations.js';
 import participantRoutes from './routes/participants.js';
 import freelancerOffersRoutes from './routes/freelancerOffers.js';
 import newsletterRoutes from './routes/newsletter.js';
@@ -264,9 +284,14 @@ import testimonialsRoutes from './routes/testimonials.js';
 import partnerTestimonialsRoutes from './routes/partnerTestimonials.js';
 import eTrainingTestimonialsRoutes from './routes/eTrainingTestimonials.js';
 import adminUsersRoutes from './routes/adminUsers.js';
- import diagnosticSessionsRoutes from './routes/diagnosticSessions.js';
-import espaceProAccountsRoutes from './routes/espaceProAccounts.js';
+import diagnosticSessionsRoutes from './routes/diagnosticSessions.js';
+import diagnosticQuestionsRoutes from './routes/diagnosticQuestions.js';
+import diagnosticDomainsRoutes from './routes/diagnosticDomains.js';
 import participationVerificationsRoutes from './routes/participationVerifications.js';
+
+import eTrainingPricingRoutes from './routes/eTrainingPricing.js';
+
+import careerQuestRoutes from './routes/careerQuest.js';
 
 app.use('/api/programs', programRoutes);
 app.use('/api/packs', packRoutes);
@@ -283,7 +308,6 @@ app.use('/api/formateur-participants', formateurParticipantsRoutes);
 app.use('/api/formateur-evenements', formateurEvenementsRoutes);
 app.use('/api/commercial-new', commercialNewRoutes);
 app.use('/api/commercial-services', commercialServicesRoutes);
-app.use('/api/registrations', registrationRoutes);
 app.use('/api/participants', participantRoutes);
 app.use('/api/freelancer-offers', freelancerOffersRoutes);
 app.use('/api/newsletter', newsletterRoutes);
@@ -293,11 +317,15 @@ app.use('/api/digitalization-contact', digitalizationContactRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/partner-testimonials', partnerTestimonialsRoutes);
 app.use('/api/e-training-testimonials', eTrainingTestimonialsRoutes);
+app.use('/api/e-training-pricing', eTrainingPricingRoutes);
 app.use('/api/admin-users', adminUsersRoutes);
  app.use('/api/diagnostic-sessions', diagnosticSessionsRoutes);
  app.use('/api/diagnostics', diagnosticSessionsRoutes);
-app.use('/api/espace-pro-accounts', espaceProAccountsRoutes);
+app.use('/api/diagnostic-questions', diagnosticQuestionsRoutes);
+app.use('/api/diagnostic-domains', diagnosticDomainsRoutes);
 app.use('/api/participation-verifications', participationVerificationsRoutes);
+
+ app.use('/api/career-quest', careerQuestRoutes);
 
 // Import freelancer projects routes
 import freelancerProjectsRoutes from './routes/freelancerProjects.js';
@@ -322,6 +350,10 @@ app.use('/api/footer-settings', footerSettingsRoutes);
 // Consulting Opérationnel (Service 2) participant accounts + answers
 import consultingOperationnelAccountsRoutes from './routes/consultingOperationnelAccounts.js';
 app.use('/api/consulting-operationnel-accounts', consultingOperationnelAccountsRoutes);
+
+// Service 2 (Async) exams + submissions + AI grading + finish slots
+import service2Routes from './routes/service2.js';
+app.use('/api/service2', service2Routes);
 
 // Import events routes
 import eventsRoutes from './routes/events.js';
@@ -350,12 +382,6 @@ app.use('/api/website-pages', websitePagesRoutes);
 import espaceRessourcesSettingsRoutes from './routes/espaceRessourcesSettings.js';
 app.use('/api/espace-ressources-settings', espaceRessourcesSettingsRoutes);
 
-// Espace Pro (Expert-driven dashboard)
-import espaceProDossiersRoutes from './routes/espaceProDossiers.js';
-import espaceProMeRoutes from './routes/espaceProMe.js';
-app.use('/api/espace-pro-dossiers', espaceProDossiersRoutes);
-app.use('/api/espace-pro', espaceProMeRoutes);
-
 // API base endpoint - FIXED: Handle /api requests
 app.get('/api', (req, res) => {
   res.json({
@@ -380,7 +406,6 @@ app.get('/api', (req, res) => {
       formateurEvenements: '/api/formateur-evenements',
       commercialNew: '/api/commercial-new',
       commercialServices: '/api/commercial-services',
-      registrations: '/api/registrations',
       participants: '/api/participants',
       freelancerOffers: '/api/freelancer-offers',
       newsletter: '/api/newsletter',
@@ -447,7 +472,6 @@ app.get('/', (req, res) => {
       attestations: '/api/attestations',
       partners: '/api/partners',
       formateurSessions: '/api/formateur-sessions',
-      registrations: '/api/registrations',
       participants: '/api/participants',
       footerSettings: '/api/footer-settings',
       digitalizationServices: '/api/digitalization-services',
@@ -473,10 +497,18 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use((error, req, res, next) => {
   console.error('Global error handler:', error);
-  
+
+  if (error && (error.name === 'MulterError' || error.code === 'LIMIT_FILE_SIZE')) {
+    const status = error.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({
+      success: false,
+      message: 'File too large',
+    });
+  }
+
   res.status(error.status || 500).json({
     success: false,
-    message: error.message || 'Erreur interne du serveur',
+    message: error.message || 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
   });
 });

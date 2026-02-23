@@ -9,11 +9,6 @@ interface ContactInfo {
   address: string;
 }
 
-interface FaqLink {
-  title: string;
-  href: string;
-}
-
 interface SocialLink {
   name: 'Facebook' | 'LinkedIn' | 'WhatsApp' | 'Telegram';
   href: string;
@@ -27,7 +22,6 @@ interface CompanyInfo {
 
 interface FooterSettings {
   contactInfo: ContactInfo;
-  faqLinks: FaqLink[];
   socialLinks: SocialLink[];
   companyInfo: CompanyInfo;
 }
@@ -39,12 +33,6 @@ const Footer: React.FC = () => {
       phone: '+33 1 23 45 67 89',
       address: '123 Avenue des Champs-Élysées, 75008 Paris',
     },
-    faqLinks: [
-      { title: "Comment s'inscrire ?", href: '#' },
-      { title: 'Conditions de partenariat', href: '#' },
-      { title: 'Avantages du programme', href: '#' },
-      { title: 'Nos partenaires', href: '#' },
-    ],
     socialLinks: [
       { name: 'Facebook', href: '#', icon: 'FaFacebookF' },
       { name: 'LinkedIn', href: '#', icon: 'FaLinkedinIn' },
@@ -57,16 +45,6 @@ const Footer: React.FC = () => {
         'Votre partenaire stratégique pour la transformation digitale et le développement des compétences.',
     },
   };
-
-  const excludedFaqTitles = new Set([
-    "🎓 Programme Formateurs",
-    "💼 Programme Freelancer (Indépendant)",
-    "📈 Programme Commercial",
-    "🏢 Programme Entreprise",
-    "🎓 Foire aux Questions – Nos programmes de formation",
-  ]);
-
-  const visibleFaqLinks = (footerData?.faqLinks ?? []).filter((link) => !excludedFaqTitles.has(link.title));
 
   // Convertir le nom de l'icône en composant React
   const getIconComponent = (iconName: string) => {
@@ -85,9 +63,56 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer id="site-footer" className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="mb-10 space-y-4">
+          <Link
+            to="/verification-participant"
+            className="group block rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 shadow-sm ring-1 ring-white/10 hover:from-indigo-500 hover:to-violet-500 transition-colors duration-200"
+          >
+            <div className="flex items-center justify-between gap-6">
+              <div>
+                <div className="text-xs sm:text-sm font-medium text-white/80">Accès rapide</div>
+                <div className="mt-1 text-base sm:text-lg font-bold">
+                  Vérification de participation au parcours professionnel
+                </div>
+              </div>
+              <div className="shrink-0 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-white ring-1 ring-white/15 group-hover:bg-white/15 transition-colors">
+                Ouvrir
+              </div>
+            </div>
+          </Link>
+
+          <div
+            className="block rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 shadow-sm ring-1 ring-white/10 opacity-70 cursor-not-allowed"
+            aria-disabled="true"
+          >
+            <div className="flex items-center justify-between gap-6">
+              <div>
+                <div className="text-xs sm:text-sm font-medium text-white/80">Accès rapide</div>
+                <div className="mt-1 text-base sm:text-lg font-bold">
+                  Vérification de Prestataires Indépendants
+                </div>
+              </div>
+              <div className="shrink-0 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-white ring-1 ring-white/15">
+                Bientôt disponible
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-10 rounded-2xl bg-gray-950/30 p-6">
+          <div className="text-xs sm:text-sm font-medium text-gray-300">Plus de détails en PDF</div>
+          <button
+            type="button"
+            onClick={downloadParcoursProfessionnelPdf}
+            className="mt-2 inline-flex items-center gap-2 text-gray-200 hover:text-white transition-colors duration-200 text-left font-semibold"
+          >
+            <FaFilePdf className="w-4 h-4" aria-hidden="true" />
+            Différence entre le parcours d’accompagnement MATC et la formation classique
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2 lg:col-span-2 space-y-4">
             <h3 className="text-xl font-bold tracking-wider">{footerData.companyInfo.name}</h3>
@@ -108,74 +133,60 @@ const Footer: React.FC = () => {
                 <span>{footerData.contactInfo.address}</span>
               </li>
             </ul>
+
+            {/* Social Media */}
+            <div className="pt-4">
+              <h3 className="text-xl font-bold">Rejoignez-nous</h3>
+              <div className="flex mt-4 space-x-4">
+                {footerData.socialLinks.map((link, index) => (
+                  <a key={`${link.name}-${index}`} href={link.href} aria-label={link.name} className="text-gray-400 hover:text-white transition-colors duration-200 p-2 rounded-full">
+                    <span className="sr-only">{link.name}</span>
+                    {getIconComponent(link.icon)}
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* FAQ */}
           <div className="col-span-1">
-            <h3 className="text-xl font-bold">FAQ Service MA-TRAINING-CONSULTING</h3>
+            <h3 className="text-xl font-bold">Espaces du parcours professionnel</h3>
             <ul className="mt-4 space-y-2">
-              {visibleFaqLinks.map((link, index) => (
-                <li key={`${link.title}-${index}`}>
-                  <a href={link.href} className="text-gray-400 hover:text-white transition-colors duration-200">
-                    {link.title}
-                  </a>
-                </li>
-              ))}
               <li>
-                <button
-                  type="button"
-                  onClick={downloadParcoursProfessionnelPdf}
-                  className="text-gray-400 hover:text-white transition-colors duration-200 text-left inline-flex items-center gap-2"
+                <Link
+                  to="/career-quest"
+                  className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
-                  <FaFilePdf className="w-4 h-4" aria-hidden="true" />
-                  Système de conseil MATC VS formation académique
-                </button>
-              </li>
-              <li>
-                <Link to="/espace-professionnel" className="text-gray-400 hover:text-white transition-colors duration-200">
-                  espace-professionnel
+                  Service 1 — Career Quest (jeu)
                 </Link>
               </li>
               <li>
-                <Link to="/espace-consulting-operationnel" className="text-gray-400 hover:text-white transition-colors duration-200">
-                  espace-Consulting Opérationnel
+                <Link
+                  to="/service-2"
+                  className="text-gray-400 hover:text-white transition-colors duration-200"
+                >
+                  Service 2 — Espace de mission professionnelle
                 </Link>
               </li>
               <li>
                 <Link to="/espace-participant" className="text-gray-400 hover:text-white transition-colors duration-200">
-                  Espace participant
+                  Espace d’analyse & recommandations avancées
                 </Link>
               </li>
               <li>
                 <Link to="/espaces-ressources" className="text-gray-400 hover:text-white transition-colors duration-200">
-                  Espaces Ressources
-                </Link>
-              </li>
-              <li>
-                <Link to="/verification-participant" className="text-gray-400 hover:text-white transition-colors duration-200">
-                  Verification
+                  Espace Ressources &amp; Recommandations professionnelles
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Social Media */}
-          <div className="col-span-1">
-            <h3 className="text-xl font-bold">Rejoignez-nous</h3>
-            <div className="flex mt-4 space-x-4">
-              {footerData.socialLinks.map((link, index) => (
-                <a key={`${link.name}-${index}`} href={link.href} aria-label={link.name} className="text-gray-400 hover:text-white transition-colors duration-200 p-2 border border-gray-700 rounded-full">
-                  <span className="sr-only">{link.name}</span>
-                  {getIconComponent(link.icon)}
-                </a>
-              ))}
-            </div>
-          </div>
+          {/* PDF */}
 
         </div>
 
         {/* Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center text-gray-400">
+        <div className="mt-12 pt-8 text-center text-gray-400">
           <p>&copy; {new Date().getFullYear()} {footerData.companyInfo.name}. Tous droits réservés.</p>
         </div>
       </div>

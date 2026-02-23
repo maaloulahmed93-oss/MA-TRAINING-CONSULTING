@@ -52,7 +52,7 @@ The deployed Admin Panel on Vercel cannot communicate with the backend on Render
 
 **Features:**
 - Live connectivity testing from Vercel to Render
-- Individual endpoint testing (`/programs`, `/partners`, `/registrations`)
+- Individual endpoint testing (`/programs`, `/partners`)
 - CORS header analysis
 - Backend health checks
 - Environment configuration display
@@ -129,7 +129,6 @@ import { API_BASE_URL } from '../config/api';
 Test critical admin panel features:
 - Programs management
 - Partners management
-- Registrations viewing
 - Participant management
 
 ## 🔧 **CORS Configuration Check**

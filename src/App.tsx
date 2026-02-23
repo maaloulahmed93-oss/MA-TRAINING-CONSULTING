@@ -1,16 +1,19 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import EspaceParticipantPage from "./pages/EspaceParticipantPage";
-import EspaceConsultingOperationnelPage from "./pages/EspaceConsultingOperationnelPage";
-import ConsultingOperationnelTemplatesPage from "./pages/ConsultingOperationnelTemplatesPage";
-import ConsultingOperationnelRecapPage from "./pages/ConsultingOperationnelRecapPage";
+import Service2LoginPage from "./pages/Service2LoginPage";
+import Service2MissionPage from "./pages/Service2MissionPage";
+import Service2ReportPage from "./pages/Service2ReportPage";
+import Service2FinishPage from "./pages/Service2FinishPage";
 import PartnershipPage from "./components/PartnershipPage";
 import VerificationAttestationPage from "./pages/VerificationAttestationPage";
 import VerificationParticipantPage from "./pages/VerificationParticipantPage";
 import SystemTestPage from "./pages/SystemTestPage";
 import DiagnosticWonderPage from "./pages/DiagnosticNewPage";
-import EspaceProfessionnelPage from "./pages/EspaceProfessionnelPage";
+import ProfessionalDiagnosticWizardPage from "./pages/ProfessionalDiagnosticWizardPage";
+import DiagnosticResultPage from "./pages/DiagnosticResultPage";
+import Service1DashboardGate from "./pages/Service1DashboardGate";
 import EcosystemPage from "./pages/EcosystemPage";
 import EspaceRessourcesPage from "./pages/EspaceRessourcesPage";
 import EspaceRessourcesSelectionPage from "./pages/EspaceRessourcesSelectionPage";
@@ -20,6 +23,9 @@ import EspaceRessourceDetailPage from "./pages/EspaceRessourceDetailPage";
 import EspaceFormateurPage from "./pages/EspaceFormateurPage";
 import EspaceFreelancerCadrePage from "./pages/EspaceFreelancerCadrePage";
 import EspaceCommercialCadrePage from "./pages/EspaceCommercialCadrePage";
+import CareerQuestPage from "./pages/CareerQuestPage";
+import DemoTimer from "./components/DemoTimer";
+import DemoExpired from "./components/DemoExpired";
 // Test page (temporary)
 import ProjectsTestPage from "./pages/ProjectsTestPage";
 import "./styles/animations.css";
@@ -33,6 +39,8 @@ const Blank404 = () => (
 );
 
 function App() {
+  const [isExpired, setIsExpired] = useState(false);
+
   // Appliquer la configuration du site au chargement
   useEffect(() => {
     siteConfigService.applySiteConfig().catch(error => {
@@ -40,8 +48,19 @@ function App() {
     });
   }, []);
 
+  // Si la démo est expirée, afficher uniquement l'écran de blocage
+  if (isExpired) {
+    return (
+      <DemoExpired 
+        storageKey="demo_start_time" 
+        onUnlock={() => setIsExpired(false)} 
+      />
+    );
+  }
+
   return (
     <Router>
+      <DemoTimer durationMinutes={45} onExpire={() => setIsExpired(true)} />
       <div className="flex flex-col min-h-screen">
         <main className="flex-grow">
           <Routes>
@@ -73,16 +92,21 @@ function App() {
             />
             <Route
               path="/espace-consulting-operationnel"
-              element={<EspaceConsultingOperationnelPage />}
+              element={<Navigate to="/service-2" replace />}
             />
             <Route
               path="/espace-consulting-operationnel/templates"
-              element={<ConsultingOperationnelTemplatesPage />}
+              element={<Navigate to="/service-2/mission" replace />}
             />
             <Route
               path="/espace-consulting-operationnel/recap"
-              element={<ConsultingOperationnelRecapPage />}
+              element={<Navigate to="/service-2/report" replace />}
             />
+
+            <Route path="/service-2" element={<Service2LoginPage />} />
+            <Route path="/service-2/mission" element={<Service2MissionPage />} />
+            <Route path="/service-2/report" element={<Service2ReportPage />} />
+            <Route path="/service-2/finish" element={<Service2FinishPage />} />
             <Route path="/espace-formateur" element={<EspaceFormateurPage />} />
             <Route
               path="/espace-freelancer"
@@ -98,7 +122,7 @@ function App() {
             />
             <Route
               path="/espace-professionnel"
-              element={<EspaceProfessionnelPage />}
+              element={<Blank404 />}
             />
             <Route
               path="/programme-partenariat"
@@ -108,7 +132,10 @@ function App() {
             <Route path="/partenaire/formations-co-animees" element={<Blank404 />} />
             <Route path="/partenaire/evenements" element={<Blank404 />} />
             <Route path="/partenaire/messages" element={<Blank404 />} />
-            <Route path="/diagnostic" element={<DiagnosticWonderPage />} />
+            <Route path="/diagnostic" element={<ProfessionalDiagnosticWizardPage />} />
+            <Route path="/diagnostic-result" element={<DiagnosticResultPage />} />
+            <Route path="/service-1" element={<Service1DashboardGate />} />
+            <Route path="/career-quest" element={<CareerQuestPage />} />
             <Route path="/diagnostic-wonder" element={<DiagnosticWonderPage />} />
             <Route path="/ecosysteme" element={<EcosystemPage />} />
               {/* Verification d'attestation */}

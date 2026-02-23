@@ -230,7 +230,7 @@ const DiagnosticWonderPage: React.FC = () => {
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-slate-600">
                   <span className="h-1.5 w-1.5 rounded-full bg-slate-900" />
-                  <span>MA CONSULTING</span>
+                  <span>MA-TRAINING-CONSULTING</span>
                 </div>
                 <h1 className="mt-3 text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">Diagnostic professionnel</h1>
                 <p className="mt-2 text-sm text-slate-600">Diagnostic unique. Aucun choix de domaine.</p>

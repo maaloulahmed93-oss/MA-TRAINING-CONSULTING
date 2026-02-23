@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { validateEspaceRessourcesAccessCode } from "../services/espaceRessourcesAccessService";
 
 const ACCESS_CODE = "00000000";
@@ -45,22 +45,30 @@ const EspaceRessourcesPage: React.FC = () => {
       <div className="container mx-auto px-6 py-10">
         <div className="max-w-5xl mx-auto space-y-8">
           <section className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
+            <div className="flex justify-start mb-4">
+              <Link
+                to="/"
+                className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+              >
+                Retour à l’accueil
+              </Link>
+            </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-              Espace Ressources
+              Espace Ressources &amp; Recommandations professionnelles
             </h1>
             <p className="mt-4 text-gray-700 leading-relaxed">
-              فضاء معرفي يقدّم موارد مهنية مبسّطة،
+              Un espace de ressources professionnelles, conçu pour vous apporter des repères concrets,
               <br />
-              تهدف إلى توضيح المفاهيم، تطوير طريقة التفكير،
+              clarifier les concepts clés et structurer votre manière de réfléchir,
               <br />
-              وفهم الوضعيات المهنية الشائعة —
+              à partir de situations professionnelles courantes —
               <br />
-              دون تكوين، دون دروس تقنية، ودون توجيه فردي.
+              sans formation, sans cours techniques, et sans accompagnement individuel.
             </p>
             <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-              هذا الفضاء لا يقدّم تشخيصًا مهنيًا، ولا استشارة فردية،
+              Cet espace ne propose ni diagnostic individuel ni consultation personnalisée,
               <br />
-              بل محتوى توضيحي عام مبني على وضعيات مهنية نموذجية.
+              mais un contenu explicatif et opérationnel basé sur des cas d’usage métiers.
             </p>
           </section>
 
@@ -70,17 +78,17 @@ const EspaceRessourcesPage: React.FC = () => {
                 Ressources gratuites
               </h2>
               <p className="mt-2 text-gray-700">
-                موارد متاحة للعموم،
+                Ressources accessibles à tous,
                 <br />
-                تساعد على فهم المفاهيم الأساسية،
+                pour consolider les fondamentaux,
                 <br />
-                وتطوير منطق اتخاذ القرار المهني.
+                et renforcer votre logique de décision professionnelle.
               </p>
               <div className="mt-4 space-y-2 text-gray-700">
-                <div>وضعيات مهنية قصيرة</div>
-                <div>أسئلة تفكير (QCM بسيط)</div>
-                <div>توضيح فروقات بين أدوار ومسميات</div>
-                <div>نصائح عامة</div>
+                <div>Mises en situation professionnelles courtes</div>
+                <div>Questions de réflexion (QCM simplifié)</div>
+                <div>Clarification des rôles et des intitulés</div>
+                <div>Conseils généraux</div>
               </div>
             </div>
 
@@ -89,15 +97,15 @@ const EspaceRessourcesPage: React.FC = () => {
                 Ressources Bonus (Accès réservé)
               </h2>
               <p className="mt-2 text-gray-700">
-                موارد إضافية مخصّصة حصريًا
+                Ressources complémentaires, réservées exclusivement
                 <br />
-                للمشاركين في خدمات MA Consulting المدفوعة.
+                aux participants des services MA-TRAINING-CONSULTING.
               </p>
               <p className="mt-3 text-gray-700">
-                يتم تفعيل الوصول إليها عبر Code d’accès.
+                L’accès est activé via un code d’accès.
               </p>
               <p className="mt-4 text-sm text-gray-600">
-                هذه الموارد تُكمّل المسار الاستشاري، ولا تُقدَّم بشكل مستقل.
+                Ces ressources complètent un parcours de service et ne sont pas proposées de façon indépendante.
               </p>
               <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
                 {accessGranted
@@ -109,7 +117,7 @@ const EspaceRessourcesPage: React.FC = () => {
 
           <section className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
             <h2 className="text-2xl font-bold text-gray-900">
-              Accéder à l’Espace Ressources
+              Accéder à l’Espace Ressources &amp; Recommandations professionnelles
             </h2>
 
             <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
@@ -128,7 +136,7 @@ const EspaceRessourcesPage: React.FC = () => {
                   placeholder="************"
                 />
                 <div className="mt-2 text-xs text-gray-500">
-                  كل Code d’accès شخصي وغير قابل للمشاركة.
+                  Chaque code d’accès est personnel et non partageable.
                 </div>
               </div>
 
@@ -149,7 +157,7 @@ const EspaceRessourcesPage: React.FC = () => {
 
             {codeStatus === "error" && (
               <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">
-                Code d’accès غير صحيح.
+                Code d’accès incorrect.
               </div>
             )}
           </section>
@@ -159,14 +167,14 @@ const EspaceRessourcesPage: React.FC = () => {
               Obtenir un accès gratuit aux ressources publiques
             </h2>
             <p className="mt-3 text-gray-700">
-              للحصول على accès إلى الموارد المجانية، يرجى ملء النموذج التالي.
+              Pour obtenir un accès aux ressources publiques, merci de compléter le formulaire ci-dessous.
             </p>
 
             <form onSubmit={onSubmitFreeAccess} className="mt-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900">
-                    الاسم
+                    Prénom
                   </label>
                   <input
                     type="text"
@@ -184,7 +192,7 @@ const EspaceRessourcesPage: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-900">
-                    اللقب
+                    Nom
                   </label>
                   <input
                     type="text"
@@ -204,7 +212,7 @@ const EspaceRessourcesPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900">
-                    البريد الإلكتروني
+                    E-mail
                   </label>
                   <input
                     type="email"
@@ -219,7 +227,7 @@ const EspaceRessourcesPage: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-900">
-                    رقم WhatsApp
+                    Numéro WhatsApp
                   </label>
                   <input
                     type="tel"
@@ -245,7 +253,7 @@ const EspaceRessourcesPage: React.FC = () => {
 
               {formSubmitted && (
                 <div className="mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
-                  لقد تحصلت علي رمز الدخول. و هو {ACCESS_CODE}
+                  Votre code d’accès est : {ACCESS_CODE}
                 </div>
               )}
             </form>

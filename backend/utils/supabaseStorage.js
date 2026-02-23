@@ -1,4 +1,4 @@
-import supabase from './supabaseClient.js';
+import supabase, { isSupabaseConfigured } from './supabaseClient.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -8,6 +8,9 @@ const BUCKET_NAME = 'attestations';
  * Ensure the attestations bucket exists
  */
 export const ensureBucketExists = async () => {
+  if (!isSupabaseConfigured) {
+    return false;
+  }
   try {
     const { data: buckets, error } = await supabase.storage.listBuckets();
     
@@ -22,7 +25,7 @@ export const ensureBucketExists = async () => {
       console.log(`📦 Creating bucket: ${BUCKET_NAME}`);
       const { error: createError } = await supabase.storage.createBucket(BUCKET_NAME, {
         public: true,
-        fileSizeLimit: 10485760 // 10MB
+        fileSizeLimit: 104857600 // 100MB
       });
       
       if (createError) {
@@ -50,6 +53,9 @@ export const ensureBucketExists = async () => {
  * @returns {Promise<string>} - Public URL of uploaded file
  */
 export const uploadToSupabase = async (filePath, attestationId, docType) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase not configured. Add SUPABASE_URL and SUPABASE_KEY to environment variables.');
+  }
   try {
     console.log(`📤 Uploading ${docType} to Supabase Storage...`);
     console.log(`📁 File path: ${filePath}`);

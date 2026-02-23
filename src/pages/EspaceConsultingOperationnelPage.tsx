@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { clearSession, getSession, login, me } from '../services/consultingOperationnelParticipantService';
 
 const EspaceConsultingOperationnelPage: React.FC = () => {
-  const navigate = useNavigate();
   const [participantId, setParticipantId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,14 +17,13 @@ const EspaceConsultingOperationnelPage: React.FC = () => {
       const ok = await me(session.token);
       setLoading(false);
       if (ok) {
-        navigate('/espace-consulting-operationnel/templates');
         return;
       }
       clearSession();
     };
 
     void verify();
-  }, [navigate]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +32,6 @@ const EspaceConsultingOperationnelPage: React.FC = () => {
 
     try {
       await login({ participantId, password });
-      navigate('/espace-consulting-operationnel/templates');
     } catch {
       setError('Identifiant ou mot de passe incorrect.');
     } finally {
@@ -46,9 +43,17 @@ const EspaceConsultingOperationnelPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl">
         <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-6 sm:p-10">
+          <div className="flex justify-start mb-6">
+            <Link
+              to="/"
+              className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+            >
+              Retour à l’accueil
+            </Link>
+          </div>
           <div className="text-center">
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Accès Participant (Service 2)</div>
-            <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">Accès à l’espace Consulting Opérationnel</h1>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">Service 2 — Espace de mission professionnelle</h1>
           </div>
 
           <div className="mt-6">

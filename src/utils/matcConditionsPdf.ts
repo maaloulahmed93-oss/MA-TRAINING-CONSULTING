@@ -248,7 +248,7 @@ const buildMatcConditionsPdf = (): Uint8Array => {
     { text: "- respecter le cadre et les consignes du dispositif", font: "F1", size: 11 },
     { text: "- accepter les analyses, avis et orientations fournis", font: "F1", size: 11 },
     { text: "- comprendre que le service repose sur l'analyse et non sur la complaisance", font: "F1", size: 11 },
-    { text: "Le refus d'appliquer les recommandations ou de respecter le cadre ne peut engager la responsabilite de MA Consulting.", font: "F1", size: 11 },
+    { text: "Le refus d'appliquer les recommandations ou de respecter le cadre ne peut engager la responsabilite de MA-TRAINING-CONSULTING.", font: "F1", size: 11 },
     { text: "", font: "F1", size: 11 },
 
     { text: "7. Documents professionnels", font: "F2", size: 12 },

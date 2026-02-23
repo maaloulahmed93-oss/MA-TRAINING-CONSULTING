@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, LogOut, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../../config/api';
 
 const ParticipantSpace = () => {
   const [session, setSession] = useState<any>(null);
@@ -73,8 +75,7 @@ const ParticipantSpace = () => {
 
   const getRestitutionUrl = async (participantId: string): Promise<string> => {
     try {
-      const API_BASE = process.env.REACT_APP_API_URL || 'https://matc-backend.onrender.com/api';
-      const response = await fetch(`${API_BASE}/participants-simple/${participantId}`);
+      const response = await fetch(`${API_BASE_URL}/participants-simple/${participantId}`);
       const result = await response.json();
       if (result.success && result.data?.documentLink) {
         return result.data.documentLink;
@@ -160,7 +161,15 @@ const ParticipantSpace = () => {
               {/* Left Side - Login Form */}
               <div className="w-full lg:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative">
                 <div className="mb-6 sm:mb-8">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Bonjour!</h1>
+                  <div className="flex justify-start mb-4">
+                    <Link
+                      to="/"
+                      className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+                    >
+                      Retour à l’accueil
+                    </Link>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Espace d’analyse &amp; recommandations avancées</h1>
                   <p className="text-sm sm:text-base text-gray-600">Connectez-vous à votre compte</p>
                 </div>
 
@@ -248,7 +257,7 @@ const ParticipantSpace = () => {
                 <div className="relative z-10 text-center">
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Bienvenue!</h2>
                   <p className="text-base sm:text-lg text-blue-100 leading-relaxed max-w-md mx-auto px-2">
-                    Accédez à votre espace opérationnel.
+                    Accédez à votre espace d’analyse et de recommandations.
                   </p>
                 </div>
               </div>
@@ -261,6 +270,14 @@ const ParticipantSpace = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="fixed top-4 left-4">
+        <Link
+          to="/"
+          className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+        >
+          Retour à l’accueil
+        </Link>
+      </div>
       <div className="fixed top-4 right-4">
         <button
           onClick={handleLogout}
@@ -273,12 +290,16 @@ const ParticipantSpace = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="mb-6">
+          <div className="text-gray-900 font-semibold text-2xl">Espace d’analyse &amp; recommandations avancées</div>
+          <div className="text-gray-500 text-sm mt-1">Accès restreint par mot de passe</div>
+        </div>
         {postLoginView === 'list' && (
           <div>
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-gray-900 font-semibold text-xl">Liste des participants</div>
-                <div className="text-gray-500 text-sm mt-1">Accès restreint par mot de passe</div>
+                <div className="text-gray-500 text-sm mt-1">Sélectionnez un participant pour accéder à la restitution.</div>
               </div>
             </div>
 

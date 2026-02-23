@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ESPACE_RESSOURCES_ITEMS } from "../data/espaceRessourcesData";
 
 const EspaceRessourceDetailPage: React.FC = () => {
@@ -58,6 +58,14 @@ const EspaceRessourceDetailPage: React.FC = () => {
       <div className="container mx-auto px-6 py-10">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
+            <div className="flex justify-start mb-4">
+              <Link
+                to="/"
+                className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+              >
+                Retour à l’accueil
+              </Link>
+            </div>
             <div className="flex items-center justify-between gap-4">
               <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
                 {title}
@@ -73,24 +81,24 @@ const EspaceRessourceDetailPage: React.FC = () => {
 
             <div className="mt-6 space-y-4">
               <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
-                <div className="text-base font-bold text-gray-900">عنوان</div>
+                <div className="text-base font-bold text-gray-900">Titre</div>
                 <button
                   type="button"
                   onClick={() => {}}
                   className="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
                 >
-                  زر
+                  Action
                 </button>
               </div>
 
               <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
-                <div className="text-base font-bold text-gray-900">عنوان</div>
+                <div className="text-base font-bold text-gray-900">Titre</div>
                 <button
                   type="button"
                   onClick={() => {}}
                   className="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
                 >
-                  زر
+                  Action
                 </button>
               </div>
             </div>

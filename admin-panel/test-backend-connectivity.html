@@ -273,10 +273,6 @@
             return await makeApiCall('/categories', 'Categories API');
         }
         
-        async function testRegistrations() {
-            return await makeApiCall('/registrations', 'Registrations API');
-        }
-        
         async function testParticipants() {
             return await makeApiCall('/participants', 'Participants API');
         }
@@ -291,7 +287,6 @@
                 { name: 'Backend Health', func: testBackendHealth },
                 { name: 'Programs API', func: testPrograms },
                 { name: 'Categories API', func: testCategories },
-                { name: 'Registrations API', func: testRegistrations },
                 { name: 'Participants API', func: testParticipants }
             ];
             

@@ -13,6 +13,9 @@ export const ROUTES = {
   // Professional Diagnostic
   DIAGNOSTIC_SESSIONS: '/diagnostic-sessions',
   DIAGNOSTIC_SESSION_DETAIL: '/diagnostic-sessions/:id',
+  DIAGNOSTIC_SESSION_EXPERT_HANDOVER: '/diagnostic-sessions/:id/expert-handover',
+  DIAGNOSTIC_EXPERT_HANDOVER_S1: '/expert-handover-s1',
+  DIAGNOSTIC_QUESTIONS: '/diagnostic-questions',
   
   // Content Management
   CATEGORIES: '/categories',
@@ -24,11 +27,10 @@ export const ROUTES = {
   EVENTS: '/events',
   PARTNER_TESTIMONIALS: '/partner-testimonials',
   ETRAINING_TESTIMONIALS: '/e-training-testimonials',
+  ETRAINING_PRICING: '/e-training-pricing',
   
   // User Management
   USERS: '/users',
-  ESPACE_PRO_ACCOUNTS: '/espace-pro-accounts',
-  ESPACE_PRO_EXPERT_PANEL: '/espace-pro-expert',
   PARTICIPATION_VERIFICATIONS: '/participation-verifications',
   
   // Partners & Freelancers
@@ -43,9 +45,6 @@ export const ROUTES = {
   ABOUT_SECTION: '/static-pages/about',
   CONTACT_SECTION: '/static-pages/contact',
 
-  // Registrations list (new)
-  REGISTRATIONS: '/registrations',
-
   // Newsletter subscribers (new)
   NEWSLETTER: '/newsletter',
   // Admin Notifications
@@ -56,6 +55,10 @@ export const ROUTES = {
 
   // Consulting Opérationnel (Service 2)
   CONSULTING_OPERATIONNEL_ACCOUNTS: '/consulting-operationnel-accounts',
+
+  // Service 2 (Async)
+  SERVICE2_EXAMS: '/service2/exams',
+  SERVICE2_FINISH_SLOTS: '/service2/finish-slots',
   
   // Site Settings
   SETTINGS: '/settings',
@@ -89,6 +92,16 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'DocumentTextIcon',
   },
   {
+    name: 'Expert Handover (S1)',
+    href: ROUTES.DIAGNOSTIC_EXPERT_HANDOVER_S1,
+    icon: 'WrenchScrewdriverIcon',
+  },
+  {
+    name: 'Diagnostic Questions',
+    href: ROUTES.DIAGNOSTIC_QUESTIONS,
+    icon: 'DocumentTextIcon',
+  },
+  {
     name: 'Catégories',
     href: ROUTES.CATEGORIES,
     icon: 'CubeIcon',
@@ -97,6 +110,11 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     name: 'Témoignages E-Training',
     href: ROUTES.ETRAINING_TESTIMONIALS,
     icon: 'ChatBubbleLeftRightIcon',
+  },
+  {
+    name: 'Prix E-Training',
+    href: ROUTES.ETRAINING_PRICING,
+    icon: 'BanknotesIcon',
   },
   {
     name: 'Témoignages Partenaires',
@@ -114,34 +132,24 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'UsersIcon',
   },
   {
-    name: 'Comptes Espace Pro',
-    href: ROUTES.ESPACE_PRO_ACCOUNTS,
-    icon: 'UserGroupIcon',
-  },
-  {
-    name: 'Expert Panel (Espace Pro)',
-    href: ROUTES.ESPACE_PRO_EXPERT_PANEL,
-    icon: 'WrenchScrewdriverIcon',
-  },
-  {
     name: 'Vérification de participation',
     href: ROUTES.PARTICIPATION_VERIFICATIONS,
     icon: 'DocumentTextIcon',
   },
   {
-    name: 'Comptes Consulting Opérationnel (S2)',
-    href: ROUTES.CONSULTING_OPERATIONNEL_ACCOUNTS,
-    icon: 'UsersIcon',
+    name: 'Service 2 — Missions',
+    href: ROUTES.SERVICE2_EXAMS,
+    icon: 'DocumentTextIcon',
+    children: [
+      { name: 'Exams', href: ROUTES.SERVICE2_EXAMS },
+      { name: 'Finish Slots', href: ROUTES.SERVICE2_FINISH_SLOTS },
+      { name: 'Comptes S2', href: ROUTES.CONSULTING_OPERATIONNEL_ACCOUNTS },
+    ],
   },
   {
     name: 'Gestion des Participants',
     href: ROUTES.PARTICIPANTS_MANAGEMENT,
     icon: 'UsersIcon',
-  },
-  {
-    name: "Liste d'inscriptions",
-    href: ROUTES.REGISTRATIONS,
-    icon: 'DocumentTextIcon',
   },
   {
     name: 'Newsletter',

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   answersStorageKeyForParticipant,
   clearSession,
@@ -192,10 +192,21 @@ const ConsultingOperationnelRecapPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 py-10">
       <div className="mx-auto w-full max-w-4xl">
         <div className="mb-6 rounded-2xl bg-white/80 backdrop-blur shadow-sm ring-1 ring-slate-200 p-6">
-          <div className="text-center">
-            <div className="text-sm font-semibold text-slate-600">Récapitulatif — Service 2</div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-bold text-slate-900">Consulting Opérationnel</h1>
-            <div className="mt-2 text-xs text-slate-500">Toutes vos réponses (dans l’ordre)</div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex justify-start">
+              <Link
+                to="/"
+                className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+              >
+                Retour à l’accueil
+              </Link>
+            </div>
+
+            <div className="text-center flex-1">
+              <div className="text-sm font-semibold text-slate-600">Récapitulatif — Service 2</div>
+              <h1 className="mt-1 text-2xl sm:text-3xl font-bold text-slate-900">Service 2 — Espace de mission professionnelle</h1>
+              <div className="mt-2 text-xs text-slate-500">Toutes vos réponses (dans l’ordre)</div>
+            </div>
           </div>
         </div>
 
@@ -224,7 +235,7 @@ const ConsultingOperationnelRecapPage: React.FC = () => {
           <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
-              onClick={() => navigate('/espace-consulting-operationnel/templates')}
+              onClick={() => navigate('/service-2/mission')}
               className="w-full sm:w-auto rounded-xl bg-white px-5 py-3 text-slate-900 font-semibold ring-1 ring-slate-200 hover:bg-slate-50"
             >
               Retour

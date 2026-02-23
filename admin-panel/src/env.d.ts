@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare module 'remark-gfm';
+
 interface ImportMetaEnv {
   readonly VITE_ADMIN_EMAIL: string;
   readonly VITE_ADMIN_PASSWORD: string;

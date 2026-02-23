@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, Link2 } from "lucide-react";
 import { ESPACE_RESSOURCES_ITEMS } from "../data/espaceRessourcesData";
 
@@ -23,19 +23,27 @@ const EspaceRessourcesGratuitesPage: React.FC = () => {
       <div className="container mx-auto px-6 py-10">
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
+            <div className="flex justify-start mb-4">
+              <Link
+                to="/"
+                className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+              >
+                Retour à l’accueil
+              </Link>
+            </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-              Espace Ressources – Orientation & Compréhension Métier
+              Espace Ressources &amp; Recommandations professionnelles – Orientation &amp; Compréhension Métier
             </h1>
             <p className="mt-3 text-gray-700">
-              وضعيات، مفاهيم، ونصائح مهنية
+              Situations, repères et recommandations professionnelles
               <br />
-              لمساعدتك على الفهم واتخاذ القرار — مش للتعلّم النظري.
+              pour comprendre et décider — sans entrer dans une logique de formation académique.
             </p>
             <p className="mt-4 text-gray-700">
-              هذا الفضاء يجمع موارد مختارة تساعدك تفهم منطق المهن، الأدوار، والاختيارات
-              المهنية في سياق واقعي.
+              Cet espace regroupe des ressources sélectionnées pour mieux lire les enjeux métiers, les rôles,
+              et les choix professionnels dans un contexte concret.
               <br />
-              المحتوى توجيهي، غير تدريبي.
+              Le contenu est orienté décision et clarification, et ne constitue pas une formation.
             </p>
           </div>
 
@@ -74,8 +82,8 @@ const EspaceRessourcesGratuitesPage: React.FC = () => {
           </div>
 
           <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8 text-sm text-gray-600">
-            هذه الموارد لا تُعتبر تكوينًا أو تدريبًا، ولا تعوّض مرافقة مهنية فردية. هي فضاء
-            فهم وتوجيه عام.
+            Ces ressources ne constituent ni une formation, ni un entraînement, et ne remplacent pas un accompagnement
+            individuel. Elles offrent un cadre de compréhension et d’orientation.
           </div>
         </div>
       </div>

@@ -8,49 +8,23 @@ import {
 import Modal from "../components/common/Modal";
 import type {
   ConsultingOperationnelAccount,
-  ConsultingOperationnelSituation,
 } from "../types/consultingOperationnelAccount";
 import * as consultingOperationnelAccountsService from "../services/consultingOperationnelAccountsService";
+import { generateService2AccountReport, getService2AccountHistory } from "../services/service2ApiService";
 
 type AccountDraft = {
   id?: string;
   participantId: string;
   password: string;
   isActive: boolean;
-  firstName: string;
-  lastName: string;
-  email: string;
-  entreprise: string;
   notesAdmin: string;
-  situation: Required<ConsultingOperationnelSituation>;
-};
-
-const emptySituation: Required<ConsultingOperationnelSituation> = {
-  posteIntitule: "",
-  entrepriseSecteur: "",
-  element1: "",
-  element2: "",
-  difficulte1: "",
-  difficulte2: "",
-  demandeDirection: "",
-  session1DateTime: "",
-  session1VideoUrl: "",
-  session2DateTime: "",
-  session2VideoUrl: "",
-  session3DateTime: "",
-  session3VideoUrl: "",
 };
 
 const emptyDraft: AccountDraft = {
   participantId: "",
   password: "",
   isActive: true,
-  firstName: "",
-  lastName: "",
-  email: "",
-  entreprise: "",
   notesAdmin: "",
-  situation: emptySituation,
 };
 
 const ConsultingOperationnelAccountsPage: React.FC = () => {
@@ -61,6 +35,13 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<AccountDraft>(emptyDraft);
+
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reportData, setReportData] = useState<any>(null);
+  const [reportGenerating, setReportGenerating] = useState(false);
+  const [reportTarget, setReportTarget] = useState<ConsultingOperationnelAccount | null>(null);
 
   const refresh = async () => {
     setIsLoading(true);
@@ -107,26 +88,7 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
       participantId: account.participantId,
       password: "",
       isActive: account.isActive ?? true,
-      firstName: String(account.firstName ?? ""),
-      lastName: String(account.lastName ?? ""),
-      email: String(account.email ?? ""),
-      entreprise: String(account.entreprise ?? ""),
       notesAdmin: String(account.notesAdmin ?? ""),
-      situation: {
-        posteIntitule: String(account.situation?.posteIntitule ?? ""),
-        entrepriseSecteur: String(account.situation?.entrepriseSecteur ?? ""),
-        element1: String(account.situation?.element1 ?? ""),
-        element2: String(account.situation?.element2 ?? ""),
-        difficulte1: String(account.situation?.difficulte1 ?? ""),
-        difficulte2: String(account.situation?.difficulte2 ?? ""),
-        demandeDirection: String(account.situation?.demandeDirection ?? ""),
-        session1DateTime: String(account.situation?.session1DateTime ?? ""),
-        session1VideoUrl: String(account.situation?.session1VideoUrl ?? ""),
-        session2DateTime: String(account.situation?.session2DateTime ?? ""),
-        session2VideoUrl: String(account.situation?.session2VideoUrl ?? ""),
-        session3DateTime: String(account.situation?.session3DateTime ?? ""),
-        session3VideoUrl: String(account.situation?.session3VideoUrl ?? ""),
-      },
     });
     setIsModalOpen(true);
   };
@@ -136,6 +98,176 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
     setEditingId(null);
     setDraft(emptyDraft);
   };
+
+  const closeReportModal = () => {
+    setIsReportModalOpen(false);
+    setReportLoading(false);
+    setReportGenerating(false);
+    setReportError(null);
+    setReportData(null);
+    setReportTarget(null);
+  };
+
+  const openReport = async (account: ConsultingOperationnelAccount) => {
+    setIsReportModalOpen(true);
+    setReportTarget(account);
+    setReportError(null);
+    setReportData(null);
+
+    try {
+      setReportLoading(true);
+      const data = await getService2AccountHistory({ assignedAccountId: account.participantId });
+      setReportData(data);
+    } catch (err: any) {
+      setReportError(String(err?.message || "Erreur"));
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  const onGenerateFullReport = async () => {
+    if (!reportTarget) return;
+    try {
+      setReportGenerating(true);
+      setReportError(null);
+      await generateService2AccountReport({ assignedAccountId: reportTarget.participantId });
+      const data = await getService2AccountHistory({ assignedAccountId: reportTarget.participantId });
+      setReportData(data);
+    } catch (err: any) {
+      setReportError(String(err?.message || "Erreur"));
+    } finally {
+      setReportGenerating(false);
+    }
+  };
+
+  const formatAiText = (ai: any): string => {
+    if (!ai || typeof ai !== 'object') return '';
+
+    const lines: string[] = [];
+    if (typeof ai.score !== 'undefined') lines.push(`Score: ${String(ai.score)}`);
+    if (ai.summary) lines.push(`Résumé: ${String(ai.summary)}`);
+
+    if (Array.isArray(ai.warnings) && ai.warnings.length > 0) {
+      lines.push('Avertissements:');
+      for (const w of ai.warnings) lines.push(`- ${String(w)}`);
+    }
+
+    if (Array.isArray(ai.tips) && ai.tips.length > 0) {
+      lines.push('Conseils:');
+      for (const t of ai.tips) lines.push(`- ${String(t)}`);
+    }
+
+    if (Array.isArray(ai.constraintViolations) && ai.constraintViolations.length > 0) {
+      lines.push('Violations contraintes:');
+      for (const v of ai.constraintViolations) {
+        const c = v?.constraint ? String(v.constraint) : '';
+        const r = v?.reason ? String(v.reason) : '';
+        lines.push(`- ${c}${r ? ` — ${r}` : ''}`.trim());
+      }
+    }
+
+    if (Array.isArray(ai.successCriteria) && ai.successCriteria.length > 0) {
+      lines.push('Critères de succès:');
+      for (const sc of ai.successCriteria) {
+        const crit = sc?.criterion ? String(sc.criterion) : '';
+        const met = typeof sc?.met === 'boolean' ? (sc.met ? 'OK' : 'Non') : '';
+        const r = sc?.reason ? String(sc.reason) : '';
+        const head = [crit, met].filter(Boolean).join(' — ');
+        lines.push(`- ${head}${r ? ` : ${r}` : ''}`.trim());
+      }
+    }
+
+    if (Array.isArray(ai.strengths) && ai.strengths.length > 0) {
+      lines.push('Points forts:');
+      for (const x of ai.strengths) lines.push(`- ${String(x)}`);
+    }
+
+    if (Array.isArray(ai.weaknesses) && ai.weaknesses.length > 0) {
+      lines.push('Points faibles:');
+      for (const x of ai.weaknesses) lines.push(`- ${String(x)}`);
+    }
+
+    if (Array.isArray(ai.recommendations) && ai.recommendations.length > 0) {
+      lines.push('Recommandations:');
+      for (const x of ai.recommendations) lines.push(`- ${String(x)}`);
+    }
+
+    return lines.join('\n');
+  };
+
+  const exportText = useMemo(() => {
+    if (!reportData) return "";
+
+    const lines: string[] = [];
+
+    lines.push(`Compte: ${String(reportData?.account?.participantId || "")}`);
+    lines.push(`Examen: ${String(reportData?.exam?.title || "")}`);
+    lines.push('');
+
+    if (Array.isArray(reportData?.submissions) && reportData.submissions.length > 0) {
+      lines.push('Soumissions (réponses du participant):');
+      for (const s of reportData.submissions) {
+        lines.push('');
+        lines.push(`Tâche: ${String(s?.taskId || 'main')} (tentative ${String(s?.attempt || 1)})`);
+        if (s?.createdAt) lines.push(`Date: ${new Date(s.createdAt).toLocaleString()}`);
+        lines.push('');
+        lines.push('Réponse du participant:');
+        lines.push(String(s?.submissionText || ''));
+        lines.push('');
+        lines.push('Analyse de l’IA:');
+        lines.push(formatAiText(s?.aiAnalysis) || '');
+      }
+      lines.push('');
+    }
+
+    if (reportData?.actionPlan?.tasks?.length) {
+      lines.push("Plan d'action (feedback IA):");
+      for (const t of reportData.actionPlan.tasks) {
+        lines.push('');
+        lines.push(`Tâche: ${String(t?.title || '')}`);
+        lines.push('Feedback de l’IA:');
+        lines.push(formatAiText(t?.aiFeedback) || '');
+      }
+      lines.push('');
+    }
+
+    const fr = reportData?.finalReport;
+    if (fr) {
+      lines.push('Feedback final:');
+      lines.push(`Score global: ${String(fr?.globalScore ?? '')}/100`);
+      lines.push(`Statut: ${String(fr?.status ?? '')}`);
+      if (fr?.message) lines.push(`Message: ${String(fr?.message ?? '')}`);
+      lines.push('');
+      if (fr?.reportText) {
+        lines.push('Résumé final:');
+        lines.push(String(fr.reportText));
+        lines.push('');
+      }
+      if (Array.isArray(fr?.strengths) && fr.strengths.length > 0) {
+        lines.push('Points forts:');
+        for (const x of fr.strengths) lines.push(`- ${String(x)}`);
+        lines.push('');
+      }
+      if (Array.isArray(fr?.weaknesses) && fr.weaknesses.length > 0) {
+        lines.push('Points faibles:');
+        for (const x of fr.weaknesses) lines.push(`- ${String(x)}`);
+        lines.push('');
+      }
+      if (Array.isArray(fr?.recommendations) && fr.recommendations.length > 0) {
+        lines.push('Recommandations:');
+        for (const x of fr.recommendations) lines.push(`- ${String(x)}`);
+        lines.push('');
+      }
+    }
+
+    if (reportData?.finalReport?.aiFullReportText) {
+      lines.push('Rapport complet (IA):');
+      lines.push(String(reportData.finalReport.aiFullReportText));
+      lines.push('');
+    }
+
+    return lines.join('\n');
+  }, [reportData]);
 
   const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,12 +282,7 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
         const payload: any = {
           participantId: draft.participantId.trim(),
           isActive: draft.isActive,
-          firstName: draft.firstName,
-          lastName: draft.lastName,
-          email: draft.email,
-          entreprise: draft.entreprise,
           notesAdmin: draft.notesAdmin,
-          situation: draft.situation,
         };
 
         if (draft.password.trim()) payload.password = draft.password;
@@ -171,12 +298,7 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
         await consultingOperationnelAccountsService.updateAccount(editingId, {
           participantId: draft.participantId.trim(),
           isActive: draft.isActive,
-          firstName: draft.firstName,
-          lastName: draft.lastName,
-          email: draft.email,
-          entreprise: draft.entreprise,
           notesAdmin: draft.notesAdmin,
-          situation: draft.situation,
           ...(draft.password.trim() ? { password: draft.password } : {}),
         });
       }
@@ -267,6 +389,13 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
                       <div className="inline-flex items-center gap-2">
                         <button
                           type="button"
+                          onClick={() => void openReport(a)}
+                          className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50"
+                        >
+                          Rapport
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => openEdit(a)}
                           className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
                         >
@@ -332,43 +461,6 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Entreprise (optionnel)</label>
-              <input
-                value={draft.entreprise}
-                onChange={(e) => setDraft((p) => ({ ...p, entreprise: e.target.value }))}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nom (optionnel)</label>
-              <input
-                value={draft.lastName}
-                onChange={(e) => setDraft((p) => ({ ...p, lastName: e.target.value }))}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Prénom (optionnel)</label>
-              <input
-                value={draft.firstName}
-                onChange={(e) => setDraft((p) => ({ ...p, firstName: e.target.value }))}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Email (optionnel)</label>
-              <input
-                value={draft.email}
-                onChange={(e) => setDraft((p) => ({ ...p, email: e.target.value }))}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                type="email"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700">Notes admin (optionnel)</label>
               <textarea
                 value={draft.notesAdmin}
@@ -376,203 +468,6 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
                 rows={3}
               />
-            </div>
-
-            <div className="sm:col-span-2">
-              <div className="mt-2 rounded-lg border border-gray-200 p-4">
-                <div className="text-sm font-semibold text-gray-900">Informations mission (situation)</div>
-
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Intitulé du poste</label>
-                    <input
-                      value={draft.situation.posteIntitule}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, posteIntitule: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Type d’entreprise / secteur</label>
-                    <input
-                      value={draft.situation.entrepriseSecteur}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, entrepriseSecteur: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Élément existant 1</label>
-                    <input
-                      value={draft.situation.element1}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, element1: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Élément existant 2</label>
-                    <input
-                      value={draft.situation.element2}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, element2: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Dysfonctionnement / difficulté constatée</label>
-                    <input
-                      value={draft.situation.difficulte1}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, difficulte1: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Manque de cohérence / duplication / résultats</label>
-                    <input
-                      value={draft.situation.difficulte2}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, difficulte2: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Demande générale de la direction</label>
-                    <textarea
-                      value={draft.situation.demandeDirection}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, demandeDirection: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      rows={2}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">SESSION 1 — Date et l’heure</label>
-                    <input
-                      value={draft.situation.session1DateTime}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, session1DateTime: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      placeholder="Ex: 30/12/2025 - 14:00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">SESSION 1 — URL vidéo</label>
-                    <input
-                      value={draft.situation.session1VideoUrl}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, session1VideoUrl: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">SESSION 2 — Date et l’heure</label>
-                    <input
-                      value={draft.situation.session2DateTime}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, session2DateTime: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      placeholder="Ex: 02/01/2026 - 10:00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">SESSION 2 — URL vidéo</label>
-                    <input
-                      value={draft.situation.session2VideoUrl}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, session2VideoUrl: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">SESSION 3 — Date et l’heure</label>
-                    <input
-                      value={draft.situation.session3DateTime}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, session3DateTime: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      placeholder="Ex: 09/01/2026 - 16:00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">SESSION 3 — URL vidéo</label>
-                    <input
-                      value={draft.situation.session3VideoUrl}
-                      onChange={(e) =>
-                        setDraft((p) => ({
-                          ...p,
-                          situation: { ...p.situation, session3VideoUrl: e.target.value },
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                      placeholder="https://..."
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -585,6 +480,193 @@ const ConsultingOperationnelAccountsPage: React.FC = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={isReportModalOpen}
+        onClose={closeReportModal}
+        title={reportTarget ? `Rapport — ${reportTarget.participantId}` : 'Rapport'}
+      >
+        <div className="space-y-4">
+          {reportError && (
+            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">{reportError}</div>
+          )}
+
+          {reportLoading ? (
+            <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-700 ring-1 ring-gray-200">Chargement...</div>
+          ) : reportData ? (
+            <>
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                <div className="text-sm text-gray-700">
+                  <div className="font-semibold text-gray-900">Exam</div>
+                  <div className="mt-1">{reportData?.exam?.title || '—'}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onGenerateFullReport}
+                  disabled={reportGenerating}
+                  className="rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {reportGenerating ? 'Génération...' : 'Générer rapport complet'}
+                </button>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 p-4 space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="text-sm font-semibold text-gray-900">Export complet (sans manques)</div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(exportText || '');
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                  >
+                    Copier
+                  </button>
+                </div>
+                <div className="whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-80 overflow-auto">
+                  {exportText || ''}
+                </div>
+              </div>
+
+              {reportData?.finalReport && (
+                <div className="rounded-lg border border-gray-200 p-4 space-y-2">
+                  <div className="text-sm font-semibold text-gray-900">Feedback final (verdict)</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-800">
+                    <div>
+                      <div className="text-xs text-gray-500">Score</div>
+                      <div className="font-semibold">{String(reportData.finalReport.globalScore ?? '-')}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Statut</div>
+                      <div className="font-semibold">{String(reportData.finalReport.status ?? '-')}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Message</div>
+                      <div className="font-semibold">{String(reportData.finalReport.message ?? '-')}</div>
+                    </div>
+                  </div>
+                  {reportData.finalReport.reportText && (
+                    <div className="whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-60 overflow-auto">
+                      {String(reportData.finalReport.reportText)}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <div className="text-xs font-semibold text-gray-700">Points forts</div>
+                      <div className="mt-1 whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-40 overflow-auto">
+                        {(Array.isArray(reportData.finalReport.strengths) ? reportData.finalReport.strengths : []).map(String).join('\n')}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-700">Points faibles</div>
+                      <div className="mt-1 whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-40 overflow-auto">
+                        {(Array.isArray(reportData.finalReport.weaknesses) ? reportData.finalReport.weaknesses : []).map(String).join('\n')}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-700">Recommandations</div>
+                      <div className="mt-1 whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-40 overflow-auto">
+                        {(Array.isArray(reportData.finalReport.recommendations) ? reportData.finalReport.recommendations : []).map(String).join('\n')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="rounded-lg border border-gray-200 p-4 space-y-2">
+                <div className="text-sm font-semibold text-gray-900">Rapport complet (AI)</div>
+                <div className="text-xs text-gray-500">
+                  {reportData?.finalReport?.aiFullReportGeneratedAt
+                    ? `Généré le: ${new Date(reportData.finalReport.aiFullReportGeneratedAt).toLocaleString()}`
+                    : 'Pas encore généré'}
+                  {reportData?.finalReport?.aiFullReportModel ? ` — modèle: ${String(reportData.finalReport.aiFullReportModel)}` : ''}
+                </div>
+                {reportData?.finalReport?.aiFullReportText ? (
+                  <div className="whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-80 overflow-auto">
+                    {String(reportData.finalReport.aiFullReportText)}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600">Clique sur “Générer rapport complet” pour le créer.</div>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+                <div className="text-sm font-semibold text-gray-900">Soumissions & Analyses</div>
+                {Array.isArray(reportData?.submissions) && reportData.submissions.length > 0 ? (
+                  <div className="space-y-3">
+                    {reportData.submissions.map((s: any) => (
+                      <div key={s.id} className="rounded-md bg-white border border-gray-200 p-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <div className="text-sm font-semibold text-gray-900">
+                            {String(s.taskId || 'main')} — tentative {String(s.attempt || 1)}
+                          </div>
+                          <div className="text-xs text-gray-500">{s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}</div>
+                        </div>
+
+                        <details className="mt-2">
+                          <summary className="cursor-pointer text-sm text-blue-700">Voir la réponse du participant</summary>
+                          <div className="mt-2 whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-60 overflow-auto">
+                            {String(s.submissionText || '')}
+                          </div>
+                        </details>
+
+                        <details className="mt-2">
+                          <summary className="cursor-pointer text-sm text-blue-700">Voir l'analyse AI</summary>
+                          <div className="mt-2 whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-60 overflow-auto">
+                            {formatAiText(s.aiAnalysis) || ''}
+                          </div>
+                        </details>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600">Aucune soumission.</div>
+                )}
+              </div>
+
+              {reportData?.actionPlan && (
+                <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+                  <div className="text-sm font-semibold text-gray-900">Plan d'action (AI feedback seulement)</div>
+                  {Array.isArray(reportData.actionPlan.tasks) && reportData.actionPlan.tasks.length > 0 ? (
+                    <div className="space-y-3">
+                      {reportData.actionPlan.tasks.map((t: any) => (
+                        <div key={t.id} className="rounded-md bg-white border border-gray-200 p-3">
+                          <div className="text-sm font-semibold text-gray-900">{String(t.title || '')}</div>
+                          {t.aiFeedback ? (
+                            <div className="mt-2 whitespace-pre-wrap font-sans text-sm text-gray-800 bg-gray-50 rounded-md p-3 border border-gray-200 max-h-60 overflow-auto">
+                              {formatAiText(t.aiFeedback) || ''}
+                            </div>
+                          ) : (
+                            <div className="mt-2 text-sm text-gray-600">Pas d'analyse AI.</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">Aucune tâche.</div>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-sm text-gray-600">Sélectionne un compte.</div>
+          )}
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={closeReportModal}
+              className="rounded-md px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

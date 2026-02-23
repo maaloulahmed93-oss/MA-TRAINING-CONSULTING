@@ -144,12 +144,6 @@
                 <button onclick="testEndpoint('/partners', 'GET')">Test Partners Endpoint</button>
                 <div id="partners-result"></div>
             </div>
-            
-            <div class="endpoint-test">
-                <h3>GET /registrations</h3>
-                <button onclick="testEndpoint('/registrations', 'GET')">Test Registrations Endpoint</button>
-                <div id="registrations-result"></div>
-            </div>
 
             <div class="endpoint-test">
                 <h3>Backend Health Check</h3>
@@ -386,7 +380,6 @@
             const tests = [
                 { name: 'Programs', endpoint: '/programs' },
                 { name: 'Partners', endpoint: '/partners' },
-                { name: 'Registrations', endpoint: '/registrations' },
             ];
             
             const results = [];

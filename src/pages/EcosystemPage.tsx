@@ -3,7 +3,7 @@ import { motion, useReducedMotion, type Easing } from "framer-motion";
 import { ArrowLeft, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-type LangKey = "fr" | "en" | "ar";
+type LangKey = "fr" | "en";
 
 type SubSection = {
   title: string;
@@ -254,13 +254,22 @@ const openPrintWindow = (html: string) => {
 
 const EcosystemPage: React.FC = () => {
   const navigate = useNavigate();
-  const reduceMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion();
+
   const [lang, setLang] = useState<LangKey>("fr");
+
+  const whatsappLink = useMemo(() => {
+    const text =
+      "Je déclare avoir pris connaissance de la nature de l’activité et accepter l’ensemble des conditions sans réserve. Je souhaite m’inscrire au Service 1.";
+    return `https://wa.me/21644172284?text=${encodeURIComponent(text)}`;
+  }, []);
+
   const easeOut: Easing = [0.16, 1, 0.3, 1];
 
   const copy = useMemo(() => {
     const frSections: Section[] = [
       {
+        // ...
         id: "intro",
         title: "MA-TRAINING-CONSULTING",
         paragraphs: [
@@ -628,154 +637,6 @@ const EcosystemPage: React.FC = () => {
       },
     ];
 
-    const arSections: Section[] = [
-      {
-        id: "intro",
-        title: "MA-TRAINING-CONSULTING",
-        paragraphs: [
-          "نظام استشاري مهني مبني على التشخيص، والمحاكاة، والوثائق المهنية.",
-          "MA-TRAINING-CONSULTING ليست مركز تكوين، وليست منصة دورات، وليست برنامج وعود سريعة.",
-          "MA-TRAINING-CONSULTING هو نظام استشاري مهني مُهيكل هدفه مرافقة المشاركين لفهم موقعهم الحقيقي، واختبار قراراتهم داخل سياقات مهنية واقعية، وتثبيت تموضعهم عبر وثائق مهنية عالية القيمة.",
-        ],
-      },
-      {
-        id: "philosophy",
-        title: "فلسفة MA-TRAINING-CONSULTING",
-        bullets: ["لا تعلّم دون تشخيص", "لا تقييم مبني على الرأي", "لا شهادات رمزية"],
-      },
-      {
-        id: "deliverables",
-        title: "كل مخرج (Deliverable) داخل النظام يكون",
-        bullets: ["مبنياً على تحليل واقعي", "مُثبتاً عبر وضعيات أو مهام مهنية", "مُوثقاً كتابياً داخل وثائق مهنية"],
-      },
-      {
-        id: "pathway",
-        title: "المسار المهني",
-        subSections: [
-          {
-            title: "التشخيص العام (مجاني)",
-            paragraphs: ["تحليل أولي لتقييم:"],
-            bullets: ["المستوى العام", "منطق التفكير", "مدى الأهلية للانضمام للمسار"],
-            deliverablesTitle: "المخرج:",
-            deliverables: ["تقرير التشخيص الأولي (غير نهائي)"],
-          },
-          {
-            title: "الخدمة 1 — تشخيص استراتيجي وتموضع مهني",
-            paragraphs: ["تحليل معمّق لـ:"],
-            bullets: ["الوضع/الهيئة المهنية الحقيقية", "مستوى النضج في اتخاذ القرار", "الأدوار المهنية الممكنة بشكل واقعي"],
-            deliverablesTitle: "المخرجات:",
-            deliverables: ["تقرير تشخيص استراتيجي", "وثيقة تموضع مهني", "توجيه مهني مُعلَّل"],
-          },
-          {
-            title: "الخدمة 2 — مهام مهنية (حقيقية أو محاكاة)",
-            paragraphs: ["تطبيق عملي داخل سياقات واقعية عبر:"],
-            bullets: ["مهام مهنية أو محاكاة متقدمة", "قرارات بإشراف", "تقييم مباشر من خبراء"],
-            deliverablesTitle: "المخرجات:",
-            deliverables: ["تقارير مهام", "تحليل القرارات المتخذة", "تغذية راجعة مهنية مكتوبة"],
-          },
-          {
-            title: "الخدمة 3 — مرافقة تنفيذية (عند الحاجة)",
-            paragraphs: ["عندما يُظهر التقييم نقصاً في الأدوات أو المنهجية:"],
-            bullets: ["إعداد خطة تنفيذ", "إدخال أدوات واستراتيجيات جديدة", "تعلّم عبر الفعل لا عبر النظرية"],
-          },
-        ],
-      },
-      {
-        id: "docs",
-        title: "الوثائق المهنية: قلب النظام",
-        paragraphs: [
-          "لماذا الوثائق أساسية؟",
-          "لأن الشركات تعتمد على الأدلة لا على الخطابات. السيرة الذاتية وحدها غير كافية، والتموضع المهني يجب أن يُثبت.",
-        ],
-        subSections: [
-          {
-            title: "أنواع الوثائق",
-            bullets: [
-              "وثائق ببنية مشتركة: وثيقة تحليل مهني، تقرير مهمة، تحليل قرارات",
-              "وثائق مخصصة: المحتوى وعمق التحليل (وأحياناً العنوان) يختلف حسب كل مشارك",
-              "وثائق داخلية: للمشارك فقط (فهم طريقة عمله، تحديد حدوده، تحسين منطق القرار)",
-              "وثائق خارجية: قابلة للاستخدام مهنياً (CV، تطور مهني، ترشحات أو ترقيات)",
-            ],
-          },
-          {
-            title: "قيمة الوثائق للشركات",
-            bullets: ["فهم الملف الحقيقي", "تقييم القدرة على القرار والتنفيذ", "تقليل مخاطر التوظيف أو الترقية"],
-          },
-          {
-            title: "خيار مخصص للشركات",
-            paragraphs: [
-              "يمكن لأي شركة، وبموافقة المشارك، طلب تحليل مهني مفصل لدعم قرار توظيف أو ترقية.",
-            ],
-          },
-        ],
-      },
-      {
-        id: "faq",
-        title: "أسئلة شائعة (FAQ)",
-        faqs: [
-          { q: "هل MA-TRAINING-CONSULTING تكوين؟", a: "لا. هو نظام استشاري مهني." },
-          { q: "هل توجد شهادات؟", a: "لا. يتم تقديم وثائق تحليلية قابلة للاستغلال." },
-          { q: "هل تضمنون وظيفة؟", a: "لا. نحن نوضح التموضع ونقدّم أدلة، والسوق هو من يقرر." },
-          { q: "هل النظام مناسب للمبتدئين؟", a: "نعم، ولكن فقط بعد التشخيص." },
-          { q: "هل يمكن الدخول مباشرة للخدمة 2 أو 3؟", a: "لا. المسار تدريجي ومُهيكل." },
-          { q: "هل الوثائق نفسها للجميع؟", a: "لا. البنية مشتركة لكن المحتوى مُخصص." },
-          { q: "هل تفهم الشركات هذه الوثائق؟", a: "نعم لأنها مكتوبة بلغة مهنية وتحليلية." },
-        ],
-      },
-      {
-        id: "terms",
-        title: "الشروط العامة",
-        numbered: [
-          { title: "الفوترة", body: "عرض سعر قبل الدفع. فاتورة رسمية بعد الدفع (خدمة استشارية)." },
-          { title: "هيكلة المسار", body: "المسار مكوّن من 3 خدمات منفصلة زمنياً. المشاركة في خدمة لا تعني إكمال المسار." },
-          { title: "تسليم الوثائق", body: "كل خدمة تمنح فقط مخرجاتها وبونصاتها الخاصة." },
-          { title: "احترام التعليمات", body: "عدم احترام التعليمات يؤدي إلى إيقاف المسار. لا يوجد أي تعويض أو استرجاع." },
-          { title: "السرية", body: "ممنوع مشاركة الأنظمة أو الدعامات أو الوثائق الداخلية. فقط الوثائق الخارجية يمكن استعمالها علناً." },
-          { title: "عدم الاسترجاع", body: "لا يوجد استرجاع مهما كان السبب. كل دفع يعني قبولاً تاماً للشروط." },
-          { title: "الموضوعية والحياد", body: "الوثائق تُكتب دون مجاملة. لا يتم تعديل المحتوى لأسباب عاطفية أو شخصية." },
-          { title: "التحقق المهني", body: "نظام تحقق متاح للشركات. أي تزوير أو محاولة تلاعب تُعد مخالفة خطيرة." },
-          { title: "الولوج للخدمات", body: "لا يتم تقديم أي خدمة أو مخرج دون دفع كامل." },
-          { title: "النظام الداخلي", body: "أي إخلال يخول MA-TRAINING-CONSULTING اتخاذ القرار المناسب للمصلحة العامة." },
-        ],
-      },
-      {
-        id: "commitment",
-        title: "ملاحظة مهمة — التزام المشارك",
-        subSections: [
-          {
-            title: "تأكيد المشاركة",
-            paragraphs: [
-              "عند تأكيد المشاركة، يجب على المشارك تحميل هذا المستند وتوقيعه ثم إرساله عبر البريد الإلكتروني مع العبارة التالية:",
-              "«أصرّح بأنني اطلعت على طبيعة النشاط وأوافق على جميع الشروط دون تحفظ.»",
-            ],
-          },
-          {
-            title: "تأكيد الدفع",
-            paragraphs: [
-              "عند أي دفع (جزئي أو كلي)، يجب على المشارك إعلام MA-TRAINING-CONSULTING عبر البريد الإلكتروني، تحديد المبلغ، إرفاق وصل إن توفر، وذكر العبارة التالية صراحة:",
-              "«بعد اطلاعي على طبيعة النشاط، أؤكد مشاركتي وأصرّح بأنني قمت بإيداع جزء أو كل المبلغ المستحق.»",
-            ],
-          },
-          {
-            title: "الالتزام النهائي",
-            bullets: [
-              "الالتزام الصارم بالتعليمات",
-              "اتباع توجيهات فريق التنظيم وخبراء MA-TRAINING-CONSULTING",
-              "قبول الإطار المنهجي والقراري للنظام",
-            ],
-          },
-        ],
-      },
-      {
-        id: "conclusion",
-        title: "الخلاصة",
-        paragraphs: [
-          "MA-TRAINING-CONSULTING لا تبيع وعوداً ولا أوهاماً. بل تبني تحليلات وأدلة ووثائق مهنية موثوقة.",
-          "التموضع المهني لا يُعلن — بل يُثبت.",
-        ],
-      },
-    ];
-
     return {
       fr: {
         title: "MA-TRAINING-CONSULTING",
@@ -793,19 +654,11 @@ const EcosystemPage: React.FC = () => {
         downloadFilename: "MA-TRAINING-CONSULTING_System_EN.txt",
         sections: enSections,
       },
-      ar: {
-        title: "MA-TRAINING-CONSULTING",
-        subtitle: "نظام استشاري مهني مبني على التشخيص والمحاكاة والوثائق المهنية",
-        pdfLabel: "تحميل PDF",
-        downloadLabel: "تحميل",
-        downloadFilename: "MA-TRAINING-CONSULTING_System_AR.txt",
-        sections: arSections,
-      },
     };
   }, []);
 
-  const current = lang === "fr" ? copy.fr : lang === "en" ? copy.en : copy.ar;
-  const currentDir: "ltr" | "rtl" = lang === "ar" ? "rtl" : "ltr";
+  const current = lang === "fr" ? copy.fr : copy.en;
+  const currentDir: "ltr" | "rtl" = "ltr";
 
   const handleDownload = () => {
     const text = buildDownloadText(current.title, current.subtitle, current.sections);
@@ -825,24 +678,24 @@ const EcosystemPage: React.FC = () => {
 
   const containerVariants = useMemo(
     () =>
-      reduceMotion
+      prefersReducedMotion
         ? undefined
         : {
             hidden: { opacity: 0 },
             show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
           },
-    [reduceMotion]
+    [prefersReducedMotion]
   );
 
   const itemVariants = useMemo(
     () =>
-      reduceMotion
+      prefersReducedMotion
         ? undefined
         : {
             hidden: { opacity: 0, y: 12 },
             show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: easeOut } },
           },
-    [reduceMotion, easeOut]
+    [prefersReducedMotion, easeOut]
   );
 
   return (
@@ -862,14 +715,14 @@ const EcosystemPage: React.FC = () => {
               className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors font-semibold"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>{lang === "fr" ? "Retour" : lang === "en" ? "Back" : "رجوع"}</span>
+              <span>{lang === "fr" ? "Retour" : "Back"}</span>
             </button>
           </div>
 
           <div className="max-w-5xl mx-auto pt-10 pb-16 sm:pt-12 sm:pb-20 lg:pt-14 lg:pb-24">
             <motion.div
-              initial={reduceMotion ? false : "hidden"}
-              animate={reduceMotion ? "show" : "show"}
+              initial={prefersReducedMotion ? false : "hidden"}
+              animate="show"
               variants={containerVariants}
               className="relative rounded-[2.5rem] sm:rounded-[3rem] border border-white/60 bg-white/75 backdrop-blur-xl shadow-[0_34px_90px_-60px_rgba(15,23,42,0.45)] ring-1 ring-black/5 overflow-hidden"
             >
@@ -900,15 +753,6 @@ const EcosystemPage: React.FC = () => {
                           }`}
                         >
                           English
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setLang("ar")}
-                          className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-full transition-colors ${
-                            lang === "ar" ? "bg-slate-900 text-white" : "text-slate-700 hover:text-slate-900"
-                          }`}
-                        >
-                          العربية
                         </button>
                       </div>
                       <button
@@ -1028,13 +872,32 @@ const EcosystemPage: React.FC = () => {
                       )}
                     </motion.div>
                   ))}
-                </div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="rounded-3xl border border-emerald-200/60 bg-emerald-50/50 backdrop-blur-xl p-6 sm:p-8 shadow-[0_20px_60px_-46px_rgba(15,23,42,0.22)] ring-1 ring-black/5"
+                >
+                  <div className="space-y-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900">Confirmation finale</h2>
+                    <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
+                      Après lecture des conditions ci-dessus, vous pouvez confirmer votre accord et nous contacter directement via WhatsApp.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => window.open(whatsappLink, "_blank", "noopener,noreferrer")}
+                      className="w-full rounded-2xl bg-emerald-600 px-6 py-4 text-sm sm:text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"
+                    >
+                      J’ai lu les conditions et je les accepte — Me contacter sur WhatsApp
+                    </button>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

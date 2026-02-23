@@ -33,6 +33,19 @@ interface Category {
   isActive: boolean;
 }
 
+interface ETrainingPricingSettings {
+  totalPrice: number;
+  currency: string;
+  defaultDisplayCurrency?: string;
+  exchangeRates?: Record<string, number>;
+  service1Price: number;
+  service2Price: number;
+  service3Price: number;
+  service1Duration: string;
+  service2Duration: string;
+  service3Duration: string;
+}
+
 const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   const navigate = useNavigate();
   const [showUnifiedCatalogModal, setShowUnifiedCatalogModal] = useState(false);
@@ -42,7 +55,18 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   // State for dynamic data
   const [programs, setPrograms] = useState<Program[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [pricingSettings, setPricingSettings] = useState<ETrainingPricingSettings | null>(null);
+  const [displayCurrency, setDisplayCurrency] = useState<string>('EUR');
   const reduceMotion = useReducedMotion();
+
+  const allowedCurrencies = ['TND', 'EUR', 'USD', 'MAD', 'DZD'];
+  const fallbackRates: Record<string, number> = {
+    TND: 1,
+    EUR: 0.29,
+    USD: 0.31,
+    MAD: 3.1,
+    DZD: 43,
+  };
 
   const easeOut: Easing = [0.16, 1, 0.3, 1];
   const easeInOut: Easing = [0.65, 0, 0.35, 1];
@@ -182,6 +206,52 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
   }, []);
 
   useEffect(() => {
+    try {
+      if (typeof localStorage !== 'undefined' && displayCurrency) {
+        localStorage.setItem('e_training_display_currency', displayCurrency);
+      }
+    } catch {
+      // ignore
+    }
+  }, [displayCurrency]);
+
+  const formatCurrency = (value: number, currency: string) => {
+    const amount = Number.isFinite(Number(value)) ? Number(value) : 0;
+    const decimals = currency === 'EUR' || currency === 'USD' ? 2 : 0;
+    try {
+      return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }).format(amount);
+    } catch {
+      return `${amount.toLocaleString('fr-FR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })} ${currency}`;
+    }
+  };
+
+  const convertFromBase = (amount: number, fromCurrency: string, toCurrency: string) => {
+    const n = Number.isFinite(Number(amount)) ? Number(amount) : 0;
+    if (fromCurrency === toCurrency) return n;
+    const rates = pricingSettings?.exchangeRates || fallbackRates;
+    const rate = Number(rates[toCurrency]);
+    if (fromCurrency !== 'TND') return n;
+    if (!Number.isFinite(rate) || rate <= 0) return n;
+    return n * rate;
+  };
+
+  const formatPrice = (baseAmount: number) => {
+    const baseCurrency = pricingSettings?.currency ?? 'TND';
+    const candidate = displayCurrency || pricingSettings?.defaultDisplayCurrency || baseCurrency;
+    const target = allowedCurrencies.includes(candidate) ? candidate : baseCurrency;
+    const converted = convertFromBase(baseAmount, baseCurrency, target);
+    return formatCurrency(converted, target);
+  };
+
+  useEffect(() => {
     setTestimonialsPage(0);
   }, [testimonials.length]);
 
@@ -214,6 +284,36 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
         const categoriesJson = await categoriesResponse.json().catch(() => null);
         if (categoriesResponse.ok && categoriesJson?.success) {
           setCategories(Array.isArray(categoriesJson.data) ? categoriesJson.data : []);
+        }
+
+        try {
+          const pricingResponse = await fetch(`${API_BASE_URL}/e-training-pricing`);
+          const pricingJson = await pricingResponse.json().catch(() => null);
+          if (pricingResponse.ok && pricingJson?.success && pricingJson.data) {
+            const defaultCurrency = String(pricingJson.data.defaultDisplayCurrency ?? 'TND');
+            const storedCurrency =
+              typeof localStorage !== 'undefined' ? localStorage.getItem('e_training_display_currency') : null;
+            setPricingSettings({
+              totalPrice: Number(pricingJson.data.totalPrice ?? 1290),
+              currency: String(pricingJson.data.currency ?? 'TND'),
+              defaultDisplayCurrency: defaultCurrency,
+              exchangeRates:
+                pricingJson.data.exchangeRates && typeof pricingJson.data.exchangeRates === 'object'
+                  ? (pricingJson.data.exchangeRates as Record<string, number>)
+                  : undefined,
+              service1Price: Number(pricingJson.data.service1Price ?? 290),
+              service2Price: Number(pricingJson.data.service2Price ?? 590),
+              service3Price: Number(pricingJson.data.service3Price ?? 490),
+              service1Duration: String(pricingJson.data.service1Duration ?? '7–14 jours'),
+              service2Duration: String(pricingJson.data.service2Duration ?? '2–4 semaines'),
+              service3Duration: String(pricingJson.data.service3Duration ?? '2–6 semaines'),
+            });
+
+            const next = storedCurrency || defaultCurrency;
+            setDisplayCurrency(allowedCurrencies.includes(next) ? next : 'TND');
+          }
+        } catch (error) {
+          console.error('Error loading e-training pricing:', error);
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -1711,8 +1811,23 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     <div className="mt-2 text-xl sm:text-2xl font-semibold text-white tracking-tight">Prix du parcours (à partir de)</div>
                   </div>
                   <div className="text-white">
-                    <div className="text-2xl sm:text-3xl font-semibold">1 290 TND</div>
+                    <div className="text-2xl sm:text-3xl font-semibold">
+                      {formatPrice(pricingSettings?.totalPrice ?? 1290)}
+                    </div>
                     <div className="mt-1 text-xs text-white/70">Tarif indicatif • confirmé après diagnostic initial</div>
+                    <div className="mt-3">
+                      <select
+                        value={displayCurrency}
+                        onChange={(e) => setDisplayCurrency(e.target.value)}
+                        className="w-full sm:w-auto rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-xs sm:text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+                      >
+                        <option value="TND" className="text-slate-900">TND</option>
+                        <option value="EUR" className="text-slate-900">EUR</option>
+                        <option value="USD" className="text-slate-900">USD</option>
+                        <option value="MAD" className="text-slate-900">MAD</option>
+                        <option value="DZD" className="text-slate-900">DZD</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1741,12 +1856,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     <div className="mt-2 text-base font-semibold text-slate-900">Diagnostic stratégique &amp; orientation</div>
                     <p className="mt-3 text-sm text-slate-600 leading-relaxed">Analyse approfondie + décision structurée + livrables.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Durée : 7–14 jours</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">
+                        Durée : {pricingSettings?.service1Duration ?? '7–14 jours'}
+                      </span>
                       <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Niveau : Débutant → Expert</span>
                     </div>
                     <div className="mt-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-4">
                       <div className="text-xs font-semibold text-emerald-900">Prix (à partir de)</div>
-                      <div className="mt-1 text-sm font-semibold text-slate-900">290 TND</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">
+                        {formatPrice(pricingSettings?.service1Price ?? 290)}
+                      </div>
                       <div className="mt-1 text-xs text-slate-600">Confirmé après diagnostic initial.</div>
                     </div>
                     <button
@@ -1778,12 +1897,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     <div className="mt-2 text-base font-semibold text-slate-900">Missions professionnelles encadrées</div>
                     <p className="mt-3 text-sm text-slate-600 leading-relaxed">Missions réelles ou simulées, avec feedback d’expert.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Durée : 2–4 semaines</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">
+                        Durée : {pricingSettings?.service2Duration ?? '2–4 semaines'}
+                      </span>
                       <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Niveau : Intermédiaire → Expert</span>
                     </div>
                     <div className="mt-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/40 p-4">
                       <div className="text-xs font-semibold text-emerald-900">Prix (à partir de)</div>
-                      <div className="mt-1 text-sm font-semibold text-slate-900">590 TND</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">
+                        {formatPrice(pricingSettings?.service2Price ?? 590)}
+                      </div>
                       <div className="mt-1 text-xs text-slate-600">Confirmé après validation Service 1.</div>
                     </div>
                     <button
@@ -1815,12 +1938,16 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     <div className="mt-2 text-base font-semibold text-slate-900">Accompagnement opérationnel</div>
                     <p className="mt-3 text-sm text-slate-600 leading-relaxed">De la stratégie à l’exécution concrète, en sessions directes.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Durée : 2–6 semaines</span>
+                      <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">
+                        Durée : {pricingSettings?.service3Duration ?? '2–6 semaines'}
+                      </span>
                       <span className="inline-flex items-center rounded-full bg-slate-50/80 text-slate-900 border border-slate-200/70 px-3 py-1 text-xs font-semibold">Niveau : selon mission</span>
                     </div>
                     <div className="mt-4 rounded-2xl border border-purple-200/70 bg-purple-50/50 p-4">
                       <div className="text-xs font-semibold text-purple-900">Prix (à partir de)</div>
-                      <div className="mt-1 text-sm font-semibold text-slate-900">490 TND</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">
+                        {formatPrice(pricingSettings?.service3Price ?? 490)}
+                      </div>
                       <div className="mt-1 text-xs text-slate-600">Ajusté selon le nombre de sessions.</div>
                     </div>
                   </div>
@@ -2080,7 +2207,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                     <span className="text-xs sm:text-sm font-semibold text-indigo-800">Avant de commencer</span>
                   </div>
                   <p className="mt-3 text-xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
-                    <span className="block">L’écosystème MA Consulting</span>
+                    <span className="block">L’écosystème MA-TRAINING-CONSULTING</span>
                     <span className="block">repose aussi sur des experts terrain.</span>
                   </p>
                   <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
@@ -2146,7 +2273,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 shadow-sm ring-1 ring-black/5">
                 <Compass className="w-4 h-4 text-indigo-700" />
-                <span className="text-xs sm:text-sm font-semibold text-slate-700">🧭 منظومة MA Consulting الرقمية</span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">🧭 منظومة MA-TRAINING-CONSULTING الرقمية</span>
               </div>
 
               <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
@@ -2154,7 +2281,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
               </h2>
 
               <p className="mt-4 text-base sm:text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                MA Consulting s’appuie sur une منظومة رقمية مغلقة et organisée, construite autour du diagnostic, de l’accompagnement
+                MA-TRAINING-CONSULTING s’appuie sur une منظومة رقمية مغلقة et organisée, construite autour du diagnostic, de l’accompagnement
                 et de la vérification professionnelle — sans proposer de cours, de formation, ni de certifications éducatives.
               </p>
 
@@ -2165,7 +2292,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm sm:text-base font-semibold shadow-[0_14px_34px_-22px_rgba(79,70,229,0.65)] hover:shadow-[0_18px_46px_-24px_rgba(79,70,229,0.8)] transition-all duration-300"
                 >
                   <Users className="w-4 h-4" />
-                  <span>Espace Participant</span>
+                  <span>Espace d’analyse & recommandations avancées</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -2247,7 +2374,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                       <Users className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Espace Participant</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Espace d’analyse & recommandations avancées</h3>
                       <p className="text-sm font-semibold text-gray-700">Accès après acceptation en parcours (Service 1)</p>
                     </div>
                   </div>
@@ -2272,14 +2399,24 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                         <li>Construire une valeur présentable dans un cadre entreprise</li>
                       </ul>
                     </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Sorties</p>
+                      <ul className="mt-2 space-y-1">
+                        <li>Rapport préliminaire (PDF)</li>
+                        <li>Niveau estimé</li>
+                        <li>Orientation générale + suggestion de parcours</li>
+                      </ul>
+                    </div>
+                    <p className="pt-2 text-xs text-gray-600">
+                      Aucune documentation professionnelle validée n’est émise à cette étape.
+                    </p>
                     <div className="pt-2">
                       <button
-                        type="button"
                         onClick={openEspaceParticipant}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-emerald-900 font-semibold hover:bg-emerald-100 transition-colors"
                       >
                         <ArrowRight className="w-4 h-4" />
-                        <span>Accéder à l’espace participant</span>
+                        <span>Accéder à l’espace d’analyse & recommandations avancées</span>
                       </button>
                     </div>
                   </div>
@@ -2354,11 +2491,11 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 <div className="min-w-0">
                   <h3 className="text-xl font-bold">Gestion des documents professionnels</h3>
                   <p className="mt-2 text-white/90 leading-relaxed">
-                    Les documents peuvent être disponibles dans l’Espace Participant, vérifiables via l’Espace Vérification, ou envoyés par e-mail
+                    Les documents peuvent être disponibles dans l’Espace d’analyse & recommandations avancées, vérifiables via l’Espace Vérification, ou envoyés par e-mail
                     selon le type de document, la phase du parcours et l’objectif professionnel.
                   </p>
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-white/90">
-                    <div className="rounded-2xl bg-white/10 border border-white/10 p-4">Disponibles dans l’Espace Participant</div>
+                    <div className="rounded-2xl bg-white/10 border border-white/10 p-4">Disponibles dans l’Espace d’analyse & recommandations avancées</div>
                     <div className="rounded-2xl bg-white/10 border border-white/10 p-4">Vérifiables via code unique</div>
                     <div className="rounded-2xl bg-white/10 border border-white/10 p-4">Envoi possible par e-mail</div>
                   </div>
@@ -2369,8 +2506,8 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
             <div className="mt-10 max-w-4xl mx-auto rounded-3xl bg-slate-50 border border-slate-200/80 p-7 shadow-sm ring-1 ring-black/5">
               <h3 className="text-lg font-bold text-gray-900">Synthèse</h3>
               <p className="mt-2 text-gray-700 leading-relaxed">
-                MA Consulting fournit un système professionnel intégré : diagnostic, accompagnement et vérification.
-                La documentation est gérée via l’Espace Participant, l’Espace Vérification ou l’e-mail, sans cours, sans formation, et sans diplômes.
+                MA-TRAINING-CONSULTING fournit un système professionnel intégré : diagnostic, accompagnement et vérification.
+                La documentation est gérée via l’Espace d’analyse & recommandations avancées, l’Espace Vérification ou l’e-mail, sans cours, sans formation, et sans diplômes.
               </p>
             </div>
           </div>
@@ -2610,7 +2747,7 @@ const ETrainingPage: React.FC<ETrainingPageProps> = ({ onBack }) => {
                 Un espace professionnel pour penser et appliquer — pas pour former, ni exécuter
               </h2>
               <p className="text-base sm:text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed" dir="ltr">
-                Nous ne nous limitons pas au diagnostic ou à l’orientation. Après être passés par les services MA Consulting, les participants intègrent un écosystème professionnel fermé
+                Nous ne nous limitons pas au diagnostic ou à l’orientation. Après être passés par les services MA-TRAINING-CONSULTING, les participants intègrent un écosystème professionnel fermé
                 conçu pour simuler le réel métier sans le transformer en formation classique, ni en exploitation commerciale.
               </p>
             </div>

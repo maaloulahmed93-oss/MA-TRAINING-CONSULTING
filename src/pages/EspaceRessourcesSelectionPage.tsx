@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { validateEspaceRessourcesBonusCode } from "../services/espaceRessourcesAccessService";
 
 const BONUS_ACCESS_CODE_FALLBACK = "00000000";
@@ -60,11 +60,19 @@ const EspaceRessourcesSelectionPage: React.FC = () => {
       <div className="container mx-auto px-6 py-10">
         <div className="max-w-5xl mx-auto">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
+            <div className="flex justify-start mb-4">
+              <Link
+                to="/"
+                className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 ring-1 ring-slate-200"
+              >
+                Retour à l’accueil
+              </Link>
+            </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-              Choisissez votre espace de ressources
+              Espace Ressources &amp; Recommandations professionnelles
             </h1>
             <p className="mt-3 text-gray-700">
-              حسب نوع accès متاعك، تنجم تدخل مباشرة أو يتم توجيهك لطلب تفعيل الوصول.
+              Selon votre niveau d’accès, vous pouvez entrer directement ou être invité à activer votre accès.
             </p>
           </div>
 
@@ -77,15 +85,14 @@ const EspaceRessourcesSelectionPage: React.FC = () => {
                 Ressources gratuites
               </h2>
               <p className="mt-2 text-gray-700">
-                موارد معرفية عامة، تساعدك تفهم المفاهيم المهنية الأساسية وتطوّر طريقة التفكير
-                واتخاذ القرار.
+                Des ressources accessibles à tous, pour clarifier les fondamentaux et structurer votre prise de décision.
               </p>
 
               <div className="mt-4 space-y-2 text-gray-700">
-                <div>وضعيات مهنية قصيرة</div>
-                <div>أسئلة QCM مع تفسير</div>
-                <div>نصائح عامة للتوجيه المهني</div>
-                <div>توضيح فروقات بين أدوار ومسميات</div>
+                <div>Mises en situation professionnelles courtes</div>
+                <div>QCM avec explications</div>
+                <div>Conseils d’orientation professionnelle</div>
+                <div>Clarification des rôles et des intitulés</div>
               </div>
 
               <button
@@ -108,10 +115,10 @@ const EspaceRessourcesSelectionPage: React.FC = () => {
                 </span>
               </h2>
               <p className="mt-2 text-gray-700">
-                موارد مهنية متقدمة، مخصّصة حصريًا للمشاركين في خدمات MA Consulting المدفوعة.
+                Ressources avancées, réservées exclusivement aux participants des services MA-TRAINING-CONSULTING.
               </p>
               <p className="mt-3 text-sm text-gray-600">
-                يتطلب هذا الفضاء accès خاص مرتبط بالمشاركة في Service 1 و / أو Service 2.
+                Cet espace nécessite un accès spécifique, lié à la participation à Service 1 et/ou Service 2.
               </p>
 
               <button
@@ -139,7 +146,7 @@ const EspaceRessourcesSelectionPage: React.FC = () => {
                   />
                   {bonusCodeError && (
                     <div className="mt-2 text-sm text-red-700">
-                      Code d’accès غير صحيح.
+                      Code d’accès incorrect.
                     </div>
                   )}
                   <div className="mt-3 flex items-center gap-3">
@@ -168,13 +175,13 @@ const EspaceRessourcesSelectionPage: React.FC = () => {
               {bonusChecked && bonusDenied && (
                 <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-800">
                   <div className="mt-1">
-                    هذا الفضاء مخصّص للمشاركين في خدمات MA Consulting.
+                    Cet espace est réservé aux participants des services MA-TRAINING-CONSULTING.
                     <br />
-                    إذا رغبت في الوصول، يرجى الاطلاع على خدماتنا المهنية.
+                    Pour demander un accès, consultez nos services professionnels.
                   </div>
                   <button
                     type="button"
-                    onClick={() => navigate("/espace-professionnel")}
+                    onClick={() => navigate("/")}
                     className="mt-3 inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
                   >
                     Découvrir les services
@@ -185,8 +192,8 @@ const EspaceRessourcesSelectionPage: React.FC = () => {
           </div>
 
           <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 md:p-8 text-sm text-gray-600">
-            Ressources Bonus لا تُباع بشكل مستقل، ولا تُعتبر خدمة استشارية بحد ذاتها، بل
-            مرافقة معرفية مكمّلة لمسار مهني مدفوع.
+            Les Ressources Bonus ne sont pas vendues séparément et ne constituent pas un service de conseil à elles seules.
+            Elles s’inscrivent comme un accompagnement de contenu, en complément d’un parcours professionnel.
           </div>
         </div>
       </div>

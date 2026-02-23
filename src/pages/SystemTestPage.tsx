@@ -18,8 +18,8 @@ const SystemTestPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'diagnostic' | 'sync'>('diagnostic');
 
   const tabs = [
-    { id: 'diagnostic', label: 'تشخيص النظام', icon: Activity },
-    { id: 'sync', label: 'اختبار المزامنة', icon: BarChart3 }
+    { id: 'diagnostic', label: 'Diagnostic système', icon: Activity },
+    { id: 'sync', label: 'Test de synchronisation', icon: BarChart3 }
   ];
 
   return (
@@ -29,12 +29,12 @@ const SystemTestPage: React.FC = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">أداة اختبار النظام الشاملة</h1>
-              <p className="text-gray-600">تشخيص وإدارة جميع مكونات نظام MATC</p>
+              <h1 className="text-2xl font-bold text-gray-900">Outil de test système</h1>
+              <p className="text-gray-600">Diagnostic et contrôle des composants MATC</p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-500">
-                آخر تحديث: {new Date().toLocaleString()}
+                Dernière mise à jour: {new Date().toLocaleString()}
               </div>
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
@@ -103,15 +103,15 @@ const SyncTestPanel: React.FC = () => {
     setResults([]);
 
     try {
-      console.log('🚀 بدء اختبار المزامنة الشامل...');
+      console.log('🚀 Démarrage du test de synchronisation...');
       
       const testResults = [];
       
       // Test 1: Backend API Health
       testResults.push({
-        name: 'صحة الخادم الخلفي',
+        name: 'État du backend',
         status: 'running',
-        message: 'جاري اختبار الاتصال...'
+        message: 'Test de connexion...'
       });
       setResults([...testResults]);
 
@@ -122,18 +122,18 @@ const SyncTestPanel: React.FC = () => {
       });
 
       testResults[0] = {
-        name: 'صحة الخادم الخلفي',
+        name: 'État du backend',
         status: healthResponse.ok ? 'success' : 'error',
-        message: healthResponse.ok ? 'الخادم يعمل بشكل طبيعي' : `خطأ HTTP: ${healthResponse.status}`,
-        details: healthResponse.ok ? 'تم الاتصال بنجاح' : 'فشل في الاتصال'
+        message: healthResponse.ok ? 'Backend opérationnel' : `Erreur HTTP: ${healthResponse.status}`,
+        details: healthResponse.ok ? 'Connexion OK' : 'Connexion échouée'
       };
       setResults([...testResults]);
 
       // Test 2: Programs Sync
       testResults.push({
-        name: 'مزامنة البرامج',
+        name: 'Synchronisation des programmes',
         status: 'running',
-        message: 'جاري اختبار مزامنة البرامج...'
+        message: 'Test de synchronisation...'
       });
       setResults([...testResults]);
 
@@ -146,16 +146,16 @@ const SyncTestPanel: React.FC = () => {
       if (programsResponse.ok) {
         const programsData = await programsResponse.json();
         testResults[1] = {
-          name: 'مزامنة البرامج',
+          name: 'Synchronisation des programmes',
           status: 'success',
-          message: `تم العثور على ${programsData.data?.length || 0} برنامج`,
-          details: 'البرامج متزامنة بنجاح'
+          message: `${programsData.data?.length || 0} programme(s)`,
+          details: 'Synchronisation OK'
         };
       } else {
         testResults[1] = {
-          name: 'مزامنة البرامج',
+          name: 'Synchronisation des programmes',
           status: 'error',
-          message: 'فشل في جلب البرامج',
+          message: 'Échec de récupération',
           details: `HTTP ${programsResponse.status}`
         };
       }
@@ -163,9 +163,9 @@ const SyncTestPanel: React.FC = () => {
 
       // Test 3: Testimonials Sync
       testResults.push({
-        name: 'مزامنة الشهادات',
+        name: 'Synchronisation des témoignages',
         status: 'running',
-        message: 'جاري اختبار مزامنة الشهادات...'
+        message: 'Test de synchronisation...'
       });
       setResults([...testResults]);
 
@@ -178,16 +178,16 @@ const SyncTestPanel: React.FC = () => {
       if (testimonialsResponse.ok) {
         const testimonialsData = await testimonialsResponse.json();
         testResults[2] = {
-          name: 'مزامنة الشهادات',
+          name: 'Synchronisation des témoignages',
           status: 'success',
-          message: `تم العثور على ${testimonialsData.data?.length || 0} شهادة`,
-          details: 'الشهادات متزامنة بنجاح'
+          message: `${testimonialsData.data?.length || 0} témoignage(s)`,
+          details: 'Synchronisation OK'
         };
       } else {
         testResults[2] = {
-          name: 'مزامنة الشهادات',
+          name: 'Synchronisation des témoignages',
           status: 'error',
-          message: 'فشل في جلب الشهادات',
+          message: 'Échec de récupération',
           details: `HTTP ${testimonialsResponse.status}`
         };
       }
@@ -195,9 +195,9 @@ const SyncTestPanel: React.FC = () => {
 
       // Test 4: Events Sync
       testResults.push({
-        name: 'مزامنة الأحداث',
+        name: 'Synchronisation des événements',
         status: 'running',
-        message: 'جاري اختبار مزامنة الأحداث...'
+        message: 'Test de synchronisation...'
       });
       setResults([...testResults]);
 
@@ -210,16 +210,16 @@ const SyncTestPanel: React.FC = () => {
       if (eventsResponse.ok) {
         const eventsData = await eventsResponse.json();
         testResults[3] = {
-          name: 'مزامنة الأحداث',
+          name: 'Synchronisation des événements',
           status: 'success',
-          message: `تم العثور على ${eventsData.data?.length || 0} حدث`,
-          details: 'الأحداث متزامنة بنجاح'
+          message: `${eventsData.data?.length || 0} événement(s)`,
+          details: 'Synchronisation OK'
         };
       } else {
         testResults[3] = {
-          name: 'مزامنة الأحداث',
+          name: 'Synchronisation des événements',
           status: 'error',
-          message: 'فشل في جلب الأحداث',
+          message: 'Échec de récupération',
           details: `HTTP ${eventsResponse.status}`
         };
       }
@@ -227,9 +227,9 @@ const SyncTestPanel: React.FC = () => {
 
       // Test 5: Freelancer Offers Sync
       testResults.push({
-        name: 'مزامنة عروض المستقلين',
+        name: 'Synchronisation des offres freelances',
         status: 'running',
-        message: 'جاري اختبار مزامنة عروض المستقلين...'
+        message: 'Test de synchronisation...'
       });
       setResults([...testResults]);
 
@@ -242,25 +242,25 @@ const SyncTestPanel: React.FC = () => {
       if (freelancerOffersResponse.ok) {
         const freelancerOffersData = await freelancerOffersResponse.json();
         testResults[4] = {
-          name: 'مزامنة عروض المستقلين',
+          name: 'Synchronisation des offres freelances',
           status: 'success',
-          message: `تم العثور على ${freelancerOffersData.data?.length || 0} عرض مستقل`,
-          details: 'عروض المستقلين متزامنة بنجاح'
+          message: `${freelancerOffersData.data?.length || 0} offre(s)`,
+          details: 'Synchronisation OK'
         };
       } else {
         testResults[4] = {
-          name: 'مزامنة عروض المستقلين',
+          name: 'Synchronisation des offres freelances',
           status: 'error',
-          message: 'فشل في جلب عروض المستقلين',
+          message: 'Échec de récupération',
           details: `HTTP ${freelancerOffersResponse.status}`
         };
       }
       setResults([...testResults]);
 
-      console.log('✅ انتهى اختبار المزامنة');
+      console.log('✅ Test terminé');
 
     } catch (error) {
-      console.error('❌ خطأ في اختبار المزامنة:', error);
+      console.error('❌ Erreur pendant le test:', error);
     } finally {
       setIsRunning(false);
     }
@@ -300,8 +300,8 @@ const SyncTestPanel: React.FC = () => {
       <div className="bg-white rounded-xl shadow-lg p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">اختبار المزامنة الشامل</h2>
-            <p className="text-gray-600">اختبار مزامنة البيانات بين جميع مكونات النظام</p>
+            <h2 className="text-2xl font-semibold text-gray-900">Test de synchronisation</h2>
+            <p className="text-gray-600">Vérification des synchronisations entre composants</p>
           </div>
           <div className="flex items-center gap-4">
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -310,10 +310,10 @@ const SyncTestPanel: React.FC = () => {
               getOverallStatus() === 'error' ? 'bg-red-100 text-red-800' :
               'bg-gray-100 text-gray-800'
             }`}>
-              {getOverallStatus() === 'success' ? 'جميع الاختبارات نجحت' :
-               getOverallStatus() === 'warning' ? 'بعض الاختبارات فشلت' :
-               getOverallStatus() === 'error' ? 'الاختبارات فشلت' :
-               'لم يتم تشغيل الاختبارات'}
+              {getOverallStatus() === 'success' ? 'Tous les tests sont OK' :
+               getOverallStatus() === 'warning' ? 'Certains tests ont échoué' :
+               getOverallStatus() === 'error' ? 'Tests en échec' :
+               'Aucun test lancé'}
             </div>
             <button
               onClick={runSyncTest}
@@ -325,7 +325,7 @@ const SyncTestPanel: React.FC = () => {
               ) : (
                 <Play className="w-4 h-4 mr-2" />
               )}
-              {isRunning ? 'جاري الاختبار...' : 'تشغيل الاختبار'}
+              {isRunning ? 'Test en cours...' : 'Lancer le test'}
             </button>
           </div>
         </div>
@@ -334,7 +334,7 @@ const SyncTestPanel: React.FC = () => {
       {/* Results */}
       {results.length > 0 && (
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">نتائج الاختبار</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Résultats</h3>
           
           <div className="space-y-3">
             {results.map((result, index) => (
@@ -356,7 +356,7 @@ const SyncTestPanel: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-xs text-gray-500">
-                  {result.status === 'running' ? 'جاري...' : 'مكتمل'}
+                  {result.status === 'running' ? 'En cours...' : 'Terminé'}
                 </div>
               </motion.div>
             ))}
@@ -366,12 +366,12 @@ const SyncTestPanel: React.FC = () => {
 
       {/* System URLs */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">روابط النظام للاختبار</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Liens utiles</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 rounded-lg">
             <div className="flex items-center mb-2">
               <Settings className="w-5 h-5 text-blue-600 mr-2" />
-              <span className="font-medium text-gray-900">لوحة الإدارة</span>
+              <span className="font-medium text-gray-900">Admin</span>
             </div>
             <a 
               href="https://admine-lake.vercel.app" 
@@ -386,7 +386,7 @@ const SyncTestPanel: React.FC = () => {
           <div className="p-4 bg-green-50 rounded-lg">
             <div className="flex items-center mb-2">
               <Database className="w-5 h-5 text-green-600 mr-2" />
-              <span className="font-medium text-gray-900">الخادم الخلفي</span>
+              <span className="font-medium text-gray-900">Backend</span>
             </div>
             <a 
               href="https://matc-backend.onrender.com/api" 
@@ -401,7 +401,7 @@ const SyncTestPanel: React.FC = () => {
           <div className="p-4 bg-purple-50 rounded-lg">
             <div className="flex items-center mb-2">
               <Globe className="w-5 h-5 text-purple-600 mr-2" />
-              <span className="font-medium text-gray-900">الواجهة الأمامية</span>
+              <span className="font-medium text-gray-900">Frontend</span>
             </div>
             <a 
               href="https://matrainingconsulting.vercel.app" 

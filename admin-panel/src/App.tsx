@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Routes,
   Route,
@@ -6,6 +6,10 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ROUTES } from "./config/routes";
+
+// Demo Components
+import DemoTimer from "./components/DemoTimer";
+import DemoExpired from "./components/DemoExpired";
 
 // Layout Components
 import Layout from "./components/layout/Layout";
@@ -18,10 +22,7 @@ import ParticipantsManagementPage from './pages/ParticipantsManagementPage';
 import EventsPage from "./pages/EventsPage";
 import PartnerTestimonialsPage from "./pages/PartnerTestimonialsPage";
 import UsersPage from "./pages/UsersPage";
-import RegistrationsPage from "./pages/RegistrationsPage";
 import NewsletterPage from "./pages/NewsletterPage";
-import EspaceProAccountsPage from "./pages/EspaceProAccountsPage";
-import EspaceProExpertPanelPage from "./pages/EspaceProExpertPanelPage";
 import FinancePage from "./pages/FinancePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import DigitalizationServicesPage from "./pages/DigitalizationServicesPage";
@@ -36,9 +37,15 @@ import EspaceRessourcesSettingsPage from "./pages/EspaceRessourcesSettingsPage";
 import FacturationPage from "./pages/FacturationPage";
 import DiagnosticSessionsPage from "./pages/DiagnosticSessionsPage";
 import DiagnosticSessionDetailPage from "./pages/DiagnosticSessionDetailPage";
-import ConsultingOperationnelAccountsPage from "./pages/ConsultingOperationnelAccountsPage";
+import DiagnosticSessionExpertHandoverPage from "./pages/DiagnosticSessionExpertHandoverPage";
+import DiagnosticExpertHandoverS1Page from "./pages/DiagnosticExpertHandoverS1Page";
+import DiagnosticQuestionsPage from "./pages/DiagnosticQuestionsPage";
 import ETrainingTestimonialsPage from "./pages/ETrainingTestimonialsPage";
 import ParticipationVerificationsPage from "./pages/ParticipationVerificationsPage";
+import ETrainingPricingPage from "./pages/ETrainingPricingPage";
+import ConsultingOperationnelAccountsPage from "./pages/ConsultingOperationnelAccountsPage";
+import Service2ExamsPage from "./pages/Service2ExamsPage";
+import Service2FinishSlotsPage from "./pages/Service2FinishSlotsPage";
 
 console.log('🚀 MATC Admin Panel starting...');
 
@@ -55,17 +62,18 @@ const AppRoutes: React.FC = () => {
       {/* Protected Routes - All wrapped in Layout */}
       <Route path="/" element={<Layout><Dashboard /></Layout>} />
       <Route path={ROUTES.DIAGNOSTIC_SESSIONS} element={<Layout><DiagnosticSessionsPage /></Layout>} />
+      <Route path={ROUTES.DIAGNOSTIC_EXPERT_HANDOVER_S1} element={<Layout><DiagnosticExpertHandoverS1Page /></Layout>} />
       <Route path={ROUTES.DIAGNOSTIC_SESSION_DETAIL} element={<Layout><DiagnosticSessionDetailPage /></Layout>} />
+      <Route path={ROUTES.DIAGNOSTIC_SESSION_EXPERT_HANDOVER} element={<Layout><DiagnosticSessionExpertHandoverPage /></Layout>} />
+      <Route path={ROUTES.DIAGNOSTIC_QUESTIONS} element={<Layout><DiagnosticQuestionsPage /></Layout>} />
       <Route path={ROUTES.CATEGORIES} element={<Layout><CategoriesPage /></Layout>} />
       <Route path={ROUTES.PARTICIPANTS_MANAGEMENT} element={<Layout><ParticipantsManagementPage /></Layout>} />
       <Route path={ROUTES.ETRAINING_TESTIMONIALS} element={<Layout><ETrainingTestimonialsPage /></Layout>} />
+      <Route path={ROUTES.ETRAINING_PRICING} element={<Layout><ETrainingPricingPage /></Layout>} />
       <Route path={ROUTES.EVENTS} element={<Layout><EventsPage /></Layout>} />
       <Route path={ROUTES.PARTNER_TESTIMONIALS} element={<Layout><PartnerTestimonialsPage /></Layout>} />
       <Route path={ROUTES.USERS} element={<Layout><UsersPage /></Layout>} />
-      <Route path={ROUTES.REGISTRATIONS} element={<Layout><RegistrationsPage /></Layout>} />
       <Route path={ROUTES.NEWSLETTER} element={<Layout><NewsletterPage /></Layout>} />
-      <Route path={ROUTES.ESPACE_PRO_ACCOUNTS} element={<Layout><EspaceProAccountsPage /></Layout>} />
-      <Route path={ROUTES.ESPACE_PRO_EXPERT_PANEL} element={<Layout><EspaceProExpertPanelPage /></Layout>} />
       <Route path={ROUTES.PARTICIPATION_VERIFICATIONS} element={<Layout><ParticipationVerificationsPage /></Layout>} />
       <Route path={ROUTES.FINANCE} element={<Layout><FinancePage /></Layout>} />
       <Route path={ROUTES.NOTIFICATIONS} element={<Layout><NotificationsPage /></Layout>} />
@@ -80,6 +88,8 @@ const AppRoutes: React.FC = () => {
       <Route path={ROUTES.ESPACE_RESSOURCES_SETTINGS} element={<Layout><EspaceRessourcesSettingsPage /></Layout>} />
       <Route path={ROUTES.FACTURATION} element={<Layout><FacturationPage /></Layout>} />
       <Route path={ROUTES.CONSULTING_OPERATIONNEL_ACCOUNTS} element={<Layout><ConsultingOperationnelAccountsPage /></Layout>} />
+      <Route path={ROUTES.SERVICE2_EXAMS} element={<Layout><Service2ExamsPage /></Layout>} />
+      <Route path={ROUTES.SERVICE2_FINISH_SLOTS} element={<Layout><Service2FinishSlotsPage /></Layout>} />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -92,11 +102,24 @@ const AppRoutes: React.FC = () => {
  * Properly structured with AuthProvider wrapping the routes
  */
 const App: React.FC = () => {
+  const [isExpired, setIsExpired] = useState(false);
+
   console.log('✅ MATC Admin Panel loaded successfully');
-  
+
+  // Si la démo est expirée, afficher uniquement l'écran de blocage
+  if (isExpired) {
+    return (
+      <DemoExpired 
+        storageKey="admin_demo_start_time" 
+        onUnlock={() => setIsExpired(false)} 
+      />
+    );
+  }
+
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50">
+        <DemoTimer durationMinutes={45} onExpire={() => setIsExpired(true)} />
         <AppRoutes />
       </div>
     </AuthProvider>

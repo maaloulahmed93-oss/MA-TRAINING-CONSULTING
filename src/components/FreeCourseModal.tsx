@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowLeft, Clock, Play, CheckCircle, BookOpen, Star, Search, ChevronLeft, ChevronRight, Wifi, WifiOff, Mail, FileText } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
-import { API_BASE_URL } from '../config/api';
 import { Domain, Course, CourseModule } from '../types/courses';
 import { freeCoursesService } from '../services/freeCoursesService';
 
@@ -128,39 +127,10 @@ const FreeCourseModal: React.FC<FreeCourseModalProps> = ({ isOpen, onClose }) =>
 
     try {
       const domainTitle = getCurrentDomain()?.title;
-      const itemId = selectedDomain ? `parcours-complet-${selectedDomain}` : 'parcours-complet';
       const itemName = domainTitle ? `Parcours complet - ${domainTitle}` : 'Parcours complet';
-
-      const payload = {
-        type: 'pack',
-        itemId,
-        itemName,
-        price: null,
-        currency: '€',
-        user: {
-          firstName: registrationFirstName.trim(),
-          lastName: registrationLastName.trim(),
-          email: registrationEmail.trim().toLowerCase(),
-          whatsapp: registrationWhatsapp.trim(),
-          phone: registrationWhatsapp.trim(),
-          message: domainTitle ? `Inscription parcours complet après diagnostic: ${domainTitle}` : 'Inscription parcours complet après diagnostic'
-        }
-      };
-
-      const response = await fetch(`${API_BASE_URL}/registrations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok || !data?.success) {
-        const msg = data?.message || data?.error || `Erreur HTTP ${response.status}`;
-        throw new Error(msg);
-      }
+      const text = `Bonjour, je souhaite m'inscrire au ${itemName} après diagnostic.\nNom: ${registrationFirstName.trim()} ${registrationLastName.trim()}\nEmail: ${registrationEmail.trim().toLowerCase()}${registrationWhatsapp.trim() ? `\nWhatsApp: ${registrationWhatsapp.trim()}` : ''}`;
+      const url = `https://wa.me/21644172284?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
 
       setIsRegistrationSubmitted(true);
     } catch (err) {
